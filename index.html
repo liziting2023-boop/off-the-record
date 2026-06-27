@@ -6,1865 +6,748 @@
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #F7F3EE;
-    --warm-white: #FDFAF7;
-    --ink: #1C1A18;
-    --ink-light: #4A4540;
-    --ink-muted: #8A8078;
-    --gold: #C4A882;
-    --gold-light: #E8D9C4;
-    --rose: #C4847A;
-    --sage: #8A9E8C;
-    --night: #0F0E0C;
-    --night-warm: #1A1714;
-    --night-glow: #2A2520;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--night);
-    color: var(--cream);
-    font-family: 'Jost', sans-serif;
-    font-weight: 300;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── SCREEN SYSTEM ── */
-  .screen {
-    display: none;
-    min-height: 100vh;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
-    animation: fadeIn 0.8s ease;
-  }
-  .screen.active { display: flex; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeInSlow {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* ── TITLE SCREEN ── */
-  #screen-title {
-    background: var(--night);
-    position: relative;
-    overflow: hidden;
-  }
-
-  #screen-title::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at 50% 60%, rgba(196,168,130,0.08) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .title-eyebrow {
-    font-family: 'Jost', sans-serif;
-    font-size: 10px;
-    letter-spacing: 6px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    opacity: 0.7;
-  }
-
-  .title-main {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(52px, 10vw, 88px);
-    font-weight: 300;
-    font-style: italic;
-    line-height: 0.9;
-    letter-spacing: -1px;
-    color: var(--cream);
-    text-align: center;
-    margin-bottom: 32px;
-  }
-
-  .title-sub {
-    font-size: 12px;
-    letter-spacing: 3px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    margin-bottom: 64px;
-  }
-
-  .title-divider {
-    width: 40px;
-    height: 1px;
-    background: var(--gold);
-    margin: 0 auto 48px;
-    opacity: 0.5;
-  }
-
-  /* ── API KEY SCREEN ── */
-  #screen-apikey {
-    background: var(--night);
-  }
-
-  .apikey-box {
-    width: 100%;
-    max-width: 440px;
-    text-align: center;
-  }
-
-  .apikey-box h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 300;
-    font-style: italic;
-    color: var(--cream);
-    margin-bottom: 12px;
-  }
-
-  .apikey-box p {
-    font-size: 13px;
-    color: var(--ink-muted);
-    line-height: 1.8;
-    margin-bottom: 32px;
-  }
-
-  .apikey-box a { color: var(--gold); text-decoration: none; }
-
-  .input-field {
-    width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(196,168,130,0.2);
-    border-radius: 4px;
-    padding: 14px 16px;
-    color: var(--cream);
-    font-size: 13px;
-    font-family: monospace;
-    margin-bottom: 8px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .input-field:focus { border-color: rgba(196,168,130,0.5); }
-
-  .error-msg {
-    font-size: 12px;
-    color: var(--rose);
-    margin-bottom: 16px;
-    min-height: 18px;
-  }
-
-  /* ── BUTTONS ── */
-  .btn-primary {
-    background: var(--gold);
-    border: none;
-    border-radius: 2px;
-    padding: 14px 40px;
-    color: var(--night);
-    font-family: 'Jost', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: inline-block;
-  }
-  .btn-primary:hover {
-    background: var(--cream);
-    transform: translateY(-1px);
-  }
-
-  .btn-ghost {
-    background: transparent;
-    border: 1px solid rgba(196,168,130,0.3);
-    border-radius: 2px;
-    padding: 12px 32px;
-    color: var(--gold);
-    font-family: 'Jost', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.25s;
-    display: inline-block;
-  }
-  .btn-ghost:hover {
-    border-color: var(--gold);
-    background: rgba(196,168,130,0.06);
-  }
-
-  .btn-text {
-    background: none;
-    border: none;
-    color: var(--ink-muted);
-    font-family: 'Jost', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: color 0.2s;
-    padding: 8px;
-  }
-  .btn-text:hover { color: var(--gold); }
-
-  /* ── NARRATIVE SCREEN ── */
-  .narrative-wrap {
-    width: 100%;
-    max-width: 560px;
-    text-align: center;
-  }
-
-  .time-stamp {
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    margin-bottom: 48px;
-    opacity: 0.6;
-  }
-
-  .narrative-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(18px, 3.5vw, 24px);
-    font-weight: 300;
-    font-style: italic;
-    line-height: 1.9;
-    color: var(--cream);
-    margin-bottom: 48px;
-    opacity: 0;
-    animation: fadeInSlow 1.2s ease 0.3s forwards;
-  }
-
-  .narrative-text em {
-    color: var(--gold);
-    font-style: normal;
-  }
-
-  /* ── CHOICE CARDS ── */
-  .choice-label {
-    font-size: 10px;
-    letter-spacing: 5px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-    opacity: 0.8;
-  }
-
-  .choice-grid {
-    display: grid;
-    gap: 10px;
-    width: 100%;
-    max-width: 560px;
-    margin-bottom: 40px;
-  }
-
-  .choice-grid.col-2 { grid-template-columns: 1fr 1fr; }
-  .choice-grid.col-3 { grid-template-columns: 1fr 1fr 1fr; }
-  .choice-grid.col-1 { grid-template-columns: 1fr; }
-
-  .choice-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(196,168,130,0.15);
-    border-radius: 3px;
-    padding: 16px 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 15px;
-    font-weight: 300;
-    color: var(--cream);
-    line-height: 1.4;
-  }
-
-  .choice-card:hover {
-    border-color: rgba(196,168,130,0.5);
-    background: rgba(196,168,130,0.06);
-    color: var(--gold);
-  }
-
-  .choice-card.selected {
-    border-color: var(--gold);
-    background: rgba(196,168,130,0.1);
-    color: var(--gold);
-  }
-
-  .choice-card .card-sub {
-    display: block;
-    font-family: 'Jost', sans-serif;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  /* ── ROOM SELECTION ── */
-  .room-pair {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-    max-width: 640px;
-    margin-bottom: 32px;
-  }
-
-  .room-card {
-    border: 2px solid rgba(196,168,130,0.15);
-    border-radius: 6px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.25s;
-    position: relative;
-  }
-
-  .room-card:hover { border-color: rgba(196,168,130,0.4); }
-  .room-card.selected { border-color: var(--gold); }
-
-  .room-card .room-img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    display: block;
-    background: var(--night-glow);
-  }
-
-  .room-card .room-img-placeholder {
-    width: 100%;
-    aspect-ratio: 4/3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    color: var(--ink-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    background: var(--night-glow);
-  }
-
-  .room-label {
-    padding: 12px 14px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 14px;
-    font-style: italic;
-    color: var(--cream);
-    background: var(--night-warm);
-  }
-
-  .room-card.selected .room-label { color: var(--gold); }
-
-  .room-card .selected-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--gold);
-    color: var(--night);
-    font-size: 9px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 4px 8px;
-    border-radius: 2px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .room-card.selected .selected-badge { opacity: 1; }
-
-  /* ── IMAGE REVEAL ── */
-  .image-reveal {
-    width: 100%;
-    max-width: 440px;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 32px;
-    position: relative;
-  }
-
-  .image-reveal img {
-    width: 100%;
-    display: block;
-    animation: fadeInSlow 1.5s ease;
-  }
-
-  .image-reveal .img-placeholder {
-    width: 100%;
-    aspect-ratio: 3/4;
-    background: var(--night-glow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-  }
-
-  .img-generating {
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    animation: pulse 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-  }
-
-  .loading-dots::after {
-    content: '';
-    animation: dots 1.5s infinite;
-  }
-  @keyframes dots {
-    0% { content: ''; }
-    33% { content: '.'; }
-    66% { content: '..'; }
-    100% { content: '...'; }
-  }
-
-  /* ── SCENE SCREEN ── */
-  #screen-scene {
-    background: var(--night);
-    position: relative;
-  }
-
-  .scene-bg {
-    position: fixed;
-    inset: 0;
-    object-fit: cover;
-    opacity: 0.35;
-    z-index: 0;
-    transition: opacity 1s ease;
-  }
-
-  .scene-overlay {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(to top, rgba(15,14,12,0.95) 0%, rgba(15,14,12,0.5) 50%, rgba(15,14,12,0.3) 100%);
-    z-index: 1;
-  }
-
-  .scene-content {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 560px;
-    text-align: center;
-  }
-
-  /* ── SECTION HEADER ── */
-  .section-header {
-    text-align: center;
-    margin-bottom: 40px;
-    width: 100%;
-    max-width: 560px;
-  }
-
-  .section-header h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(28px, 5vw, 40px);
-    font-weight: 300;
-    font-style: italic;
-    color: var(--cream);
-    margin-bottom: 8px;
-  }
-
-  .section-header p {
-    font-size: 12px;
-    color: var(--ink-muted);
-    letter-spacing: 1px;
-    line-height: 1.7;
-  }
-
-  /* ── HERITAGE DISPLAY ── */
-  .heritage-result {
-    background: rgba(196,168,130,0.06);
-    border: 1px solid rgba(196,168,130,0.2);
-    border-radius: 4px;
-    padding: 20px 24px;
-    margin-bottom: 32px;
-    width: 100%;
-    max-width: 560px;
-    text-align: center;
-  }
-
-  .heritage-result .trait-row {
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    flex-wrap: wrap;
-  }
-
-  .trait-item {
-    text-align: center;
-  }
-
-  .trait-item .trait-label {
-    font-size: 9px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    margin-bottom: 4px;
-  }
-
-  .trait-item .trait-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-style: italic;
-    color: var(--gold);
-  }
-
-  /* ── PROGRESS ── */
-  .progress-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 2px;
-    background: var(--gold);
-    transition: width 0.5s ease;
-    z-index: 100;
-    opacity: 0.6;
-  }
-
-  /* ── STEP INDICATOR ── */
-  .step-indicator {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    z-index: 100;
-  }
-
-  /* ── BACK BUTTON ── */
-  .back-btn {
-    position: fixed;
-    top: 16px;
-    left: 20px;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    cursor: pointer;
-    background: none;
-    border: none;
-    z-index: 100;
-    transition: color 0.2s;
-    font-family: 'Jost', sans-serif;
-  }
-  .back-btn:hover { color: var(--gold); }
-
-  /* ── MORNING SCENE ── */
-  .morning-time {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 56px;
-    font-weight: 300;
-    color: var(--cream);
-    letter-spacing: -2px;
-    margin-bottom: 4px;
-    opacity: 0.9;
-  }
-
-  .morning-date {
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-    margin-bottom: 40px;
-  }
-
-  /* ── PROFILE CARD ── */
-  .profile-summary {
-    width: 100%;
-    max-width: 400px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(196,168,130,0.15);
-    border-radius: 4px;
-    padding: 24px;
-    margin-bottom: 32px;
-    text-align: left;
-  }
-
-  .profile-summary .ps-title {
-    font-size: 9px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 16px;
-    opacity: 0.8;
-  }
-
-  .profile-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13px;
-  }
-
-  .profile-row .pr-key {
-    color: var(--ink-muted);
-  }
-
-  .profile-row .pr-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    color: var(--cream);
-  }
-
-  /* ── MOBILE ── */
-  @media (max-width: 480px) {
-    .choice-grid.col-3 { grid-template-columns: 1fr 1fr; }
-    .room-pair { grid-template-columns: 1fr; max-width: 320px; }
-    .screen { padding: 60px 20px 40px; }
-  }
-
-  /* ── SCENE TEXT ── */
-  .scene-text-block {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(16px, 3vw, 21px);
-    font-weight: 300;
-    font-style: italic;
-    line-height: 2;
-    color: var(--cream);
-    margin-bottom: 40px;
-    text-align: center;
-  }
-
-  .scene-speaker {
-    font-family: 'Jost', sans-serif;
-    font-size: 10px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 8px;
-    opacity: 0.7;
-  }
-
-  .scene-dialogue {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(18px, 3.5vw, 26px);
-    font-style: italic;
-    color: var(--cream);
-    margin-bottom: 32px;
-    line-height: 1.7;
-  }
-
-  /* ── DIVIDER ── */
-  .thin-divider {
-    width: 1px;
-    height: 40px;
-    background: rgba(196,168,130,0.3);
-    margin: 0 auto 32px;
-  }
-
-  .thin-divider-h {
-    width: 60px;
-    height: 1px;
-    background: rgba(196,168,130,0.3);
-    margin: 0 auto 32px;
-  }
-
+:root{--cream:#F7F3EE;--ink:#1C1A18;--ink-light:#4A4540;--ink-muted:#8A8078;--gold:#C4A882;--rose:#C4847A;--night:#0F0E0C;--night-warm:#1A1714;--night-glow:#2A2520;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:52px 24px 40px;animation:fadeIn 0.8s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInSlow{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
+@keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+.loading-dots::after{content:'';animation:dots 1.5s infinite;}
+/* TYPE */
+.eyebrow{font-size:10px;letter-spacing:6px;color:var(--gold);text-transform:uppercase;margin-bottom:20px;opacity:0.7;}
+.title-main{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,10vw,88px);font-weight:300;font-style:italic;line-height:0.9;color:var(--cream);text-align:center;margin-bottom:28px;}
+.divider-h{width:40px;height:1px;background:var(--gold);margin:0 auto 36px;opacity:0.5;}
+.divider-thin{width:60px;height:1px;background:rgba(196,168,130,0.3);margin:0 auto 28px;}
+.sec-head{text-align:center;margin-bottom:28px;width:100%;max-width:560px;}
+.sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(26px,5vw,38px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:8px;}
+.sec-head p{font-size:12px;color:var(--ink-muted);line-height:1.8;}
+.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,3vw,21px);font-weight:300;font-style:italic;line-height:2;color:var(--cream);margin-bottom:36px;opacity:0;animation:fadeInSlow 1.2s ease 0.3s forwards;text-align:center;}
+.nar em{color:var(--gold);font-style:normal;}
+.stamp{font-size:10px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px;opacity:0.6;}
+.clabel{font-size:10px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:18px;opacity:0.8;text-align:center;}
+.dialogue{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,3vw,22px);font-style:italic;color:var(--cream);margin-bottom:24px;line-height:1.7;text-align:center;}
+.speaker{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;opacity:0.7;text-align:center;}
+/* BUTTONS */
+.btn-p{background:var(--gold);border:none;border-radius:2px;padding:14px 40px;color:var(--night);font-family:'Jost',sans-serif;font-size:11px;font-weight:500;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;}
+.btn-p:hover{background:var(--cream);transform:translateY(-1px);}
+.btn-g{background:transparent;border:1px solid rgba(196,168,130,0.35);border-radius:2px;padding:12px 32px;color:var(--gold);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;}
+.btn-g:hover{border-color:var(--gold);background:rgba(196,168,130,0.06);}
+.btn-t{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:color 0.2s;padding:8px;}
+.btn-t:hover{color:var(--gold);}
+/* INPUT */
+.inp{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.2);border-radius:4px;padding:14px 16px;color:var(--cream);font-size:13px;font-family:monospace;margin-bottom:8px;outline:none;transition:border-color 0.2s;}
+.inp:focus{border-color:rgba(196,168,130,0.5);}
+.err{font-size:12px;color:var(--rose);margin-bottom:14px;min-height:18px;}
+/* CARDS */
+.cgrid{display:grid;gap:10px;width:100%;max-width:560px;margin-bottom:28px;}
+.cgrid.c2{grid-template-columns:1fr 1fr;}
+.cgrid.c3{grid-template-columns:1fr 1fr 1fr;}
+.cgrid.c1{grid-template-columns:1fr;max-width:420px;}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:15px 13px;cursor:pointer;transition:all 0.2s;text-align:center;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;color:var(--cream);line-height:1.4;}
+.card:hover{border-color:rgba(196,168,130,0.5);background:rgba(196,168,130,0.06);color:var(--gold);}
+.card.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
+.card .sub{display:block;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-top:4px;}
+/* LANG */
+.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:480px;margin-bottom:28px;}
+.lcard{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.lcard:hover{border-color:rgba(196,168,130,0.5);background:rgba(196,168,130,0.06);}
+.lcard.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);}
+.lname{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--cream);display:block;margin-bottom:3px;}
+.lcard.sel .lname{color:var(--gold);}
+.lmkt{font-size:10px;letter-spacing:1px;color:var(--ink-muted);}
+/* TRIO */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:620px;margin-bottom:20px;}
+.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
+.trio-item:hover{border-color:rgba(196,168,130,0.4);}
+.trio-item.sel{border-color:var(--gold);}
+.trio-item img{width:100%;display:block;aspect-ratio:2/3;object-fit:cover;}
+.trio-item .iph{width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:6px;}
+.trio-item .sbadge{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--night);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;opacity:0;transition:opacity 0.2s;white-space:nowrap;}
+.trio-item.sel .sbadge{opacity:1;}
+/* ROOMS */
+.rpair{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:580px;margin-bottom:20px;}
+.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
+.rcard:hover{border-color:rgba(196,168,130,0.4);}
+.rcard.sel{border-color:var(--gold);}
+.rcard .rph{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:6px;}
+.rcard img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;}
+.rcard .rlabel{padding:10px 14px;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--cream);background:var(--night-warm);}
+.rcard.sel .rlabel{color:var(--gold);}
+.rcard .rbadge{position:absolute;top:8px;right:8px;background:var(--gold);color:var(--night);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;opacity:0;transition:opacity 0.2s;}
+.rcard.sel .rbadge{opacity:1;}
+/* SCENE */
+.scene-img{width:100%;max-width:460px;border-radius:6px;overflow:hidden;margin-bottom:24px;}
+.scene-img img{width:100%;display:block;border-radius:6px;}
+.scene-img .sph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);border-radius:6px;flex-direction:column;gap:8px;}
+.scene-wide .sph{aspect-ratio:16/9;}
+/* PROFILE */
+.pbox{width:100%;max-width:360px;background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:4px;padding:18px 22px;margin-bottom:24px;}
+.pbox .ptitle{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;opacity:0.8;}
+.prow{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;}
+.prow .pk{color:var(--ink-muted);}
+.prow .pv{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--cream);}
+/* HERITAGE */
+.hbox{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.2);border-radius:4px;padding:16px 22px;margin-bottom:24px;width:100%;max-width:540px;text-align:center;}
+.trow{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;}
+.ti .tl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;}
+.ti .tv{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--gold);}
+/* GEN */
+.gt{font-size:11px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;animation:pulse 1.5s infinite;}
+/* MORNING */
+.mclock{font-family:'Cormorant Garamond',serif;font-size:54px;font-weight:300;color:var(--cream);letter-spacing:-2px;margin-bottom:4px;}
+.mdate{font-size:10px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:28px;}
+/* DAILY OPT */
+.dopt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px 20px;cursor:pointer;transition:all 0.2s;width:100%;max-width:400px;margin-bottom:10px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--cream);display:block;}
+.dopt:hover{border-color:var(--gold);background:rgba(196,168,130,0.06);color:var(--gold);padding-left:26px;}
+.dopt .dsub{display:block;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-top:4px;}
+/* GALLERY */
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:580px;max-height:55vh;overflow-y:auto;margin-bottom:20px;}
+.gi{border-radius:3px;overflow:hidden;cursor:pointer;transition:transform 0.2s;}
+.gi:hover{transform:scale(1.04);}
+.gi img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;}
+.gi .gl{background:var(--night-warm);padding:5px 8px;font-size:10px;color:var(--ink-muted);letter-spacing:1px;}
+/* NAV */
+.prog{position:fixed;top:0;left:0;height:2px;background:var(--gold);transition:width 0.5s ease;z-index:100;opacity:0.5;}
+.back{position:fixed;top:16px;left:20px;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:100;transition:color 0.2s;font-family:'Jost',sans-serif;}
+.back:hover{color:var(--gold);}
+.sind{position:fixed;top:20px;right:20px;font-size:9px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;z-index:100;}
+.gbtn{position:fixed;bottom:20px;right:20px;background:rgba(196,168,130,0.1);border:1px solid rgba(196,168,130,0.3);border-radius:2px;padding:8px 14px;color:var(--gold);font-family:'Jost',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;z-index:100;transition:all 0.2s;display:none;}
+.gbtn:hover{background:rgba(196,168,130,0.2);}
+.wrap{width:100%;max-width:560px;text-align:center;}
+@media(max-width:480px){.cgrid.c3{grid-template-columns:1fr 1fr;}.trio{grid-template-columns:1fr 1fr 1fr;}.rpair{grid-template-columns:1fr;max-width:280px;}.screen{padding:56px 18px 36px;}}
 </style>
 </head>
 <body>
+<div class="prog" id="prog" style="width:0%"></div>
+<button class="gbtn" id="gbtn" onclick="openGallery()">📷 Gallery</button>
 
-<div class="progress-bar" id="progress-bar" style="width:0%"></div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 1: TITLE
-══════════════════════════════════════ -->
-<div class="screen active" id="screen-title">
-  <div style="text-align:center; max-width:480px;">
-    <div class="title-eyebrow">A story about being seen</div>
+<!-- TITLE -->
+<div class="screen active" id="s-title">
+  <div style="text-align:center;max-width:480px">
+    <div class="eyebrow">A story about being seen</div>
     <h1 class="title-main">Off the<br>Record</h1>
-    <div class="title-divider"></div>
-    <p class="title-sub">An AI Romance</p>
-    <button class="btn-primary" onclick="goTo('screen-apikey')">Begin</button>
+    <div class="divider-h"></div>
+    <p style="font-size:11px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:48px">An AI Romance</p>
+    <button class="btn-p" onclick="go('s-lang')">Begin</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 2: API KEY
-══════════════════════════════════════ -->
-<div class="screen" id="screen-apikey">
-  <div class="apikey-box">
-    <h2>Before we begin</h2>
-    <p>
-      This story is powered by AI — every scene, every conversation, every image is generated just for you.<br><br>
+<!-- LANGUAGE -->
+<div class="screen" id="s-lang">
+  <div class="sec-head"><h2>Choose your language</h2><p>The story will be told entirely in your chosen language.</p></div>
+  <div class="lgrid">
+    <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US · UK · Australia</span></div>
+    <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
+    <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">South Korea</span></div>
+    <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">Germany · Austria</span></div>
+    <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">France · Canada</span></div>
+    <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">Spain · Latin America</span></div>
+    <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">Brazil</span></div>
+    <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">Turkey</span></div>
+    <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">Overseas Chinese</span></div>
+    <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">Taiwan · Hong Kong</span></div>
+  </div>
+  <button class="btn-p" id="btn-lang" onclick="go('s-apikey')" style="display:none">Continue</button>
+</div>
+
+<!-- API KEY -->
+<div class="screen" id="s-apikey">
+  <div style="width:100%;max-width:440px;text-align:center">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;font-style:italic;margin-bottom:12px">Before we begin</h2>
+    <p style="font-size:13px;color:var(--ink-muted);line-height:1.9;margin-bottom:28px">
+      Every scene, every conversation, every image<br>is generated just for you.<br><br>
       You'll need an <strong style="color:var(--cream)">Anthropic API Key</strong> to continue.<br>
-      <a href="https://console.anthropic.com/keys" target="_blank">→ Get your key here</a><br><br>
-      <span style="font-size:11px; opacity:0.6">Your key is stored only in this browser. Never uploaded anywhere.</span>
+      <a href="https://console.anthropic.com/keys" target="_blank" style="color:var(--gold)">→ Get your key here</a><br><br>
+      <span style="font-size:11px;opacity:0.5">Stored only in this browser. Never uploaded.</span>
     </p>
-    <input class="input-field" id="apikey-input" type="password" placeholder="sk-ant-api03-...">
-    <div class="error-msg" id="apikey-error"></div>
-    <button class="btn-primary" onclick="saveApiKey()" style="width:100%; margin-bottom:12px">Continue</button>
-    <br>
-    <button class="btn-text" onclick="clearKey()" style="font-size:10px; opacity:0.5">Change key</button>
+    <input class="inp" id="key-inp" type="password" placeholder="sk-ant-api03-...">
+    <div class="err" id="key-err"></div>
+    <button class="btn-p" onclick="saveKey()" style="width:100%;margin-bottom:10px">Continue</button>
+    <button class="btn-t" onclick="clearKey()">Change key</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 3: MORNING OPENING
-══════════════════════════════════════ -->
-<div class="screen" id="screen-morning-open">
-  <div class="narrative-wrap">
-    <div class="time-stamp">Friday · 7:14 AM</div>
-    <p class="narrative-text">
-      The light always comes in the same way here —<br>
-      slow, and a little golden, like it isn't sure it's welcome yet.<br><br>
-      I lie still for a moment before I remember<br>
-      where I am. That still happens, sometimes.<br><br>
-      <em>Two months in this city, and it still feels like a secret I'm keeping.</em>
+<!-- MORNING OPEN -->
+<div class="screen" id="s-open">
+  <div class="wrap">
+    <div class="stamp">Friday · 7:14 AM</div>
+    <p class="nar">The light always comes in the same way here —<br>slow, and a little golden.<br><br>I lie still for a moment before I remember where I am.<br><em>Two months in this city. It still feels like a secret.</em></p>
+    <button class="btn-g" onclick="go('s-mother')">Continue</button>
+  </div>
+</div>
+
+<!-- MOTHER -->
+<div class="screen" id="s-mother">
+  <button class="back" onclick="go('s-open')">← Back</button>
+  <div class="sind">1 of 7</div>
+  <div class="sec-head"><h2>My mother</h2><p>She always said I had her eyes.</p></div>
+  <div class="clabel">Her origin</div>
+  <div class="cgrid c2" id="g-mom">
+    <div class="card" onclick="sel('mother','East Asian','Dark brown, almond-shaped',this)">East Asia<span class="sub">China · Japan · Korea</span></div>
+    <div class="card" onclick="sel('mother','Southeast Asian','Warm dark brown',this)">Southeast Asia<span class="sub">Philippines · Vietnam · Thailand</span></div>
+    <div class="card" onclick="sel('mother','South Asian','Deep brown',this)">South Asia<span class="sub">India · Pakistan · Sri Lanka</span></div>
+    <div class="card" onclick="sel('mother','Northern European','Blue or grey',this)">Northern Europe<span class="sub">UK · Scandinavia · Germany</span></div>
+    <div class="card" onclick="sel('mother','Southern European','Warm brown or green',this)">Southern Europe<span class="sub">Italy · Spain · Greece</span></div>
+    <div class="card" onclick="sel('mother','African','Rich dark brown',this)">Africa<span class="sub">West · East · South</span></div>
+    <div class="card" onclick="sel('mother','Latin American','Brown or hazel',this)">Latin America<span class="sub">Brazil · Mexico · Colombia</span></div>
+    <div class="card" onclick="sel('mother','Middle Eastern','Dark almond',this)">Middle East<span class="sub">Lebanon · Egypt · Iran</span></div>
+  </div>
+  <button class="btn-p" id="btn-mom" onclick="go('s-father')" style="display:none">Continue</button>
+</div>
+
+<!-- FATHER -->
+<div class="screen" id="s-father">
+  <button class="back" onclick="go('s-mother')">← Back</button>
+  <div class="sind">2 of 7</div>
+  <div class="sec-head"><h2>My father</h2><p>He said my skin was just like his.</p></div>
+  <div class="clabel">His origin</div>
+  <div class="cgrid c2" id="g-dad">
+    <div class="card" onclick="sel('father','East Asian','Light to medium golden',this)">East Asia<span class="sub">China · Japan · Korea</span></div>
+    <div class="card" onclick="sel('father','Southeast Asian','Warm golden brown',this)">Southeast Asia<span class="sub">Philippines · Vietnam · Thailand</span></div>
+    <div class="card" onclick="sel('father','South Asian','Medium to deep brown',this)">South Asia<span class="sub">India · Pakistan · Sri Lanka</span></div>
+    <div class="card" onclick="sel('father','Northern European','Fair, cool-toned',this)">Northern Europe<span class="sub">UK · Scandinavia · Germany</span></div>
+    <div class="card" onclick="sel('father','Southern European','Warm olive',this)">Southern Europe<span class="sub">Italy · Spain · Greece</span></div>
+    <div class="card" onclick="sel('father','African','Rich deep brown to ebony',this)">Africa<span class="sub">West · East · South</span></div>
+    <div class="card" onclick="sel('father','Latin American','Medium warm brown',this)">Latin America<span class="sub">Brazil · Mexico · Colombia</span></div>
+    <div class="card" onclick="sel('father','Middle Eastern','Medium olive to tan',this)">Middle East<span class="sub">Lebanon · Egypt · Iran</span></div>
+  </div>
+  <button class="btn-p" id="btn-dad" onclick="showHeritage()" style="display:none">Continue</button>
+</div>
+
+<!-- HERITAGE -->
+<div class="screen" id="s-heritage">
+  <button class="back" onclick="go('s-father')">← Back</button>
+  <div class="sind">2 of 7</div>
+  <div class="wrap">
+    <p class="nar" id="h-nar"></p>
+    <div class="hbox"><div class="trow" id="h-traits"></div></div>
+    <button class="btn-g" onclick="go('s-hair')">That's right</button>
+  </div>
+</div>
+
+<!-- HAIR -->
+<div class="screen" id="s-hair">
+  <button class="back" onclick="go('s-heritage')">← Back</button>
+  <div class="sind">3 of 7</div>
+  <div class="sec-head"><h2>Yesterday</h2><p>I finally went to that salon I'd been walking past for weeks.</p></div>
+  <div class="clabel">Hair style</div>
+  <div class="cgrid c3" id="g-hstyle" style="margin-bottom:18px">
+    <div class="card" onclick="sel('hairStyle','long straight hair',this)">Long straight</div>
+    <div class="card" onclick="sel('hairStyle','long wavy hair',this)">Long wavy</div>
+    <div class="card" onclick="sel('hairStyle','long curly hair',this)">Long curly</div>
+    <div class="card" onclick="sel('hairStyle','shoulder-length bob',this)">Bob cut</div>
+    <div class="card" onclick="sel('hairStyle','short pixie cut',this)">Pixie cut</div>
+    <div class="card" onclick="sel('hairStyle','loose messy bun',this)">Loose bun</div>
+  </div>
+  <div class="clabel">Hair colour</div>
+  <div class="cgrid c3" id="g-hcolor">
+    <div class="card" onclick="sel('hairColor','jet black',this)">Jet black</div>
+    <div class="card" onclick="sel('hairColor','dark brown',this)">Dark brown</div>
+    <div class="card" onclick="sel('hairColor','warm chestnut',this)">Chestnut</div>
+    <div class="card" onclick="sel('hairColor','honey blonde',this)">Honey blonde</div>
+    <div class="card" onclick="sel('hairColor','deep burgundy',this)">Burgundy</div>
+    <div class="card" onclick="sel('hairColor','silver lavender',this)">Silver lavender</div>
+  </div>
+  <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="display:none;margin-top:4px">Continue</button>
+</div>
+
+<!-- CITY -->
+<div class="screen" id="s-city">
+  <button class="back" onclick="go('s-hair')">← Back</button>
+  <div class="sind">4 of 7</div>
+  <div class="sec-head"><h2>Two months ago</h2><p>I packed two suitcases and told myself it was just for a year.</p></div>
+  <div class="clabel">Where did you move to?</div>
+  <div class="cgrid c2" id="g-city">
+    <div class="card" onclick="sel('city','New York',this)">New York<span class="sub">USA · East Coast</span></div>
+    <div class="card" onclick="sel('city','Los Angeles',this)">Los Angeles<span class="sub">USA · West Coast</span></div>
+    <div class="card" onclick="sel('city','London',this)">London<span class="sub">United Kingdom</span></div>
+    <div class="card" onclick="sel('city','Paris',this)">Paris<span class="sub">France</span></div>
+    <div class="card" onclick="sel('city','Tokyo',this)">Tokyo<span class="sub">Japan</span></div>
+    <div class="card" onclick="sel('city','Seoul',this)">Seoul<span class="sub">South Korea</span></div>
+    <div class="card" onclick="sel('city','Sydney',this)">Sydney<span class="sub">Australia</span></div>
+    <div class="card" onclick="sel('city','Toronto',this)">Toronto<span class="sub">Canada</span></div>
+  </div>
+  <button class="btn-p" id="btn-city" onclick="go('s-decor')" style="display:none">Continue</button>
+</div>
+
+<!-- DECOR -->
+<div class="screen" id="s-decor">
+  <button class="back" onclick="go('s-city')">← Back</button>
+  <div class="sind">5 of 7</div>
+  <div class="sec-head"><h2>My apartment</h2><p>It wasn't much when I moved in. But I made it mine.</p></div>
+  <div class="clabel">Interior style</div>
+  <div class="cgrid c1" id="g-decor">
+    <div class="card" onclick="sel('decor','Romantic Minimalist',this)">Romantic Minimalist<span class="sub">Soft voiles · Delicate details · Dreamy pastels</span></div>
+    <div class="card" onclick="sel('decor','Contemporary Organic',this)">Contemporary Organic<span class="sub">Natural curves · Oak & walnut · Warm textures</span></div>
+    <div class="card" onclick="sel('decor','English Cottage',this)">English Cottage<span class="sub">Vintage frames · Heirloom textiles · Florals</span></div>
+    <div class="card" onclick="sel('decor','Modern Dark',this)">Modern Dark<span class="sub">Deep tones · Gold accents · City-sleek</span></div>
+    <div class="card" onclick="sel('decor','Bohemian Warm',this)">Bohemian Warm<span class="sub">Warm layers · Trailing plants · Candlelight</span></div>
+  </div>
+  <button class="btn-p" id="btn-decor" onclick="genRooms()" style="display:none;margin-top:4px">Generate my apartment</button>
+</div>
+
+<!-- ROOMS -->
+<div class="screen" id="s-rooms">
+  <div class="sind">6 of 7</div>
+  <div class="sec-head"><h2>Choose your space</h2><p>Which feels like home?</p></div>
+  <div class="clabel" style="margin-bottom:12px">Living room · City view</div>
+  <div class="rpair" id="rp-living">
+    <div class="rcard" id="la" onclick="selRoom('living','a')"><div class="rph" id="la-ph"><span class="gt">Generating<span class="loading-dots"></span></span></div><div class="rlabel">Option A</div><div class="rbadge">✓</div></div>
+    <div class="rcard" id="lb" onclick="selRoom('living','b')"><div class="rph" id="lb-ph"><span class="gt">Generating<span class="loading-dots"></span></span></div><div class="rlabel">Option B</div><div class="rbadge">✓</div></div>
+  </div>
+  <div class="clabel" style="margin-bottom:12px">Bedroom · With balcony</div>
+  <div class="rpair" id="rp-bedroom">
+    <div class="rcard" id="ba" onclick="selRoom('bedroom','a')"><div class="rph" id="ba-ph"><span class="gt">Generating<span class="loading-dots"></span></span></div><div class="rlabel">Option A</div><div class="rbadge">✓</div></div>
+    <div class="rcard" id="bb" onclick="selRoom('bedroom','b')"><div class="rph" id="bb-ph"><span class="gt">Generating<span class="loading-dots"></span></span></div><div class="rlabel">Option B</div><div class="rbadge">✓</div></div>
+  </div>
+  <button class="btn-p" id="btn-rooms" onclick="genProtagonist()" style="display:none;margin-top:8px">This is my home</button>
+</div>
+
+<!-- PROTAGONIST MIRROR -->
+<div class="screen" id="s-proto">
+  <div class="sind">7 of 7</div>
+  <div class="wrap">
+    <div class="stamp">Bathroom mirror · 7:31 AM</div>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--ink-muted);margin-bottom:18px;line-height:1.9">I looked at myself for a long moment.<br><em>Same face. Different city.</em></p>
+    <div class="clabel">Choose your reflection</div>
+    <div class="trio" id="tr-proto">
+      <div class="trio-item" id="pa" onclick="selProto('a')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+      <div class="trio-item" id="pb" onclick="selProto('b')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+      <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+    </div>
+    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:14px">↺ Generate new options</button>
+    <button class="btn-p" id="btn-proto" onclick="go('s-wake')" style="display:none">That's me</button>
+  </div>
+</div>
+
+<!-- WAKE UP SCENE -->
+<div class="screen" id="s-wake">
+  <div class="wrap">
+    <div class="scene-img scene-wide" style="max-width:500px;margin:0 auto 24px">
+      <div class="sph" id="wake-ph" style="aspect-ratio:16/9"><span class="gt">Painting the morning<span class="loading-dots"></span></span></div>
+      <img id="wake-img" style="display:none;border-radius:6px;width:100%" alt="Morning">
+    </div>
+    <p class="nar" style="font-size:clamp(14px,2.6vw,18px)">
+      Sunlight spills through the balcony door.<br>
+      I lie still, listening to the city wake up below.<br>
+      <em>Today is the first time I meet him properly.</em><br>
+      The contract is already signed. Now comes everything else.
     </p>
-    <button class="btn-ghost" onclick="goTo('screen-mother')">Continue</button>
+    <button class="btn-g" id="btn-wake" onclick="go('s-flash-intro')" style="display:none">I remember how we met</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 4: MOTHER'S ORIGIN
-══════════════════════════════════════ -->
-<div class="screen" id="screen-mother">
-  <button class="back-btn" onclick="goTo('screen-morning-open')">← Back</button>
-  <div class="step-indicator">1 of 6</div>
-
-  <div class="section-header">
-    <h2>My mother</h2>
-    <p>She always said I had her eyes.<br>Where was she from?</p>
-  </div>
-
-  <div class="choice-label">Select your mother's origin</div>
-
-  <div class="choice-grid col-2" id="mother-grid">
-    <div class="choice-card" onclick="selectChoice('mother','East Asian','Dark brown, almond-shaped','this')">
-      East Asia
-      <span class="card-sub">China · Japan · Korea</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','Southeast Asian','Warm dark brown','this')">
-      Southeast Asia
-      <span class="card-sub">Philippines · Vietnam · Thailand</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','South Asian','Deep brown','this')">
-      South Asia
-      <span class="card-sub">India · Pakistan · Sri Lanka</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','Northern European','Blue or grey','this')">
-      Northern Europe
-      <span class="card-sub">UK · Scandinavia · Germany</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','Southern European','Warm brown or green','this')">
-      Southern Europe
-      <span class="card-sub">Italy · Spain · Greece</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','African','Rich dark brown','this')">
-      Africa
-      <span class="card-sub">West · East · South</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','Latin American','Brown or hazel','this')">
-      Latin America
-      <span class="card-sub">Brazil · Mexico · Colombia</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('mother','Middle Eastern','Dark almond','this')">
-      Middle East
-      <span class="card-sub">Lebanon · Iran · Egypt</span>
-    </div>
-  </div>
-
-  <button class="btn-primary" id="btn-mother" onclick="goTo('screen-father')" style="display:none">Continue</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 5: FATHER'S ORIGIN
-══════════════════════════════════════ -->
-<div class="screen" id="screen-father">
-  <button class="back-btn" onclick="goTo('screen-mother')">← Back</button>
-  <div class="step-indicator">2 of 6</div>
-
-  <div class="section-header">
-    <h2>My father</h2>
-    <p>He said my skin was just like his.<br>Where was he from?</p>
-  </div>
-
-  <div class="choice-label">Select your father's origin</div>
-
-  <div class="choice-grid col-2" id="father-grid">
-    <div class="choice-card" onclick="selectChoice('father','East Asian','Light to medium golden','this')">
-      East Asia
-      <span class="card-sub">China · Japan · Korea</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','Southeast Asian','Warm golden brown','this')">
-      Southeast Asia
-      <span class="card-sub">Philippines · Vietnam · Thailand</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','South Asian','Medium to deep brown','this')">
-      South Asia
-      <span class="card-sub">India · Pakistan · Sri Lanka</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','Northern European','Fair, cool-toned','this')">
-      Northern Europe
-      <span class="card-sub">UK · Scandinavia · Germany</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','Southern European','Warm olive','this')">
-      Southern Europe
-      <span class="card-sub">Italy · Spain · Greece</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','African','Rich deep brown to ebony','this')">
-      Africa
-      <span class="card-sub">West · East · South</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','Latin American','Medium warm brown','this')">
-      Latin America
-      <span class="card-sub">Brazil · Mexico · Colombia</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('father','Middle Eastern','Medium olive to tan','this')">
-      Middle East
-      <span class="card-sub">Lebanon · Iran · Egypt</span>
-    </div>
-  </div>
-
-  <button class="btn-primary" id="btn-father" onclick="showHeritageSummary()" style="display:none">Continue</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 5B: HERITAGE SUMMARY
-══════════════════════════════════════ -->
-<div class="screen" id="screen-heritage-summary">
-  <button class="back-btn" onclick="goTo('screen-father')">← Back</button>
-  <div class="step-indicator">2 of 6</div>
-
-  <div class="narrative-wrap">
-    <p class="narrative-text" id="heritage-narrative"></p>
-
-    <div class="heritage-result">
-      <div class="trait-row" id="heritage-traits"></div>
-    </div>
-
-    <button class="btn-ghost" onclick="goTo('screen-hair')">That's right</button>
+<!-- FLASHBACK INTRO -->
+<div class="screen" id="s-flash-intro">
+  <div class="wrap">
+    <div class="stamp">A few weeks ago</div>
+    <p class="nar">I hadn't planned to play anywhere that night.<br>I was just going to walk.<br><br>But I found that corner of the street,<br>and there was already a pianist there —<br><em>and the light was right.</em><br><br>So I sat down. And I started to sing.</p>
+    <button class="btn-g" onclick="go('s-flash-scene')">That night</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 6: HAIR
-══════════════════════════════════════ -->
-<div class="screen" id="screen-hair">
-  <button class="back-btn" onclick="goTo('screen-heritage-summary')">← Back</button>
-  <div class="step-indicator">3 of 6</div>
-
-  <div class="section-header">
-    <h2>Yesterday</h2>
-    <p>I finally went to that salon I'd been walking past for weeks.<br>Told them exactly what I wanted.</p>
-  </div>
-
-  <div class="choice-label">Hair length & style</div>
-  <div class="choice-grid col-3" id="hair-style-grid" style="margin-bottom:24px">
-    <div class="choice-card" onclick="selectChoice('hairStyle','Long & straight','this')">Long straight</div>
-    <div class="choice-card" onclick="selectChoice('hairStyle','Long & wavy','this')">Long wavy</div>
-    <div class="choice-card" onclick="selectChoice('hairStyle','Long curls','this')">Long curly</div>
-    <div class="choice-card" onclick="selectChoice('hairStyle','Shoulder-length bob','this')">Bob cut</div>
-    <div class="choice-card" onclick="selectChoice('hairStyle','Short pixie cut','this')">Pixie cut</div>
-    <div class="choice-card" onclick="selectChoice('hairStyle','Loose bun','this')">Loose bun</div>
-  </div>
-
-  <div class="choice-label">Hair colour</div>
-  <div class="choice-grid col-3" id="hair-color-grid">
-    <div class="choice-card" onclick="selectChoice('hairColor','Jet black','this')">Jet black</div>
-    <div class="choice-card" onclick="selectChoice('hairColor','Dark brown','this')">Dark brown</div>
-    <div class="choice-card" onclick="selectChoice('hairColor','Warm chestnut','this')">Chestnut</div>
-    <div class="choice-card" onclick="selectChoice('hairColor','Honey blonde','this')">Honey blonde</div>
-    <div class="choice-card" onclick="selectChoice('hairColor','Burgundy red','this')">Burgundy</div>
-    <div class="choice-card" onclick="selectChoice('hairColor','Silver lavender','this')">Silver lavender</div>
-  </div>
-
-  <button class="btn-primary" id="btn-hair" onclick="goTo('screen-city')" style="display:none; margin-top:8px">Continue</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 7: CITY
-══════════════════════════════════════ -->
-<div class="screen" id="screen-city">
-  <button class="back-btn" onclick="goTo('screen-hair')">← Back</button>
-  <div class="step-indicator">4 of 6</div>
-
-  <div class="section-header">
-    <h2>Two months ago</h2>
-    <p>I packed two suitcases and told myself<br>it was just for a year. We'll see about that.</p>
-  </div>
-
-  <div class="choice-label">Where did you move to?</div>
-
-  <div class="choice-grid col-2" id="city-grid">
-    <div class="choice-card" onclick="selectChoice('city','New York','this')">
-      New York
-      <span class="card-sub">USA · East Coast</span>
+<!-- FLASHBACK STREET -->
+<div class="screen" id="s-flash-scene">
+  <div class="wrap">
+    <div class="scene-img" style="max-width:400px;margin:0 auto 24px">
+      <div class="sph" id="street-ph"><span class="gt">Painting the scene<span class="loading-dots"></span></span></div>
+      <img id="street-img" style="display:none;border-radius:6px;width:100%" alt="Street scene">
     </div>
-    <div class="choice-card" onclick="selectChoice('city','Los Angeles','this')">
-      Los Angeles
-      <span class="card-sub">USA · West Coast</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('city','London','this')">
-      London
-      <span class="card-sub">United Kingdom</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('city','Paris','this')">
-      Paris
-      <span class="card-sub">France</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('city','Tokyo','this')">
-      Tokyo
-      <span class="card-sub">Japan</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('city','Seoul','this')">
-      Seoul
-      <span class="card-sub">South Korea</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('city','Sydney','this')">
-      Sydney
-      <span class="card-sub">Australia</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('city','Toronto','this')">
-      Toronto
-      <span class="card-sub">Canada</span>
-    </div>
-  </div>
-
-  <button class="btn-primary" id="btn-city" onclick="goTo('screen-decor')" style="display:none">Continue</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 8: DECOR STYLE
-══════════════════════════════════════ -->
-<div class="screen" id="screen-decor">
-  <button class="back-btn" onclick="goTo('screen-city')">← Back</button>
-  <div class="step-indicator">5 of 6</div>
-
-  <div class="section-header">
-    <h2>My apartment</h2>
-    <p>It wasn't much when I moved in.<br>But I made it mine.</p>
-  </div>
-
-  <div class="choice-label">Interior style</div>
-
-  <div class="choice-grid col-1" id="decor-grid" style="max-width:400px">
-    <div class="choice-card" onclick="selectChoice('decor','Nordic minimalist','this')">
-      Nordic Minimalist
-      <span class="card-sub">White walls · Natural wood · Clean lines</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('decor','Bohemian warm','this')">
-      Bohemian Warm
-      <span class="card-sub">Warm tones · Textured rugs · Trailing plants</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('decor','Modern dark','this')">
-      Modern Dark
-      <span class="card-sub">Deep tones · Gold accents · City-sleek</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('decor','Romantic blush','this')">
-      Romantic Blush
-      <span class="card-sub">Soft pinks · Floral · Warm candle light</span>
-    </div>
-    <div class="choice-card" onclick="selectChoice('decor','Japanese zen','this')">
-      Japanese Zen
-      <span class="card-sub">Low furniture · Paper lamps · Stillness</span>
-    </div>
-  </div>
-
-  <button class="btn-primary" id="btn-decor" onclick="generateRooms()" style="display:none; margin-top:8px">Generate my apartment</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 9: ROOM SELECTION
-══════════════════════════════════════ -->
-<div class="screen" id="screen-rooms">
-  <div class="step-indicator">6 of 6</div>
-
-  <div class="section-header">
-    <h2>Choose your space</h2>
-    <p>Two versions. Which one feels like home?</p>
-  </div>
-
-  <!-- Living Room -->
-  <div class="choice-label" style="margin-bottom:16px">Living room</div>
-  <div class="room-pair" id="living-pair">
-    <div class="room-card" id="living-a" onclick="selectRoom('living','a')">
-      <div class="room-img-placeholder" id="living-a-img">
-        <span class="img-generating">Generating<span class="loading-dots"></span></span>
-      </div>
-      <div class="room-label">Option A</div>
-      <div class="selected-badge">Selected</div>
-    </div>
-    <div class="room-card" id="living-b" onclick="selectRoom('living','b')">
-      <div class="room-img-placeholder" id="living-b-img">
-        <span class="img-generating">Generating<span class="loading-dots"></span></span>
-      </div>
-      <div class="room-label">Option B</div>
-      <div class="selected-badge">Selected</div>
-    </div>
-  </div>
-
-  <!-- Bedroom -->
-  <div class="choice-label" style="margin-bottom:16px">Bedroom</div>
-  <div class="room-pair" id="bedroom-pair">
-    <div class="room-card" id="bedroom-a" onclick="selectRoom('bedroom','a')">
-      <div class="room-img-placeholder" id="bedroom-a-img">
-        <span class="img-generating">Generating<span class="loading-dots"></span></span>
-      </div>
-      <div class="room-label">Option A</div>
-      <div class="selected-badge">Selected</div>
-    </div>
-    <div class="room-card" id="bedroom-b" onclick="selectRoom('bedroom','b')">
-      <div class="room-img-placeholder" id="bedroom-b-img">
-        <span class="img-generating">Generating<span class="loading-dots"></span></span>
-      </div>
-      <div class="room-label">Option B</div>
-      <div class="selected-badge">Selected</div>
-    </div>
-  </div>
-
-  <button class="btn-primary" id="btn-rooms" onclick="generateProtagonist()" style="display:none; margin-top:8px">
-    This is my home
-  </button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 10: PROTAGONIST REVEAL
-══════════════════════════════════════ -->
-<div class="screen" id="screen-protagonist">
-  <div class="narrative-wrap" style="text-align:center">
-
-    <div class="time-stamp">This is you</div>
-
-    <div class="image-reveal" style="max-width:320px; margin:0 auto 32px">
-      <div class="img-placeholder" id="protagonist-placeholder">
-        <span class="img-generating">Creating your portrait<span class="loading-dots"></span></span>
-      </div>
-      <img id="protagonist-img" style="display:none; border-radius:6px" alt="Your portrait">
-    </div>
-
-    <div class="profile-summary" style="margin:0 auto 32px">
-      <div class="ps-title">Your story so far</div>
-      <div class="profile-row">
-        <span class="pr-key">City</span>
-        <span class="pr-val" id="summary-city">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="pr-key">Heritage</span>
-        <span class="pr-val" id="summary-heritage">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="pr-key">Hair</span>
-        <span class="pr-val" id="summary-hair">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="pr-key">Eyes</span>
-        <span class="pr-val" id="summary-eyes">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="pr-key">Home style</span>
-        <span class="pr-val" id="summary-decor">—</span>
-      </div>
-    </div>
-
-    <button class="btn-ghost" id="btn-protagonist" onclick="goTo('screen-night-intro')" style="display:none">
-      Begin the story
-    </button>
+    <p class="nar" style="font-size:clamp(14px,2.6vw,18px)">The city moved around me. The pianist played without looking up.<br><em>And then the crowd shifted — and one person stopped.</em></p>
+    <button class="btn-g" id="btn-street" onclick="go('s-agent-intro')" style="display:none">He was still there when the song ended</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 11: NIGHT INTRO
-══════════════════════════════════════ -->
-<div class="screen" id="screen-night-intro">
-  <div class="narrative-wrap">
-    <div class="time-stamp">That same evening · 9:47 PM</div>
-    <p class="narrative-text">
-      I don't know why I brought my guitar that night.<br><br>
-      I hadn't planned to play anywhere.<br>
-      I was just going to walk, the way I do sometimes<br>
-      when the apartment feels too quiet.<br><br>
-      <em>But then I found that corner of the street,<br>
-      and the light was right, and someone left a step empty —</em><br><br>
-      So I sat down. And I started to play.
-    </p>
-    <button class="btn-ghost" onclick="goTo('screen-street-scene')">I remember this night</button>
+<!-- AGENT INTRO -->
+<div class="screen" id="s-agent-intro">
+  <div class="wrap">
+    <p class="nar">He walked toward me slowly.<br>Dark suit. No hurry about him.<br><br><em>I remember thinking — who wears a suit on a Friday night?</em><br><br>He stopped in front of me.<br>And looked at me the way people usually don't.</p>
+    <button class="btn-g" onclick="go('s-agent-origin')">Tell me about him</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 12: STREET SCENE + IMAGE
-══════════════════════════════════════ -->
-<div class="screen" id="screen-street-scene">
-  <div class="narrative-wrap" style="text-align:center">
+<!-- AGENT ORIGIN -->
+<div class="screen" id="s-agent-origin">
+  <button class="back" onclick="go('s-agent-intro')">← Back</button>
+  <div class="sec-head"><h2>Where was he from?</h2><p>Something about the way he carried himself.</p></div>
+  <div class="clabel">His background</div>
+  <div class="cgrid c2" id="g-aorigin">
+    <div class="card" onclick="sel('agentOrigin','British',this)">British<span class="sub">England · Scotland</span></div>
+    <div class="card" onclick="sel('agentOrigin','American',this)">American<span class="sub">East Coast · West Coast</span></div>
+    <div class="card" onclick="sel('agentOrigin','French',this)">French<span class="sub">Paris · South of France</span></div>
+    <div class="card" onclick="sel('agentOrigin','Italian',this)">Italian<span class="sub">Milan · Rome</span></div>
+    <div class="card" onclick="sel('agentOrigin','Korean',this)">Korean<span class="sub">Seoul · Busan</span></div>
+    <div class="card" onclick="sel('agentOrigin','Japanese',this)">Japanese<span class="sub">Tokyo · Osaka</span></div>
+    <div class="card" onclick="sel('agentOrigin','African-American',this)">African-American<span class="sub">New York · Atlanta</span></div>
+    <div class="card" onclick="sel('agentOrigin','Brazilian',this)">Brazilian<span class="sub">São Paulo · Rio</span></div>
+  </div>
+  <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="display:none;margin-top:4px">I remember him</button>
+</div>
 
-    <div class="image-reveal" style="max-width:400px; margin:0 auto 32px">
-      <div class="img-placeholder" id="street-placeholder">
-        <span class="img-generating">Painting the scene<span class="loading-dots"></span></span>
-      </div>
-      <img id="street-img" style="display:none; border-radius:6px" alt="Street scene">
+<!-- AGENT REVEAL -->
+<div class="screen" id="s-agent-reveal">
+  <div class="wrap">
+    <div class="clabel">Choose his portrait</div>
+    <div class="trio" id="tr-agent">
+      <div class="trio-item" id="aga" onclick="selAgent('a')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
+      <div class="trio-item" id="agb" onclick="selAgent('b')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
+      <div class="trio-item" id="agc" onclick="selAgent('c')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
     </div>
-
-    <p class="scene-text-block" style="opacity:0; animation: fadeInSlow 1s ease 0.5s forwards" id="street-text">
-      The city moved around me.<br>
-      I sang to no one in particular.<br>
-      <em>And then the crowd shifted — and I saw him stop.</em>
-    </p>
-
-    <button class="btn-ghost" id="btn-street" onclick="goTo('screen-agent-arrive')" style="display:none">
-      He was still there when the song ended
-    </button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 13: AGENT CUSTOMIZATION
-══════════════════════════════════════ -->
-<div class="screen" id="screen-agent-arrive">
-  <div class="narrative-wrap" style="text-align:center">
-    <p class="narrative-text">
-      He walked toward me slowly.<br>
-      Dark suit. No hurry about him.<br><br>
-      <em>I remember thinking — who wears a suit on a Friday night?</em><br><br>
-      I remember his face very clearly.
-    </p>
-    <button class="btn-ghost" onclick="goTo('screen-agent-origin')">Tell me about him</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 14: AGENT ORIGIN
-══════════════════════════════════════ -->
-<div class="screen" id="screen-agent-origin">
-  <button class="back-btn" onclick="goTo('screen-agent-arrive')">← Back</button>
-
-  <div class="section-header">
-    <h2>Where was he from?</h2>
-    <p>Something about the way he carried himself.<br>You could tell.</p>
-  </div>
-
-  <div class="choice-label">His background</div>
-  <div class="choice-grid col-2" id="agent-origin-grid">
-    <div class="choice-card" onclick="selectChoice('agentOrigin','British','this')">British<span class="card-sub">England · Scotland · Wales</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','American','this')">American<span class="card-sub">East Coast · West Coast</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','French','this')">French<span class="card-sub">Paris · South of France</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','Italian','this')">Italian<span class="card-sub">Milan · Rome · Florence</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','Korean','this')">Korean<span class="card-sub">Seoul · Busan</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','Japanese','this')">Japanese<span class="card-sub">Tokyo · Osaka</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','African-American','this')">African-American<span class="card-sub">New York · Atlanta · LA</span></div>
-    <div class="choice-card" onclick="selectChoice('agentOrigin','Brazilian','this')">Brazilian<span class="card-sub">São Paulo · Rio</span></div>
-  </div>
-  <button class="btn-primary" id="btn-agent-origin" onclick="goTo('screen-agent-age')" style="display:none; margin-top:8px">Continue</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 15: AGENT AGE
-══════════════════════════════════════ -->
-<div class="screen" id="screen-agent-age">
-  <button class="back-btn" onclick="goTo('screen-agent-origin')">← Back</button>
-
-  <div class="section-header">
-    <h2>How old was he?</h2>
-    <p>Hard to say exactly.<br>But you had a sense.</p>
-  </div>
-
-  <div class="choice-grid col-2" id="agent-age-grid" style="max-width:400px">
-    <div class="choice-card" onclick="selectChoice('agentAge','late 20s, around 28','this')">Late twenties<span class="card-sub">Around 28</span></div>
-    <div class="choice-card" onclick="selectChoice('agentAge','early 30s, around 32','this')">Early thirties<span class="card-sub">Around 32</span></div>
-    <div class="choice-card" onclick="selectChoice('agentAge','mid 30s, around 36','this')">Mid thirties<span class="card-sub">Around 36</span></div>
-    <div class="choice-card" onclick="selectChoice('agentAge','early 40s, around 42','this')">Early forties<span class="card-sub">Around 42</span></div>
-  </div>
-  <button class="btn-primary" id="btn-agent-age" onclick="goTo('screen-agent-look')" style="display:none; margin-top:8px">Continue</button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 16: AGENT APPEARANCE
-══════════════════════════════════════ -->
-<div class="screen" id="screen-agent-look">
-  <button class="back-btn" onclick="goTo('screen-agent-age')">← Back</button>
-
-  <div class="section-header">
-    <h2>His features</h2>
-    <p>The streetlight caught him just right.<br>I could see every detail.</p>
-  </div>
-
-  <div class="choice-label">Hair colour</div>
-  <div class="choice-grid col-3" id="agent-hair-grid" style="margin-bottom:24px">
-    <div class="choice-card" onclick="selectChoice('agentHair','black','this')">Black</div>
-    <div class="choice-card" onclick="selectChoice('agentHair','dark brown','this')">Dark brown</div>
-    <div class="choice-card" onclick="selectChoice('agentHair','chestnut brown','this')">Chestnut</div>
-    <div class="choice-card" onclick="selectChoice('agentHair','salt and pepper','this')">Salt & pepper</div>
-    <div class="choice-card" onclick="selectChoice('agentHair','dark blonde','this')">Dark blonde</div>
-    <div class="choice-card" onclick="selectChoice('agentHair','auburn','this')">Auburn</div>
-  </div>
-
-  <div class="choice-label">Eye colour</div>
-  <div class="choice-grid col-3" id="agent-eyes-grid" style="margin-bottom:24px">
-    <div class="choice-card" onclick="selectChoice('agentEyes','dark brown','this')">Dark brown</div>
-    <div class="choice-card" onclick="selectChoice('agentEyes','deep black','this')">Black</div>
-    <div class="choice-card" onclick="selectChoice('agentEyes','steel blue','this')">Steel blue</div>
-    <div class="choice-card" onclick="selectChoice('agentEyes','forest green','this')">Forest green</div>
-    <div class="choice-card" onclick="selectChoice('agentEyes','grey','this')">Grey</div>
-    <div class="choice-card" onclick="selectChoice('agentEyes','amber','this')">Amber</div>
-  </div>
-
-  <div class="choice-label">Skin tone</div>
-  <div class="choice-grid col-3" id="agent-skin-grid">
-    <div class="choice-card" onclick="selectChoice('agentSkin','fair','this')">Fair</div>
-    <div class="choice-card" onclick="selectChoice('agentSkin','light olive','this')">Light olive</div>
-    <div class="choice-card" onclick="selectChoice('agentSkin','warm medium','this')">Warm medium</div>
-    <div class="choice-card" onclick="selectChoice('agentSkin','tan','this')">Tan</div>
-    <div class="choice-card" onclick="selectChoice('agentSkin','deep brown','this')">Deep brown</div>
-    <div class="choice-card" onclick="selectChoice('agentSkin','ebony','this')">Ebony</div>
-  </div>
-
-  <button class="btn-primary" id="btn-agent-look" onclick="generateAgentName()" style="display:none; margin-top:24px">
-    I remember him
-  </button>
-</div>
-
-<!-- ══════════════════════════════════════
-     SCREEN 17: AGENT REVEAL
-══════════════════════════════════════ -->
-<div class="screen" id="screen-agent-reveal">
-  <div class="narrative-wrap" style="text-align:center">
-
-    <div class="image-reveal" style="max-width:340px; margin:0 auto 32px">
-      <div class="img-placeholder" id="agent-placeholder">
-        <span class="img-generating">He's coming into focus<span class="loading-dots"></span></span>
-      </div>
-      <img id="agent-img" style="display:none; border-radius:6px" alt="The agent">
+    <button class="btn-t" id="btn-rag" onclick="regenAgent()" style="display:none;margin-bottom:14px">↺ Generate new options</button>
+    <div id="agent-reveal-txt" style="display:none;margin-bottom:20px">
+      <div class="speaker">His name</div>
+      <p class="dialogue" id="agent-name-txt"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--ink-muted);line-height:1.8" id="agent-line-txt"></p>
     </div>
-
-    <p class="narrative-text" style="font-size:clamp(16px,3vw,20px)" id="agent-intro-text"></p>
-
-    <div class="scene-speaker">He said</div>
-    <p class="scene-dialogue" id="agent-first-line"></p>
-
-    <button class="btn-ghost" id="btn-agent-reveal" onclick="goTo('screen-chapter-one')" style="display:none">
-      And so it began
-    </button>
+    <button class="btn-p" id="btn-agent-ok" onclick="go('s-ch1')" style="display:none">And so it began</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 18: CHAPTER ONE START
-══════════════════════════════════════ -->
-<div class="screen" id="screen-chapter-one">
-  <div class="narrative-wrap" style="text-align:center">
-    <div class="time-stamp" style="margin-bottom:32px">Chapter One</div>
-    <div class="thin-divider-h"></div>
-    <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(32px,6vw,52px); font-weight:300; font-style:italic; color:var(--cream); margin-bottom:24px; line-height:1.2">
-      Signed
-    </h2>
-    <div class="thin-divider-h"></div>
-    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; color:var(--ink-muted); margin-bottom:48px; line-height:1.8">
-      "Everything changes the moment<br>someone finally sees you."
-    </p>
-
-    <div class="profile-summary" style="margin:0 auto 40px; text-align:left">
-      <div class="ps-title">Your world</div>
-      <div class="profile-row">
-        <span class="pr-key">City</span>
-        <span class="pr-val" id="chapter-city">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="pr-key">Your agent</span>
-        <span class="pr-val" id="chapter-agent">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="pr-key">Day</span>
-        <span class="pr-val">Saturday, Day 1</span>
-      </div>
+<!-- CHAPTER ONE -->
+<div class="screen" id="s-ch1">
+  <div class="wrap">
+    <div class="stamp" style="margin-bottom:28px">Chapter One</div>
+    <div class="divider-thin"></div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(38px,7vw,58px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:20px">Signed</h2>
+    <div class="divider-thin"></div>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--ink-muted);margin-bottom:36px;line-height:1.9">"Everything changes the moment<br>someone finally sees you."</p>
+    <div class="pbox" style="margin:0 auto 32px">
+      <div class="ptitle">Your world</div>
+      <div class="prow"><span class="pk">City</span><span class="pv" id="ch-city">—</span></div>
+      <div class="prow"><span class="pk">Your agent</span><span class="pv" id="ch-agent">—</span></div>
+      <div class="prow"><span class="pk">Home style</span><span class="pv" id="ch-decor">—</span></div>
+      <div class="prow"><span class="pk">Day</span><span class="pv">Saturday · Day 1</span></div>
     </div>
-
-    <button class="btn-primary" onclick="startDay()">Wake up · Day 1</button>
+    <button class="btn-p" onclick="startDay()">Wake up · Day 1</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     SCREEN 19: DAILY MORNING
-══════════════════════════════════════ -->
-<div class="screen" id="screen-daily-morning">
-  <div class="scene-content" style="max-width:480px; text-align:center">
-
-    <div class="morning-time" id="daily-time">8:12</div>
-    <div class="morning-date" id="daily-date">Saturday · Day 1</div>
-
-    <div class="thin-divider-h"></div>
-
-    <p class="narrative-text" style="font-size:clamp(15px,2.8vw,19px); margin-bottom:40px" id="morning-text">
-      The bedroom is quiet. Your phone hasn't buzzed yet.
-    </p>
-
-    <div class="choice-label">What will you do today?</div>
-
-    <div class="choice-grid col-1" id="daily-options" style="max-width:400px; margin:0 auto 32px">
-      <!-- filled by JS -->
-    </div>
+<!-- DAILY -->
+<div class="screen" id="s-daily">
+  <div style="width:100%;max-width:460px;text-align:center">
+    <div class="mclock" id="d-clock">8:07</div>
+    <div class="mdate" id="d-date">Saturday · Day 1</div>
+    <div class="divider-thin"></div>
+    <p class="nar" style="font-size:clamp(14px,2.5vw,17px);margin-bottom:28px" id="d-txt">The bedroom is quiet.</p>
+    <div class="clabel">Today</div>
+    <div id="d-opts" style="display:flex;flex-direction:column;align-items:center;width:100%"></div>
   </div>
+</div>
+
+<!-- GALLERY -->
+<div class="screen" id="s-gallery">
+  <button class="back" onclick="closeGallery()">← Back</button>
+  <div class="sec-head"><h2>Your story so far</h2><p>Every moment, saved.</p></div>
+  <div class="ggrid" id="ggrid"></div>
+  <button class="btn-g" onclick="closeGallery()">Return</button>
 </div>
 
 <script>
-// ══════════════════════════
-//  STATE
-// ══════════════════════════
-const G = {
-  apiKey: localStorage.getItem('otr_key') || '',
-  mother: null, motherEyes: null,
-  father: null, fatherSkin: null,
-  hairStyle: null, hairColor: null,
-  city: null,
-  decor: null,
-  livingRoom: null,  // selected image url
-  bedroom: null,
-  agentOrigin: null,
-  agentAge: null,
-  agentHair: null,
-  agentEyes: null,
-  agentSkin: null,
-  agentName: null,
-  day: 1,
+const G={
+  apiKey:localStorage.getItem('otr_key')||'',
+  lang:'en', langName:'English',
+  mother:null,motherEyes:null,father:null,fatherSkin:null,
+  hairStyle:null,hairColor:null,city:null,decor:null,
+  livingUrl:null,bedroomUrl:null,protagonistUrl:null,
+  agentOrigin:null,agentName:null,agentUrl:null,
+  day:1, gallery:[],
+  _lu:{},_bu:{},_pu:{},_au:{},
+  _prevScreen:'s-daily'
 };
 
-// Derived heritage data
-const heritageMap = {
-  'East Asian':       { eyes: 'Dark brown, almond-shaped', skin: 'Light to medium golden' },
-  'Southeast Asian':  { eyes: 'Warm dark brown', skin: 'Warm golden brown' },
-  'South Asian':      { eyes: 'Deep brown', skin: 'Medium to deep brown' },
-  'Northern European':{ eyes: 'Blue or grey', skin: 'Fair, cool-toned' },
-  'Southern European':{ eyes: 'Warm brown or green', skin: 'Warm olive' },
-  'African':          { eyes: 'Rich dark brown', skin: 'Rich deep brown to ebony' },
-  'Latin American':   { eyes: 'Brown or hazel', skin: 'Medium warm brown' },
-  'Middle Eastern':   { eyes: 'Dark almond', skin: 'Medium olive to tan' },
+const HM={
+  'East Asian':{eyes:'Dark brown, almond-shaped',skin:'Light to medium golden'},
+  'Southeast Asian':{eyes:'Warm dark brown',skin:'Warm golden brown'},
+  'South Asian':{eyes:'Deep brown',skin:'Medium to deep brown'},
+  'Northern European':{eyes:'Blue or grey',skin:'Fair, cool-toned'},
+  'Southern European':{eyes:'Warm brown or green',skin:'Warm olive'},
+  'African':{eyes:'Rich dark brown',skin:'Rich deep brown to ebony'},
+  'Latin American':{eyes:'Brown or hazel',skin:'Medium warm brown'},
+  'Middle Eastern':{eyes:'Dark almond',skin:'Medium olive to tan'},
 };
 
-// City landmark map for image generation
-const cityLandmarks = {
-  'New York': 'Manhattan skyline, yellow taxis, neon signs',
-  'Los Angeles': 'Hollywood Hills, palm trees, golden light',
-  'London': 'red phone boxes, Thames river, foggy streets',
-  'Paris': 'Eiffel Tower, Seine river, Haussmann buildings',
-  'Tokyo': 'Shibuya crossing, neon lights, cherry blossoms',
-  'Seoul': 'Bukchon Hanok Village, Han River, city lights',
-  'Sydney': 'Opera House, Harbour Bridge, sunny waterfront',
-  'Toronto': 'CN Tower, multicultural streets, lakefront',
+const CL={
+  'New York':'Empire State Building, Times Square neon signs, yellow taxis',
+  'Los Angeles':'Hollywood Hills sign, palm trees, golden California sky',
+  'London':'Tower Bridge, red double-decker bus, misty Thames',
+  'Paris':'Eiffel Tower, Haussmann rooftops, Seine river',
+  'Tokyo':'Tokyo Tower, Shinjuku neon skyline, Mount Fuji silhouette',
+  'Seoul':'N Seoul Tower, Han River bridges, city grid lights',
+  'Sydney':'Opera House sails, Harbour Bridge, sparkling harbour',
+  'Toronto':'CN Tower, Lake Ontario waterfront, city grid',
 };
 
-// ══════════════════════════
-//  NAVIGATION
-// ══════════════════════════
-function goTo(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+const AS={
+  'British':{hair:'dark brown neatly swept back',skin:'fair',suit:'charcoal grey double-breasted suit, open collar'},
+  'American':{hair:'dark brown side-parted',skin:'medium',suit:'navy blue slim suit, white open-collar shirt'},
+  'French':{hair:'dark chestnut slightly tousled',skin:'light olive',suit:'black slim-cut suit, silk pocket square'},
+  'Italian':{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit, no tie'},
+  'Korean':{hair:'black precise side part',skin:'light',suit:'dark grey minimalist suit, black turtleneck'},
+  'Japanese':{hair:'black neat side part',skin:'light',suit:'anthracite suit, white shirt'},
+  'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt, no tie'},
+  'Brazilian':{hair:'dark brown slight wave',skin:'warm tan',suit:'navy suit, open collar white shirt'},
+};
+
+const SO=['s-title','s-lang','s-apikey','s-open','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-wake','s-flash-intro','s-flash-scene','s-agent-intro','s-agent-origin','s-agent-reveal','s-ch1','s-daily'];
+
+function go(id){
+  if(id==='s-ch1'){
+    document.getElementById('ch-city').textContent=G.city||'—';
+    document.getElementById('ch-agent').textContent=G.agentName||'—';
+    document.getElementById('ch-decor').textContent=G.decor||'—';
+  }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  updateProgress();
-  window.scrollTo(0, 0);
+  const idx=SO.indexOf(id);
+  document.getElementById('prog').style.width=(idx<0?0:Math.round(idx/(SO.length-1)*100))+'%';
+  const inGame=idx>=SO.indexOf('s-ch1');
+  document.getElementById('gbtn').style.display=inGame?'block':'none';
+  if(id!=='s-gallery') G._prevScreen=id;
+  window.scrollTo(0,0);
 }
 
-const screenOrder = [
-  'screen-title','screen-apikey','screen-morning-open',
-  'screen-mother','screen-father','screen-heritage-summary',
-  'screen-hair','screen-city','screen-decor','screen-rooms',
-  'screen-protagonist','screen-night-intro','screen-street-scene',
-  'screen-agent-arrive','screen-agent-origin','screen-agent-age',
-  'screen-agent-look','screen-agent-reveal','screen-chapter-one',
-  'screen-daily-morning'
-];
-
-function updateProgress() {
-  const current = document.querySelector('.screen.active')?.id;
-  const idx = screenOrder.indexOf(current);
-  const pct = idx < 0 ? 0 : Math.round((idx / (screenOrder.length - 1)) * 100);
-  document.getElementById('progress-bar').style.width = pct + '%';
+function selLang(code,name,el){
+  document.querySelectorAll('.lcard').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  G.lang=code; G.langName=name;
+  document.getElementById('btn-lang').style.display='inline-block';
 }
 
-// ══════════════════════════
-//  API KEY
-// ══════════════════════════
-function saveApiKey() {
-  const val = document.getElementById('apikey-input').value.trim();
-  if (!val.startsWith('sk-ant')) {
-    document.getElementById('apikey-error').textContent = 'Please enter a valid Anthropic API key (starts with sk-ant)';
-    return;
-  }
-  G.apiKey = val;
-  localStorage.setItem('otr_key', val);
-  goTo('screen-morning-open');
+function saveKey(){
+  const v=document.getElementById('key-inp').value.trim();
+  if(!v.startsWith('sk-ant')){document.getElementById('key-err').textContent='Please enter a valid key (starts with sk-ant)';return;}
+  G.apiKey=v; localStorage.setItem('otr_key',v);
+  go('s-open');
+}
+function clearKey(){localStorage.removeItem('otr_key');G.apiKey='';document.getElementById('key-inp').value='';go('s-apikey');}
+
+function sel(key,value,el){
+  const gmap={mother:'g-mom',father:'g-dad',hairStyle:'g-hstyle',hairColor:'g-hcolor',city:'g-city',decor:'g-decor',agentOrigin:'g-aorigin'};
+  const bmap={mother:'btn-mom',father:'btn-dad',city:'btn-city',decor:'btn-decor',agentOrigin:'btn-aorigin'};
+  const gid=gmap[key];
+  if(gid) document.querySelectorAll('#'+gid+' .card').forEach(c=>c.classList.remove('sel'));
+  if(el) el.classList.add('sel');
+  G[key]=value;
+  if(bmap[key]) document.getElementById(bmap[key]).style.display='inline-block';
+  if(key==='hairStyle'||key==='hairColor') if(G.hairStyle&&G.hairColor) document.getElementById('btn-hair').style.display='inline-block';
 }
 
-function clearKey() {
-  localStorage.removeItem('otr_key');
-  G.apiKey = '';
-  document.getElementById('apikey-input').value = '';
-  goTo('screen-apikey');
+function showHeritage(){
+  const m=HM[G.mother]||{eyes:'brown',skin:'medium'};
+  const f=HM[G.father]||{eyes:'brown',skin:'medium'};
+  G.motherEyes=m.eyes; G.fatherSkin=f.skin;
+  document.getElementById('h-nar').innerHTML=`My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>People always said I was a perfect mix of both of them.`;
+  document.getElementById('h-traits').innerHTML=`<div class="ti"><div class="tl">Eyes</div><div class="tv">${m.eyes}</div></div><div class="ti"><div class="tl">Skin</div><div class="tv">${f.skin}</div></div><div class="ti"><div class="tl">Heritage</div><div class="tv">${G.mother} × ${G.father}</div></div>`;
+  go('s-heritage');
 }
 
-if (G.apiKey) {
-  // Skip API key screen if already saved
-  // But still show title first
+async function callClaude(prompt,sys=''){
+  const body={model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]};
+  if(sys) body.system=sys;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
+  const d=await r.json(); return d.content?.[0]?.text||'';
 }
 
-// ══════════════════════════
-//  CHOICE SELECTION
-// ══════════════════════════
-function selectChoice(key, value, gridEl) {
-  // Find parent grid
-  const grids = {
-    'mother': 'mother-grid',
-    'father': 'father-grid',
-    'hairStyle': 'hair-style-grid',
-    'hairColor': 'hair-color-grid',
-    'city': 'city-grid',
-    'decor': 'decor-grid',
-    'agentOrigin': 'agent-origin-grid',
-    'agentAge': 'agent-age-grid',
-    'agentHair': 'agent-hair-grid',
-    'agentEyes': 'agent-eyes-grid',
-    'agentSkin': 'agent-skin-grid',
-  };
-
-  const gridId = grids[key];
-  if (gridId) {
-    document.querySelectorAll('#' + gridId + ' .choice-card')
-      .forEach(c => c.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
-  }
-
-  G[key] = value;
-
-  // Show continue buttons
-  const btnMap = {
-    'mother': 'btn-mother',
-    'hairColor': 'btn-hair',
-    'city': 'btn-city',
-    'decor': 'btn-decor',
-    'agentOrigin': 'btn-agent-origin',
-    'agentAge': 'btn-agent-age',
-  };
-
-  if (btnMap[key]) {
-    document.getElementById(btnMap[key]).style.display = 'inline-block';
-  }
-
-  // Father: also show button
-  if (key === 'father') {
-    document.getElementById('btn-father').style.display = 'inline-block';
-  }
-
-  // Agent look: show button only when all 3 selected
-  if (['agentHair','agentEyes','agentSkin'].includes(key)) {
-    if (G.agentHair && G.agentEyes && G.agentSkin) {
-      document.getElementById('btn-agent-look').style.display = 'inline-block';
-    }
-  }
-
-  // Hair: show button only when both selected
-  if (['hairStyle','hairColor'].includes(key)) {
-    if (G.hairStyle && G.hairColor) {
-      document.getElementById('btn-hair').style.display = 'inline-block';
-    }
-  }
+async function genImg(prompt,label=''){
+  const fk=localStorage.getItem('otr_fal')||'';
+  const style=', Western glamour stylized 2D illustration, Choices Stories You Play art style, romance novel cover art, rich saturated colors, detailed fashion styling, cinematic dramatic lighting, high quality digital painting';
+  if(!fk) return placeholder(label);
+  try{
+    const r=await fetch('https://fal.run/fal-ai/flux/schnell',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Key '+fk},body:JSON.stringify({prompt:prompt+style,image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});
+    const d=await r.json();
+    const url=d.images?.[0]?.url;
+    if(url){if(label) G.gallery.push({url,label});return url;}
+    return placeholder(label);
+  }catch{return placeholder(label);}
 }
 
-// ══════════════════════════
-//  HERITAGE SUMMARY
-// ══════════════════════════
-function showHeritageSummary() {
-  const motherData = heritageMap[G.mother] || { eyes: 'brown', skin: 'medium' };
-  const fatherData = heritageMap[G.father] || { eyes: 'brown', skin: 'medium' };
-
-  G.motherEyes = motherData.eyes;
-  G.fatherSkin = fatherData.skin;
-
-  // Blend heritage for display
-  const eyeDesc = G.mother === G.father
-    ? motherData.eyes
-    : `${motherData.eyes} (from your mother)`;
-
-  const skinDesc = G.mother === G.father
-    ? fatherData.skin
-    : `${fatherData.skin} (from your father)`;
-
-  document.getElementById('heritage-narrative').innerHTML =
-    `My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>` +
-    `People always said I was a mix of both of them.<br>` +
-    `I suppose I never had a reason to disagree.`;
-
-  document.getElementById('heritage-traits').innerHTML = `
-    <div class="trait-item">
-      <div class="trait-label">Eyes</div>
-      <div class="trait-val">${motherData.eyes}</div>
-    </div>
-    <div class="trait-item">
-      <div class="trait-label">Skin</div>
-      <div class="trait-val">${fatherData.skin}</div>
-    </div>
-    <div class="trait-item">
-      <div class="trait-label">Heritage</div>
-      <div class="trait-val">${G.mother} × ${G.father}</div>
-    </div>
-  `;
-
-  goTo('screen-heritage-summary');
+function placeholder(label){
+  const c=document.createElement('canvas');c.width=400;c.height=533;
+  const ctx=c.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,400,533);g.addColorStop(0,'#1A1714');g.addColorStop(1,'#2A2520');
+  ctx.fillStyle=g;ctx.fillRect(0,0,400,533);
+  ctx.strokeStyle='rgba(196,168,130,0.2)';ctx.strokeRect(16,16,368,501);
+  ctx.fillStyle='rgba(196,168,130,0.4)';ctx.font='11px Jost,sans-serif';ctx.textAlign='center';
+  ctx.fillText(label||'Image Preview',200,255);
+  ctx.fillStyle='rgba(196,168,130,0.2)';ctx.font='10px Jost,sans-serif';
+  ctx.fillText('Add fal.ai key for AI images',200,275);
+  return c.toDataURL();
 }
 
-// ══════════════════════════
-//  CLAUDE API
-// ══════════════════════════
-async function callClaude(prompt, systemPrompt = '') {
-  const messages = [{ role: 'user', content: prompt }];
-  const body = {
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1000,
-    messages,
-  };
-  if (systemPrompt) body.system = systemPrompt;
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': G.apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  return data.content?.[0]?.text || '';
-}
-
-// ══════════════════════════
-//  FAL.AI IMAGE GENERATION
-// ══════════════════════════
-async function generateImage(prompt) {
-  // Using fal.ai for Flux Schnell
-  // NOTE: In production, this should go through your Cloudflare Worker
-  // For demo purposes we show placeholder images
-  // Replace FAL_KEY with your actual fal.ai API key
-  const FAL_KEY = localStorage.getItem('otr_fal_key') || '';
-
-  if (!FAL_KEY) {
-    // Return a placeholder gradient image as data URL for demo
-    return generatePlaceholderImage(prompt);
-  }
-
-  try {
-    const res = await fetch('https://fal.run/fal-ai/flux/schnell', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Key ' + FAL_KEY,
-      },
-      body: JSON.stringify({
-        prompt: prompt,
-        image_size: 'portrait_4_3',
-        num_inference_steps: 4,
-        num_images: 1,
-      }),
-    });
-    const data = await res.json();
-    return data.images?.[0]?.url || generatePlaceholderImage(prompt);
-  } catch {
-    return generatePlaceholderImage(prompt);
-  }
-}
-
-function generatePlaceholderImage(prompt) {
-  // Generate a canvas-based placeholder
-  const canvas = document.createElement('canvas');
-  canvas.width = 400; canvas.height = 300;
-  const ctx = canvas.getContext('2d');
-
-  // Dark gradient background
-  const grad = ctx.createLinearGradient(0, 0, 400, 300);
-  grad.addColorStop(0, '#1A1714');
-  grad.addColorStop(1, '#2A2520');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 400, 300);
-
-  // Gold accent line
-  ctx.strokeStyle = 'rgba(196,168,130,0.3)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(20, 20, 360, 260);
-
-  // Text
-  ctx.fillStyle = 'rgba(196,168,130,0.6)';
-  ctx.font = '11px Jost, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('[ Image Preview ]', 200, 145);
-  ctx.fillStyle = 'rgba(196,168,130,0.3)';
-  ctx.font = '10px Jost, sans-serif';
-  ctx.fillText('Add fal.ai key for AI images', 200, 165);
-
-  return canvas.toDataURL();
-}
-
-// ══════════════════════════
-//  GENERATE ROOMS
-// ══════════════════════════
-async function generateRooms() {
-  goTo('screen-rooms');
-
-  const style = G.decor;
-  const city = G.city;
-
-  const livingPrompts = [
-    `${style} interior design living room, morning sunlight streaming through large windows, ${city} apartment, cozy sophisticated atmosphere, interior design photography, warm morning light, editorial quality`,
-    `${style} living room interior, soft diffused morning light, ${city} urban apartment, alternative color palette version, interior photography, styled home, elegant atmosphere`,
-  ];
-
-  const bedroomPrompts = [
-    `${style} bedroom interior, gentle morning sunlight, ${city} apartment, peaceful intimate space, interior design photography, soft warm tones, editorial quality`,
-    `${style} bedroom interior, morning light from window, ${city} urban apartment, alternative mood version, cozy sophisticated, interior photography, styled home`,
-  ];
-
-  // Generate all 4 images
-  const [laUrl, lbUrl, baUrl, bbUrl] = await Promise.all([
-    generateImage(livingPrompts[0]),
-    generateImage(livingPrompts[1]),
-    generateImage(bedroomPrompts[0]),
-    generateImage(bedroomPrompts[1]),
+async function genRooms(){
+  go('s-rooms');
+  const st=G.decor,ci=G.city,lm=CL[ci]||'city skyline';
+  const lbase=`${st} style luxury apartment living room, morning golden sunlight, floor-to-ceiling window with spectacular view of ${lm} in ${ci}, sophisticated cozy atmosphere, beautifully styled interior`;
+  const bbase=`${st} style luxury apartment bedroom, morning sunlight streaming through open balcony double doors, private balcony with city view beyond, balcony railing visible, ${ci} apartment, peaceful intimate space`;
+  const [la,lb,ba,bb]=await Promise.all([
+    genImg(lbase+', warm golden morning light, bright airy feel','Living Room A'),
+    genImg(lbase+', softer diffused morning light, cooler tones','Living Room B'),
+    genImg(bbase+', warm golden hour light, rumpled soft bedding, just woken up atmosphere','Bedroom A'),
+    genImg(bbase+', soft grey morning light, crisp linens, calm minimal feel','Bedroom B')
   ]);
-
-  // Render living room
-  setRoomImage('living-a-img', laUrl, 'A', 'living');
-  setRoomImage('living-b-img', lbUrl, 'B', 'living');
-  setRoomImage('bedroom-a-img', baUrl, 'A', 'bedroom');
-  setRoomImage('bedroom-b-img', bbUrl, 'B', 'bedroom');
-
-  G._livingUrls = { a: laUrl, b: lbUrl };
-  G._bedroomUrls = { a: baUrl, b: bbUrl };
+  G._lu={a:la,b:lb}; G._bu={a:ba,b:bb};
+  setRoom('la-ph','la',la,'living','a'); setRoom('lb-ph','lb',lb,'living','b');
+  setRoom('ba-ph','ba',ba,'bedroom','a'); setRoom('bb-ph','bb',bb,'bedroom','b');
 }
 
-function setRoomImage(placeholderId, url, label, type) {
-  const placeholder = document.getElementById(placeholderId);
-  const img = document.createElement('img');
-  img.src = url;
-  img.className = 'room-img';
-  img.alt = `${type} option ${label}`;
-  img.onload = () => {
-    placeholder.replaceWith(img);
-    checkRoomsReady();
-  };
-  img.onerror = () => {
-    placeholder.innerHTML = `<span style="color:var(--ink-muted);font-size:12px;padding:20px">Option ${label}</span>`;
-    checkRoomsReady();
-  };
+function setRoom(phId,cardId,url,type,opt){
+  const ph=document.getElementById(phId);
+  const img=document.createElement('img');img.src=url;img.alt=`${type} ${opt}`;
+  img.style.cssText='width:100%;aspect-ratio:4/3;object-fit:cover;display:block;';
+  img.onload=()=>{ph.replaceWith(img);checkRooms();};
+  img.onerror=()=>{ph.innerHTML=`<span style="color:var(--ink-muted);font-size:11px">Option ${opt.toUpperCase()}</span>`;checkRooms();};
+}
+function checkRooms(){if(G.livingUrl&&G.bedroomUrl) document.getElementById('btn-rooms').style.display='inline-block';}
+function selRoom(type,opt){
+  document.getElementById(type==='living'?'la':'ba').classList.remove('sel');
+  document.getElementById(type==='living'?'lb':'bb').classList.remove('sel');
+  document.getElementById(type==='living'?(opt==='a'?'la':'lb'):(opt==='a'?'ba':'bb')).classList.add('sel');
+  if(type==='living') G.livingUrl=G._lu[opt]; else G.bedroomUrl=G._bu[opt];
+  checkRooms();
 }
 
-function checkRoomsReady() {
-  // Show confirm button once user has selected both rooms
-  if (G.livingRoom && G.bedroom) {
-    document.getElementById('btn-rooms').style.display = 'inline-block';
-  }
-}
+const protoPromptBase=()=>`Naturally beautiful 23-year-old young woman, mixed ${G.mother} and ${G.father} heritage, ${G.motherEyes} eyes, ${G.fatherSkin} skin, ${G.hairStyle} ${G.hairColor} hair, editorial beauty with real character and warmth, not generic commercial perfect, expressive eyes`;
 
-function selectRoom(type, option) {
-  // Deselect sibling
-  document.getElementById(type + '-a').classList.remove('selected');
-  document.getElementById(type + '-b').classList.remove('selected');
-  // Select chosen
-  document.getElementById(type + '-' + option).classList.add('selected');
-
-  if (type === 'living') {
-    G.livingRoom = G._livingUrls?.[option] || null;
-  } else {
-    G.bedroom = G._bedroomUrls?.[option] || null;
-  }
-
-  checkRoomsReady();
-}
-
-// ══════════════════════════
-//  GENERATE PROTAGONIST
-// ══════════════════════════
-async function generateProtagonist() {
-  goTo('screen-protagonist');
-
-  // Fill summary
-  document.getElementById('summary-city').textContent = G.city;
-  document.getElementById('summary-heritage').textContent = `${G.mother} × ${G.father}`;
-  document.getElementById('summary-hair').textContent = `${G.hairStyle}, ${G.hairColor}`;
-  document.getElementById('summary-eyes').textContent = G.motherEyes;
-  document.getElementById('summary-decor').textContent = G.decor;
-
-  const prompt = `Portrait of a young woman, mixed heritage (${G.mother} and ${G.father}), 
-    ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, 
-    ${G.hairStyle} ${G.hairColor} hair, 
-    sitting by a window in a ${G.city} apartment with ${G.decor} interior, 
-    morning golden light, casual but stylish, 
-    soft cinematic portrait photography, film grain, 
-    romance novel illustration style, intimate atmospheric lighting`;
-
-  const url = await generateImage(prompt);
-
-  const placeholder = document.getElementById('protagonist-placeholder');
-  const img = document.getElementById('protagonist-img');
-  img.src = url;
-  img.style.display = 'block';
-  placeholder.style.display = 'none';
-  document.getElementById('btn-protagonist').style.display = 'inline-block';
-
-  // Generate street scene in background
-  generateStreetScene();
-}
-
-// ══════════════════════════
-//  GENERATE STREET SCENE
-// ══════════════════════════
-async function generateStreetScene() {
-  const landmarks = cityLandmarks[G.city] || 'city streets, neon signs';
-  const prompt = `Nighttime city street scene in ${G.city}, ${landmarks}, 
-    a young woman with ${G.hairStyle} ${G.hairColor} hair sitting on steps playing acoustic guitar, 
-    warm streetlight glow, neon reflections on wet pavement, 
-    a tall well-dressed man in a dark suit standing still in the moving crowd watching her intently, 
-    cinematic romance atmosphere, bokeh city lights, 
-    emotional intimate moment, film photography aesthetic`;
-
-  const url = await generateImage(prompt);
-  const placeholder = document.getElementById('street-placeholder');
-  const img = document.getElementById('street-img');
-  img.src = url;
-  img.style.display = 'block';
-  placeholder.style.display = 'none';
-  setTimeout(() => {
-    document.getElementById('btn-street').style.display = 'inline-block';
-  }, 800);
-}
-
-// Override goTo for street scene to handle image timing
-const origGoTo = window.goTo;
-// (already handled above via async generation)
-
-// ══════════════════════════
-//  GENERATE AGENT NAME
-// ══════════════════════════
-async function generateAgentName() {
-  goTo('screen-agent-reveal');
-
-  // Generate name via Claude
-  const namePrompt = `Generate a realistic full name for a ${G.agentAge} talent agent from ${G.agentOrigin} background. 
-  The character is sophisticated, successful, and slightly cold. 
-  Return ONLY the name, nothing else. No explanation.`;
-
-  const name = await callClaude(namePrompt);
-  G.agentName = name.trim().replace(/^["']|["']$/g, '');
-
-  // Generate first line via Claude
-  const linePrompt = `The character ${G.agentName} is a ${G.agentAge} talent agent (${G.agentOrigin}) — 
-  exterior cold, interior warm. He has just stopped to listen to a street musician and is approaching her for the first time. 
-  Write his very first words to her. Should be brief (1-2 sentences), sophisticated, slightly guarded but compelling. 
-  Do not use quotation marks. Return only the dialogue.`;
-
-  const firstLine = await callClaude(linePrompt);
-
-  // Agent portrait
-  const agentPrompt = `Portrait of a ${G.agentAge} male talent agent, ${G.agentOrigin} heritage, 
-    ${G.agentHair} hair, ${G.agentEyes} eyes, ${G.agentSkin} skin, 
-    wearing a dark tailored suit, sharp features, 
-    cold composed expression with depth behind it, 
-    standing on a city street at night, warm streetlight background, 
-    cinematic portrait photography, romance novel cover style, 
-    sophisticated masculine, film grain aesthetic`;
-
-  const agentUrl = await generateImage(agentPrompt);
-
-  document.getElementById('agent-intro-text').innerHTML =
-    `He introduced himself as <em>${G.agentName}</em>.<br><br>` +
-    `He was exactly what his name sounded like —<br>` +
-    `precise, and difficult to read.`;
-
-  document.getElementById('agent-first-line').textContent = firstLine.trim();
-
-  const placeholder = document.getElementById('agent-placeholder');
-  const img = document.getElementById('agent-img');
-  img.src = agentUrl;
-  img.style.display = 'block';
-  placeholder.style.display = 'none';
-
-  setTimeout(() => {
-    document.getElementById('btn-agent-reveal').style.display = 'inline-block';
-  }, 600);
-
-  // Pre-fill chapter 1
-  document.getElementById('chapter-city').textContent = G.city;
-  document.getElementById('chapter-agent').textContent = G.agentName;
-}
-
-// ══════════════════════════
-//  DAILY LOOP
-// ══════════════════════════
-const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const startDayOfWeek = 6; // Saturday
-
-async function startDay() {
-  goTo('screen-daily-morning');
-
-  const dayOfWeek = dayNames[(startDayOfWeek + G.day - 1) % 7];
-  document.getElementById('daily-date').textContent = `${dayOfWeek} · Day ${G.day}`;
-
-  // Morning greeting via Claude
-  const morningPrompt = `Write a brief, poetic morning inner monologue (2-3 sentences) 
-    for a young singer-songwriter on Day ${G.day} of her new life in ${G.city}. 
-    Her talent agent is named ${G.agentName}. 
-    ${G.day === 1 ? 'It is her first morning after meeting him last night.' : 'She has been here ' + G.day + ' days.'}
-    Tone: reflective, literary, slightly nervous excitement. 
-    Write in second person ("You..."). Return only the paragraph.`;
-
-  const morningText = await callClaude(morningPrompt);
-  document.getElementById('morning-text').textContent = morningText.trim();
-
-  // Daily options
-  const options = getDailyOptions(G.day);
-  const container = document.getElementById('daily-options');
-  container.innerHTML = options.map((opt, i) =>
-    `<div class="choice-card" onclick="selectDailyActivity('${opt.key}', '${opt.label}')">
-      ${opt.label}
-      <span class="card-sub">${opt.sub}</span>
-    </div>`
-  ).join('');
-}
-
-function getDailyOptions(day) {
-  const allOptions = [
-    { key: 'studio', label: 'Go to the recording studio', sub: 'Work on new material' },
-    { key: 'cafe', label: 'Write at a café', sub: 'Find lyrics in the noise' },
-    { key: 'walk', label: 'Walk the city', sub: `Explore ${G.city}` },
-    { key: 'practice', label: 'Stay home and practice', sub: 'Guitar, alone with your thoughts' },
-    { key: 'agent', label: `${G.agentName} wants to meet`, sub: 'He has something to tell you' },
+async function genProtagonist(){
+  go('s-proto');
+  const base=protoPromptBase();
+  const angles=[
+    'standing at bathroom vanity mirror, first-person POV reflection, morning golden light from window, soft bathroom vanity light glow, gentle smile, intimate morning moment, steam on mirror edges',
+    'bathroom mirror reflection, three-quarter angle, morning light, thoughtful introspective expression, candid intimate feeling, just woken up naturalness',
+    'close-up bathroom mirror portrait, direct gaze into reflection, warm morning vanity lighting, relaxed natural expression, hair slightly tousled from sleep'
   ];
-
-  // Day 1 always leads with agent
-  if (day === 1) {
-    return [allOptions[4], allOptions[0], allOptions[2]];
-  }
-
-  // Shuffle for variety
-  const pool = [...allOptions];
-  const chosen = [pool[4]]; // always include agent option sometimes
-  while (chosen.length < 3) {
-    const r = Math.floor(Math.random() * pool.length);
-    if (!chosen.includes(pool[r])) chosen.push(pool[r]);
-  }
-  return chosen;
+  const [a,b,c]=await Promise.all([genImg(base+', '+angles[0],'Your Portrait A'),genImg(base+', '+angles[1],'Your Portrait B'),genImg(base+', '+angles[2],'Your Portrait C')]);
+  G._pu={a,b,c};
+  setTrio('pa',a); setTrio('pb',b); setTrio('pc',c);
+  document.getElementById('btn-rp').style.display='inline-block';
+  genWakeScene();
+}
+async function regenProto(){
+  ['pa','pb','pc'].forEach(id=>{const e=document.getElementById(id);e.classList.remove('sel');e.innerHTML='<div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div>';});
+  document.getElementById('btn-proto').style.display='none';
+  await genProtagonist();
+}
+function setTrio(id,url){
+  const el=document.getElementById(id);
+  const img=document.createElement('img');img.src=url;
+  img.onload=()=>{const ph=el.querySelector('.iph');if(ph) ph.replaceWith(img);};
+}
+function selProto(opt){
+  ['pa','pb','pc'].forEach(id=>document.getElementById(id).classList.remove('sel'));
+  document.getElementById('p'+opt).classList.add('sel');
+  G.protagonistUrl=G._pu[opt];
+  document.getElementById('btn-proto').style.display='inline-block';
 }
 
-async function selectDailyActivity(key, label) {
-  // For demo: just show a narrative of the chosen activity
-  // In full game, this triggers full scene with Claude
-  alert(`"${label}"\n\nThis scene is coming in the next chapter of development. Stay tuned.`);
+async function genWakeScene(){
+  const lm=CL[G.city]||'city skyline';
+  const url=await genImg(`Beautiful 23-year-old woman lying in ${G.decor} style bedroom, just waking up, morning golden light streaming through open balcony doors, balcony doors wide open with city beyond, ${lm} visible in background, ${G.hairStyle} ${G.hairColor} hair spread on pillow, peaceful serene expression, intimate first-person POV from her perspective looking toward the light, warm golden hour atmosphere, cinematic romance`,'Morning · Day 1');
+  const ph=document.getElementById('wake-ph');
+  const img=document.getElementById('wake-img');
+  img.src=url; img.style.display='block'; if(ph) ph.style.display='none';
+  document.getElementById('btn-wake').style.display='inline-block';
 }
 
-// ══════════════════════════
-//  INIT
-// ══════════════════════════
-window.addEventListener('load', () => {
-  if (G.apiKey) {
-    // Already have key, but still show title
+async function genStreetScene(){
+  const lm=CL[G.city]||'city street';
+  const url=await genImg(`Cinematic nighttime street scene in ${G.city}, ${lm} visible in background, beautiful 23-year-old singer performing on stone steps with acoustic guitar, ${G.hairStyle} ${G.hairColor} hair, elegant pianist at upright piano beside her, warm amber streetlight and neon glow, blurred crowd passing by, one man in dark tailored suit standing completely still watching her from across the street, dramatic low angle composition from behind the crowd, his silhouette against the light, film noir romance atmosphere`,'First Meeting');
+  const ph=document.getElementById('street-ph');
+  const img=document.getElementById('street-img');
+  img.src=url; img.style.display='block'; if(ph) ph.style.display='none';
+  document.getElementById('btn-street').style.display='inline-block';
+}
+
+async function genAgent(){
+  go('s-agent-reveal');
+  const name=await callClaude(`Generate a realistic full name for a 32-year-old ${G.agentOrigin} talent agent. Sophisticated, successful, cold exterior. Return ONLY the full name.`);
+  G.agentName=name.trim().replace(/['"]/g,'');
+  const firstLine=await callClaude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent — cold exterior, quietly warm interior. He has just watched a street musician perform and approaches her for the first time. Write his very first words to her. Brief (1-2 sentences), sophisticated, slightly guarded but compelling. No quotation marks. Return only the dialogue. Language: ${G.langName}.`);
+  const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
+  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features with depth and real character, cold composed expression with hidden warmth, strong jawline, commanding presence, editorial handsome not generic, film still quality portrait`;
+  const angles=[
+    'standing on nighttime city street, three-quarter angle, warm streetlight creating dramatic rim light from behind, direct intense gaze toward camera, city lights bokeh background',
+    'slight low angle looking up at him, close-up portrait, city night bokeh, serious expression with subtle complexity and mystery, one hand in suit pocket',
+    'turning toward camera from side profile, dark suit jacket lapels visible, wet city street reflections below, cinematic film still, brooding romantic lead'
+  ];
+  const [a,b,c]=await Promise.all([genImg(base+', '+angles[0],'Agent Portrait A'),genImg(base+', '+angles[1],'Agent Portrait B'),genImg(base+', '+angles[2],'Agent Portrait C')]);
+  G._au={a,b,c};
+  setTrio('aga',a); setTrio('agb',b); setTrio('agc',c);
+  document.getElementById('agent-reveal-txt').style.display='block';
+  document.getElementById('agent-name-txt').textContent=G.agentName;
+  document.getElementById('agent-line-txt').innerHTML=`"${firstLine.trim()}"`;
+  document.getElementById('btn-rag').style.display='inline-block';
+  genStreetScene();
+}
+async function regenAgent(){
+  ['aga','agb','agc'].forEach(id=>{const e=document.getElementById(id);e.classList.remove('sel');e.innerHTML='<div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That\'s him</div>';});
+  document.getElementById('btn-agent-ok').style.display='none';
+  const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
+  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin, ${st.suit}, sharp distinguished features, cold composed expression with hidden warmth, commanding presence, editorial handsome`;
+  const angles=['standing on nighttime city street, three-quarter angle, streetlight rim light, direct intense gaze','close-up portrait, slight low angle, city lights bokeh, serious expression with complexity','turning toward camera from side profile, dark suit, wet city street reflections, cinematic'];
+  const [a,b,c]=await Promise.all([genImg(base+', '+angles[0],'Agent Portrait A'),genImg(base+', '+angles[1],'Agent Portrait B'),genImg(base+', '+angles[2],'Agent Portrait C')]);
+  G._au={a,b,c};
+  setTrio('aga',a); setTrio('agb',b); setTrio('agc',c);
+}
+function selAgent(opt){
+  ['aga','agb','agc'].forEach(id=>document.getElementById(id).classList.remove('sel'));
+  document.getElementById('ag'+opt).classList.add('sel');
+  G.agentUrl=G._au[opt];
+  document.getElementById('btn-agent-ok').style.display='inline-block';
+}
+
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+async function startDay(){
+  go('s-daily');
+  document.getElementById('d-clock').textContent='8:07';
+  document.getElementById('d-date').textContent=`Saturday · Day ${G.day}`;
+  const txt=await callClaude(`Write a brief poetic morning inner monologue (2 sentences) for a 23-year-old singer. It is Day 1 in ${G.city}. She recently signed with her talent agent ${G.agentName} and today is their first real work meeting. She is nervous but quietly excited. Use second person "You...". Language: ${G.langName}. Return only the text, no quotes.`);
+  document.getElementById('d-txt').textContent=txt.trim();
+  const opts=document.getElementById('d-opts');
+  if(G.day===1){
+    opts.innerHTML=`<button class="dopt" onclick="showComingSoon()">Meet with ${G.agentName||'your agent'}<span class="dsub">He said to come by the office today</span></button>`;
+  }else{
+    const options=getDayOptions();
+    opts.innerHTML=options.map(o=>`<button class="dopt" onclick="showComingSoon()">${o.label}<span class="dsub">${o.sub}</span></button>`).join('');
   }
-  updateProgress();
+}
+
+function getDayOptions(){
+  const all=[
+    {label:'Go to the recording studio',sub:'Work on new material'},
+    {label:`Write songs at a café`,sub:`Find lyrics in the noise of ${G.city}`},
+    {label:'Walk the city',sub:'Let yourself get a little lost'},
+    {label:'Stay home and practice',sub:'Guitar, alone with your thoughts'},
+    {label:`${G.agentName||'Your agent'} wants to meet`,sub:'He has something to tell you'},
+  ];
+  const shuffled=all.sort(()=>Math.random()-0.5);
+  return [all[4],...shuffled.filter(o=>o!==all[4]).slice(0,2)];
+}
+
+function showComingSoon(){
+  alert('This scene is coming in the next development chapter.\n\nThe full story continues soon.');
+}
+
+function openGallery(){
+  const grid=document.getElementById('ggrid');
+  if(G.gallery.length===0){
+    grid.innerHTML='<p style="color:var(--ink-muted);font-size:13px;text-align:center;grid-column:1/-1;padding:40px 0">Your story moments will appear here as you play.</p>';
+  } else {
+    grid.innerHTML=G.gallery.map(item=>`<div class="gi"><img src="${item.url}" alt="${item.label}"><div class="gl">${item.label}</div></div>`).join('');
+  }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-gallery').classList.add('active');
+}
+
+function closeGallery(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(G._prevScreen||'s-daily').classList.add('active');
+}
+
+window.addEventListener('load',()=>{
+  if(G.apiKey) document.getElementById('key-inp').value=G.apiKey;
 });
 </script>
 </body>
