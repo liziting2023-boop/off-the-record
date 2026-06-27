@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Off the Record</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F3EE;
+    --warm-white: #FDFAF7;
+    --ink: #1C1A18;
+    --ink-light: #4A4540;
+    --ink-muted: #8A8078;
+    --gold: #C4A882;
+    --gold-light: #E8D9C4;
+    --rose: #C4847A;
+    --sage: #8A9E8C;
+    --night: #0F0E0C;
+    --night-warm: #1A1714;
+    --night-glow: #2A2520;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--night);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREEN SYSTEM ── */
+  .screen {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    animation: fadeIn 0.8s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInSlow {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ── TITLE SCREEN ── */
+  #screen-title {
+    background: var(--night);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #screen-title::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 60%, rgba(196,168,130,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .title-eyebrow {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0.7;
+  }
+
+  .title-main {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 10vw, 88px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 0.9;
+    letter-spacing: -1px;
+    color: var(--cream);
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .title-sub {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    margin-bottom: 64px;
+  }
+
+  .title-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 48px;
+    opacity: 0.5;
+  }
+
+  /* ── API KEY SCREEN ── */
+  #screen-apikey {
+    background: var(--night);
+  }
+
+  .apikey-box {
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+  }
+
+  .apikey-box h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+
+  .apikey-box p {
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .apikey-box a { color: var(--gold); text-decoration: none; }
+
+  .input-field {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(196,168,130,0.2);
+    border-radius: 4px;
+    padding: 14px 16px;
+    color: var(--cream);
+    font-size: 13px;
+    font-family: monospace;
+    margin-bottom: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: rgba(196,168,130,0.5); }
+
+  .error-msg {
+    font-size: 12px;
+    color: var(--rose);
+    margin-bottom: 16px;
+    min-height: 18px;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    background: var(--gold);
+    border: none;
+    border-radius: 2px;
+    padding: 14px 40px;
+    color: var(--night);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    background: var(--cream);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(196,168,130,0.3);
+    border-radius: 2px;
+    padding: 12px 32px;
+    color: var(--gold);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-block;
+  }
+  .btn-ghost:hover {
+    border-color: var(--gold);
+    background: rgba(196,168,130,0.06);
+  }
+
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 8px;
+  }
+  .btn-text:hover { color: var(--gold); }
+
+  /* ── NARRATIVE SCREEN ── */
+  .narrative-wrap {
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+  }
+
+  .time-stamp {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    opacity: 0.6;
+  }
+
+  .narrative-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 3.5vw, 24px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.9;
+    color: var(--cream);
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeInSlow 1.2s ease 0.3s forwards;
+  }
+
+  .narrative-text em {
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  /* ── CHOICE CARDS ── */
+  .choice-label {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0.8;
+  }
+
+  .choice-grid {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+
+  .choice-grid.col-2 { grid-template-columns: 1fr 1fr; }
+  .choice-grid.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .choice-grid.col-1 { grid-template-columns: 1fr; }
+
+  .choice-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(196,168,130,0.15);
+    border-radius: 3px;
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.4;
+  }
+
+  .choice-card:hover {
+    border-color: rgba(196,168,130,0.5);
+    background: rgba(196,168,130,0.06);
+    color: var(--gold);
+  }
+
+  .choice-card.selected {
+    border-color: var(--gold);
+    background: rgba(196,168,130,0.1);
+    color: var(--gold);
+  }
+
+  .choice-card .card-sub {
+    display: block;
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── ROOM SELECTION ── */
+  .room-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 32px;
+  }
+
+  .room-card {
+    border: 2px solid rgba(196,168,130,0.15);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+  }
+
+  .room-card:hover { border-color: rgba(196,168,130,0.4); }
+  .room-card.selected { border-color: var(--gold); }
+
+  .room-card .room-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    background: var(--night-glow);
+  }
+
+  .room-card .room-img-placeholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: var(--night-glow);
+  }
+
+  .room-label {
+    padding: 12px 14px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--cream);
+    background: var(--night-warm);
+  }
+
+  .room-card.selected .room-label { color: var(--gold); }
+
+  .room-card .selected-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--gold);
+    color: var(--night);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .room-card.selected .selected-badge { opacity: 1; }
+
+  /* ── IMAGE REVEAL ── */
+  .image-reveal {
+    width: 100%;
+    max-width: 440px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .image-reveal img {
+    width: 100%;
+    display: block;
+    animation: fadeInSlow 1.5s ease;
+  }
+
+  .image-reveal .img-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: var(--night-glow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .img-generating {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+  }
+  @keyframes dots {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
+  }
+
+  /* ── SCENE SCREEN ── */
+  #screen-scene {
+    background: var(--night);
+    position: relative;
+  }
+
+  .scene-bg {
+    position: fixed;
+    inset: 0;
+    object-fit: cover;
+    opacity: 0.35;
+    z-index: 0;
+    transition: opacity 1s ease;
+  }
+
+  .scene-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15,14,12,0.95) 0%, rgba(15,14,12,0.5) 50%, rgba(15,14,12,0.3) 100%);
+    z-index: 1;
+  }
+
+  .scene-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    text-align: center;
+    margin-bottom: 40px;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .section-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .section-header p {
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 1px;
+    line-height: 1.7;
+  }
+
+  /* ── HERITAGE DISPLAY ── */
+  .heritage-result {
+    background: rgba(196,168,130,0.06);
+    border: 1px solid rgba(196,168,130,0.2);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+  }
+
+  .heritage-result .trait-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .trait-item {
+    text-align: center;
+  }
+
+  .trait-item .trait-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+  }
+
+  .trait-item .trait-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--gold);
+    transition: width 0.5s ease;
+    z-index: 100;
+    opacity: 0.6;
+  }
+
+  /* ── STEP INDICATOR ── */
+  .step-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    z-index: 100;
+  }
+
+  /* ── BACK BUTTON ── */
+  .back-btn {
+    position: fixed;
+    top: 16px;
+    left: 20px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    cursor: pointer;
+    background: none;
+    border: none;
+    z-index: 100;
+    transition: color 0.2s;
+    font-family: 'Jost', sans-serif;
+  }
+  .back-btn:hover { color: var(--gold); }
+
+  /* ── MORNING SCENE ── */
+  .morning-time {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: -2px;
+    margin-bottom: 4px;
+    opacity: 0.9;
+  }
+
+  .morning-date {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  /* ── PROFILE CARD ── */
+  .profile-summary {
+    width: 100%;
+    max-width: 400px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(196,168,130,0.15);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .profile-summary .ps-title {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .profile-row .pr-key {
+    color: var(--ink-muted);
+  }
+
+  .profile-row .pr-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--cream);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 480px) {
+    .choice-grid.col-3 { grid-template-columns: 1fr 1fr; }
+    .room-pair { grid-template-columns: 1fr; max-width: 320px; }
+    .screen { padding: 60px 20px 40px; }
+  }
+
+  /* ── SCENE TEXT ── */
+  .scene-text-block {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(16px, 3vw, 21px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 2;
+    color: var(--cream);
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .scene-speaker {
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  .scene-dialogue {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+
+  /* ── DIVIDER ── */
+  .thin-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(196,168,130,0.3);
+    margin: 0 auto 32px;
+  }
+
+  .thin-divider-h {
+    width: 60px;
+    height: 1px;
+    background: rgba(196,168,130,0.3);
+    margin: 0 auto 32px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress-bar" style="width:0%"></div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1: TITLE
+══════════════════════════════════════ -->
+<div class="screen active" id="screen-title">
+  <div style="text-align:center; max-width:480px;">
+    <div class="title-eyebrow">A story about being seen</div>
+    <h1 class="title-main">Off the<br>Record</h1>
+    <div class="title-divider"></div>
+    <p class="title-sub">An AI Romance</p>
+    <button class="btn-primary" onclick="goTo('screen-apikey')">Begin</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2: API KEY
+══════════════════════════════════════ -->
+<div class="screen" id="screen-apikey">
+  <div class="apikey-box">
+    <h2>Before we begin</h2>
+    <p>
+      This story is powered by AI — every scene, every conversation, every image is generated just for you.<br><br>
+      You'll need an <strong style="color:var(--cream)">Anthropic API Key</strong> to continue.<br>
+      <a href="https://console.anthropic.com/keys" target="_blank">→ Get your key here</a><br><br>
+      <span style="font-size:11px; opacity:0.6">Your key is stored only in this browser. Never uploaded anywhere.</span>
+    </p>
+    <input class="input-field" id="apikey-input" type="password" placeholder="sk-ant-api03-...">
+    <div class="error-msg" id="apikey-error"></div>
+    <button class="btn-primary" onclick="saveApiKey()" style="width:100%; margin-bottom:12px">Continue</button>
+    <br>
+    <button class="btn-text" onclick="clearKey()" style="font-size:10px; opacity:0.5">Change key</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3: MORNING OPENING
+══════════════════════════════════════ -->
+<div class="screen" id="screen-morning-open">
+  <div class="narrative-wrap">
+    <div class="time-stamp">Friday · 7:14 AM</div>
+    <p class="narrative-text">
+      The light always comes in the same way here —<br>
+      slow, and a little golden, like it isn't sure it's welcome yet.<br><br>
+      I lie still for a moment before I remember<br>
+      where I am. That still happens, sometimes.<br><br>
+      <em>Two months in this city, and it still feels like a secret I'm keeping.</em>
+    </p>
+    <button class="btn-ghost" onclick="goTo('screen-mother')">Continue</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 4: MOTHER'S ORIGIN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-mother">
+  <button class="back-btn" onclick="goTo('screen-morning-open')">← Back</button>
+  <div class="step-indicator">1 of 6</div>
+
+  <div class="section-header">
+    <h2>My mother</h2>
+    <p>She always said I had her eyes.<br>Where was she from?</p>
+  </div>
+
+  <div class="choice-label">Select your mother's origin</div>
+
+  <div class="choice-grid col-2" id="mother-grid">
+    <div class="choice-card" onclick="selectChoice('mother','East Asian','Dark brown, almond-shaped','this')">
+      East Asia
+      <span class="card-sub">China · Japan · Korea</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','Southeast Asian','Warm dark brown','this')">
+      Southeast Asia
+      <span class="card-sub">Philippines · Vietnam · Thailand</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','South Asian','Deep brown','this')">
+      South Asia
+      <span class="card-sub">India · Pakistan · Sri Lanka</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','Northern European','Blue or grey','this')">
+      Northern Europe
+      <span class="card-sub">UK · Scandinavia · Germany</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','Southern European','Warm brown or green','this')">
+      Southern Europe
+      <span class="card-sub">Italy · Spain · Greece</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','African','Rich dark brown','this')">
+      Africa
+      <span class="card-sub">West · East · South</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','Latin American','Brown or hazel','this')">
+      Latin America
+      <span class="card-sub">Brazil · Mexico · Colombia</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('mother','Middle Eastern','Dark almond','this')">
+      Middle East
+      <span class="card-sub">Lebanon · Iran · Egypt</span>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-mother" onclick="goTo('screen-father')" style="display:none">Continue</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 5: FATHER'S ORIGIN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-father">
+  <button class="back-btn" onclick="goTo('screen-mother')">← Back</button>
+  <div class="step-indicator">2 of 6</div>
+
+  <div class="section-header">
+    <h2>My father</h2>
+    <p>He said my skin was just like his.<br>Where was he from?</p>
+  </div>
+
+  <div class="choice-label">Select your father's origin</div>
+
+  <div class="choice-grid col-2" id="father-grid">
+    <div class="choice-card" onclick="selectChoice('father','East Asian','Light to medium golden','this')">
+      East Asia
+      <span class="card-sub">China · Japan · Korea</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','Southeast Asian','Warm golden brown','this')">
+      Southeast Asia
+      <span class="card-sub">Philippines · Vietnam · Thailand</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','South Asian','Medium to deep brown','this')">
+      South Asia
+      <span class="card-sub">India · Pakistan · Sri Lanka</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','Northern European','Fair, cool-toned','this')">
+      Northern Europe
+      <span class="card-sub">UK · Scandinavia · Germany</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','Southern European','Warm olive','this')">
+      Southern Europe
+      <span class="card-sub">Italy · Spain · Greece</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','African','Rich deep brown to ebony','this')">
+      Africa
+      <span class="card-sub">West · East · South</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','Latin American','Medium warm brown','this')">
+      Latin America
+      <span class="card-sub">Brazil · Mexico · Colombia</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('father','Middle Eastern','Medium olive to tan','this')">
+      Middle East
+      <span class="card-sub">Lebanon · Iran · Egypt</span>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-father" onclick="showHeritageSummary()" style="display:none">Continue</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 5B: HERITAGE SUMMARY
+══════════════════════════════════════ -->
+<div class="screen" id="screen-heritage-summary">
+  <button class="back-btn" onclick="goTo('screen-father')">← Back</button>
+  <div class="step-indicator">2 of 6</div>
+
+  <div class="narrative-wrap">
+    <p class="narrative-text" id="heritage-narrative"></p>
+
+    <div class="heritage-result">
+      <div class="trait-row" id="heritage-traits"></div>
+    </div>
+
+    <button class="btn-ghost" onclick="goTo('screen-hair')">That's right</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 6: HAIR
+══════════════════════════════════════ -->
+<div class="screen" id="screen-hair">
+  <button class="back-btn" onclick="goTo('screen-heritage-summary')">← Back</button>
+  <div class="step-indicator">3 of 6</div>
+
+  <div class="section-header">
+    <h2>Yesterday</h2>
+    <p>I finally went to that salon I'd been walking past for weeks.<br>Told them exactly what I wanted.</p>
+  </div>
+
+  <div class="choice-label">Hair length & style</div>
+  <div class="choice-grid col-3" id="hair-style-grid" style="margin-bottom:24px">
+    <div class="choice-card" onclick="selectChoice('hairStyle','Long & straight','this')">Long straight</div>
+    <div class="choice-card" onclick="selectChoice('hairStyle','Long & wavy','this')">Long wavy</div>
+    <div class="choice-card" onclick="selectChoice('hairStyle','Long curls','this')">Long curly</div>
+    <div class="choice-card" onclick="selectChoice('hairStyle','Shoulder-length bob','this')">Bob cut</div>
+    <div class="choice-card" onclick="selectChoice('hairStyle','Short pixie cut','this')">Pixie cut</div>
+    <div class="choice-card" onclick="selectChoice('hairStyle','Loose bun','this')">Loose bun</div>
+  </div>
+
+  <div class="choice-label">Hair colour</div>
+  <div class="choice-grid col-3" id="hair-color-grid">
+    <div class="choice-card" onclick="selectChoice('hairColor','Jet black','this')">Jet black</div>
+    <div class="choice-card" onclick="selectChoice('hairColor','Dark brown','this')">Dark brown</div>
+    <div class="choice-card" onclick="selectChoice('hairColor','Warm chestnut','this')">Chestnut</div>
+    <div class="choice-card" onclick="selectChoice('hairColor','Honey blonde','this')">Honey blonde</div>
+    <div class="choice-card" onclick="selectChoice('hairColor','Burgundy red','this')">Burgundy</div>
+    <div class="choice-card" onclick="selectChoice('hairColor','Silver lavender','this')">Silver lavender</div>
+  </div>
+
+  <button class="btn-primary" id="btn-hair" onclick="goTo('screen-city')" style="display:none; margin-top:8px">Continue</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 7: CITY
+══════════════════════════════════════ -->
+<div class="screen" id="screen-city">
+  <button class="back-btn" onclick="goTo('screen-hair')">← Back</button>
+  <div class="step-indicator">4 of 6</div>
+
+  <div class="section-header">
+    <h2>Two months ago</h2>
+    <p>I packed two suitcases and told myself<br>it was just for a year. We'll see about that.</p>
+  </div>
+
+  <div class="choice-label">Where did you move to?</div>
+
+  <div class="choice-grid col-2" id="city-grid">
+    <div class="choice-card" onclick="selectChoice('city','New York','this')">
+      New York
+      <span class="card-sub">USA · East Coast</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','Los Angeles','this')">
+      Los Angeles
+      <span class="card-sub">USA · West Coast</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','London','this')">
+      London
+      <span class="card-sub">United Kingdom</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','Paris','this')">
+      Paris
+      <span class="card-sub">France</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','Tokyo','this')">
+      Tokyo
+      <span class="card-sub">Japan</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','Seoul','this')">
+      Seoul
+      <span class="card-sub">South Korea</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','Sydney','this')">
+      Sydney
+      <span class="card-sub">Australia</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('city','Toronto','this')">
+      Toronto
+      <span class="card-sub">Canada</span>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-city" onclick="goTo('screen-decor')" style="display:none">Continue</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 8: DECOR STYLE
+══════════════════════════════════════ -->
+<div class="screen" id="screen-decor">
+  <button class="back-btn" onclick="goTo('screen-city')">← Back</button>
+  <div class="step-indicator">5 of 6</div>
+
+  <div class="section-header">
+    <h2>My apartment</h2>
+    <p>It wasn't much when I moved in.<br>But I made it mine.</p>
+  </div>
+
+  <div class="choice-label">Interior style</div>
+
+  <div class="choice-grid col-1" id="decor-grid" style="max-width:400px">
+    <div class="choice-card" onclick="selectChoice('decor','Nordic minimalist','this')">
+      Nordic Minimalist
+      <span class="card-sub">White walls · Natural wood · Clean lines</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('decor','Bohemian warm','this')">
+      Bohemian Warm
+      <span class="card-sub">Warm tones · Textured rugs · Trailing plants</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('decor','Modern dark','this')">
+      Modern Dark
+      <span class="card-sub">Deep tones · Gold accents · City-sleek</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('decor','Romantic blush','this')">
+      Romantic Blush
+      <span class="card-sub">Soft pinks · Floral · Warm candle light</span>
+    </div>
+    <div class="choice-card" onclick="selectChoice('decor','Japanese zen','this')">
+      Japanese Zen
+      <span class="card-sub">Low furniture · Paper lamps · Stillness</span>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-decor" onclick="generateRooms()" style="display:none; margin-top:8px">Generate my apartment</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 9: ROOM SELECTION
+══════════════════════════════════════ -->
+<div class="screen" id="screen-rooms">
+  <div class="step-indicator">6 of 6</div>
+
+  <div class="section-header">
+    <h2>Choose your space</h2>
+    <p>Two versions. Which one feels like home?</p>
+  </div>
+
+  <!-- Living Room -->
+  <div class="choice-label" style="margin-bottom:16px">Living room</div>
+  <div class="room-pair" id="living-pair">
+    <div class="room-card" id="living-a" onclick="selectRoom('living','a')">
+      <div class="room-img-placeholder" id="living-a-img">
+        <span class="img-generating">Generating<span class="loading-dots"></span></span>
+      </div>
+      <div class="room-label">Option A</div>
+      <div class="selected-badge">Selected</div>
+    </div>
+    <div class="room-card" id="living-b" onclick="selectRoom('living','b')">
+      <div class="room-img-placeholder" id="living-b-img">
+        <span class="img-generating">Generating<span class="loading-dots"></span></span>
+      </div>
+      <div class="room-label">Option B</div>
+      <div class="selected-badge">Selected</div>
+    </div>
+  </div>
+
+  <!-- Bedroom -->
+  <div class="choice-label" style="margin-bottom:16px">Bedroom</div>
+  <div class="room-pair" id="bedroom-pair">
+    <div class="room-card" id="bedroom-a" onclick="selectRoom('bedroom','a')">
+      <div class="room-img-placeholder" id="bedroom-a-img">
+        <span class="img-generating">Generating<span class="loading-dots"></span></span>
+      </div>
+      <div class="room-label">Option A</div>
+      <div class="selected-badge">Selected</div>
+    </div>
+    <div class="room-card" id="bedroom-b" onclick="selectRoom('bedroom','b')">
+      <div class="room-img-placeholder" id="bedroom-b-img">
+        <span class="img-generating">Generating<span class="loading-dots"></span></span>
+      </div>
+      <div class="room-label">Option B</div>
+      <div class="selected-badge">Selected</div>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="btn-rooms" onclick="generateProtagonist()" style="display:none; margin-top:8px">
+    This is my home
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 10: PROTAGONIST REVEAL
+══════════════════════════════════════ -->
+<div class="screen" id="screen-protagonist">
+  <div class="narrative-wrap" style="text-align:center">
+
+    <div class="time-stamp">This is you</div>
+
+    <div class="image-reveal" style="max-width:320px; margin:0 auto 32px">
+      <div class="img-placeholder" id="protagonist-placeholder">
+        <span class="img-generating">Creating your portrait<span class="loading-dots"></span></span>
+      </div>
+      <img id="protagonist-img" style="display:none; border-radius:6px" alt="Your portrait">
+    </div>
+
+    <div class="profile-summary" style="margin:0 auto 32px">
+      <div class="ps-title">Your story so far</div>
+      <div class="profile-row">
+        <span class="pr-key">City</span>
+        <span class="pr-val" id="summary-city">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="pr-key">Heritage</span>
+        <span class="pr-val" id="summary-heritage">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="pr-key">Hair</span>
+        <span class="pr-val" id="summary-hair">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="pr-key">Eyes</span>
+        <span class="pr-val" id="summary-eyes">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="pr-key">Home style</span>
+        <span class="pr-val" id="summary-decor">—</span>
+      </div>
+    </div>
+
+    <button class="btn-ghost" id="btn-protagonist" onclick="goTo('screen-night-intro')" style="display:none">
+      Begin the story
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 11: NIGHT INTRO
+══════════════════════════════════════ -->
+<div class="screen" id="screen-night-intro">
+  <div class="narrative-wrap">
+    <div class="time-stamp">That same evening · 9:47 PM</div>
+    <p class="narrative-text">
+      I don't know why I brought my guitar that night.<br><br>
+      I hadn't planned to play anywhere.<br>
+      I was just going to walk, the way I do sometimes<br>
+      when the apartment feels too quiet.<br><br>
+      <em>But then I found that corner of the street,<br>
+      and the light was right, and someone left a step empty —</em><br><br>
+      So I sat down. And I started to play.
+    </p>
+    <button class="btn-ghost" onclick="goTo('screen-street-scene')">I remember this night</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 12: STREET SCENE + IMAGE
+══════════════════════════════════════ -->
+<div class="screen" id="screen-street-scene">
+  <div class="narrative-wrap" style="text-align:center">
+
+    <div class="image-reveal" style="max-width:400px; margin:0 auto 32px">
+      <div class="img-placeholder" id="street-placeholder">
+        <span class="img-generating">Painting the scene<span class="loading-dots"></span></span>
+      </div>
+      <img id="street-img" style="display:none; border-radius:6px" alt="Street scene">
+    </div>
+
+    <p class="scene-text-block" style="opacity:0; animation: fadeInSlow 1s ease 0.5s forwards" id="street-text">
+      The city moved around me.<br>
+      I sang to no one in particular.<br>
+      <em>And then the crowd shifted — and I saw him stop.</em>
+    </p>
+
+    <button class="btn-ghost" id="btn-street" onclick="goTo('screen-agent-arrive')" style="display:none">
+      He was still there when the song ended
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 13: AGENT CUSTOMIZATION
+══════════════════════════════════════ -->
+<div class="screen" id="screen-agent-arrive">
+  <div class="narrative-wrap" style="text-align:center">
+    <p class="narrative-text">
+      He walked toward me slowly.<br>
+      Dark suit. No hurry about him.<br><br>
+      <em>I remember thinking — who wears a suit on a Friday night?</em><br><br>
+      I remember his face very clearly.
+    </p>
+    <button class="btn-ghost" onclick="goTo('screen-agent-origin')">Tell me about him</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 14: AGENT ORIGIN
+══════════════════════════════════════ -->
+<div class="screen" id="screen-agent-origin">
+  <button class="back-btn" onclick="goTo('screen-agent-arrive')">← Back</button>
+
+  <div class="section-header">
+    <h2>Where was he from?</h2>
+    <p>Something about the way he carried himself.<br>You could tell.</p>
+  </div>
+
+  <div class="choice-label">His background</div>
+  <div class="choice-grid col-2" id="agent-origin-grid">
+    <div class="choice-card" onclick="selectChoice('agentOrigin','British','this')">British<span class="card-sub">England · Scotland · Wales</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','American','this')">American<span class="card-sub">East Coast · West Coast</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','French','this')">French<span class="card-sub">Paris · South of France</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','Italian','this')">Italian<span class="card-sub">Milan · Rome · Florence</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','Korean','this')">Korean<span class="card-sub">Seoul · Busan</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','Japanese','this')">Japanese<span class="card-sub">Tokyo · Osaka</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','African-American','this')">African-American<span class="card-sub">New York · Atlanta · LA</span></div>
+    <div class="choice-card" onclick="selectChoice('agentOrigin','Brazilian','this')">Brazilian<span class="card-sub">São Paulo · Rio</span></div>
+  </div>
+  <button class="btn-primary" id="btn-agent-origin" onclick="goTo('screen-agent-age')" style="display:none; margin-top:8px">Continue</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 15: AGENT AGE
+══════════════════════════════════════ -->
+<div class="screen" id="screen-agent-age">
+  <button class="back-btn" onclick="goTo('screen-agent-origin')">← Back</button>
+
+  <div class="section-header">
+    <h2>How old was he?</h2>
+    <p>Hard to say exactly.<br>But you had a sense.</p>
+  </div>
+
+  <div class="choice-grid col-2" id="agent-age-grid" style="max-width:400px">
+    <div class="choice-card" onclick="selectChoice('agentAge','late 20s, around 28','this')">Late twenties<span class="card-sub">Around 28</span></div>
+    <div class="choice-card" onclick="selectChoice('agentAge','early 30s, around 32','this')">Early thirties<span class="card-sub">Around 32</span></div>
+    <div class="choice-card" onclick="selectChoice('agentAge','mid 30s, around 36','this')">Mid thirties<span class="card-sub">Around 36</span></div>
+    <div class="choice-card" onclick="selectChoice('agentAge','early 40s, around 42','this')">Early forties<span class="card-sub">Around 42</span></div>
+  </div>
+  <button class="btn-primary" id="btn-agent-age" onclick="goTo('screen-agent-look')" style="display:none; margin-top:8px">Continue</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 16: AGENT APPEARANCE
+══════════════════════════════════════ -->
+<div class="screen" id="screen-agent-look">
+  <button class="back-btn" onclick="goTo('screen-agent-age')">← Back</button>
+
+  <div class="section-header">
+    <h2>His features</h2>
+    <p>The streetlight caught him just right.<br>I could see every detail.</p>
+  </div>
+
+  <div class="choice-label">Hair colour</div>
+  <div class="choice-grid col-3" id="agent-hair-grid" style="margin-bottom:24px">
+    <div class="choice-card" onclick="selectChoice('agentHair','black','this')">Black</div>
+    <div class="choice-card" onclick="selectChoice('agentHair','dark brown','this')">Dark brown</div>
+    <div class="choice-card" onclick="selectChoice('agentHair','chestnut brown','this')">Chestnut</div>
+    <div class="choice-card" onclick="selectChoice('agentHair','salt and pepper','this')">Salt & pepper</div>
+    <div class="choice-card" onclick="selectChoice('agentHair','dark blonde','this')">Dark blonde</div>
+    <div class="choice-card" onclick="selectChoice('agentHair','auburn','this')">Auburn</div>
+  </div>
+
+  <div class="choice-label">Eye colour</div>
+  <div class="choice-grid col-3" id="agent-eyes-grid" style="margin-bottom:24px">
+    <div class="choice-card" onclick="selectChoice('agentEyes','dark brown','this')">Dark brown</div>
+    <div class="choice-card" onclick="selectChoice('agentEyes','deep black','this')">Black</div>
+    <div class="choice-card" onclick="selectChoice('agentEyes','steel blue','this')">Steel blue</div>
+    <div class="choice-card" onclick="selectChoice('agentEyes','forest green','this')">Forest green</div>
+    <div class="choice-card" onclick="selectChoice('agentEyes','grey','this')">Grey</div>
+    <div class="choice-card" onclick="selectChoice('agentEyes','amber','this')">Amber</div>
+  </div>
+
+  <div class="choice-label">Skin tone</div>
+  <div class="choice-grid col-3" id="agent-skin-grid">
+    <div class="choice-card" onclick="selectChoice('agentSkin','fair','this')">Fair</div>
+    <div class="choice-card" onclick="selectChoice('agentSkin','light olive','this')">Light olive</div>
+    <div class="choice-card" onclick="selectChoice('agentSkin','warm medium','this')">Warm medium</div>
+    <div class="choice-card" onclick="selectChoice('agentSkin','tan','this')">Tan</div>
+    <div class="choice-card" onclick="selectChoice('agentSkin','deep brown','this')">Deep brown</div>
+    <div class="choice-card" onclick="selectChoice('agentSkin','ebony','this')">Ebony</div>
+  </div>
+
+  <button class="btn-primary" id="btn-agent-look" onclick="generateAgentName()" style="display:none; margin-top:24px">
+    I remember him
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 17: AGENT REVEAL
+══════════════════════════════════════ -->
+<div class="screen" id="screen-agent-reveal">
+  <div class="narrative-wrap" style="text-align:center">
+
+    <div class="image-reveal" style="max-width:340px; margin:0 auto 32px">
+      <div class="img-placeholder" id="agent-placeholder">
+        <span class="img-generating">He's coming into focus<span class="loading-dots"></span></span>
+      </div>
+      <img id="agent-img" style="display:none; border-radius:6px" alt="The agent">
+    </div>
+
+    <p class="narrative-text" style="font-size:clamp(16px,3vw,20px)" id="agent-intro-text"></p>
+
+    <div class="scene-speaker">He said</div>
+    <p class="scene-dialogue" id="agent-first-line"></p>
+
+    <button class="btn-ghost" id="btn-agent-reveal" onclick="goTo('screen-chapter-one')" style="display:none">
+      And so it began
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 18: CHAPTER ONE START
+══════════════════════════════════════ -->
+<div class="screen" id="screen-chapter-one">
+  <div class="narrative-wrap" style="text-align:center">
+    <div class="time-stamp" style="margin-bottom:32px">Chapter One</div>
+    <div class="thin-divider-h"></div>
+    <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(32px,6vw,52px); font-weight:300; font-style:italic; color:var(--cream); margin-bottom:24px; line-height:1.2">
+      Signed
+    </h2>
+    <div class="thin-divider-h"></div>
+    <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; color:var(--ink-muted); margin-bottom:48px; line-height:1.8">
+      "Everything changes the moment<br>someone finally sees you."
+    </p>
+
+    <div class="profile-summary" style="margin:0 auto 40px; text-align:left">
+      <div class="ps-title">Your world</div>
+      <div class="profile-row">
+        <span class="pr-key">City</span>
+        <span class="pr-val" id="chapter-city">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="pr-key">Your agent</span>
+        <span class="pr-val" id="chapter-agent">—</span>
+      </div>
+      <div class="profile-row">
+        <span class="pr-key">Day</span>
+        <span class="pr-val">Saturday, Day 1</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startDay()">Wake up · Day 1</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 19: DAILY MORNING
+══════════════════════════════════════ -->
+<div class="screen" id="screen-daily-morning">
+  <div class="scene-content" style="max-width:480px; text-align:center">
+
+    <div class="morning-time" id="daily-time">8:12</div>
+    <div class="morning-date" id="daily-date">Saturday · Day 1</div>
+
+    <div class="thin-divider-h"></div>
+
+    <p class="narrative-text" style="font-size:clamp(15px,2.8vw,19px); margin-bottom:40px" id="morning-text">
+      The bedroom is quiet. Your phone hasn't buzzed yet.
+    </p>
+
+    <div class="choice-label">What will you do today?</div>
+
+    <div class="choice-grid col-1" id="daily-options" style="max-width:400px; margin:0 auto 32px">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════
+//  STATE
+// ══════════════════════════
+const G = {
+  apiKey: localStorage.getItem('otr_key') || '',
+  mother: null, motherEyes: null,
+  father: null, fatherSkin: null,
+  hairStyle: null, hairColor: null,
+  city: null,
+  decor: null,
+  livingRoom: null,  // selected image url
+  bedroom: null,
+  agentOrigin: null,
+  agentAge: null,
+  agentHair: null,
+  agentEyes: null,
+  agentSkin: null,
+  agentName: null,
+  day: 1,
+};
+
+// Derived heritage data
+const heritageMap = {
+  'East Asian':       { eyes: 'Dark brown, almond-shaped', skin: 'Light to medium golden' },
+  'Southeast Asian':  { eyes: 'Warm dark brown', skin: 'Warm golden brown' },
+  'South Asian':      { eyes: 'Deep brown', skin: 'Medium to deep brown' },
+  'Northern European':{ eyes: 'Blue or grey', skin: 'Fair, cool-toned' },
+  'Southern European':{ eyes: 'Warm brown or green', skin: 'Warm olive' },
+  'African':          { eyes: 'Rich dark brown', skin: 'Rich deep brown to ebony' },
+  'Latin American':   { eyes: 'Brown or hazel', skin: 'Medium warm brown' },
+  'Middle Eastern':   { eyes: 'Dark almond', skin: 'Medium olive to tan' },
+};
+
+// City landmark map for image generation
+const cityLandmarks = {
+  'New York': 'Manhattan skyline, yellow taxis, neon signs',
+  'Los Angeles': 'Hollywood Hills, palm trees, golden light',
+  'London': 'red phone boxes, Thames river, foggy streets',
+  'Paris': 'Eiffel Tower, Seine river, Haussmann buildings',
+  'Tokyo': 'Shibuya crossing, neon lights, cherry blossoms',
+  'Seoul': 'Bukchon Hanok Village, Han River, city lights',
+  'Sydney': 'Opera House, Harbour Bridge, sunny waterfront',
+  'Toronto': 'CN Tower, multicultural streets, lakefront',
+};
+
+// ══════════════════════════
+//  NAVIGATION
+// ══════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  updateProgress();
+  window.scrollTo(0, 0);
+}
+
+const screenOrder = [
+  'screen-title','screen-apikey','screen-morning-open',
+  'screen-mother','screen-father','screen-heritage-summary',
+  'screen-hair','screen-city','screen-decor','screen-rooms',
+  'screen-protagonist','screen-night-intro','screen-street-scene',
+  'screen-agent-arrive','screen-agent-origin','screen-agent-age',
+  'screen-agent-look','screen-agent-reveal','screen-chapter-one',
+  'screen-daily-morning'
+];
+
+function updateProgress() {
+  const current = document.querySelector('.screen.active')?.id;
+  const idx = screenOrder.indexOf(current);
+  const pct = idx < 0 ? 0 : Math.round((idx / (screenOrder.length - 1)) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ══════════════════════════
+//  API KEY
+// ══════════════════════════
+function saveApiKey() {
+  const val = document.getElementById('apikey-input').value.trim();
+  if (!val.startsWith('sk-ant')) {
+    document.getElementById('apikey-error').textContent = 'Please enter a valid Anthropic API key (starts with sk-ant)';
+    return;
+  }
+  G.apiKey = val;
+  localStorage.setItem('otr_key', val);
+  goTo('screen-morning-open');
+}
+
+function clearKey() {
+  localStorage.removeItem('otr_key');
+  G.apiKey = '';
+  document.getElementById('apikey-input').value = '';
+  goTo('screen-apikey');
+}
+
+if (G.apiKey) {
+  // Skip API key screen if already saved
+  // But still show title first
+}
+
+// ══════════════════════════
+//  CHOICE SELECTION
+// ══════════════════════════
+function selectChoice(key, value, gridEl) {
+  // Find parent grid
+  const grids = {
+    'mother': 'mother-grid',
+    'father': 'father-grid',
+    'hairStyle': 'hair-style-grid',
+    'hairColor': 'hair-color-grid',
+    'city': 'city-grid',
+    'decor': 'decor-grid',
+    'agentOrigin': 'agent-origin-grid',
+    'agentAge': 'agent-age-grid',
+    'agentHair': 'agent-hair-grid',
+    'agentEyes': 'agent-eyes-grid',
+    'agentSkin': 'agent-skin-grid',
+  };
+
+  const gridId = grids[key];
+  if (gridId) {
+    document.querySelectorAll('#' + gridId + ' .choice-card')
+      .forEach(c => c.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+  }
+
+  G[key] = value;
+
+  // Show continue buttons
+  const btnMap = {
+    'mother': 'btn-mother',
+    'hairColor': 'btn-hair',
+    'city': 'btn-city',
+    'decor': 'btn-decor',
+    'agentOrigin': 'btn-agent-origin',
+    'agentAge': 'btn-agent-age',
+  };
+
+  if (btnMap[key]) {
+    document.getElementById(btnMap[key]).style.display = 'inline-block';
+  }
+
+  // Father: also show button
+  if (key === 'father') {
+    document.getElementById('btn-father').style.display = 'inline-block';
+  }
+
+  // Agent look: show button only when all 3 selected
+  if (['agentHair','agentEyes','agentSkin'].includes(key)) {
+    if (G.agentHair && G.agentEyes && G.agentSkin) {
+      document.getElementById('btn-agent-look').style.display = 'inline-block';
+    }
+  }
+
+  // Hair: show button only when both selected
+  if (['hairStyle','hairColor'].includes(key)) {
+    if (G.hairStyle && G.hairColor) {
+      document.getElementById('btn-hair').style.display = 'inline-block';
+    }
+  }
+}
+
+// ══════════════════════════
+//  HERITAGE SUMMARY
+// ══════════════════════════
+function showHeritageSummary() {
+  const motherData = heritageMap[G.mother] || { eyes: 'brown', skin: 'medium' };
+  const fatherData = heritageMap[G.father] || { eyes: 'brown', skin: 'medium' };
+
+  G.motherEyes = motherData.eyes;
+  G.fatherSkin = fatherData.skin;
+
+  // Blend heritage for display
+  const eyeDesc = G.mother === G.father
+    ? motherData.eyes
+    : `${motherData.eyes} (from your mother)`;
+
+  const skinDesc = G.mother === G.father
+    ? fatherData.skin
+    : `${fatherData.skin} (from your father)`;
+
+  document.getElementById('heritage-narrative').innerHTML =
+    `My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>` +
+    `People always said I was a mix of both of them.<br>` +
+    `I suppose I never had a reason to disagree.`;
+
+  document.getElementById('heritage-traits').innerHTML = `
+    <div class="trait-item">
+      <div class="trait-label">Eyes</div>
+      <div class="trait-val">${motherData.eyes}</div>
+    </div>
+    <div class="trait-item">
+      <div class="trait-label">Skin</div>
+      <div class="trait-val">${fatherData.skin}</div>
+    </div>
+    <div class="trait-item">
+      <div class="trait-label">Heritage</div>
+      <div class="trait-val">${G.mother} × ${G.father}</div>
+    </div>
+  `;
+
+  goTo('screen-heritage-summary');
+}
+
+// ══════════════════════════
+//  CLAUDE API
+// ══════════════════════════
+async function callClaude(prompt, systemPrompt = '') {
+  const messages = [{ role: 'user', content: prompt }];
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    messages,
+  };
+  if (systemPrompt) body.system = systemPrompt;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': G.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || '';
+}
+
+// ══════════════════════════
+//  FAL.AI IMAGE GENERATION
+// ══════════════════════════
+async function generateImage(prompt) {
+  // Using fal.ai for Flux Schnell
+  // NOTE: In production, this should go through your Cloudflare Worker
+  // For demo purposes we show placeholder images
+  // Replace FAL_KEY with your actual fal.ai API key
+  const FAL_KEY = localStorage.getItem('otr_fal_key') || '';
+
+  if (!FAL_KEY) {
+    // Return a placeholder gradient image as data URL for demo
+    return generatePlaceholderImage(prompt);
+  }
+
+  try {
+    const res = await fetch('https://fal.run/fal-ai/flux/schnell', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Key ' + FAL_KEY,
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        image_size: 'portrait_4_3',
+        num_inference_steps: 4,
+        num_images: 1,
+      }),
+    });
+    const data = await res.json();
+    return data.images?.[0]?.url || generatePlaceholderImage(prompt);
+  } catch {
+    return generatePlaceholderImage(prompt);
+  }
+}
+
+function generatePlaceholderImage(prompt) {
+  // Generate a canvas-based placeholder
+  const canvas = document.createElement('canvas');
+  canvas.width = 400; canvas.height = 300;
+  const ctx = canvas.getContext('2d');
+
+  // Dark gradient background
+  const grad = ctx.createLinearGradient(0, 0, 400, 300);
+  grad.addColorStop(0, '#1A1714');
+  grad.addColorStop(1, '#2A2520');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 400, 300);
+
+  // Gold accent line
+  ctx.strokeStyle = 'rgba(196,168,130,0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(20, 20, 360, 260);
+
+  // Text
+  ctx.fillStyle = 'rgba(196,168,130,0.6)';
+  ctx.font = '11px Jost, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('[ Image Preview ]', 200, 145);
+  ctx.fillStyle = 'rgba(196,168,130,0.3)';
+  ctx.font = '10px Jost, sans-serif';
+  ctx.fillText('Add fal.ai key for AI images', 200, 165);
+
+  return canvas.toDataURL();
+}
+
+// ══════════════════════════
+//  GENERATE ROOMS
+// ══════════════════════════
+async function generateRooms() {
+  goTo('screen-rooms');
+
+  const style = G.decor;
+  const city = G.city;
+
+  const livingPrompts = [
+    `${style} interior design living room, morning sunlight streaming through large windows, ${city} apartment, cozy sophisticated atmosphere, interior design photography, warm morning light, editorial quality`,
+    `${style} living room interior, soft diffused morning light, ${city} urban apartment, alternative color palette version, interior photography, styled home, elegant atmosphere`,
+  ];
+
+  const bedroomPrompts = [
+    `${style} bedroom interior, gentle morning sunlight, ${city} apartment, peaceful intimate space, interior design photography, soft warm tones, editorial quality`,
+    `${style} bedroom interior, morning light from window, ${city} urban apartment, alternative mood version, cozy sophisticated, interior photography, styled home`,
+  ];
+
+  // Generate all 4 images
+  const [laUrl, lbUrl, baUrl, bbUrl] = await Promise.all([
+    generateImage(livingPrompts[0]),
+    generateImage(livingPrompts[1]),
+    generateImage(bedroomPrompts[0]),
+    generateImage(bedroomPrompts[1]),
+  ]);
+
+  // Render living room
+  setRoomImage('living-a-img', laUrl, 'A', 'living');
+  setRoomImage('living-b-img', lbUrl, 'B', 'living');
+  setRoomImage('bedroom-a-img', baUrl, 'A', 'bedroom');
+  setRoomImage('bedroom-b-img', bbUrl, 'B', 'bedroom');
+
+  G._livingUrls = { a: laUrl, b: lbUrl };
+  G._bedroomUrls = { a: baUrl, b: bbUrl };
+}
+
+function setRoomImage(placeholderId, url, label, type) {
+  const placeholder = document.getElementById(placeholderId);
+  const img = document.createElement('img');
+  img.src = url;
+  img.className = 'room-img';
+  img.alt = `${type} option ${label}`;
+  img.onload = () => {
+    placeholder.replaceWith(img);
+    checkRoomsReady();
+  };
+  img.onerror = () => {
+    placeholder.innerHTML = `<span style="color:var(--ink-muted);font-size:12px;padding:20px">Option ${label}</span>`;
+    checkRoomsReady();
+  };
+}
+
+function checkRoomsReady() {
+  // Show confirm button once user has selected both rooms
+  if (G.livingRoom && G.bedroom) {
+    document.getElementById('btn-rooms').style.display = 'inline-block';
+  }
+}
+
+function selectRoom(type, option) {
+  // Deselect sibling
+  document.getElementById(type + '-a').classList.remove('selected');
+  document.getElementById(type + '-b').classList.remove('selected');
+  // Select chosen
+  document.getElementById(type + '-' + option).classList.add('selected');
+
+  if (type === 'living') {
+    G.livingRoom = G._livingUrls?.[option] || null;
+  } else {
+    G.bedroom = G._bedroomUrls?.[option] || null;
+  }
+
+  checkRoomsReady();
+}
+
+// ══════════════════════════
+//  GENERATE PROTAGONIST
+// ══════════════════════════
+async function generateProtagonist() {
+  goTo('screen-protagonist');
+
+  // Fill summary
+  document.getElementById('summary-city').textContent = G.city;
+  document.getElementById('summary-heritage').textContent = `${G.mother} × ${G.father}`;
+  document.getElementById('summary-hair').textContent = `${G.hairStyle}, ${G.hairColor}`;
+  document.getElementById('summary-eyes').textContent = G.motherEyes;
+  document.getElementById('summary-decor').textContent = G.decor;
+
+  const prompt = `Portrait of a young woman, mixed heritage (${G.mother} and ${G.father}), 
+    ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, 
+    ${G.hairStyle} ${G.hairColor} hair, 
+    sitting by a window in a ${G.city} apartment with ${G.decor} interior, 
+    morning golden light, casual but stylish, 
+    soft cinematic portrait photography, film grain, 
+    romance novel illustration style, intimate atmospheric lighting`;
+
+  const url = await generateImage(prompt);
+
+  const placeholder = document.getElementById('protagonist-placeholder');
+  const img = document.getElementById('protagonist-img');
+  img.src = url;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  document.getElementById('btn-protagonist').style.display = 'inline-block';
+
+  // Generate street scene in background
+  generateStreetScene();
+}
+
+// ══════════════════════════
+//  GENERATE STREET SCENE
+// ══════════════════════════
+async function generateStreetScene() {
+  const landmarks = cityLandmarks[G.city] || 'city streets, neon signs';
+  const prompt = `Nighttime city street scene in ${G.city}, ${landmarks}, 
+    a young woman with ${G.hairStyle} ${G.hairColor} hair sitting on steps playing acoustic guitar, 
+    warm streetlight glow, neon reflections on wet pavement, 
+    a tall well-dressed man in a dark suit standing still in the moving crowd watching her intently, 
+    cinematic romance atmosphere, bokeh city lights, 
+    emotional intimate moment, film photography aesthetic`;
+
+  const url = await generateImage(prompt);
+  const placeholder = document.getElementById('street-placeholder');
+  const img = document.getElementById('street-img');
+  img.src = url;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  setTimeout(() => {
+    document.getElementById('btn-street').style.display = 'inline-block';
+  }, 800);
+}
+
+// Override goTo for street scene to handle image timing
+const origGoTo = window.goTo;
+// (already handled above via async generation)
+
+// ══════════════════════════
+//  GENERATE AGENT NAME
+// ══════════════════════════
+async function generateAgentName() {
+  goTo('screen-agent-reveal');
+
+  // Generate name via Claude
+  const namePrompt = `Generate a realistic full name for a ${G.agentAge} talent agent from ${G.agentOrigin} background. 
+  The character is sophisticated, successful, and slightly cold. 
+  Return ONLY the name, nothing else. No explanation.`;
+
+  const name = await callClaude(namePrompt);
+  G.agentName = name.trim().replace(/^["']|["']$/g, '');
+
+  // Generate first line via Claude
+  const linePrompt = `The character ${G.agentName} is a ${G.agentAge} talent agent (${G.agentOrigin}) — 
+  exterior cold, interior warm. He has just stopped to listen to a street musician and is approaching her for the first time. 
+  Write his very first words to her. Should be brief (1-2 sentences), sophisticated, slightly guarded but compelling. 
+  Do not use quotation marks. Return only the dialogue.`;
+
+  const firstLine = await callClaude(linePrompt);
+
+  // Agent portrait
+  const agentPrompt = `Portrait of a ${G.agentAge} male talent agent, ${G.agentOrigin} heritage, 
+    ${G.agentHair} hair, ${G.agentEyes} eyes, ${G.agentSkin} skin, 
+    wearing a dark tailored suit, sharp features, 
+    cold composed expression with depth behind it, 
+    standing on a city street at night, warm streetlight background, 
+    cinematic portrait photography, romance novel cover style, 
+    sophisticated masculine, film grain aesthetic`;
+
+  const agentUrl = await generateImage(agentPrompt);
+
+  document.getElementById('agent-intro-text').innerHTML =
+    `He introduced himself as <em>${G.agentName}</em>.<br><br>` +
+    `He was exactly what his name sounded like —<br>` +
+    `precise, and difficult to read.`;
+
+  document.getElementById('agent-first-line').textContent = firstLine.trim();
+
+  const placeholder = document.getElementById('agent-placeholder');
+  const img = document.getElementById('agent-img');
+  img.src = agentUrl;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+
+  setTimeout(() => {
+    document.getElementById('btn-agent-reveal').style.display = 'inline-block';
+  }, 600);
+
+  // Pre-fill chapter 1
+  document.getElementById('chapter-city').textContent = G.city;
+  document.getElementById('chapter-agent').textContent = G.agentName;
+}
+
+// ══════════════════════════
+//  DAILY LOOP
+// ══════════════════════════
+const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const startDayOfWeek = 6; // Saturday
+
+async function startDay() {
+  goTo('screen-daily-morning');
+
+  const dayOfWeek = dayNames[(startDayOfWeek + G.day - 1) % 7];
+  document.getElementById('daily-date').textContent = `${dayOfWeek} · Day ${G.day}`;
+
+  // Morning greeting via Claude
+  const morningPrompt = `Write a brief, poetic morning inner monologue (2-3 sentences) 
+    for a young singer-songwriter on Day ${G.day} of her new life in ${G.city}. 
+    Her talent agent is named ${G.agentName}. 
+    ${G.day === 1 ? 'It is her first morning after meeting him last night.' : 'She has been here ' + G.day + ' days.'}
+    Tone: reflective, literary, slightly nervous excitement. 
+    Write in second person ("You..."). Return only the paragraph.`;
+
+  const morningText = await callClaude(morningPrompt);
+  document.getElementById('morning-text').textContent = morningText.trim();
+
+  // Daily options
+  const options = getDailyOptions(G.day);
+  const container = document.getElementById('daily-options');
+  container.innerHTML = options.map((opt, i) =>
+    `<div class="choice-card" onclick="selectDailyActivity('${opt.key}', '${opt.label}')">
+      ${opt.label}
+      <span class="card-sub">${opt.sub}</span>
+    </div>`
+  ).join('');
+}
+
+function getDailyOptions(day) {
+  const allOptions = [
+    { key: 'studio', label: 'Go to the recording studio', sub: 'Work on new material' },
+    { key: 'cafe', label: 'Write at a café', sub: 'Find lyrics in the noise' },
+    { key: 'walk', label: 'Walk the city', sub: `Explore ${G.city}` },
+    { key: 'practice', label: 'Stay home and practice', sub: 'Guitar, alone with your thoughts' },
+    { key: 'agent', label: `${G.agentName} wants to meet`, sub: 'He has something to tell you' },
+  ];
+
+  // Day 1 always leads with agent
+  if (day === 1) {
+    return [allOptions[4], allOptions[0], allOptions[2]];
+  }
+
+  // Shuffle for variety
+  const pool = [...allOptions];
+  const chosen = [pool[4]]; // always include agent option sometimes
+  while (chosen.length < 3) {
+    const r = Math.floor(Math.random() * pool.length);
+    if (!chosen.includes(pool[r])) chosen.push(pool[r]);
+  }
+  return chosen;
+}
+
+async function selectDailyActivity(key, label) {
+  // For demo: just show a narrative of the chosen activity
+  // In full game, this triggers full scene with Claude
+  alert(`"${label}"\n\nThis scene is coming in the next chapter of development. Stay tuned.`);
+}
+
+// ══════════════════════════
+//  INIT
+// ══════════════════════════
+window.addEventListener('load', () => {
+  if (G.apiKey) {
+    // Already have key, but still show title
+  }
+  updateProgress();
+});
+</script>
+</body>
+</html>
