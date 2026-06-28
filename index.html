@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.20</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.21</p>
   </div>
 </div>
 
@@ -1857,12 +1857,104 @@ async function goEvening() {
 
 function nextDay() {
   G.day++;
+  // Generate affinity-based messages for next day
+  generateAffinityMessages(G.day - 1);
   if (G.day > 5) {
     const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
     alert(isZh ? '5天结束！\n知名度：' + G.fame + '/100\n\n更多内容即将到来。' : '5 days complete!\nFame: ' + G.fame + '/100\n\nMore coming soon.');
     return;
   }
   startDay();
+}
+
+// ══ AFFINITY MESSAGE SYSTEM ══
+async function generateAffinityMessages(day) {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+
+  // Check special dates
+  const birthday = STORY.specialDates.getNPCBirthday(day);
+  const holiday = STORY.specialDates.getHoliday(day);
+  const playerBday = (() => {
+    const { month, d } = STORY.specialDates.getGameDate(day);
+    const pb = STORY.specialDates.birthdays.player;
+    return (pb.month === month && pb.day === d) ? pb : null;
+  })();
+
+  // Get met NPCs sorted by relationship
+  const metNPCs = Object.entries(G.npcs)
+    .filter(([k, n]) => n.met && k !== 'detective') // detective is mystery
+    .sort(([,a],[,b]) => b.relationship - a.relationship);
+
+  for (const [npcKey, npc] of metNPCs) {
+    const tier = STORY.specialDates.getAffinityTier(npc.relationship);
+    const isBirthday = birthday && birthday.npc === npcKey;
+    const isPlayerBirthday = !!playerBday;
+
+    // Determine if this NPC should reach out
+    let shouldMessage = false;
+    let occasion = null;
+
+    if (isBirthday) { shouldMessage = true; occasion = birthday; }
+    else if (isPlayerBirthday) { shouldMessage = true; occasion = playerBday; }
+    else if (holiday) { shouldMessage = tier === 'high' || tier === 'mid'; occasion = holiday; }
+    else if (tier === 'high') { shouldMessage = true; }
+    else if (tier === 'mid') { shouldMessage = Math.random() > 0.4; }
+    else if (tier === 'low') { shouldMessage = Math.random() > 0.75; }
+
+    if (!shouldMessage) continue;
+
+    // Generate message
+    const ctx = STORY.specialDates.getProactiveContext(
+      npcKey, tier, occasion, G.lang, G.player.name, npc.name
+    );
+
+    const char = STORY.characters[npcKey];
+    const personality = char ? char.corePersonality.slice(0,2).join('. ') : '';
+
+    try {
+      const msg = await claude(
+        'You are ' + (npc.name||npcKey) + ', ' + (char?.age||30) + '-year-old ' + (char?.profession||npcKey) + '. ' +
+        personality + '. ' + ctx +
+        '\nSend a text message to ' + (G.player.name||'her') + '. ' +
+        (tier === 'high' ? 'You can suggest meeting up, dinner, or a specific activity.' : '') +
+        (tier === 'mid' ? 'Keep it casual but warm.' : '') +
+        '\n1-2 sentences. No quotes around the message. Western style — direct and natural. Language: ' + G.langName + '.'
+      );
+
+      if (msg && msg.trim().length > 3) {
+        if (!G.phone.messages[day]) G.phone.messages[day] = [];
+        G.phone.messages[day].push({
+          npc: npcKey,
+          name: npc.name || getNPCName(npcKey),
+          text: msg.trim(),
+          isVoice: false,
+          emoji: NPC_UI[npcKey]?.emoji || '💬',
+          color: NPC_UI[npcKey]?.color || '#C4A882',
+          time: Math.floor(Math.random()*4+18) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0'),
+          isProactive: true,
+          tier,
+          occasion: occasion?.key || (isBirthday?'birthday':null),
+        });
+        G.phone.unreadCount = (G.phone.unreadCount||0) + 1;
+      }
+    } catch(e) {
+      console.log('Affinity msg failed for', npcKey, e);
+    }
+
+    // High affinity + special occasion = possible surprise visit next day
+    if (tier === 'high' && (holiday || isPlayerBirthday) && !G.npcs[npcKey]._surpriseVisitScheduled) {
+      G.npcs[npcKey]._surpriseVisitScheduled = day + 1;
+    }
+  }
+
+  // Update phone badge
+  const badge = document.getElementById('phone-badge');
+  if (badge && G.phone.unreadCount > 0) {
+    badge.textContent = G.phone.unreadCount;
+    badge.classList.add('show');
+  }
+
+  STATE.save.saveGame();
 }
 
 function setImg(imgId, phId, url) {
@@ -2087,7 +2179,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.20 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.21 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
