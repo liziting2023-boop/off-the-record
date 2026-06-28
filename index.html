@@ -337,7 +337,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.11</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.12</p>
   </div>
 </div>
 
@@ -1435,8 +1435,15 @@ function showNPCOrigin(npcKey, callback) {
   _pendingNPCKey = npcKey; _pendingNPCCallback = callback; _selectedNPCOrigin = null;
   const origins = t('agent_origins'); const subs = t('agent_origin_subs');
   const vals = ['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
-  document.getElementById('nos-title').textContent = t('npc_origin_title');
-  document.getElementById('nos-sub').textContent = t('npc_origin_sub');
+  const npcRoleLabel = {
+    drummer: G.lang==='zh-cn'||G.lang==='zh-tw'?'鼓手':G.lang==='ja'?'ドラマー':G.lang==='ko'?'드러머':'The Drummer',
+    actor:   G.lang==='zh-cn'||G.lang==='zh-tw'?'男演员':G.lang==='ja'?'俳優':G.lang==='ko'?'배우':'The Actor',
+    butler:  G.lang==='zh-cn'||G.lang==='zh-tw'?'楼管':G.lang==='ja'?'管理人':G.lang==='ko'?'관리인':'The Building Manager',
+    detective:G.lang==='zh-cn'||G.lang==='zh-tw'?'侦探':G.lang==='ja'?'探偵':G.lang==='ko'?'탐정':'The Detective',
+  }[npcKey] || t('npc_origin_title');
+  const isZhNos = G.lang==='zh-cn'||G.lang==='zh-tw';
+  document.getElementById('nos-title').textContent = isZhNos ? npcRoleLabel + '是哪里人？' : G.lang==='ja' ? npcRoleLabel + 'の出身は？' : G.lang==='ko' ? npcRoleLabel + '의 출신은?' : 'Where is ' + npcRoleLabel + ' from?';
+  document.getElementById('nos-sub').textContent = isZhNos ? '他的背景造就了他的性格。' : G.lang==='ja' ? '彼の背景が彼を作った。' : G.lang==='ko' ? '그의 배경이 그를 만들었다.' : 'His background shapes who he is.';
   var nosGrid = document.getElementById('nos-grid');
   nosGrid.innerHTML = '';
   origins.forEach(function(o, i) {
@@ -1532,7 +1539,7 @@ function buildDayOpts() {
     opts.appendChild(makeOpt(wPick.label, wSub, 'work', () => playFree(wPick.key, wPick.label, true)));
     sPicks.forEach(s => opts.appendChild(makeOpt(s.label, sSub, '', () => playFree(s.key, s.label, false))));
   }
-  opts.appendChild(makeOpt(phoneLabel, phoneSub, 'phone-btn', () => { openPhone(); setABn('bn-phone'); }));
+  // Phone is accessible via bottom nav - no need to add here
 }
 
 function getScriptedLabel(ev, day, lang) {
@@ -1977,7 +1984,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.11 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.12 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
