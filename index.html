@@ -6,229 +6,300 @@
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--cream:#F7F3EE;--ink-muted:#8A8078;--gold:#C4A882;--rose:#C4847A;--night:#0F0E0C;--night-warm:#1A1714;--night-glow:#2A2520;--green:#4ade80;}
+:root{--cream:#F7F3EE;--gold:#C4A882;--rose:#C4847A;--night:#0F0E0C;--night-warm:#1A1714;--night-glow:#2A2520;--ink-muted:#8A8078;--wechat-green:#07C160;--wechat-bg:#EDEDED;--wechat-dark:#111;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
-.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 90px;animation:fadeIn 0.8s ease;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;}
+
+/* ── SCREEN SYSTEM ── */
+/* All screens are exactly 100vh, no scroll */
+.screen{display:none;height:100vh;height:100dvh;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;animation:fadeIn 0.6s ease;}
 .screen.active{display:flex;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeInSlow{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
 @keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
 .loading-dots::after{content:'';animation:dots 1.5s infinite;}
-.gt{font-size:11px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;animation:pulse 1.5s infinite;}
+.gt{font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;animation:pulse 1.5s infinite;}
 
-/* TYPE */
-.eyebrow{font-size:11px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;opacity:0.7;}
-.title-main{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,14vw,88px);font-weight:300;font-style:italic;line-height:0.9;color:var(--cream);text-align:center;margin-bottom:24px;}
-.divider-h{width:40px;height:1px;background:var(--gold);margin:0 auto 32px;opacity:0.5;}
-.divider-thin{width:60px;height:1px;background:rgba(196,168,130,0.3);margin:0 auto 20px;}
-.sec-head{text-align:center;margin-bottom:20px;width:100%;max-width:500px;}
-.sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,7vw,40px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:8px;}
-.sec-head p{font-size:14px;color:var(--ink-muted);line-height:1.8;}
-.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4.5vw,22px);font-weight:300;font-style:italic;line-height:2;color:var(--cream);margin-bottom:28px;opacity:0;animation:fadeInSlow 1.2s ease 0.3s forwards;text-align:center;}
+/* ── TYPOGRAPHY ── */
+.eyebrow{font-size:10px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;opacity:0.7;}
+.title-main{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,12vw,72px);font-weight:300;font-style:italic;line-height:0.9;color:var(--cream);text-align:center;margin-bottom:20px;}
+.divider-h{width:36px;height:1px;background:var(--gold);margin:0 auto 24px;opacity:0.5;}
+.divider-thin{width:48px;height:1px;background:rgba(196,168,130,0.3);margin:0 auto 16px;}
+.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,19px);font-weight:300;font-style:italic;line-height:1.85;color:var(--cream);margin-bottom:20px;opacity:0;animation:fadeInSlow 1s ease 0.2s forwards;text-align:center;}
 .nar em{color:var(--gold);font-style:normal;}
-.stamp{font-size:11px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:28px;opacity:0.6;}
-.clabel{font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;opacity:0.8;text-align:center;}
+.stamp{font-size:10px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:20px;opacity:0.6;}
+.clabel{font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;opacity:0.8;text-align:center;}
+.sec-head{text-align:center;margin-bottom:14px;width:100%;}
+.sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,6vw,32px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:4px;}
+.sec-head p{font-size:12px;color:var(--ink-muted);line-height:1.6;}
 
-/* BUTTONS */
-.btn-p{background:var(--gold);border:none;border-radius:2px;padding:16px 40px;color:var(--night);font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:52px;display:inline-block;}
-.btn-g{background:transparent;border:1px solid rgba(196,168,130,0.35);border-radius:2px;padding:14px 28px;color:var(--gold);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:52px;display:inline-block;}
-.btn-t{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:10px;min-height:44px;}
+/* ── BUTTONS ── */
+.btn-p{background:var(--gold);border:none;border-radius:2px;padding:13px 32px;color:var(--night);font-family:'Jost',sans-serif;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;cursor:pointer;min-height:46px;display:inline-block;}
+.btn-g{background:transparent;border:1px solid rgba(196,168,130,0.35);border-radius:2px;padding:11px 24px;color:var(--gold);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;min-height:46px;display:inline-block;}
+.btn-t{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:8px;min-height:40px;}
 
-/* CARDS */
-.cgrid{display:grid;gap:10px;width:100%;max-width:500px;margin-bottom:20px;}
+/* ── CARDS ── */
+.cgrid{display:grid;gap:8px;width:100%;margin-bottom:14px;}
 .cgrid.c2{grid-template-columns:1fr 1fr;}
 .cgrid.c3{grid-template-columns:1fr 1fr 1fr;}
-.cgrid.c1{grid-template-columns:1fr;max-width:400px;}
-.card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:15px 12px;cursor:pointer;transition:all 0.2s;text-align:center;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);color:var(--cream);line-height:1.4;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;}
-.card:active,.card.active-sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
-.card .sub{display:block;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-top:4px;}
+.cgrid.c1{grid-template-columns:1fr;max-width:360px;}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:11px 10px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);color:var(--cream);line-height:1.3;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;transition:all 0.15s;}
+.card:active,.card.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
+.card .sub{display:block;font-family:'Jost',sans-serif;font-size:9px;letter-spacing:1px;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
 
-/* LANG */
-.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:460px;margin-bottom:20px;}
-.lcard{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;}
-.lcard:active,.lcard.active-sel{border-color:var(--gold);background:rgba(196,168,130,0.1);}
-.lname{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--cream);display:block;margin-bottom:3px;}
-.lcard.active-sel .lname{color:var(--gold);}
-.lmkt{font-size:10px;letter-spacing:1px;color:var(--ink-muted);}
+/* ── LANG GRID ── */
+.lgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%;margin-bottom:14px;}
+.lcard{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.12);border-radius:3px;padding:10px 6px;cursor:pointer;text-align:center;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;transition:all 0.15s;}
+.lcard:active,.lcard.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);}
+.lname{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--cream);display:block;margin-bottom:2px;}
+.lcard.sel .lname{color:var(--gold);}
+.lmkt{font-size:8px;letter-spacing:0.5px;color:var(--ink-muted);}
 
-/* TRIO */
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:500px;margin-bottom:14px;}
-.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;}
-.trio-item.active-sel{border-color:var(--gold);}
+/* ── TRIO (portrait select) ── */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-bottom:10px;}
+.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;transition:border-color 0.15s;}
+.trio-item.sel{border-color:var(--gold);}
 .trio-item img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;}
-.trio-item .iph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:6px;}
-.trio-item .sbadge{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--night);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;opacity:0;transition:opacity 0.2s;white-space:nowrap;}
-.trio-item.active-sel .sbadge{opacity:1;}
+.trio-item .iph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:4px;}
+.trio-item .sbadge{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--night);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;opacity:0;white-space:nowrap;}
+.trio-item.sel .sbadge{opacity:1;}
 
-/* ROOM TRIO */
-.room-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:500px;margin-bottom:14px;}
-.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;}
-.rcard.active-sel{border-color:var(--gold);}
+/* ── ROOM TRIO ── */
+.room-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-bottom:10px;}
+.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;transition:border-color 0.15s;}
+.rcard.sel{border-color:var(--gold);}
 .rcard img,.rcard .rph{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
-.rcard .rph{display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:6px;}
-.rcard .rlabel{padding:8px;font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--cream);background:var(--night-warm);text-align:center;}
-.rcard.active-sel .rlabel{color:var(--gold);}
-.rcard .rbadge{position:absolute;top:6px;right:6px;background:var(--gold);color:var(--night);font-size:9px;padding:2px 6px;border-radius:2px;opacity:0;}
-.rcard.active-sel .rbadge{opacity:1;}
+.rcard .rph{display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:4px;}
+.rcard .rlabel{padding:5px;font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--cream);background:var(--night-warm);text-align:center;}
+.rcard.sel .rlabel{color:var(--gold);}
+.rcard .rbadge{position:absolute;top:4px;right:4px;background:var(--gold);color:var(--night);font-size:8px;padding:2px 5px;border-radius:2px;opacity:0;}
+.rcard.sel .rbadge{opacity:1;}
 
-/* SCENE */
-.scene-img{width:100%;max-width:400px;border-radius:6px;overflow:hidden;margin:0 auto 20px;}
-.scene-img img{width:100%;display:block;border-radius:6px;cursor:pointer;}
-.scene-img .sph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);border-radius:6px;flex-direction:column;gap:8px;}
+/* ── HERITAGE BOX ── */
+.hbox{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.2);border-radius:4px;padding:10px 16px;margin-bottom:14px;width:100%;text-align:center;}
+.trow{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+.ti .tl{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-muted);margin-bottom:3px;}
+.ti .tv{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--gold);}
 
-/* LIGHTBOX */
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:1000;align-items:center;justify-content:center;}
-.lightbox.open{display:flex;}
-.lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px;}
-.lb-close{position:absolute;top:16px;right:16px;background:rgba(196,168,130,0.2);border:1px solid rgba(196,168,130,0.4);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gold);font-size:20px;z-index:1001;}
-
-/* PROFILE */
-.pbox{width:100%;max-width:340px;background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:4px;padding:16px 20px;margin-bottom:20px;}
-.pbox .ptitle{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;opacity:0.8;}
-.prow{display:flex;justify-content:space-between;margin-bottom:7px;font-size:14px;}
-.prow .pk{color:var(--ink-muted);}
-.prow .pv{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--cream);}
-
-/* HERITAGE */
-.hbox{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.2);border-radius:4px;padding:14px 20px;margin-bottom:20px;width:100%;max-width:500px;text-align:center;}
-.trow{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
-.ti .tl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;}
-.ti .tv{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--gold);}
-
-/* NAME INPUT */
-.name-inp{width:100%;max-width:360px;background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.3);border-radius:4px;padding:16px;color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;text-align:center;outline:none;margin-bottom:8px;}
+/* ── NAME INPUT ── */
+.name-inp{width:100%;max-width:300px;background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.3);border-radius:4px;padding:13px;color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;text-align:center;outline:none;margin-bottom:8px;}
 .name-inp:focus{border-color:var(--gold);}
 .name-inp::placeholder{color:rgba(196,168,130,0.3);}
 
-/* DAILY */
-.mclock{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,12vw,64px);font-weight:300;color:var(--cream);letter-spacing:-2px;margin-bottom:4px;}
-.mdate{font-size:11px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:20px;}
-.dopt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px 18px;cursor:pointer;transition:all 0.2s;width:100%;max-width:400px;margin-bottom:10px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);color:var(--cream);display:block;min-height:64px;}
-.dopt:active{border-color:var(--gold);background:rgba(196,168,130,0.06);color:var(--gold);}
-.dopt .dsub{display:block;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-top:4px;}
-.dopt.work-opt{border-left:2px solid rgba(196,168,130,0.5);}
-.dopt.phone-opt{border-left:2px solid rgba(74,222,128,0.5);}
+/* ── PROFILE BOX ── */
+.pbox{width:100%;max-width:300px;background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:4px;padding:12px 16px;margin-bottom:16px;}
+.pbox .ptitle{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;opacity:0.8;}
+.prow{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;}
+.prow .pk{color:var(--ink-muted);}
+.prow .pv{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--cream);}
 
-/* DIALOGUE */
-.dlg-wrap{width:100%;max-width:420px;}
-.dlg-bubble{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.15);border-radius:12px 12px 12px 2px;padding:14px 16px;margin-bottom:12px;}
-.dlg-bubble.player{background:rgba(196,168,130,0.04);border-radius:12px 12px 2px 12px;border-color:rgba(196,168,130,0.08);}
-.dlg-name{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;opacity:0.8;}
-.dlg-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--cream);line-height:1.8;}
-.dlg-opt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.12);border-radius:3px;padding:14px 16px;cursor:pointer;transition:all 0.2s;width:100%;max-width:400px;margin-bottom:8px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);color:var(--cream);display:block;min-height:54px;}
-.dlg-opt:active{border-color:var(--gold);background:rgba(196,168,130,0.08);color:var(--gold);}
-.rel-tag{display:inline-block;font-size:9px;letter-spacing:2px;padding:2px 7px;border-radius:10px;margin-left:8px;vertical-align:middle;font-family:'Jost',sans-serif;}
+/* ── VISUAL NOVEL SCENE ── */
+#s-scene{position:relative;padding:0;}
+.vn-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.vn-bg-ph{position:absolute;inset:0;background:var(--night-glow);z-index:0;display:flex;align-items:center;justify-content:center;}
+.vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.3) 50%,rgba(0,0,0,0.1) 100%);z-index:1;}
+.vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
+.vn-dialog{background:rgba(10,10,10,0.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid rgba(196,168,130,0.2);padding:12px 16px 8px;}
+.vn-speaker{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;opacity:0.9;}
+.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:10px;}
+.vn-opts{display:grid;gap:6px;}
+.vn-opt{background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.2);border-radius:3px;padding:9px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3.5vw,14px);color:var(--cream);display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
+.vn-opt:active{border-color:var(--gold);background:rgba(196,168,130,0.15);}
+.rel-tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:8px;font-family:'Jost',sans-serif;flex-shrink:0;margin-left:8px;}
 .rel-close{background:rgba(74,222,128,0.15);color:#4ade80;}
 .rel-neutral{background:rgba(196,168,130,0.15);color:var(--gold);}
 .rel-far{background:rgba(239,68,68,0.15);color:#ef4444;}
+.vn-next{background:var(--gold);border:none;border-radius:2px;padding:10px 28px;color:var(--night);font-family:'Jost',sans-serif;font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;cursor:pointer;align-self:center;min-height:40px;}
+/* Loading overlay for VN scene */
+.vn-loading{position:absolute;inset:0;z-index:10;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.vn-loading-txt{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--ink-muted);}
 
-/* PHONE */
-.phone-shell{width:100%;max-width:360px;background:#0a0a0a;border-radius:40px;padding:24px 16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 0 40px rgba(0,0,0,0.8);}
-.phone-bar{display:flex;justify-content:space-between;align-items:center;padding:0 8px;margin-bottom:16px;}
-.phone-time{font-size:14px;font-weight:500;color:#fff;}
-.phone-icons{font-size:12px;color:#fff;opacity:0.8;}
-.phone-notif-area{margin-bottom:12px;}
-.phone-notif{background:rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;}
-.phone-notif:active{background:rgba(255,255,255,0.12);}
-.notif-app{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:4px;}
-.notif-title{font-size:13px;color:#fff;margin-bottom:2px;font-weight:400;}
-.notif-body{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.4;}
-.phone-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:8px;}
-.app-icon{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px;}
-.app-icon .icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;}
-.app-icon .app-name{font-size:10px;color:rgba(255,255,255,0.7);text-align:center;}
+/* ── DAILY SCREEN ── */
+#s-daily{padding:0;}
+.daily-wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.daily-top{flex:0 0 auto;padding:12px 16px 8px;}
+.daily-clock{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--cream);letter-spacing:-2px;line-height:1;}
+.daily-date{font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-top:2px;}
+.daily-room{flex:0 0 auto;position:relative;overflow:hidden;}
+.daily-room img{width:100%;height:32vw;max-height:140px;object-fit:cover;display:block;}
+.daily-room-ph{width:100%;height:32vw;max-height:140px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
+.daily-nar{flex:0 0 auto;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
+.daily-opts{flex:1;padding:6px 12px 0;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
+.daily-opt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,4vw,15px);color:var(--cream);display:flex;justify-content:space-between;align-items:center;flex:1;transition:all 0.15s;}
+.daily-opt:active{border-color:var(--gold);background:rgba(196,168,130,0.06);}
+.daily-opt.work{border-left:2px solid rgba(196,168,130,0.5);}
+.daily-opt.phone-btn{border-left:2px solid rgba(74,222,128,0.4);}
+.daily-opt .opt-sub{font-family:'Jost',sans-serif;font-size:9px;letter-spacing:1px;color:var(--ink-muted);text-transform:uppercase;display:block;margin-top:2px;}
+.daily-opt .opt-arrow{color:var(--gold);opacity:0.5;font-size:14px;}
 
-/* MESSAGES SCREEN */
-.msg-list{width:100%;max-width:380px;}
-.msg-thread{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:all 0.2s;}
-.msg-thread:active{background:rgba(255,255,255,0.04);}
-.msg-avatar{width:44px;height:44px;border-radius:50%;background:rgba(196,168,130,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.msg-info{flex:1;min-width:0;}
-.msg-sender{font-size:14px;color:#fff;margin-bottom:2px;}
-.msg-preview{font-size:12px;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.msg-time{font-size:11px;color:rgba(255,255,255,0.35);}
-.msg-unread{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+/* ── EVENING SCREEN ── */
+#s-evening{padding:0;}
+.eve-wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.eve-room{flex:0 0 auto;}
+.eve-room img{width:100%;height:40vw;max-height:180px;object-fit:cover;display:block;}
+.eve-room-ph{width:100%;height:40vw;max-height:180px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
+.eve-content{flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;}
+.eve-nar{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:8px;}
+.eve-msgs{display:flex;flex-direction:column;gap:6px;overflow:hidden;}
+.eve-msg{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.12);border-radius:6px;padding:10px 12px;}
+.eve-msg-from{font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;}
+.eve-msg-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3.5vw,14px);font-style:italic;color:var(--cream);line-height:1.6;}
 
-/* CHAT SCREEN */
-.chat-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);width:100%;max-width:420px;margin-bottom:8px;}
-.chat-back{font-size:22px;cursor:pointer;color:var(--gold);}
-.chat-name{font-size:15px;color:#fff;font-weight:400;}
-.chat-status{font-size:11px;color:rgba(255,255,255,0.4);}
-.chat-messages{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
-.chat-bubble{max-width:75%;padding:12px 14px;border-radius:18px;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;line-height:1.7;}
-.chat-bubble.from{background:rgba(255,255,255,0.08);border-radius:18px 18px 18px 4px;color:#fff;align-self:flex-start;}
-.chat-bubble.to{background:rgba(196,168,130,0.2);border-radius:18px 18px 4px 18px;color:var(--cream);align-self:flex-end;}
-.voice-msg{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.08);border-radius:18px;cursor:pointer;max-width:200px;}
-.voice-play{width:32px;height:32px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--night);flex-shrink:0;}
-.voice-wave{flex:1;height:24px;display:flex;align-items:center;gap:2px;}
-.voice-wave span{display:block;width:3px;background:rgba(255,255,255,0.4);border-radius:2px;animation:wave 1s infinite;}
-.voice-wave span:nth-child(2){animation-delay:0.1s;}
-.voice-wave span:nth-child(3){animation-delay:0.2s;}
-.voice-wave span:nth-child(4){animation-delay:0.3s;}
-.voice-wave span:nth-child(5){animation-delay:0.4s;}
-@keyframes wave{0%,100%{height:4px}50%{height:16px}}
-.voice-dur{font-size:11px;color:rgba(255,255,255,0.5);}
+/* ── WECHAT PHONE ── */
+#s-phone{background:#000;padding:0;}
+.wc-phone{width:100%;height:100%;display:flex;flex-direction:column;background:var(--wechat-dark);}
+.wc-status{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 4px;flex-shrink:0;}
+.wc-time{font-size:13px;font-weight:600;color:#fff;}
+.wc-icons{font-size:11px;color:#fff;opacity:0.9;}
+.wc-navbar{display:flex;align-items:center;padding:8px 12px;flex-shrink:0;}
+.wc-title{font-size:16px;font-weight:600;color:#fff;flex:1;text-align:center;}
+.wc-back{font-size:14px;color:var(--wechat-green);cursor:pointer;padding:4px 8px;min-height:36px;display:flex;align-items:center;}
+.wc-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+/* WeChat tabs */
+.wc-tabs{display:flex;border-top:1px solid rgba(255,255,255,0.1);flex-shrink:0;background:#111;}
+.wc-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;cursor:pointer;position:relative;}
+.wc-tab-icon{font-size:20px;margin-bottom:2px;}
+.wc-tab-label{font-size:9px;color:rgba(255,255,255,0.5);}
+.wc-tab.active .wc-tab-label{color:var(--wechat-green);}
+.wc-tab-badge{position:absolute;top:4px;right:20%;background:#f00;color:#fff;font-size:8px;border-radius:50%;width:14px;height:14px;display:none;align-items:center;justify-content:center;}
+.wc-tab-badge.show{display:flex;}
+/* Chat list */
+.wc-chat-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.1s;}
+.wc-chat-item:active{background:rgba(255,255,255,0.05);}
+.wc-avatar{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.wc-chat-info{flex:1;min-width:0;}
+.wc-chat-name{font-size:13px;color:#fff;margin-bottom:2px;}
+.wc-chat-preview{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wc-chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
+.wc-chat-time{font-size:10px;color:rgba(255,255,255,0.3);}
+.wc-unread{background:#f00;color:#fff;font-size:9px;border-radius:50%;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+/* Chat bubbles */
+.wc-msg-area{padding:10px 12px;display:flex;flex-direction:column;gap:10px;}
+.wc-bubble-wrap{display:flex;gap:8px;align-items:flex-end;}
+.wc-bubble-wrap.mine{flex-direction:row-reverse;}
+.wc-bubble-avatar{width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.wc-bubble{max-width:68%;padding:9px 12px;border-radius:4px;font-size:13px;line-height:1.5;color:#000;background:#fff;position:relative;}
+.wc-bubble.mine{background:var(--wechat-green);color:#fff;}
+.wc-bubble::before{content:'';position:absolute;top:10px;width:0;height:0;}
+.wc-bubble:not(.mine)::before{left:-5px;border:5px solid transparent;border-right-color:#fff;}
+.wc-bubble.mine::before{right:-5px;border:5px solid transparent;border-left-color:var(--wechat-green);}
+/* Voice bubble */
+.wc-voice{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:4px;cursor:pointer;max-width:160px;}
+.wc-voice-icon{font-size:14px;color:#333;}
+.wc-voice-bar{flex:1;height:18px;display:flex;align-items:center;gap:2px;}
+.wc-voice-bar span{display:block;width:3px;border-radius:1px;background:rgba(0,0,0,0.25);}
+.wc-voice-dur{font-size:11px;color:#666;}
+.wc-voice-transcript{display:none;font-size:12px;color:#333;padding:6px 0;line-height:1.5;border-top:1px solid rgba(0,0,0,0.08);margin-top:6px;}
+/* Moments (朋友圈) */
+.wc-moment{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.wc-moment-header{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px;}
+.wc-moment-avatar{width:38px;height:38px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.wc-moment-name{font-size:13px;color:#5b9bd5;font-weight:500;}
+.wc-moment-time{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;}
+.wc-moment-text{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:6px;margin-left:48px;}
+.wc-moment-img{width:80px;height:80px;border-radius:4px;object-fit:cover;margin-left:48px;margin-bottom:4px;cursor:pointer;}
+.wc-moment-actions{display:flex;gap:12px;margin-left:48px;}
+.wc-moment-like{font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;}
+/* Industry page */
+.wc-discover-item{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer;}
+.wc-discover-title{font-size:13px;color:#fff;margin-bottom:3px;}
+.wc-discover-sub{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;}
 
-/* FAME */
-.fame-wrap{width:100%;max-width:400px;}
-.fame-bar-bg{background:rgba(255,255,255,0.05);border-radius:20px;height:6px;margin-bottom:4px;overflow:hidden;}
+/* ── FAME SCREEN ── */
+#s-fame{padding:60px 20px max(70px,env(safe-area-inset-bottom));}
+.fame-inner{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;}
+.fame-player{font-family:'Cormorant Garamond',serif;font-size:24px;font-style:italic;color:var(--cream);text-align:center;}
+.fame-level-lbl{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:4px;}
+.fame-bar-bg{background:rgba(255,255,255,0.05);border-radius:20px;height:5px;overflow:hidden;}
 .fame-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c99a);border-radius:20px;transition:width 1s ease;}
-.fame-pct{font-size:11px;color:var(--ink-muted);text-align:right;margin-bottom:20px;}
-.fame-rank-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:4px;margin-bottom:6px;}
-.fame-rank-item.current{background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.25);}
-.fr-crown{font-size:18px;min-width:28px;text-align:center;}
-.fr-label{font-size:14px;color:var(--ink-muted);flex:1;}
-.fame-rank-item.current .fr-label{color:var(--cream);}
-.fr-pts{font-size:11px;color:var(--ink-muted);}
+.fame-pct{font-size:10px;color:var(--ink-muted);text-align:right;}
+.fame-list{display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+.fame-item{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:3px;}
+.fame-item.cur{background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.2);}
+.fi-crown{font-size:16px;min-width:24px;text-align:center;}
+.fi-label{font-size:12px;color:var(--ink-muted);flex:1;}
+.fame-item.cur .fi-label{color:var(--cream);}
+.fi-pts{font-size:10px;color:var(--ink-muted);}
 
-/* SETTINGS */
-.settings-section{width:100%;max-width:400px;margin-bottom:24px;}
-.settings-title{font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;opacity:0.7;}
-
-/* GALLERY */
-.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:500px;max-height:60vh;overflow-y:auto;margin-bottom:16px;}
-.gi{border-radius:3px;overflow:hidden;cursor:pointer;}
+/* ── GALLERY ── */
+#s-gallery{padding:60px 12px max(70px,env(safe-area-inset-bottom));}
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;overflow-y:auto;max-height:calc(100vh - 140px);}
+.gi{border-radius:2px;overflow:hidden;cursor:pointer;}
 .gi img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
-.gi .gl{background:var(--night-warm);padding:4px 6px;font-size:9px;color:var(--ink-muted);}
+.gi .gl{background:var(--night-warm);padding:3px 5px;font-size:8px;color:var(--ink-muted);}
 
-/* MSG CARD (evening) */
-.msg-card{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.15);border-radius:8px;padding:16px;text-align:left;width:100%;max-width:400px;margin-bottom:12px;}
-.msg-from{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
-.msg-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--cream);line-height:1.8;}
+/* ── SETTINGS (one screen) ── */
+#s-settings{padding:0;}
+.settings-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:52px 14px max(64px,env(safe-area-inset-bottom));gap:10px;overflow:hidden;}
+.settings-section-title{font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;opacity:0.7;margin-bottom:6px;}
+.settings-lang{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.settings-style{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.s-lang-card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.1);border-radius:2px;padding:7px 4px;cursor:pointer;text-align:center;}
+.s-lang-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.08);}
+.s-lang-card .sl-name{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--cream);display:block;}
+.s-lang-card.sel .sl-name{color:var(--gold);}
+.s-style-card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.1);border-radius:2px;padding:9px 10px;cursor:pointer;}
+.s-style-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.08);}
+.s-style-name{font-size:12px;color:var(--cream);display:block;margin-bottom:2px;}
+.s-style-card.sel .s-style-name{color:var(--gold);}
+.s-style-sub{font-size:9px;color:var(--ink-muted);}
 
-/* NAV */
-.prog{position:fixed;top:0;left:0;height:2px;background:var(--gold);transition:width 0.5s ease;z-index:200;opacity:0.5;}
-.back-btn{position:fixed;top:14px;left:16px;font-size:11px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:8px;min-height:44px;}
-.sind{position:fixed;top:18px;right:16px;font-size:9px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;z-index:200;}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,14,12,0.97);border-top:1px solid rgba(196,168,130,0.1);display:none;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:150;}
+/* ── LIGHTBOX ── */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:1000;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:96vw;max-height:96vh;object-fit:contain;border-radius:4px;}
+.lb-close{position:absolute;top:14px;right:14px;background:rgba(196,168,130,0.2);border:1px solid rgba(196,168,130,0.3);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gold);font-size:18px;z-index:1001;}
+
+/* ── NAV ── */
+.prog{position:fixed;top:0;left:0;height:2px;background:var(--gold);transition:width 0.5s ease;z-index:200;opacity:0.4;}
+.back-btn{position:fixed;top:12px;left:14px;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:6px;min-height:40px;}
+.sind{position:fixed;top:14px;right:14px;font-size:9px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;z-index:200;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,14,12,0.97);border-top:1px solid rgba(196,168,130,0.08);display:none;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:150;}
 .bottom-nav.show{display:flex;}
-.bnav-btn{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:6px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;min-height:44px;transition:color 0.2s;}
+.bnav-btn{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;min-height:40px;}
 .bnav-btn.active{color:var(--gold);}
-.bnav-icon{font-size:18px;}
-.badge{position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;font-size:9px;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
-.bnav-wrap{position:relative;display:inline-flex;}
+.bnav-icon{font-size:20px;position:relative;}
+.bnav-badge{position:absolute;top:-3px;right:-6px;background:#f00;color:#fff;font-size:8px;border-radius:50%;width:13px;height:13px;display:none;align-items:center;justify-content:center;}
+.bnav-badge.show{display:flex;}
 
-.wrap{width:100%;max-width:500px;text-align:center;}
+/* ── NPC ORIGIN SELECT (popup) ── */
+.npc-origin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center;}
+.npc-origin-overlay.open{display:flex;}
+.npc-origin-sheet{background:var(--night-warm);border-radius:12px 12px 0 0;padding:16px 16px max(16px,env(safe-area-inset-bottom));width:100%;max-width:500px;}
+.nos-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--cream);text-align:center;margin-bottom:4px;}
+.nos-sub{font-size:11px;color:var(--ink-muted);text-align:center;margin-bottom:12px;}
+.nos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;}
+.nos-card{background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.12);border-radius:3px;padding:9px 6px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--cream);transition:all 0.15s;}
+.nos-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
+
+/* ── SETUP SCREENS (with back button space) ── */
+.setup-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:48px 16px max(64px,env(safe-area-inset-bottom));overflow:hidden;}
+
+.wrap{width:100%;max-width:460px;text-align:center;display:flex;flex-direction:column;align-items:center;}
 </style>
 </head>
 <body>
 <div class="prog" id="prog" style="width:0%"></div>
 
 <!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLB()">
-  <div class="lb-close">✕</div>
-  <img id="lb-img" src="" alt="">
+<div class="lightbox" id="lb" onclick="closeLB()"><div class="lb-close">✕</div><img id="lb-img" src="" alt=""></div>
+
+<!-- NPC ORIGIN SHEET -->
+<div class="npc-origin-overlay" id="npc-origin-overlay">
+  <div class="npc-origin-sheet">
+    <div class="nos-title" id="nos-title">Where is he from?</div>
+    <div class="nos-sub" id="nos-sub">His background shapes who he is.</div>
+    <div class="nos-grid" id="nos-grid"></div>
+    <button class="btn-p" id="nos-confirm" onclick="confirmNPCOrigin()" style="width:100%;display:none">Confirm</button>
+  </div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
   <button class="bnav-btn active" id="bn-home" onclick="goHome()"><span class="bnav-icon">🏠</span><span id="bn-home-lbl">Home</span></button>
-  <button class="bnav-btn" id="bn-phone" onclick="openPhone()">
-    <div class="bnav-wrap"><span class="bnav-icon">📱</span><span class="badge" id="phone-badge" style="display:none">0</span></div>
-    <span id="bn-phone-lbl">Phone</span>
-  </button>
+  <button class="bnav-btn" id="bn-phone" onclick="openPhone()"><span class="bnav-icon">📱<span class="bnav-badge" id="phone-badge">0</span></span><span id="bn-phone-lbl">Phone</span></button>
   <button class="bnav-btn" id="bn-fame" onclick="openFame()"><span class="bnav-icon">⭐</span><span id="bn-fame-lbl">Fame</span></button>
   <button class="bnav-btn" id="bn-gallery" onclick="openGallery()"><span class="bnav-icon">📷</span><span id="bn-gallery-lbl">Gallery</span></button>
   <button class="bnav-btn" id="bn-settings" onclick="openSettings()"><span class="bnav-icon">⚙️</span><span id="bn-settings-lbl">Settings</span></button>
@@ -236,32 +307,34 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ TITLE ══ -->
 <div class="screen active" id="s-title">
-  <div style="text-align:center;max-width:400px">
+  <div class="wrap">
     <div class="eyebrow">A story about being seen</div>
     <h1 class="title-main">Off the<br>Record</h1>
     <div class="divider-h"></div>
-    <p style="font-size:12px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:44px">An AI Romance</p>
+    <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.35);margin-top:28px">v6.0</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v7.0</p>
   </div>
 </div>
 
 <!-- ══ LANGUAGE ══ -->
 <div class="screen" id="s-lang">
-  <div class="sec-head"><h2>Choose your language</h2></div>
-  <div class="lgrid" id="lang-grid-main">
-    <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US · UK · Australia</span></div>
-    <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
-    <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">South Korea</span></div>
-    <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">Germany</span></div>
-    <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">France · Canada</span></div>
-    <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">Latin America</span></div>
-    <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">Brazil</span></div>
-    <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">Turkey</span></div>
-    <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">海外华人</span></div>
-    <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">台灣 · 香港</span></div>
+  <div class="setup-screen">
+    <div class="sec-head"><h2>Choose your language</h2></div>
+    <div class="lgrid" id="lang-grid-main">
+      <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US·UK</span></div>
+      <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
+      <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">Korea</span></div>
+      <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">DE</span></div>
+      <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">FR</span></div>
+      <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">ES</span></div>
+      <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">BR</span></div>
+      <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">TR</span></div>
+      <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">华人</span></div>
+      <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">台灣</span></div>
+    </div>
+    <button class="btn-p" id="btn-lang" onclick="go('s-open')" style="display:none">Continue</button>
   </div>
-  <button class="btn-p" id="btn-lang" onclick="go('s-open')" style="display:none">Continue</button>
 </div>
 
 <!-- ══ OPEN ══ -->
@@ -276,38 +349,44 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <!-- ══ NAME ══ -->
 <div class="screen" id="s-name">
   <button class="back-btn" onclick="go('s-open')">← Back</button>
-  <div class="sec-head"><h2 id="name-title">What's your name?</h2><p id="name-sub">The name you perform under.</p></div>
-  <input class="name-inp" id="name-inp" type="text" maxlength="20" placeholder="Your name...">
-  <p style="font-size:12px;color:var(--ink-muted);margin-bottom:20px" id="name-hint">This is how everyone will know you.</p>
-  <button class="btn-p" onclick="saveName()">Continue</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="name-title">What's your name?</h2><p id="name-sub">The name you perform under.</p></div>
+    <input class="name-inp" id="name-inp" type="text" maxlength="20" placeholder="Your name...">
+    <p style="font-size:11px;color:var(--ink-muted);margin-bottom:16px" id="name-hint">This is how everyone will know you.</p>
+    <button class="btn-p" onclick="saveName()">Continue</button>
+  </div>
 </div>
 
 <!-- ══ MOTHER ══ -->
 <div class="screen" id="s-mother">
   <button class="back-btn" onclick="go('s-name')">← Back</button>
   <div class="sind">1 / 5</div>
-  <div class="sec-head"><h2 id="mother-title">My mother</h2><p id="mother-sub">She always said I had her eyes.</p></div>
-  <div class="clabel" id="lbl-her-origin">HER ORIGIN</div>
-  <div class="cgrid c2" id="g-mom"></div>
-  <button class="btn-p" id="btn-mom" onclick="go('s-father')" style="display:none">Continue</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="mother-title">My mother</h2><p id="mother-sub">She always said I had her eyes.</p></div>
+    <div class="clabel" id="lbl-her-origin">HER ORIGIN</div>
+    <div class="cgrid c2" id="g-mom" style="max-width:400px"></div>
+    <button class="btn-p" id="btn-mom" onclick="go('s-father')" style="display:none">Continue</button>
+  </div>
 </div>
 
 <!-- ══ FATHER ══ -->
 <div class="screen" id="s-father">
   <button class="back-btn" onclick="go('s-mother')">← Back</button>
   <div class="sind">2 / 5</div>
-  <div class="sec-head"><h2 id="father-title">My father</h2><p id="father-sub">He said my skin was just like his.</p></div>
-  <div class="clabel" id="lbl-his-origin">HIS ORIGIN</div>
-  <div class="cgrid c2" id="g-dad"></div>
-  <button class="btn-p" id="btn-dad" onclick="showHeritage()" style="display:none">Continue</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="father-title">My father</h2><p id="father-sub">He said my skin was just like his.</p></div>
+    <div class="clabel" id="lbl-his-origin">HIS ORIGIN</div>
+    <div class="cgrid c2" id="g-dad" style="max-width:400px"></div>
+    <button class="btn-p" id="btn-dad" onclick="showHeritage()" style="display:none">Continue</button>
+  </div>
 </div>
 
 <!-- ══ HERITAGE ══ -->
 <div class="screen" id="s-heritage">
   <button class="back-btn" onclick="go('s-father')">← Back</button>
-  <div class="wrap">
-    <p class="nar" id="h-nar"></p>
-    <div class="hbox"><div class="trow" id="h-traits"></div></div>
+  <div class="setup-screen">
+    <p class="nar" id="h-nar" style="margin-bottom:12px"></p>
+    <div class="hbox" style="max-width:400px"><div class="trow" id="h-traits"></div></div>
     <button class="btn-g" id="btn-heritage" onclick="go('s-hair')">That's right</button>
   </div>
 </div>
@@ -316,57 +395,65 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <div class="screen" id="s-hair">
   <button class="back-btn" onclick="go('s-heritage')">← Back</button>
   <div class="sind">3 / 5</div>
-  <div class="sec-head"><h2 id="hair-title">Yesterday</h2><p id="hair-sub">I finally went to that salon.</p></div>
-  <div class="clabel" id="lbl-hair-style">HAIR STYLE</div>
-  <div class="cgrid c2" id="g-hstyle" style="margin-bottom:14px"></div>
-  <div class="clabel" id="lbl-hair-colour">HAIR COLOUR</div>
-  <div class="cgrid c3" id="g-hcolor"></div>
-  <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="display:none;margin-top:4px">Continue</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="hair-title">Yesterday</h2><p id="hair-sub">I finally went to that salon.</p></div>
+    <div class="clabel" id="lbl-hair-style">HAIR STYLE</div>
+    <div class="cgrid c2" id="g-hstyle" style="margin-bottom:10px;max-width:400px"></div>
+    <div class="clabel" id="lbl-hair-colour">HAIR COLOUR</div>
+    <div class="cgrid c3" id="g-hcolor" style="max-width:400px"></div>
+    <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="display:none;margin-top:6px">Continue</button>
+  </div>
 </div>
 
 <!-- ══ CITY ══ -->
 <div class="screen" id="s-city">
   <button class="back-btn" onclick="go('s-hair')">← Back</button>
   <div class="sind">4 / 5</div>
-  <div class="sec-head"><h2 id="city-title">Two months ago</h2><p id="city-sub">I packed two suitcases.</p></div>
-  <div class="clabel" id="lbl-city">WHERE DID YOU MOVE TO?</div>
-  <div class="cgrid c2" id="g-city"></div>
-  <button class="btn-p" id="btn-city" onclick="go('s-decor')" style="display:none">Continue</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="city-title">Two months ago</h2><p id="city-sub">I packed two suitcases.</p></div>
+    <div class="clabel" id="lbl-city">WHERE DID YOU MOVE TO?</div>
+    <div class="cgrid c2" id="g-city" style="max-width:400px"></div>
+    <button class="btn-p" id="btn-city" onclick="go('s-decor')" style="display:none">Continue</button>
+  </div>
 </div>
 
 <!-- ══ DECOR ══ -->
 <div class="screen" id="s-decor">
   <button class="back-btn" onclick="go('s-city')">← Back</button>
   <div class="sind">5 / 5</div>
-  <div class="sec-head"><h2 id="decor-title">My apartment</h2><p id="decor-sub">I made it mine.</p></div>
-  <div class="clabel" id="lbl-decor">INTERIOR STYLE</div>
-  <div class="cgrid c1" id="g-decor"></div>
-  <button class="btn-p" id="btn-decor" onclick="genRooms()" style="display:none;margin-top:4px">Generate my apartment</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="decor-title">My apartment</h2><p id="decor-sub">I made it mine.</p></div>
+    <div class="clabel" id="lbl-decor">INTERIOR STYLE</div>
+    <div class="cgrid c1" id="g-decor" style="max-width:380px"></div>
+    <button class="btn-p" id="btn-decor" onclick="genRooms()" style="display:none;margin-top:6px">Generate my apartment</button>
+  </div>
 </div>
 
 <!-- ══ ROOMS ══ -->
 <div class="screen" id="s-rooms">
-  <div class="sec-head"><h2 id="rooms-title">Choose your living room</h2><p id="rooms-sub">Which one is home?</p></div>
-  <div class="room-trio">
-    <div class="rcard" id="ra" onclick="selRoom('a')"><div class="rph" id="ra-ph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style A</div><div class="rbadge">✓</div></div>
-    <div class="rcard" id="rb" onclick="selRoom('b')"><div class="rph" id="rb-ph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style B</div><div class="rbadge">✓</div></div>
-    <div class="rcard" id="rc" onclick="selRoom('c')"><div class="rph" id="rc-ph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style C</div><div class="rbadge">✓</div></div>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="rooms-title">Choose your living room</h2><p id="rooms-sub">Which one is home?</p></div>
+    <div class="room-trio" style="max-width:400px">
+      <div class="rcard" id="ra" onclick="selRoom('a')"><div class="rph" id="ra-ph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style A</div><div class="rbadge">✓</div></div>
+      <div class="rcard" id="rb" onclick="selRoom('b')"><div class="rph" id="rb-ph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style B</div><div class="rbadge">✓</div></div>
+      <div class="rcard" id="rc" onclick="selRoom('c')"><div class="rph" id="rc-ph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style C</div><div class="rbadge">✓</div></div>
+    </div>
+    <button class="btn-p" id="btn-rooms" onclick="genProto()" style="display:none;margin-top:8px">This is my home</button>
   </div>
-  <button class="btn-p" id="btn-rooms" onclick="genProto()" style="display:none">This is my home</button>
 </div>
 
 <!-- ══ PROTAGONIST ══ -->
 <div class="screen" id="s-proto">
-  <div class="wrap">
+  <div class="setup-screen">
     <div class="stamp" id="mirror-stamp">Bathroom mirror · 7:31 AM</div>
-    <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--ink-muted);margin-bottom:14px;line-height:1.9" id="mirror-nar"></p>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);font-style:italic;color:var(--ink-muted);margin-bottom:10px;line-height:1.7;text-align:center" id="mirror-nar"></p>
     <div class="clabel" id="lbl-choose-refl">CHOOSE YOUR REFLECTION</div>
-    <div class="trio" id="tr-proto">
-      <div class="trio-item" id="pa" onclick="selProto('a')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-this-me">✓ This is me</div></div>
-      <div class="trio-item" id="pb" onclick="selProto('b')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
-      <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+    <div class="trio" style="max-width:380px">
+      <div class="trio-item" id="pa" onclick="selProto('a')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-this-me">✓ This is me</div></div>
+      <div class="trio-item" id="pb" onclick="selProto('b')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+      <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
     </div>
-    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:10px">↺ Generate new options</button>
+    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:6px">↺ New options</button>
     <button class="btn-p" id="btn-proto" onclick="go('s-flash-intro')" style="display:none">That's me</button>
   </div>
 </div>
@@ -376,19 +463,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
   <div class="wrap">
     <div class="stamp" id="flashback-stamp">Every night, for months</div>
     <p class="nar" id="flash-nar"></p>
-    <button class="btn-g" onclick="go('s-flash-scene')">That night</button>
-  </div>
-</div>
-
-<!-- ══ FLASHBACK STREET ══ -->
-<div class="screen" id="s-flash-scene">
-  <div class="wrap">
-    <div class="scene-img">
-      <div class="sph" id="street-ph"><span class="gt">Painting the scene<span class="loading-dots"></span></span></div>
-      <img id="street-img" style="display:none" onclick="openLB(this.src)" alt="Street scene">
-    </div>
-    <p class="nar" id="street-nar"></p>
-    <button class="btn-g" id="btn-street" onclick="go('s-agent-intro')">He was still there when the song ended</button>
+    <button class="btn-g" onclick="go('s-agent-intro')">That night</button>
   </div>
 </div>
 
@@ -403,26 +478,27 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <!-- ══ AGENT ORIGIN ══ -->
 <div class="screen" id="s-agent-origin">
   <button class="back-btn" onclick="go('s-agent-intro')">← Back</button>
-  <div class="sec-head"><h2 id="agent-origin-title">Where was he from?</h2><p id="agent-origin-sub">Something about the way he carried himself.</p></div>
-  <div class="clabel">HIS BACKGROUND</div>
-  <div class="cgrid c2" id="g-aorigin"></div>
-  <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="display:none">I remember him</button>
+  <div class="setup-screen">
+    <div class="sec-head"><h2 id="agent-origin-title">Where was he from?</h2><p id="agent-origin-sub">Something about the way he carried himself.</p></div>
+    <div class="cgrid c2" id="g-aorigin" style="max-width:400px"></div>
+    <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="display:none">I remember him</button>
+  </div>
 </div>
 
 <!-- ══ AGENT REVEAL ══ -->
 <div class="screen" id="s-agent-reveal">
-  <div class="wrap">
+  <div class="setup-screen">
     <div class="clabel" id="lbl-choose-portrait">CHOOSE HIS PORTRAIT</div>
-    <div class="trio" id="tr-agent">
-      <div class="trio-item" id="aga" onclick="selAgent('a')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-thats-him">✓ That's him</div></div>
-      <div class="trio-item" id="agb" onclick="selAgent('b')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
-      <div class="trio-item" id="agc" onclick="selAgent('c')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
+    <div class="trio" style="max-width:380px">
+      <div class="trio-item" id="aga" onclick="selAgent('a')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-thats-him">✓ That's him</div></div>
+      <div class="trio-item" id="agb" onclick="selAgent('b')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
+      <div class="trio-item" id="agc" onclick="selAgent('c')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
     </div>
-    <button class="btn-t" id="btn-rag" onclick="regenAgent()" style="display:none;margin-bottom:10px">↺ New options</button>
-    <div id="agent-reveal-box" style="display:none;margin-bottom:16px">
-      <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;opacity:0.7">HIS NAME</div>
-      <p class="dialogue" id="agent-name-txt"></p>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--ink-muted);line-height:1.8" id="agent-line-txt"></p>
+    <button class="btn-t" id="btn-rag" onclick="regenAgent()" style="display:none;margin-bottom:6px">↺ New options</button>
+    <div id="agent-reveal-box" style="display:none;margin-bottom:12px;text-align:center">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:0.7">HIS NAME</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--cream);margin-bottom:6px" id="agent-name-txt"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-muted);line-height:1.7" id="agent-line-txt"></p>
     </div>
     <button class="btn-p" id="btn-agent-ok" onclick="go('s-ch1')" style="display:none">And so it began</button>
   </div>
@@ -431,12 +507,12 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <!-- ══ CHAPTER ONE ══ -->
 <div class="screen" id="s-ch1">
   <div class="wrap">
-    <div class="stamp" style="margin-bottom:20px" id="lbl-ch1">Chapter One</div>
+    <div class="stamp" style="margin-bottom:14px" id="lbl-ch1">Chapter One</div>
     <div class="divider-thin"></div>
-    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(40px,10vw,60px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:16px" id="lbl-signed">Signed</h2>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,9vw,52px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:12px" id="lbl-signed">Signed</h2>
     <div class="divider-thin"></div>
-    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(14px,4vw,16px);color:var(--ink-muted);margin-bottom:24px;line-height:1.9" id="ch1-quote"></p>
-    <div class="pbox" style="margin:0 auto 24px">
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(13px,3.5vw,15px);color:var(--ink-muted);margin-bottom:18px;line-height:1.8" id="ch1-quote"></p>
+    <div class="pbox">
       <div class="ptitle" id="lbl-your-world">YOUR WORLD</div>
       <div class="prow"><span class="pk" id="lbl-name-key">Name</span><span class="pv" id="ch-name">—</span></div>
       <div class="prow"><span class="pk" id="lbl-city-key">City</span><span class="pv" id="ch-city">—</span></div>
@@ -449,174 +525,168 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ DAILY ══ -->
 <div class="screen" id="s-daily">
-  <div style="width:100%;max-width:420px;text-align:center">
-    <div class="mclock" id="d-clock">8:07</div>
-    <div class="mdate" id="d-date">Day 1</div>
-    <div class="scene-img" id="daily-room-wrap" style="display:none">
-      <img id="daily-room-img" onclick="openLB(this.src)" alt="Apartment" style="border-radius:6px;width:100%">
+  <div class="daily-wrap">
+    <div class="daily-top">
+      <div class="daily-clock" id="d-clock">8:07</div>
+      <div class="daily-date" id="d-date">Day 1</div>
     </div>
-    <div class="divider-thin" style="margin-top:16px"></div>
-    <p class="nar" style="font-size:clamp(14px,4vw,17px);margin-bottom:20px" id="d-txt"></p>
-    <div class="clabel" id="lbl-today">TODAY</div>
-    <div id="d-opts" style="display:flex;flex-direction:column;align-items:center;width:100%"></div>
+    <div class="daily-room" id="daily-room-wrap">
+      <div class="daily-room-ph" id="daily-room-ph"><span class="gt" style="font-size:9px">Loading<span class="loading-dots"></span></span></div>
+      <img id="daily-room-img" onclick="openLB(this.src)" alt="Your apartment" style="display:none;cursor:pointer">
+    </div>
+    <div class="daily-nar" id="d-txt"></div>
+    <div class="daily-opts" id="d-opts"></div>
   </div>
 </div>
 
-<!-- ══ SCENE ══ -->
+<!-- ══ SCENE (Visual Novel) ══ -->
 <div class="screen" id="s-scene">
-  <div class="wrap">
-    <div class="stamp" id="scene-stamp">10:30 AM</div>
-    <div class="scene-img">
-      <div class="sph" id="scene-ph"><span class="gt">Generating<span class="loading-dots"></span></span></div>
-      <img id="scene-img-el" style="display:none" onclick="openLB(this.src)" alt="Scene">
+  <!-- Loading state -->
+  <div class="vn-loading" id="vn-loading">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--cream);text-align:center;line-height:1.8;padding:0 24px;max-width:400px" id="vn-pre-text"></div>
+    <div class="gt" style="margin-top:16px">Painting the scene<span class="loading-dots"></span></div>
+  </div>
+  <!-- Scene state -->
+  <img class="vn-bg" id="vn-bg" src="" alt="" style="display:none" onclick="openLB(this.src)">
+  <div class="vn-bg-ph" id="vn-bg-ph" style="display:none"></div>
+  <div class="vn-overlay" id="vn-overlay" style="display:none"></div>
+  <div class="vn-content" id="vn-content" style="display:none">
+    <div class="vn-dialog">
+      <div class="vn-speaker" id="vn-speaker"></div>
+      <div class="vn-text" id="vn-text"></div>
+      <div class="vn-opts" id="vn-opts"></div>
     </div>
-    <p class="nar" id="scene-nar" style="margin-bottom:16px"></p>
-    <div id="dlg-area" style="display:none;width:100%;max-width:420px">
-      <div id="dlg-bubbles"></div>
-      <div id="dlg-opts"></div>
-    </div>
-    <button class="btn-g" id="btn-scene-next" onclick="goEvening()" style="display:none">End the day</button>
   </div>
 </div>
 
 <!-- ══ EVENING ══ -->
 <div class="screen" id="s-evening">
-  <div style="width:100%;max-width:420px;text-align:center">
-    <div class="stamp" id="eve-stamp">10:30 PM</div>
-    <div class="scene-img">
-      <div class="sph" id="eve-ph"><span class="gt">Setting the scene<span class="loading-dots"></span></span></div>
-      <img id="eve-img" style="display:none;border-radius:6px;width:100%" onclick="openLB(this.src)" alt="Evening">
+  <div class="eve-wrap">
+    <div class="eve-room">
+      <div class="eve-room-ph" id="eve-ph"><span class="gt" style="font-size:9px">Setting the scene<span class="loading-dots"></span></span></div>
+      <img id="eve-img" style="display:none;cursor:pointer" onclick="openLB(this.src)" alt="Evening">
     </div>
-    <p class="nar" id="eve-nar"></p>
-    <div id="eve-msgs" style="width:100%;max-width:400px;margin-bottom:16px"></div>
-    <button class="btn-g" onclick="nextDay()" id="btn-sleep">Sleep · Next day</button>
+    <div class="eve-content">
+      <div>
+        <div class="stamp" id="eve-stamp" style="margin-bottom:8px">10:30 PM</div>
+        <div class="eve-nar" id="eve-nar"></div>
+        <div class="eve-msgs" id="eve-msgs"></div>
+      </div>
+      <button class="btn-g" onclick="nextDay()" id="btn-sleep" style="align-self:center;margin-top:8px">Sleep · Next day</button>
+    </div>
   </div>
 </div>
 
-<!-- ══ PHONE ══ -->
+<!-- ══ PHONE (WeChat style) ══ -->
 <div class="screen" id="s-phone">
-  <button class="back-btn" onclick="closePhone()">← Back</button>
-  <div class="phone-shell">
-    <div class="phone-bar">
-      <span class="phone-time" id="phone-time">9:41</span>
-      <span class="phone-icons">●●● 📶 🔋</span>
+  <div class="wc-phone">
+    <div class="wc-status">
+      <span class="wc-time" id="wc-time">9:41</span>
+      <span class="wc-icons">●●● 📶 🔋</span>
     </div>
-    <!-- Notifications -->
-    <div class="phone-notif-area" id="phone-notifs"></div>
-    <!-- App icons -->
-    <div class="phone-apps">
-      <div class="app-icon" onclick="openMessages()">
-        <div class="icon" style="background:linear-gradient(135deg,#4cd964,#34b44a)">💬</div>
-        <span class="app-name" id="lbl-messages-app">Messages</span>
-      </div>
-      <div class="app-icon" onclick="openIndustryNews()">
-        <div class="icon" style="background:linear-gradient(135deg,#ff9500,#ff6b00)">📰</div>
-        <span class="app-name" id="lbl-news-app">Industry</span>
-      </div>
-      <div class="app-icon" onclick="openFame()">
-        <div class="icon" style="background:linear-gradient(135deg,#c4a882,#a08060)">⭐</div>
-        <span class="app-name" id="bn-fame-lbl2">Fame</span>
-      </div>
-      <div class="app-icon" onclick="openGallery()">
-        <div class="icon" style="background:linear-gradient(135deg,#5856d6,#7c7aff)">📷</div>
-        <span class="app-name" id="bn-gallery-lbl2">Gallery</span>
+    <!-- WeChat content area -->
+    <div class="wc-content" id="wc-content">
+      <!-- Chats tab (default) -->
+      <div id="wc-chats-tab">
+        <div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff" id="lbl-wc-chats">Chats</div>
+        <div id="wc-chat-list"></div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- ══ MESSAGES LIST ══ -->
-<div class="screen" id="s-messages">
-  <button class="back-btn" onclick="go('s-phone');setActiveBn('bn-phone')">← Back</button>
-  <div style="width:100%;max-width:420px;margin-top:40px">
-    <div style="font-size:18px;color:#fff;padding:12px 16px;margin-bottom:8px">Messages</div>
-    <div class="msg-list" id="msg-thread-list"></div>
+    <!-- WeChat bottom tabs -->
+    <div class="wc-tabs">
+      <div class="wc-tab active" id="wct-chats" onclick="showWCTab('chats')">
+        <div class="wc-tab-icon">💬</div>
+        <div class="wc-tab-label" id="lbl-wct-chats">Chats</div>
+        <div class="wc-tab-badge" id="wc-unread-badge">0</div>
+      </div>
+      <div class="wc-tab" id="wct-moments" onclick="showWCTab('moments')">
+        <div class="wc-tab-icon">🌐</div>
+        <div class="wc-tab-label" id="lbl-wct-moments">Moments</div>
+      </div>
+      <div class="wc-tab" id="wct-industry" onclick="showWCTab('industry')">
+        <div class="wc-tab-icon">📰</div>
+        <div class="wc-tab-label" id="lbl-wct-industry">Industry</div>
+      </div>
+      <div class="wc-tab" id="wct-back" onclick="closePhone()">
+        <div class="wc-tab-icon">←</div>
+        <div class="wc-tab-label" id="lbl-wct-back">Back</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- ══ CHAT ══ -->
 <div class="screen" id="s-chat">
-  <div class="chat-header">
-    <span class="chat-back" onclick="go('s-messages')">‹</span>
-    <div>
-      <div class="chat-name" id="chat-name">—</div>
-      <div class="chat-status" id="chat-status">—</div>
+  <div class="wc-phone">
+    <div class="wc-status">
+      <span class="wc-time" id="chat-wc-time">9:41</span>
+      <span class="wc-icons">●●● 📶 🔋</span>
     </div>
-  </div>
-  <div class="chat-messages" id="chat-msgs"></div>
-</div>
-
-<!-- ══ INDUSTRY NEWS ══ -->
-<div class="screen" id="s-industry">
-  <button class="back-btn" onclick="go('s-phone');setActiveBn('bn-phone')">← Back</button>
-  <div style="width:100%;max-width:420px;margin-top:44px">
-    <div style="font-size:18px;color:#fff;padding:12px 16px;margin-bottom:8px" id="lbl-industry-title">Industry News</div>
-    <div id="industry-list"></div>
+    <div class="wc-navbar">
+      <span class="wc-back" onclick="go('s-phone');setActiveBn('bn-phone')">‹ Back</span>
+      <span class="wc-title" id="chat-name">—</span>
+      <span style="width:52px"></span>
+    </div>
+    <div class="wc-content">
+      <div class="wc-msg-area" id="chat-msgs"></div>
+    </div>
   </div>
 </div>
 
 <!-- ══ FAME ══ -->
 <div class="screen" id="s-fame">
   <button class="back-btn" onclick="closeFame()">← Back</button>
-  <div class="fame-wrap">
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,6vw,30px);font-style:italic;color:var(--cream);margin-bottom:4px" id="fame-player-name">—</div>
-      <div style="font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;opacity:0.8" id="fame-level-lbl">⭐ —</div>
-    </div>
+  <div class="fame-inner" style="max-width:360px;width:100%">
+    <div class="fame-player" id="fame-player-name">—</div>
+    <div class="fame-level-lbl" id="fame-level-lbl">⭐ —</div>
     <div class="fame-bar-bg"><div class="fame-bar-fill" id="fame-bar" style="width:5%"></div></div>
-    <div class="fame-pct" id="fame-pct">5 / 100</div>
-    <div id="fame-ranks-list"></div>
+    <div class="fame-pct" id="fame-pct">5/100</div>
+    <div class="fame-list" id="fame-list"></div>
   </div>
 </div>
 
 <!-- ══ GALLERY ══ -->
 <div class="screen" id="s-gallery">
   <button class="back-btn" onclick="closeGallery()">← Back</button>
-  <div class="sec-head"><h2 id="gallery-title">Gallery</h2><p id="gallery-sub">Your moments.</p></div>
+  <div style="padding-top:44px;width:100%;text-align:center;margin-bottom:6px"><span style="font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase" id="gallery-title">Gallery</span></div>
   <div class="ggrid" id="ggrid"></div>
 </div>
 
 <!-- ══ SETTINGS ══ -->
 <div class="screen" id="s-settings">
   <button class="back-btn" onclick="closeSettings()">← Back</button>
-  <div class="sec-head"><h2 id="settings-title">Settings</h2></div>
-  <div class="settings-section">
-    <div class="settings-title" id="lbl-lang-setting">LANGUAGE</div>
-    <div class="lgrid" id="lang-grid-settings">
-      <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US · UK</span></div>
-      <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
-      <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">Korea</span></div>
-      <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">Germany</span></div>
-      <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">France</span></div>
-      <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">LatAm</span></div>
-      <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">Brazil</span></div>
-      <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">Turkey</span></div>
-      <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">华人</span></div>
-      <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">台灣</span></div>
+  <div class="settings-wrap">
+    <div>
+      <div class="settings-section-title" id="lbl-lang-setting">LANGUAGE</div>
+      <div class="settings-lang" id="settings-lang-grid">
+        <div class="s-lang-card" onclick="selLangSettings('en','English',this)"><span class="sl-name">English</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('ja','日本語',this)"><span class="sl-name">日本語</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('ko','한국어',this)"><span class="sl-name">한국어</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('de','Deutsch',this)"><span class="sl-name">Deutsch</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('fr','Français',this)"><span class="sl-name">Français</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('es','Español',this)"><span class="sl-name">Español</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('pt','Português',this)"><span class="sl-name">Português</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('tr','Türkçe',this)"><span class="sl-name">Türkçe</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('zh-cn','简体中文',this)"><span class="sl-name">简体中文</span></div>
+        <div class="s-lang-card" onclick="selLangSettings('zh-tw','繁體中文',this)"><span class="sl-name">繁體中文</span></div>
+      </div>
     </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-title" id="lbl-style-setting">IMAGE STYLE</div>
-    <div class="cgrid c1" style="max-width:400px">
-      <div class="card" onclick="selStyle('illustrated',this)">Illustrated<span class="sub">Painterly · Stylized · Not photographic</span></div>
-      <div class="card active-sel" onclick="selStyle('semi-realistic',this)" id="style-semi">Semi-Realistic<span class="sub">Stylized art · Soft rendering</span></div>
-      <div class="card" onclick="selStyle('cinematic',this)">Cinematic Film<span class="sub">Film grain · Dreamy · Movie poster</span></div>
-      <div class="card" onclick="selStyle('photorealistic',this)">Photorealistic<span class="sub">Photography style · Real textures</span></div>
+    <div>
+      <div class="settings-section-title" id="lbl-style-setting">IMAGE STYLE</div>
+      <div class="settings-style">
+        <div class="s-style-card" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
+        <div class="s-style-card sel" onclick="selStyle('semi-realistic',this)"><span class="s-style-name">Semi-Realistic</span><span class="s-style-sub">Soft · Stylized art</span></div>
+        <div class="s-style-card" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
+        <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
+      </div>
     </div>
+    <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
   </div>
-  <button class="btn-g" onclick="closeSettings()" id="btn-save-settings">Save & Return</button>
 </div>
 
 <script>
 const WORKER='https://off-the-record-api.liziting2023.workers.dev';
-
-const IMG_STYLES={
-  'illustrated':'digital painting style, illustrated 2D art, painterly brush strokes, not photorealistic, stylized romance novel illustration, vibrant artistic colors',
-  'semi-realistic':'semi-realistic digital art, stylized not photographic, soft artistic rendering, romance game art style, Choices Stories You Play aesthetic',
-  'cinematic':'cinematic film photography, film grain texture, dreamy color grading, movie still quality, romantic atmosphere',
-  'photorealistic':'photorealistic, lifestyle photography, authentic textures, editorial photography quality'
-};
-
+const IMG_STYLES={illustrated:'digital painting style, illustrated 2D art, painterly brush strokes, not photorealistic, stylized romance novel illustration',semi:'semi-realistic digital art, stylized not photographic, soft artistic rendering, romance game art style',cinematic:'cinematic film photography, film grain texture, dreamy color grading, movie still quality',photo:'photorealistic, lifestyle photography, authentic textures, editorial photography quality'};
 const FAME_DATA=[
   {min:90,emoji:'👑',color:'#f4c840',en:'International Icon','zh-cn':'国际巨星','zh-tw':'國際巨星',ja:'国際的アイコン',ko:'국제적 아이콘'},
   {min:75,emoji:'🌟',color:'#C4A882',en:'Acclaimed Star','zh-cn':'实力派明星','zh-tw':'實力派明星',ja:'実力派スター',ko:'실력파 스타'},
@@ -627,129 +697,81 @@ const FAME_DATA=[
   {min:5,emoji:'🎸',color:'#5a5a5a',en:'Street Performer','zh-cn':'街头歌手','zh-tw':'街頭歌手',ja:'ストリートパフォーマー',ko:'버스킹 아티스트'},
   {min:0,emoji:'⚠️',color:'#ef4444',en:'Fading Artist','zh-cn':'过气艺人','zh-tw':'過氣藝人',ja:'落ち目のアーティスト',ko:'사라져가는 아티스트',danger:true},
 ];
-
 function getFameLabel(lang,fd){return fd[lang]||fd['zh-cn']||fd.en;}
-function getCurrentFame(fame){for(const fd of FAME_DATA){if(fame>=fd.min)return fd;}return FAME_DATA[FAME_DATA.length-1];}
+function getCurFame(f){for(const fd of FAME_DATA)if(f>=fd.min)return fd;return FAME_DATA[FAME_DATA.length-1];}
 
-// SCRIPTED 5-DAY EVENTS
-const SCRIPTED_EVENTS={
-  1:{npc:'agent',location:'agent_office',isWork:true,
-     story_en:`Your agent's office is on the 24th floor. Through the floor-to-ceiling windows, the city stretches out below — the same city that doesn't know your name yet.\n\nHe's already sitting behind his desk when you walk in. He doesn't look up immediately.`,
-     story_zhcn:`经纪人的办公室在24楼。落地窗外，这座城市向远处延伸——\n同一座城市，还不知道你的名字。\n\n你走进去时，他已经坐在桌后。他没有立刻抬头看你。`,
-     story_zhtw:`經紀人的辦公室在24樓。落地窗外，這座城市向遠處延伸——\n同一座城市，還不知道你的名字。\n\n你走進去時，他已經坐在桌後。他沒有立刻抬頭看你。`,
-     story_ja:`エージェントのオフィスは24階にある。床から天井までの窓の外、街が広がっている——\nまだあなたの名前を知らない街が。\n\n入ると、彼はすでに机の後ろに座っていた。すぐには顔を上げなかった。`,
-     story_ko:`에이전트의 사무실은 24층에 있다. 바닥부터 천장까지 이어진 창문 너머, 도시가 펼쳐져 있다——\n아직 당신의 이름을 모르는 도시가.\n\n들어서자 그는 이미 책상 뒤에 앉아 있었다. 바로 고개를 들지 않았다.`,
-  },
-  2:{npc:'drummer',location:'recording_studio',isWork:true,
-     story_en:`The recording studio smells like coffee and old dreams.\n\nHe's behind the drum kit when you walk in — not playing, just sitting, arms crossed, watching you like he already has an opinion.`,
-     story_zhcn:`录音室里有咖啡和旧梦的味道。\n\n你走进来时，他坐在鼓架后面——没在打鼓，只是坐着，双臂交叉，看着你，像是早就有了判断。`,
-     story_zhtw:`錄音室裡有咖啡和舊夢的味道。\n\n你走進來時，他坐在鼓架後面——沒在打鼓，只是坐著，雙臂交叉，看著你，像是早就有了判斷。`,
-     story_ja:`レコーディングスタジオはコーヒーと古い夢の匂いがする。\n\n入ると、彼はドラムセットの後ろに座っていた——叩いているわけではなく、ただ座って、腕を組んで、すでに意見を持っているかのようにあなたを見ていた。`,
-     story_ko:`녹음 스튜디오에서는 커피와 오래된 꿈의 냄새가 났다.\n\n들어서자 그는 드럼 키트 뒤에 앉아 있었다——연주하는 게 아니라 그냥 앉아서, 팔짱을 낀 채, 이미 판단을 내린 듯 당신을 바라보고 있었다.`,
-  },
-  3:{npc:'actor',location:'magazine_shoot',isWork:true,
-     story_en:`You didn't expect to share a shoot with anyone today.\n\nHe's in the next studio over — you can hear his laugh through the wall before you see him. When he walks in to say hello, he looks at you the way men like him always do.\n\nLike you're a problem he wouldn't mind having.`,
-     story_zhcn:`你今天没想到会和别人共用拍摄场地。\n\n他在隔壁棚——你先听到他的笑声，才看到人。他走过来打招呼时，用那种他这类男人惯常的眼神看着你。\n\n像是你是个他不介意有的麻烦。`,
-     story_zhtw:`你今天沒想到會和別人共用拍攝場地。\n\n他在隔壁棚——你先聽到他的笑聲，才看到人。他走過來打招呼時，用那種他這類男人慣常的眼神看著你。\n\n像是你是個他不介意有的麻煩。`,
-     story_ja:`今日、誰かと撮影場所をシェアするとは思っていなかった。\n\n彼は隣のスタジオにいる——見る前に壁越しに笑い声が聞こえてくる。挨拶しに来た時、彼はこういうタイプの男が必ずそうするような目であなたを見た。\n\nまるであなたが、あっても困らない問題であるかのように。`,
-     story_ko:`오늘 누군가와 촬영 장소를 나눌 거라고는 생각하지 못했다.\n\n그는 옆 스튜디오에 있었다——그를 보기 전에 벽 너머로 웃음소리가 먼저 들렸다. 인사하러 들어왔을 때 그는 이런 부류의 남자들이 항상 그렇듯 당신을 바라봤다.\n\n마치 당신이 있어도 나쁘지 않을 문제인 것처럼.`,
-  },
-  4:{npc:'butler',location:'apartment_lobby',isWork:false,
-     story_en:`You almost walked past him.\n\nHe was crouched in the lobby of your building, carefully setting something on your mailbox. He startled when he heard you, then turned — and you saw his face properly for the first time.\n\nYounger than you expected. A little flustered.`,
-     story_zhcn:`你差点就走过去了。\n\n他蹲在你楼的大堂里，小心翼翼地往你的信箱上放什么东西。听到你的声音，他吓了一跳，然后转过来——你第一次正式看清了他的脸。\n\n比你想象的年轻。有点慌张。`,
-     story_zhtw:`你差點就走過去了。\n\n他蹲在你樓的大堂裡，小心翼翼地往你的信箱上放什麼東西。聽到你的聲音，他嚇了一跳，然後轉過來——你第一次正式看清了他的臉。\n\n比你想像的年輕。有點慌張。`,
-     story_ja:`もう少しで通り過ぎるところだった。\n\n彼はあなたのマンションのロビーでしゃがみ込み、郵便受けに何かをそっと置いていた。あなたの足音に気づいてびっくりし、振り返った——あなたは初めて彼の顔をちゃんと見た。\n\n思ったより若い。少し慌てている。`,
-     story_ko:`그냥 지나칠 뻔했다.\n\n그는 당신 건물 로비에 쪼그려 앉아 우편함 위에 무언가를 조심스럽게 올려놓고 있었다. 발소리에 놀라 뒤를 돌아봤다——당신은 처음으로 그의 얼굴을 제대로 봤다.\n\n생각보다 어렸다. 약간 당황한 표정이었다.`,
-  },
-  5:{npc:'agent',location:'cafe_meeting',isWork:false,
-     story_en:`He texts at 9am: "Are you free? I'll buy you coffee."\n\nNo reason given. You go anyway.\n\nHe's already there when you arrive, hands wrapped around a cup, eyes somewhere else. He doesn't apologize for making you come out. He never does.`,
-     story_zhcn:`他早上9点发消息："有空吗？我请你喝咖啡。"\n\n没说原因。你还是去了。\n\n你到的时候他已经在了，双手捧着杯子，眼神在别处。他没有道歉让你出门。他从不道歉。`,
-     story_zhtw:`他早上9點發訊息：「有空嗎？我請你喝咖啡。」\n\n沒說原因。你還是去了。\n\n你到的時候他已經在了，雙手捧著杯子，眼神在別處。他沒有道歉讓你出門。他從不道歉。`,
-     story_ja:`彼は午前9時にメッセージを送ってきた：「時間ある？コーヒーおごるよ。」\n\n理由は書いてなかった。それでも行った。\n\n着くと彼はすでにそこにいて、両手でカップを包み、視線はどこか遠くにあった。わざわざ来させたことを謝らなかった。彼は謝らない。`,
-     story_ko:`그는 오전 9시에 문자를 보냈다: "시간 돼? 커피 살게."\n\n이유는 없었다. 그래도 갔다.\n\n도착했을 때 그는 이미 거기 있었다. 두 손으로 컵을 감싸 쥐고 시선은 어딘가 먼 곳을 향하고 있었다. 나오게 해서 미안하다는 말은 없었다. 그는 절대 사과하지 않는다.`,
-  },
-};
+// PUBLIC LOCATIONS (detective shadow appears)
+const PUBLIC_LOCS=['recording_studio','magazine_shoot','brand_event','award_ceremony','cafe','art_gallery','night_bar','street_market','music_training'];
+// Private locations (no detective)
+const PRIVATE_LOCS=['agent_office','cafe_meeting'];
 
-// NPC CONFIGS
-const NPC_CFG={
-  agent:{emoji:'👔',color:'#1a1a1a',
-    personality_en:'32-year-old talent agent. Cold exterior, secretly warm. Precise, ambitious, protective of his artist. Professional but the distance between you is getting smaller.',
-    personality_zhcn:'32岁的经纪人。外冷内热。精准、有野心、保护自己的艺人。很专业，但你们之间的距离正在缩短。',
-    opening_day1_en:`You're late.`,opening_day1_zhcn:`你迟到了。`,opening_day1_zhtw:`你遲到了。`,opening_day1_ja:`遅刻ですね。`,opening_day1_ko:`늦었네요.`,
-    // Day 2 drummer opening
-  },
-  drummer:{emoji:'🥁',color:'#2a1a0a',
-    personality_en:'26-year-old drummer and band leader. Direct, rough around the edges, fiercely loyal. Initially dismissive of your singing, but slowly noticing your raw talent and relentless effort.',
-    personality_zhcn:'26岁的鼓手兼乐队队长。直接，不修边幅，极其忠诚。起初对你的唱功不屑一顾，但慢慢注意到你的天赋和努力。',
-    opening_day2_en:`So you're the new singer. Let's see if you can actually keep up.`,
-    opening_day2_zhcn:`所以你就是新来的主唱。看看你能不能跟上。`,
-    opening_day2_zhtw:`所以你就是新來的主唱。看看你能不能跟上。`,
-    opening_day2_ja:`あなたが新しいボーカルか。ついてこれるかどうか見せてもらおう。`,
-    opening_day2_ko:`그래서 네가 새 보컬이구나. 따라올 수 있는지 보자.`,
-  },
-  actor:{emoji:'🎬',color:'#0a0a1a',
-    personality_en:'29-year-old rising actor. Charming, flirtatious with everyone beautiful, plays games with feelings. May be seeing multiple people at once.',
-    personality_zhcn:'29岁的新晋男演员。有魅力，见到漂亮的就撩，玩弄感情。可能同时交往多人。',
-    opening_day3_en:`I don't usually introduce myself. But for you, I'll make an exception.`,
-    opening_day3_zhcn:`我通常不主动介绍自己。但对你，我愿意破例。`,
-    opening_day3_zhtw:`我通常不主動介紹自己。但對你，我願意破例。`,
-    opening_day3_ja:`自分から自己紹介することは普段しないんだけど。あなたのためには例外にしよう。`,
-    opening_day3_ko:`보통 먼저 소개하지 않는데. 당신을 위해선 예외를 만들겠어요.`,
-  },
-  butler:{emoji:'🎂',color:'#0a1a0a',
-    personality_en:'20-year-old building manager. Earnest, caring, slightly shy. Calls you "unnie/nee-san/noona/sis". Bakes cakes and sweets. His admiration is turning into something he can\'t name.',
-    personality_zhcn:'20岁的楼管。认真体贴，略带害羞。叫你"姐姐"。会做蛋糕和甜点。他的崇拜正在变成他说不清楚的东西。',
-    opening_day4_en:`Um... I made this. For you. It's lemon cake. I noticed you like sweet things.`,
-    opening_day4_zhcn:`那个……这个是我做的。给你的。柠檬蛋糕。我注意到你喜欢甜的东西。`,
-    opening_day4_zhtw:`那個……這個是我做的。給你的。檸檬蛋糕。我注意到你喜歡甜的東西。`,
-    opening_day4_ja:`えっと……これ、作りました。あなたのために。レモンケーキです。甘いものが好きそうだったから。`,
-    opening_day4_ko:`저... 이거 만들었어요. 언니 주려고요. 레몬 케이크예요. 언니가 단 거 좋아하는 것 같아서.`,
-  },
+const DETECTIVE_SHADOW=`, in the far background barely noticeable, a tall man in a dark trench coat seen only from behind or in silhouette, face completely hidden, standing at the edge of the scene in shadow, mysterious presence that most people wouldn't notice`;
+
+// SCENE COMPOSITIONS by location
+const SCENE_COMPS={
+  agent_office:'inside a sleek modern high-rise office, floor-to-ceiling windows with city skyline, woman sitting across a glass desk from a man',
+  recording_studio:'professional recording studio, woman wearing headphones inside glass vocal booth, microphone in front, mixing board visible through glass, warm studio lighting',
+  magazine_shoot:'fashion magazine photoshoot set, dramatic studio lighting, woman in elegant outfit, professional cameras and crew visible',
+  brand_event:'luxury brand event red carpet, woman in beautiful gown walking red carpet, press photographers below with camera flashes, elegant venue backdrop, product display podium visible',
+  award_ceremony:'glamorous awards ceremony, woman in evening gown, spotlights, audience visible, stage backdrop',
+  music_training:'music practice room, woman singing or playing guitar, music stands, acoustic panels',
+  cafe:'cozy city café, woman sitting by window, coffee cup in hand, looking out at the street, city view through window, warm café lighting',
+  cafe_meeting:'cozy café, two people sitting across from each other at a small table, coffee cups between them, intimate conversation setting',
+  art_gallery:'contemporary art gallery, woman standing with her back to camera or in three-quarter profile looking at large artwork on white wall, gallery lighting, contemplative pose',
+  bookshop:'charming bookshop, woman in side profile reaching for books on shelf or browsing between shelves, warm lighting',
+  night_bar:'upscale night bar, woman sitting at bar counter or lounge sofa, intimate warm lighting, city lights visible through windows',
+  street_market:'vibrant street market, woman browsing stalls, colorful surroundings',
+  apartment_lobby:'modern apartment building lobby, marble floors, soft lighting',
 };
 
 const HM={'East Asian':{eyes:'Dark brown, almond-shaped',skin:'Light to medium golden'},'Southeast Asian':{eyes:'Warm dark brown',skin:'Warm golden brown'},'South Asian':{eyes:'Deep brown',skin:'Medium to deep brown'},'Northern European':{eyes:'Blue or grey',skin:'Fair, cool-toned'},'Southern European':{eyes:'Warm brown or green',skin:'Warm olive'},'African':{eyes:'Rich dark brown',skin:'Rich deep brown to ebony'},'Latin American':{eyes:'Brown or hazel',skin:'Medium warm brown'},'Middle Eastern':{eyes:'Dark almond',skin:'Medium olive to tan'}};
-
-const CL={'New York':'Empire State Building, Times Square neon signs','Los Angeles':'Hollywood Hills sign, palm trees','London':'Tower Bridge, red double-decker bus','Paris':'Eiffel Tower, Haussmann rooftops','Tokyo':'Tokyo Tower, Shinjuku neon skyline','Seoul':'N Seoul Tower, Han River bridges','Sydney':'Opera House sails, Harbour Bridge','Toronto':'CN Tower, Lake Ontario waterfront'};
-
-const AS={British:{hair:'dark brown neatly swept back',skin:'fair',suit:'charcoal grey double-breasted suit, open collar'},American:{hair:'dark brown side-parted',skin:'medium',suit:'navy blue slim suit, white open-collar shirt'},French:{hair:'dark chestnut slightly tousled',skin:'light olive',suit:'black slim-cut suit, silk pocket square'},Italian:{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit'},Korean:{hair:'black precise side part',skin:'light',suit:'dark grey minimalist suit, black turtleneck'},Japanese:{hair:'black neat side part',skin:'light',suit:'anthracite suit, white shirt'},'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt'},Brazilian:{hair:'dark brown slight wave',skin:'warm tan',suit:'navy suit, open collar white shirt'}};
-
-const LIVING_LAYOUT=`rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, strong perspective depth, LEFT dining area with wooden dining table and chairs against left wall, two glass pendant lights hanging above dining table, CENTER BACK TV wall unit with built-in shelving, wall-mounted TV with floating cabinet and warm LED underglow, RIGHT large three-seater sofa with cushions, round coffee table on large area rug, curved accent armchair near window, round side table with lamp, FAR END floor-to-ceiling window with white sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, round pendant light, large format tile flooring, warm neutral tones, clean organized`;
-
-const DETECTIVE_SHADOW=`, in the background barely noticeable, a tall man in a dark trench coat partially in shadow at the edge of the scene, quietly observing, mysterious presence, most people wouldn't notice him`;
+const CL={'New York':'Empire State Building and Times Square neon','Los Angeles':'Hollywood Hills and palm trees','London':'Tower Bridge and red double-decker bus','Paris':'Eiffel Tower and Haussmann rooftops','Tokyo':'Tokyo Tower and Shinjuku neon skyline','Seoul':'N Seoul Tower and Han River bridges','Sydney':'Opera House and Harbour Bridge','Toronto':'CN Tower and Lake Ontario waterfront'};
+const AS={British:{hair:'dark brown neatly swept back',skin:'fair',suit:'charcoal grey double-breasted suit'},American:{hair:'dark brown side-parted',skin:'medium',suit:'navy blue slim suit, open-collar shirt'},French:{hair:'dark chestnut tousled',skin:'light olive',suit:'black slim-cut suit, silk pocket square'},Italian:{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit'},Korean:{hair:'black precise side part',skin:'light',suit:'dark grey minimalist suit, black turtleneck'},Japanese:{hair:'black neat side part',skin:'light',suit:'anthracite suit, white shirt'},'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt'},Brazilian:{hair:'dark brown slight wave',skin:'warm tan',suit:'navy suit, open collar'}};
+const LIVING_LAYOUT=`rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, LEFT dining area with wooden dining table and chairs against left wall, two glass pendant lights hanging above dining table, CENTER BACK TV wall unit with built-in shelving, wall-mounted TV with floating cabinet and warm LED underglow, RIGHT large three-seater sofa with cushions, round coffee table on large area rug, curved accent armchair near window, round side table with lamp, FAR END floor-to-ceiling window with white sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, large format tile flooring, warm neutral tones`;
 
 // STATE
-const G={lang:'en',langName:'English',imgStyle:'semi-realistic',playerName:'',mother:null,motherEyes:null,father:null,fatherSkin:null,hairStyle:null,hairColor:null,city:null,decor:null,livingDayUrl:null,livingNightUrl:null,protagonistUrl:null,agentOrigin:null,agentName:null,agentUrl:null,fame:5,day:1,daysWithoutWork:0,relationships:{agent:0,drummer:0,actor:0,butler:0},metNPCs:[],gallery:[],_prevScreen:'s-daily',_ru:{a:null,b:null,c:null},_pu:{a:null,b:null,c:null},_au:{a:null,b:null,c:null},_streetUrl:null,_nightReady:false,phoneMessages:{},phoneNotifs:[],unreadCount:0,industryNews:[],_drummerName:'',_actorName:'',_butlerName:'',};
+const G={lang:'en',langName:'English',imgStyle:'semi',playerName:'',mother:null,motherEyes:null,father:null,fatherSkin:null,hairStyle:null,hairColor:null,city:null,decor:null,livingDayUrl:null,livingNightUrl:null,protagonistUrl:null,
+  agentOrigin:null,agentName:null,agentUrl:null,
+  drummerOrigin:null,drummerName:null,drummerUrl:null,
+  actorOrigin:null,actorName:null,actorUrl:null,
+  butlerOrigin:null,butlerName:null,butlerUrl:null,
+  fame:5,day:1,daysWithoutWork:0,relationships:{agent:0,drummer:0,actor:0,butler:0},
+  metNPCs:[],gallery:[],_prevScreen:'s-daily',
+  _ru:{a:null,b:null,c:null},_pu:{a:null,b:null,c:null},_au:{a:null,b:null,c:null},
+  _nightReady:false,_pendingNPCKey:null,_pendingNPCCallback:null,
+  phoneMessages:{},phoneMoments:[],industryNews:[],unreadMsgs:0,
+  vnDialogRound:0,vnMaxRounds:3,vnCurrentNPC:null,vnSceneImg:null,
+};
 
-const SO=['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-flash-scene','s-agent-intro','s-agent-origin','s-agent-reveal','s-ch1','s-daily'];
+const SO=['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-agent-intro','s-agent-origin','s-agent-reveal','s-ch1','s-daily'];
 
 // NAV
 function go(id){
-  if(id==='s-ch1'){document.getElementById('ch-name').textContent=G.playerName||'—';document.getElementById('ch-city').textContent=G.city||'—';document.getElementById('ch-agent').textContent=G.agentName||'—';const fr=getCurrentFame(G.fame);document.getElementById('ch-fame').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);}
+  if(id==='s-ch1'){document.getElementById('ch-name').textContent=G.playerName||'—';document.getElementById('ch-city').textContent=G.city||'—';document.getElementById('ch-agent').textContent=G.agentName||'—';const fr=getCurFame(G.fame);document.getElementById('ch-fame').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const idx=SO.indexOf(id);
   document.getElementById('prog').style.width=(idx<0?0:Math.round(idx/(SO.length-1)*100))+'%';
-  const inGame=['s-daily','s-scene','s-evening','s-phone','s-messages','s-chat','s-industry','s-fame','s-gallery','s-settings','s-ch1'].includes(id);
+  const inGame=['s-daily','s-scene','s-evening','s-phone','s-chat','s-fame','s-gallery','s-settings','s-ch1'].includes(id);
   document.getElementById('bottom-nav').classList.toggle('show',inGame);
-  if(!['s-fame','s-gallery','s-settings','s-phone','s-messages','s-chat','s-industry'].includes(id)) G._prevScreen=id;
-  window.scrollTo(0,0);
+  if(!['s-fame','s-gallery','s-settings','s-phone','s-chat'].includes(id))G._prevScreen=id;
 }
-function goHome(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
-function setActiveBn(id){document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
-function openFame(){setActiveBn('bn-fame');renderFame();go('s-fame');}
-function closeFame(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
-function openGallery(){setActiveBn('bn-gallery');renderGallery();go('s-gallery');}
-function closeGallery(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
-function openSettings(){setActiveBn('bn-settings');go('s-settings');}
-function closeSettings(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
-function openPhone(){setActiveBn('bn-phone');renderPhone();go('s-phone');}
-function closePhone(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
-function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('open');}
-function closeLB(){document.getElementById('lightbox').classList.remove('open');}
+function goHome(){go(G._prevScreen||'s-daily');setABn('bn-home');}
+function setABn(id){document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
+function openFame(){setABn('bn-fame');renderFame();go('s-fame');}
+function closeFame(){go(G._prevScreen||'s-daily');setABn('bn-home');}
+function openGallery(){setABn('bn-gallery');renderGallery();go('s-gallery');}
+function closeGallery(){go(G._prevScreen||'s-daily');setABn('bn-home');}
+function openSettings(){setABn('bn-settings');go('s-settings');}
+function closeSettings(){go(G._prevScreen||'s-daily');setABn('bn-home');}
+function openPhone(){setABn('bn-phone');renderPhone();go('s-phone');}
+function closePhone(){go(G._prevScreen||'s-daily');setABn('bn-home');}
+function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('open');}
+function closeLB(){document.getElementById('lb').classList.remove('open');}
 
 // TRANSLATIONS
 const TX={
-  en:{open_nar:`The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.`,name_title:"What's your name?",name_sub:'The name you perform under.',name_hint:'This is how everyone will know you.',mother_title:'My mother',mother_sub:'She always said I had her eyes.',father_title:'My father',father_sub:'He said my skin was just like his.',thats_right:"That's right",hair_title:'Yesterday',hair_sub:"I finally went to that salon.",city_title:'Two months ago',city_sub:'I packed two suitcases.',decor_title:'My apartment',decor_sub:"I made it mine.",rooms_title:'Choose your living room',rooms_sub:'Which one is home?',mirror_nar:`I looked at myself for a long moment.\nSame face. Different city.`,flash_nar:`Every night, I set up in the same spot.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nThe pianist was always there before me.\nWe never talked much. We just played.\n\nEvery night, the city walked past without looking.`,street_nar:`Until one night — someone stopped.\nAnd didn't leave.`,agent_intro_nar:`He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don't.`,agent_origin_title:'Where was he from?',agent_origin_sub:'Something about the way he carried himself.',ch1_quote:`"Everything changes the moment\nsomeone finally sees you."`,open_stamp:'Friday · 7:14 AM',mirror_stamp:'Bathroom mirror · 7:31 AM',flashback_stamp:'Every night, for months',your_world:'YOUR WORLD',name_key:'Name',city_key:'City',agent_key:'Agent',fame_key:'Fame',ch1_label:'Chapter One',signed:'Signed',wake_up:'Wake up · Day 1',today:'TODAY',end_day:'End the day',sleep:'Sleep · Next day',home:'Home',phone:'Phone',fame:'Fame',gallery_lbl:'Gallery',settings_lbl:'Settings',gallery_title:'Gallery',gallery_sub:'Your moments.',settings_title:'Settings',lang_setting:'LANGUAGE',style_setting:'IMAGE STYLE',save_return:'Save & Return',her_origin:'HER ORIGIN',his_origin:'HIS ORIGIN',hair_style_lbl:'HAIR STYLE',hair_colour_lbl:'HAIR COLOUR',city_lbl:'WHERE DID YOU MOVE TO?',decor_lbl:'INTERIOR STYLE',close_lbl:'Closer',neutral_lbl:'Neutral',far_lbl:'Distance',choose_portrait:'CHOOSE HIS PORTRAIT',thats_him:"✓ That's him",choose_refl:'CHOOSE YOUR REFLECTION',this_is_me:'✓ This is me',messages_app:'Messages',news_app:'Industry',industry_title:'Industry News',
+  en:{open_nar:`The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.`,name_title:"What's your name?",name_sub:'The name you perform under.',name_hint:'This is how everyone will know you.',mother_title:'My mother',mother_sub:'She always said I had her eyes.',father_title:'My father',father_sub:'He said my skin was just like his.',thats_right:"That's right",hair_title:'Yesterday',hair_sub:"I finally went to that salon.",city_title:'Two months ago',city_sub:'I packed two suitcases.',decor_title:'My apartment',decor_sub:"I made it mine.",rooms_title:'Choose your living room',rooms_sub:'Which one is home?',mirror_nar:`I looked at myself for a long moment.\nSame face. Different city.`,flash_nar:`Every night, I set up in the same spot.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nEvery night, the city walked past without looking.`,agent_intro_nar:`He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don't.`,agent_origin_title:'Where was he from?',agent_origin_sub:'Something about the way he carried himself.',ch1_quote:`"Everything changes the moment\nsomeone finally sees you."`,open_stamp:'Friday · 7:14 AM',mirror_stamp:'Bathroom mirror · 7:31 AM',flashback_stamp:'Every night, for months',your_world:'YOUR WORLD',name_key:'Name',city_key:'City',agent_key:'Agent',fame_key:'Fame',ch1_label:'Chapter One',signed:'Signed',wake_up:'Wake up · Day 1',today:'TODAY',sleep:'Sleep · Next day',home:'Home',phone:'Phone',fame:'Fame',gallery_lbl:'Gallery',settings_lbl:'Settings',lang_setting:'LANGUAGE',style_setting:'IMAGE STYLE',save_return:'Save & Return',her_origin:'HER ORIGIN',his_origin:'HIS ORIGIN',hair_style_lbl:'HAIR STYLE',hair_colour_lbl:'HAIR COLOUR',city_lbl:'WHERE DID YOU MOVE TO?',decor_lbl:'INTERIOR STYLE',close_lbl:'Closer',neutral_lbl:'Neutral',far_lbl:'Distance',choose_portrait:'CHOOSE HIS PORTRAIT',thats_him:"✓ That's him",choose_refl:'CHOOSE YOUR REFLECTION',this_is_me:'✓ This is me',end_day:'End the day',wc_chats:'Chats',wc_moments:'Moments',wc_industry:'Industry',wc_back:'Back',npc_origin_title:'Where is he from?',npc_origin_sub:'His background shapes who he is.',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -759,30 +781,34 @@ const TX={
     cities:['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Toronto'],
     city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','Japan','South Korea','Australia','Canada'],
     decors:['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'],
-    decor_subs:['Soft voiles · Delicate details · Dreamy pastels','Natural curves · Oak & walnut · Warm textures','Vintage frames · Heirloom textiles · Florals','Deep tones · Gold accents · City-sleek','Warm layers · Trailing plants · Candlelight'],
+    decor_subs:['Soft voiles · Dreamy pastels','Natural curves · Oak & walnut','Vintage frames · Florals','Deep tones · Gold accents','Warm layers · Plants · Candlelight'],
     agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'],
-    agent_origin_subs:['England · Scotland','East · West Coast','Paris · South of France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio'],
+    agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio'],
   },
-  'zh-cn':{open_nar:`光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。`,name_title:'你叫什么名字？',name_sub:'你用来演出的名字。',name_hint:'所有人都会这样叫你。',mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',thats_right:'就是这样',hair_title:'昨天',hair_sub:'我终于去了那家发廊。',city_title:'两个月前',city_sub:'我拖着两个行李箱。',decor_title:'我的公寓',decor_sub:'我把它变成了我的样子。',rooms_title:'选择你的客厅',rooms_sub:'哪一个更像家？',mirror_nar:`我对着镜子看了很久。\n同一张脸。不同的城市。`,flash_nar:`每天晚上，我都在同一个地方摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n那个钢琴师总是比我早到。\n我们没有多说话。只是一起演奏。\n\n每天晚上，这座城市从我们身边走过，没有人回头看。`,street_nar:`直到那一晚——有一个人停下来了。\n而且没有离开。`,agent_intro_nar:`他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。`,agent_origin_title:'他是哪里人？',agent_origin_sub:'从他的气质就能感觉出来。',ch1_quote:`"一切都在那一刻改变了——\n当有人终于真正看见你。"`,open_stamp:'周五 · 上午 7:14',mirror_stamp:'洗手间镜子 · 上午 7:31',flashback_stamp:'每一个夜晚，几个月来',your_world:'你的世界',name_key:'名字',city_key:'城市',agent_key:'经纪人',fame_key:'知名度',ch1_label:'第一章',signed:'签约',wake_up:'醒来 · 第1天',today:'今天',end_day:'结束今天',sleep:'入睡 · 下一天',home:'主页',phone:'手机',fame:'知名度',gallery_lbl:'相册',settings_lbl:'设置',gallery_title:'相册',gallery_sub:'每一个瞬间，都被珍藏。',settings_title:'设置',lang_setting:'语言',style_setting:'画面风格',save_return:'保存并返回',her_origin:'母亲来源',his_origin:'父亲来源',hair_style_lbl:'发型',hair_colour_lbl:'发色',city_lbl:'你搬到了哪个城市？',decor_lbl:'室内风格',close_lbl:'亲近',neutral_lbl:'一般',far_lbl:'疏远',choose_portrait:'选择他的形象',thats_him:'✓ 就是他',choose_refl:'选择你的样子',this_is_me:'✓ 就是我',messages_app:'短信',news_app:'行业',industry_title:'行业资讯',
+  'zh-cn':{open_nar:`光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。`,name_title:'你叫什么名字？',name_sub:'你用来演出的名字。',name_hint:'所有人都会这样叫你。',mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',thats_right:'就是这样',hair_title:'昨天',hair_sub:'我终于去了那家发廊。',city_title:'两个月前',city_sub:'我拖着两个行李箱。',decor_title:'我的公寓',decor_sub:'我把它变成了我的样子。',rooms_title:'选择你的客厅',rooms_sub:'哪一个更像家？',mirror_nar:`我对着镜子看了很久。\n同一张脸。不同的城市。`,flash_nar:`每天晚上，我都在同一个地方摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n每天晚上，这座城市从我们身边走过，没有人回头看。`,agent_intro_nar:`他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。`,agent_origin_title:'他是哪里人？',agent_origin_sub:'从他的气质就能感觉出来。',ch1_quote:`"一切都在那一刻改变了——\n当有人终于真正看见你。"`,open_stamp:'周五 · 上午 7:14',mirror_stamp:'洗手间镜子 · 上午 7:31',flashback_stamp:'每一个夜晚，几个月来',your_world:'你的世界',name_key:'名字',city_key:'城市',agent_key:'经纪人',fame_key:'知名度',ch1_label:'第一章',signed:'签约',wake_up:'醒来 · 第1天',today:'今天',sleep:'入睡 · 下一天',home:'主页',phone:'手机',fame:'知名度',gallery_lbl:'相册',settings_lbl:'设置',lang_setting:'语言',style_setting:'画面风格',save_return:'保存并返回',her_origin:'母亲来源',his_origin:'父亲来源',hair_style_lbl:'发型',hair_colour_lbl:'发色',city_lbl:'你搬到了哪个城市？',decor_lbl:'室内风格',close_lbl:'亲近',neutral_lbl:'一般',far_lbl:'疏远',choose_portrait:'选择他的形象',thats_him:'✓ 就是他',choose_refl:'选择你的样子',this_is_me:'✓ 就是我',end_day:'结束今天',wc_chats:'消息',wc_moments:'朋友圈',wc_industry:'行业资讯',wc_back:'返回',npc_origin_title:'他是哪里人？',npc_origin_sub:'他的背景造就了他这个人。',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东'],region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
     hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫'],hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
     cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','多伦多'],city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','加拿大'],
-    decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],decor_subs:['柔纱·细腻质感·梦幻粉彩','自然曲线·橡木胡桃·温暖纹理','复古画框·传家纺织·花卉图案','深色调·金色点缀·都市精致','温暖层次·垂挂植物·烛光氛围'],
+    decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
     agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人'],agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约'],
   },
 };
 ['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l=>{if(!TX[l])TX[l]=Object.assign({},TX.en);});
-// zh-tw overrides
-TX['zh-tw']=Object.assign({},TX['zh-cn'],{open_nar:TX['zh-cn'].open_nar.replace(/来/g,'來').replace(/这/g,'這').replace(/们/g,'們').replace(/梦/g,'夢'),your_world:'你的世界',ch1_label:'第一章',signed:'簽約',wake_up:'醒來 · 第1天',today:'今天',end_day:'結束今天',sleep:'入睡 · 下一天',home:'主頁',phone:'手機',gallery_lbl:'相冊',settings_lbl:'設置',gallery_title:'相冊',close_lbl:'親近',far_lbl:'疏遠',choose_portrait:'選擇他的形象',thats_him:'✓ 就是他',this_is_me:'✓ 就是我',messages_app:'簡訊',news_app:'行業',industry_title:'行業資訊',cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','多倫多'],decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],ch1_quote:`「一切都在那一刻改變了——\n當有人終於真正看見你。」`});
+TX['zh-tw']=Object.assign({},TX['zh-cn'],{ch1_quote:`「一切都在那一刻改變了——\n當有人終於真正看見你。」`,cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','多倫多'],decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],wc_moments:'朋友圈',wc_industry:'行業資訊'});
 
 function t(k){return (TX[G.lang]&&TX[G.lang][k]!==undefined)?TX[G.lang][k]:TX.en[k]||k;}
 
 function selLang(code,name,el){
-  document.querySelectorAll('.lcard').forEach(c=>{if(c.querySelector('.lname')?.textContent===el.querySelector('.lname')?.textContent)c.classList.add('active-sel');else c.classList.remove('active-sel');});
-  G.lang=code;G.langName=name;applyLang();
+  document.querySelectorAll('#lang-grid-main .lcard').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');G.lang=code;G.langName=name;applyLang();
   document.getElementById('btn-lang').style.display='inline-block';
 }
+function selLangSettings(code,name,el){
+  document.querySelectorAll('#settings-lang-grid .s-lang-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');G.lang=code;G.langName=name;applyLang();
+}
+function selStyle(style,el){document.querySelectorAll('.s-style-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G.imgStyle=style;}
 
 function applyLang(){
   const s=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.innerHTML=(v+'').replace(/\n/g,'<br>');};
@@ -796,19 +822,17 @@ function applyLang(){
   s('rooms-title',t('rooms_title'));s('rooms-sub',t('rooms_sub'));
   s('mirror-nar',t('mirror_nar'));s('mirror-stamp',t('mirror_stamp'));
   s('flash-nar',t('flash_nar'));s('flashback-stamp',t('flashback_stamp'));
-  s('street-nar',t('street_nar'));s('agent-intro-nar',t('agent_intro_nar'));
+  s('agent-intro-nar',t('agent_intro_nar'));
   s('agent-origin-title',t('agent_origin_title'));s('agent-origin-sub',t('agent_origin_sub'));
   s('ch1-quote',t('ch1_quote'));
   s('lbl-your-world',t('your_world'));s('lbl-name-key',t('name_key'));s('lbl-city-key',t('city_key'));s('lbl-agent-key',t('agent_key'));s('lbl-fame-key',t('fame_key'));
   s('lbl-ch1',t('ch1_label'));s('lbl-signed',t('signed'));s('btn-wakeup',t('wake_up'));
-  s('lbl-today',t('today'));s('btn-sleep',t('sleep'));
   s('bn-home-lbl',t('home'));s('bn-phone-lbl',t('phone'));s('bn-fame-lbl',t('fame'));s('bn-gallery-lbl',t('gallery_lbl'));s('bn-settings-lbl',t('settings_lbl'));
-  s('gallery-title',t('gallery_title'));s('gallery-sub',t('gallery_sub'));s('settings-title',t('settings_title'));
-  s('lbl-lang-setting',t('lang_setting'));s('lbl-style-setting',t('style_setting'));s('btn-save-settings',t('save_return'));
+  s('gallery-title',t('gallery_lbl'));s('lbl-lang-setting',t('lang_setting'));s('lbl-style-setting',t('style_setting'));s('btn-save-settings',t('save_return'));
   s('lbl-her-origin',t('her_origin'));s('lbl-his-origin',t('his_origin'));s('lbl-hair-style',t('hair_style_lbl'));s('lbl-hair-colour',t('hair_colour_lbl'));s('lbl-city',t('city_lbl'));s('lbl-decor',t('decor_lbl'));
   s('lbl-choose-portrait',t('choose_portrait'));s('lbl-thats-him',t('thats_him'));s('lbl-choose-refl',t('choose_refl'));s('lbl-this-me',t('this_is_me'));
-  s('lbl-messages-app',t('messages_app'));s('lbl-news-app',t('news_app'));s('lbl-industry-title',t('industry_title'));
-  s('bn-fame-lbl2',t('fame'));s('bn-gallery-lbl2',t('gallery_lbl'));
+  s('lbl-wct-chats',t('wc_chats'));s('lbl-wct-moments',t('wc_moments'));s('lbl-wct-industry',t('wc_industry'));s('lbl-wct-back',t('wc_back'));
+  s('lbl-wc-chats',t('wc_chats'));
   buildGrids();
 }
 
@@ -825,13 +849,32 @@ function buildGrids(){
 }
 
 function selCard(el,key,value){
-  el.closest('.cgrid')?.querySelectorAll('.card').forEach(c=>c.classList.remove('active-sel'));el.classList.add('active-sel');G[key]=value;
+  el.closest('.cgrid')?.querySelectorAll('.card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G[key]=value;
   const bmap={mother:'btn-mom',father:'btn-dad',city:'btn-city',decor:'btn-decor',agentOrigin:'btn-aorigin'};
   if(bmap[key])document.getElementById(bmap[key]).style.display='inline-block';
   if(key==='hairStyle'||key==='hairColor')if(G.hairStyle&&G.hairColor)document.getElementById('btn-hair').style.display='inline-block';
 }
 
-function selStyle(style,el){document.querySelectorAll('#s-settings .cgrid .card').forEach(c=>c.classList.remove('active-sel'));el.classList.add('active-sel');G.imgStyle=style;}
+// NPC ORIGIN SHEET
+const NPC_EMOJIS={agent:'👔',drummer:'🥁',actor:'🎬',butler:'🎂'};
+function showNPCOrigin(npcKey,callback){
+  G._pendingNPCKey=npcKey;G._pendingNPCCallback=callback;G._selectedNPCOrigin=null;
+  const origins=t('agent_origins');const subs=t('agent_origin_subs');
+  const vals=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
+  document.getElementById('nos-title').textContent=t('npc_origin_title');
+  document.getElementById('nos-sub').textContent=t('npc_origin_sub');
+  document.getElementById('nos-grid').innerHTML=origins.map((o,i)=>`<div class="nos-card" onclick="selNPCOrigin('${vals[i]}',this)">${o}<br><span style="font-size:9px;color:var(--ink-muted)">${subs[i]||''}</span></div>`).join('');
+  document.getElementById('nos-confirm').style.display='none';
+  document.getElementById('npc-origin-overlay').classList.add('open');
+}
+function selNPCOrigin(val,el){
+  document.querySelectorAll('.nos-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');
+  G._selectedNPCOrigin=val;document.getElementById('nos-confirm').style.display='block';
+}
+function confirmNPCOrigin(){
+  document.getElementById('npc-origin-overlay').classList.remove('open');
+  if(G._pendingNPCCallback&&G._selectedNPCOrigin)G._pendingNPCCallback(G._selectedNPCOrigin);
+}
 
 function saveName(){const v=document.getElementById('name-inp').value.trim();if(!v){document.getElementById('name-inp').style.borderColor='var(--rose)';return;}G.playerName=v;go('s-mother');}
 
@@ -839,7 +882,7 @@ function showHeritage(){
   const m=HM[G.mother]||{eyes:'brown',skin:'medium'};const f=HM[G.father]||{eyes:'brown',skin:'medium'};
   G.motherEyes=m.eyes;G.fatherSkin=f.skin;
   const lang=G.lang;let nar,el,sl,hl;
-  if(lang==='zh-cn'||lang==='zh-tw'){nar=`我母亲来自<em>${G.mother}</em>。我父亲来自<em>${G.father}</em>。<br><br>人们总说我完美地融合了他们两个人。`;el='眼睛';sl='肤色';hl='血统';}
+  if(lang==='zh-cn'||lang==='zh-tw'){nar=`我母亲来自<em>${G.mother}</em>。我父亲来自<em>${G.father}</em>。<br><br>人们总说我是他们两个人完美的融合。`;el='眼睛';sl='肤色';hl='血统';}
   else if(lang==='ja'){nar=`母は<em>${G.mother}</em>出身。父は<em>${G.father}</em>出身。<br><br>みんないつも二人を完璧に混ぜ合わせたと言っていた。`;el='目';sl='肌';hl='出身';}
   else if(lang==='ko'){nar=`어머니는 <em>${G.mother}</em> 출신. 아버지는 <em>${G.father}</em> 출신.<br><br>항상 두 분이 완벽하게 섞였다고 했다.`;el='눈';sl='피부';hl='혈통';}
   else{nar=`My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>People always said I was a perfect mix of both of them.`;el='Eyes';sl='Skin';hl='Heritage';}
@@ -850,374 +893,552 @@ function showHeritage(){
 }
 
 // API
-const imgSuffix=()=>`, ${IMG_STYLES[G.imgStyle]}, portrait orientation, high quality`;
-async function claude(prompt,sys=''){const body={model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]};if(sys)body.system=sys;const r=await fetch(WORKER+'/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();return d.content?.[0]?.text||'';}
-async function img(prompt,label='',save=false){try{const r=await fetch(WORKER+'/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+imgSuffix(),image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});const d=await r.json();const url=d.images?.[0]?.url;if(url&&save&&label)G.gallery.push({url,label});return url||null;}catch{return null;}}
+const imgSuffix=()=>`, ${IMG_STYLES[G.imgStyle]||IMG_STYLES.semi}, portrait orientation, high quality`;
+async function claude(prompt,sys=''){
+  const body={model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]};
+  if(sys)body.system=sys;
+  const r=await fetch(WORKER+'/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();return d.content?.[0]?.text||'';
+}
+async function img(prompt,label='',save=false,retries=2){
+  for(let attempt=0;attempt<=retries;attempt++){
+    try{
+      const r=await fetch(WORKER+'/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+imgSuffix(),image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});
+      const d=await r.json();const url=d.images?.[0]?.url;
+      if(url){const ok=await new Promise(res=>{const i=new Image();i.onload=()=>res(true);i.onerror=()=>res(false);i.src=url;setTimeout(()=>res(false),9000);});if(ok){if(save&&label)G.gallery.push({url,label});return url;}}
+    }catch{}
+    if(attempt<retries)await new Promise(r=>setTimeout(r,1500));
+  }return null;
+}
 function setImg(imgId,phId,url){if(!url)return;const i=document.getElementById(imgId);const ph=document.getElementById(phId);if(i){i.src=url;i.style.display='block';}if(ph)ph.style.display='none';}
 
 // ROOMS
 let _roomsDone=false;
-async function preGenRooms(){if(_roomsDone||!G.city)return;const lm=CL[G.city]||'city skyline';const styles=['Romantic Minimalist','Contemporary Organic','Modern Dark'];const base=s=>`${s} interior design style, ${LIVING_LAYOUT}, abundant natural light at 10am morning, bright clear daylight, ${lm} visible through floor-to-ceiling windows`;const[a,b,c]=await Promise.all([img(base(styles[0]),'Room A'),img(base(styles[1]),'Room B'),img(base(styles[2]),'Room C')]);G._ru={a,b,c};_roomsDone=true;}
-async function genRooms(){go('s-rooms');if(!_roomsDone)await preGenRooms();if(G._ru.a)setRCard('ra','ra-ph',G._ru.a);if(G._ru.b)setRCard('rb','rb-ph',G._ru.b);if(G._ru.c)setRCard('rc','rc-ph',G._ru.c);}
-function setRCard(cid,pid,url){const ph=document.getElementById(pid);if(!ph||!url)return;const i=document.createElement('img');i.src=url;i.style.cssText='width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;';i.onclick=()=>openLB(url);i.onload=()=>{ph.replaceWith(i);if(G.livingDayUrl)document.getElementById('btn-rooms').style.display='inline-block';};i.onerror=()=>{ph.innerHTML='<span style="color:var(--ink-muted);font-size:11px">—</span>';};}
-function selRoom(opt){['ra','rb','rc'].forEach(id=>document.getElementById(id)?.classList.remove('active-sel'));document.getElementById('r'+opt)?.classList.add('active-sel');G.livingDayUrl=G._ru[opt];document.getElementById('btn-rooms').style.display='inline-block';preGenNight();}
-async function preGenNight(){const lm=CL[G.city]||'city';const url=await img(`${G.decor||'Contemporary Organic'} interior design style, ${LIVING_LAYOUT}, evening atmosphere, warm interior lighting, city lights visible through floor-to-ceiling windows, ${lm} city lights at night, cozy intimate night mood`,'Room — Night');G.livingNightUrl=url;G._nightReady=true;}
+async function preGenRooms(){
+  if(_roomsDone||!G.city)return;
+  const lm=CL[G.city]||'city skyline';
+  const styles=['Romantic Minimalist','Contemporary Organic','Modern Dark'];
+  const base=s=>`${s} interior design style, ${LIVING_LAYOUT}, abundant natural light at 10am morning, bright daylight, ${lm} visible through floor-to-ceiling windows`;
+  document.getElementById('ra-ph').innerHTML='<span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span>';
+  const a=await img(base(styles[0]),'Room A');setRCard('ra','ra-ph',a,'a');
+  const b=await img(base(styles[1]),'Room B');setRCard('rb','rb-ph',b,'b');
+  const c=await img(base(styles[2]),'Room C');setRCard('rc','rc-ph',c,'c');
+  G._ru={a,b,c};_roomsDone=true;
+}
+async function genRooms(){go('s-rooms');if(!_roomsDone)await preGenRooms();}
+function setRCard(cid,pid,url,opt){
+  const ph=document.getElementById(pid);if(!ph||!url)return;
+  const i=document.createElement('img');i.src=url;i.style.cssText='width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;';
+  i.onclick=()=>openLB(url);i.onload=()=>{ph.replaceWith(i);if(G.livingDayUrl)document.getElementById('btn-rooms').style.display='inline-block';};
+}
+function selRoom(opt){
+  ['ra','rb','rc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+  document.getElementById('r'+opt)?.classList.add('sel');
+  G.livingDayUrl=G._ru[opt];G.selectedDecor=opt==='a'?'Romantic Minimalist':opt==='b'?'Contemporary Organic':'Modern Dark';
+  document.getElementById('btn-rooms').style.display='inline-block';
+  preGenNight();
+}
+async function preGenNight(){
+  const lm=CL[G.city]||'city';
+  // Night: looking toward sofa (opposite direction) to avoid inconsistency
+  const url=await img(`${G.selectedDecor||'Contemporary Organic'} interior design style, apartment living room at night, camera angle from window wall looking toward sofa area, large three-seater sofa with cushions as focal point, coffee table and rug in foreground, warm interior lighting, cozy intimate night mood, city lights softly visible through window behind camera perspective, warm lamp glow`,'Room — Night');
+  G.livingNightUrl=url;G._nightReady=true;
+}
 
 // PROTAGONIST
-const protoBase=()=>`Naturally beautiful 23-year-old young woman, slender and well-proportioned figure, artist physique, mixed ${G.mother} and ${G.father} heritage, ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, ${G.hairStyle} ${G.hairColor} hair, editorial beauty with real character and warmth`;
-const MIRRORS=['standing in front of bathroom mirror, over-the-shoulder mirror reflection composition, subject back slightly out of focus, face in mirror sharp and clear, gently touching her cheek and corner of lips, examining her skin, medium close shot, shallow depth of field, soft 10am morning natural light, warm bathroom environment, marble vanity sink visible below mirror, real authentic skin texture, cinematic quality, natural subtle gesture','bathroom vanity mirror reflection, over-shoulder angle, marble countertop and sink visible, 10am morning light from window, thoughtful expression looking at reflection, candid intimate moment, shallow depth of field','close-up bathroom mirror portrait over sink vanity, direct gaze into mirror, warm vanity lighting, 10am natural morning light, relaxed expression, cinematic shallow focus'];
-
+// IMPORTANT: protagonist prompt uses ONLY player's own heritage, never agent's
+const protoBase=()=>`Naturally beautiful 23-year-old young woman, slender and well-proportioned artist figure, mixed ${G.mother} and ${G.father} heritage ONLY, ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, ${G.hairStyle} ${G.hairColor} hair, editorial beauty with real character`;
+const MIRRORS=[
+  'standing in front of bathroom mirror, over-the-shoulder mirror reflection composition, her back slightly blurred, face in mirror sharp and clear, gently touching cheek and corner of lips, medium close shot, shallow depth of field, soft 10am morning natural light, marble vanity sink visible below mirror, authentic skin texture, cinematic quality',
+  'bathroom vanity mirror, over-shoulder angle, marble countertop and sink visible, 10am morning light from window, thoughtful expression looking at reflection, candid intimate moment, shallow depth of field',
+  'bathroom mirror portrait over sink vanity, direct gaze into mirror, warm vanity lighting, 10am natural morning light, relaxed expression, cinematic shallow focus'
+];
 async function genProto(){
-  go('s-proto');const base=protoBase();
-  const[a,b,c]=await Promise.all([img(base+', '+MIRRORS[0],'Portrait A'),img(base+', '+MIRRORS[1],'Portrait B'),img(base+', '+MIRRORS[2],'Portrait C')]);
-  G._pu={a,b,c};setTrio('pa',a);setTrio('pb',b);setTrio('pc',c);
+  go('s-proto');
+  const base=protoBase();
+  const a=await img(base+', '+MIRRORS[0],'Portrait A');setTrio('pa',a);
+  const b=await img(base+', '+MIRRORS[1],'Portrait B');setTrio('pb',b);
+  const c=await img(base+', '+MIRRORS[2],'Portrait C');setTrio('pc',c);
   document.getElementById('btn-rp').style.display='inline-block';
-  preGenStreet();
 }
-async function regenProto(){['pa','pb','pc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('active-sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('this_is_me')}</div>`;});document.getElementById('btn-proto').style.display='none';await genProto();}
+async function regenProto(){
+  ['pa','pb','pc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('this_is_me')}</div>`;});
+  document.getElementById('btn-proto').style.display='none';await genProto();
+}
 function setTrio(id,url){const el=document.getElementById(id);if(!el||!url)return;const i=document.createElement('img');i.src=url;i.onclick=()=>openLB(url);i.onload=()=>{const ph=el.querySelector('.iph');if(ph)ph.replaceWith(i);};}
-function selProto(opt){['pa','pb','pc'].forEach(id=>document.getElementById(id)?.classList.remove('active-sel'));document.getElementById('p'+opt)?.classList.add('active-sel');G.protagonistUrl=G._pu[opt];G.gallery.push({url:G.protagonistUrl,label:'Your Portrait'});document.getElementById('btn-proto').style.display='inline-block';}
-
-async function preGenStreet(){const lm=CL[G.city]||'city street';G._streetUrl=await img(`Cinematic nighttime street scene in ${G.city}, ${lm} visible in background, beautiful 23-year-old slender singer performing on stone steps with acoustic guitar, ${G.hairStyle} ${G.hairColor} hair, elegant street pianist at upright piano beside her, guitar case open on pavement with coins inside, warm amber streetlight and neon glow, blurred crowd passing by not paying attention, one man in dark tailored suit standing completely still watching intently from across the street, low angle dramatic camera, film noir romance atmosphere${DETECTIVE_SHADOW}`,'First Meeting',true);}
+function selProto(opt){
+  ['pa','pb','pc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+  document.getElementById('p'+opt)?.classList.add('sel');
+  G.protagonistUrl=G._pu[opt]=G._pu[opt]||null;
+  // Get the actual selected URL
+  const el=document.getElementById('p'+opt);const img_el=el?.querySelector('img');
+  if(img_el){G.protagonistUrl=img_el.src;G.gallery.push({url:img_el.src,label:'Your Portrait'});}
+  document.getElementById('btn-proto').style.display='inline-block';
+}
 
 // AGENT
 async function genAgent(){
   go('s-agent-reveal');
-  // Generate names for all NPCs
-  const[agentName,drummerName,actorName,butlerName]=await Promise.all([
-    claude(`Generate a realistic full name for a 32-year-old ${G.agentOrigin} talent agent. Cold, sophisticated, successful. Return ONLY the full name.`),
-    claude(`Generate a realistic first name for a 26-year-old ${G.agentOrigin||'American'} rock drummer. Edgy, cool, masculine. Return ONLY the first name.`),
-    claude(`Generate a realistic full name for a 29-year-old charming ${G.agentOrigin||'American'} actor. Handsome, charismatic. Return ONLY the full name.`),
-    claude(`Generate a realistic first name for a sweet 20-year-old ${G.agentOrigin||'Korean'} young man. Warm, gentle. Return ONLY the first name.`),
-  ]);
-  G.agentName=agentName.trim().replace(/['"]/g,'');
-  G._drummerName=drummerName.trim().replace(/['"]/g,'');
-  G._actorName=actorName.trim().replace(/['"]/g,'');
-  G._butlerName=butlerName.trim().replace(/['"]/g,'');
-
-  const firstLine=await claude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent, cold exterior with hidden warmth. He has watched a street busker named ${G.playerName} perform for tips several nights in a row and finally approaches her. Write his very first words to her. 1-2 sentences, sophisticated, slightly guarded. No quotation marks. Language: ${G.langName}.`);
   const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features with real depth and character, cold composed expression with hidden warmth, strong jawline, commanding presence, editorial handsome not generic, perfect masculine proportions`;
-  const angles=['standing on nighttime city street, three-quarter angle, warm streetlight dramatic rim light from behind, direct intense gaze toward camera, city lights bokeh background','close-up portrait, slight low angle looking up at him, city night bokeh, serious expression with subtle complexity and mystery, strong features','turning toward camera from side profile, dark suit lapels visible, wet city street reflections below, cinematic brooding romantic lead'];
-  const[a,b,c]=await Promise.all([img(base+', '+angles[0],'Agent A'),img(base+', '+angles[1],'Agent B'),img(base+', '+angles[2],'Agent C')]);
-  G._au={a,b,c};setTrio('aga',a);setTrio('agb',b);setTrio('agc',c);
+  // Agent prompt: ONLY agent's own origin, no player heritage mentioned
+  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features, cold composed expression with hidden warmth, strong jawline, commanding presence, perfect masculine proportions`;
+  const angles=[
+    'standing in high-rise office at night, three-quarter angle, city lights behind through floor-to-ceiling windows, direct intense gaze toward camera',
+    'close-up portrait, slight low angle, office setting, serious expression with subtle complexity and mystery, strong features',
+    'side profile turning toward camera, dark suit lapels visible, city night visible through window, cinematic brooding'
+  ];
+  // Generate portraits first
+  const a=await img(base+', '+angles[0],'Agent A');setTrio('aga',a);
+  const b=await img(base+', '+angles[1],'Agent B');setTrio('agb',b);
+  const c=await img(base+', '+angles[2],'Agent C');setTrio('agc',c);
+  // Generate name AFTER portraits so name shows up correctly
+  const nameStr=await claude(`Generate a realistic full name for a 32-year-old ${G.agentOrigin} talent agent. Cold, sophisticated, successful. Return ONLY the full name, nothing else.`);
+  G.agentName=nameStr.trim().replace(/['"]/g,'');
+  const firstLine=await claude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent with cold exterior and hidden warmth. He approached a street busker named ${G.playerName} after watching her perform for tips several nights. Write his very first words to her. 1-2 sentences, sophisticated, slightly guarded. No quotation marks. Language: ${G.langName}.`);
   document.getElementById('agent-reveal-box').style.display='block';
   document.getElementById('agent-name-txt').textContent=G.agentName;
   document.getElementById('agent-line-txt').innerHTML=`"${firstLine.trim()}"`;
   document.getElementById('btn-rag').style.display='inline-block';
-  if(G._streetUrl)setImg('street-img','street-ph',G._streetUrl);
 }
-async function regenAgent(){['aga','agb','agc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('active-sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('thats_him')}</div>`;});document.getElementById('btn-agent-ok').style.display='none';const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin, ${st.suit}, sharp distinguished features, cold composed expression with hidden warmth, commanding presence`;const angles=['three-quarter on nighttime street, streetlight rim light, direct intense gaze','close-up portrait low angle, city night bokeh, serious with mystery','side profile turning toward camera, city night reflections'];const[a,b,c]=await Promise.all([img(base+', '+angles[0],'Agent A'),img(base+', '+angles[1],'Agent B'),img(base+', '+angles[2],'Agent C')]);G._au={a,b,c};setTrio('aga',a);setTrio('agb',b);setTrio('agc',c);}
-function selAgent(opt){['aga','agb','agc'].forEach(id=>document.getElementById(id)?.classList.remove('active-sel'));document.getElementById('ag'+opt)?.classList.add('active-sel');G.agentUrl=G._au[opt];G.gallery.push({url:G.agentUrl,label:G.agentName||'Agent'});document.getElementById('btn-agent-ok').style.display='inline-block';}
+async function regenAgent(){
+  ['aga','agb','agc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('thats_him')}</div>`;});
+  document.getElementById('btn-agent-ok').style.display='none';await genAgent();
+}
+function selAgent(opt){
+  ['aga','agb','agc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+  document.getElementById('ag'+opt)?.classList.add('sel');
+  const el=document.getElementById('ag'+opt);const img_el=el?.querySelector('img');
+  if(img_el){G.agentUrl=img_el.src;G.gallery.push({url:img_el.src,label:G.agentName||'Agent'});}
+  document.getElementById('btn-agent-ok').style.display='inline-block';
+}
+
+// SCRIPTED 5-DAY EVENTS
+const SCRIPTED={
+  1:{npc:'agent',loc:'agent_office',isWork:true,isPublic:false,
+    preText:{en:`Your agent's office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — the same city that doesn't know your name yet.\n\nHe's already sitting behind his desk when you walk in.\nHe doesn't look up immediately.`,
+    'zh-cn':`经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——同一座城市，还不知道你的名字。\n\n你走进去时，他已经坐在桌后。\n没有立刻抬头看你。`},
+    dialogs:[
+      {speaker_role:'agent',context:'first official meeting after signing contract, evaluating his new artist, cold professional'},
+      {speaker_role:'agent',context:'discussing work plans, revealing he has assembled a band for her, she is the lead singer, the drummer is the band leader, she should go meet him tomorrow at the recording studio. Mentions the drummer is difficult but talented.'},
+      {speaker_role:'agent',context:'end of meeting, slight warmth showing through, something almost personal slipping out before he catches himself'},
+    ]
+  },
+  2:{npc:'drummer',loc:'recording_studio',isWork:true,isPublic:false,
+    preText:{en:`The recording studio smells like coffee and ambition.\n\nHe's behind the drum kit when you walk in — not playing, just sitting there, arms crossed, watching you like he's already made up his mind.`,
+    'zh-cn':`录音室里弥漫着咖啡和野心的气息。\n\n你走进来时，他坐在鼓架后面——没在打鼓，只是坐着，双臂交叉，用一种好像已经下了判断的眼神看着你。`},
+    dialogs:[
+      {speaker_role:'drummer',context:'first meeting the new lead singer, skeptical and slightly dismissive of her singing ability, blunt and direct'},
+      {speaker_role:'drummer',context:'challenging her to prove herself, testing her commitment and professionalism, still rough but slightly curious'},
+      {speaker_role:'drummer',context:'reluctant acknowledgment that she might have something, not willing to fully admit it yet, ending with something that could be interpreted as a very guarded compliment'},
+    ],
+    needsOriginBefore:true
+  },
+  3:{npc:'actor',loc:'magazine_shoot',isWork:true,isPublic:true,
+    preText:{en:`You didn't expect to share a shoot with anyone today.\n\nYou hear his laugh through the wall before you see him. When he walks in to say hello, he looks at you the way men like him always do.\n\nLike you're a problem he wouldn't mind having.`,
+    'zh-cn':`你今天没想到会和别人共用拍摄场地。\n\n你先听到他的笑声，才看到人。他走过来打招呼时，用那种他这类男人惯常的眼神看着你。\n\n像是你是个他不介意有的麻烦。`},
+    dialogs:[
+      {speaker_role:'actor',context:'charming introduction, flirtatious from the start, effortlessly confident and charismatic'},
+      {speaker_role:'actor',context:'showing interest but also casually mentioning other women, revealing his playboy nature without shame'},
+      {speaker_role:'actor',context:'trying to make plans with her, charming but leaving ambiguous whether he treats everyone this way'},
+    ],
+    needsOriginBefore:true
+  },
+  4:{npc:'butler',loc:'apartment_lobby',isWork:false,isPublic:false,
+    preText:{en:`You almost walked past him.\n\nHe was crouched in the lobby, carefully placing something on your mailbox. He startled when he heard you — then turned, and you saw his face properly for the first time.\n\nYounger than you expected. A little flustered.`,
+    'zh-cn':`你差点就走过去了。\n\n他蹲在大堂里，小心翼翼地往你的信箱上放东西。听到你的声音，他吓了一跳——然后转过来，你第一次正式看清了他的脸。\n\n比你想象的年轻。有点慌张。`},
+    dialogs:[
+      {speaker_role:'butler',context:'introducing himself as the building manager for this floor, a little nervous and formal, then presenting the lemon cake he made for her, calls her "sister/noona/nee-san" depending on language'},
+      {speaker_role:'butler',context:'explaining he noticed small things about her, earnest and sweet, revealing he pays attention to details'},
+      {speaker_role:'butler',context:'offering help with anything she needs, sincere and devoted, a hint of something more than just professional care'},
+    ],
+    needsOriginBefore:true
+  },
+  5:{npc:'agent',loc:'cafe_meeting',isWork:false,isPublic:true,
+    preText:{en:`He texts at 9am: "Are you free? I'll buy you coffee."\n\nNo reason given. You go anyway.\n\nHe's already there when you arrive. Hands wrapped around a cup, eyes somewhere else.`,
+    'zh-cn':`他早上9点发消息："有空吗？我请你喝咖啡。"\n\n没说原因。你还是去了。\n\n你到的时候他已经在了。双手捧着杯子，眼神在别处。`},
+    dialogs:[
+      {speaker_role:'agent',context:'seemingly casual meeting but with purpose, professional exterior, slightly less guarded than usual'},
+      {speaker_role:'agent',context:'discussing her progress and potential, revealing he has been thinking about her career carefully, something almost like pride'},
+      {speaker_role:'agent',context:'something almost personal, a question or observation that goes beyond work, catching himself, ending ambiguously'},
+    ]
+  },
+};
 
 // DAILY
 async function startDay(){
-  go('s-daily');setActiveBn('bn-home');
+  go('s-daily');setABn('bn-home');
   const days_en=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const days_zh=['周日','周一','周二','周三','周四','周五','周六'];
-  const days_ja=['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
-  const days_ko=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+  const days_ja=['日','月','火','水','木','金','土'];
+  const days_ko=['일','월','화','수','목','금','토'];
   const idx=(6+G.day-1)%7;
-  const dn=G.lang==='zh-cn'||G.lang==='zh-tw'?days_zh[idx]:G.lang==='ja'?days_ja[idx]:G.lang==='ko'?days_ko[idx]:days_en[idx];
+  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
+  const dn=isZh?days_zh[idx]:isJa?days_ja[idx]+'曜日':isKo?days_ko[idx]+'요일':days_en[idx];
   document.getElementById('d-clock').textContent='8:07';
-  document.getElementById('d-date').textContent=G.lang==='zh-cn'||G.lang==='zh-tw'?`${dn} · 第${G.day}天`:G.lang==='ko'?`${dn} · ${G.day}일차`:`${dn} · Day ${G.day}`;
-  if(G.livingDayUrl){document.getElementById('daily-room-img').src=G.livingDayUrl;document.getElementById('daily-room-wrap').style.display='block';}
-  const ev=SCRIPTED_EVENTS[G.day];
-  const npcContext=ev?`Today she has a scripted encounter with her ${ev.npc}.`:'';
-  const txt=await claude(`Write a brief poetic morning inner monologue (2 sentences) for ${G.playerName}, 23-year-old singer. Day ${G.day} in ${G.city}. ${npcContext} Fame: ${getCurrentFame(G.fame).en}. Second person "You...". Language: ${G.langName}. Return only the text.`);
-  const dtxt=document.getElementById('d-txt');if(dtxt){dtxt.style.opacity='0';dtxt.style.animation='none';dtxt.innerHTML=txt.trim().replace(/\n/g,'<br>');setTimeout(()=>{dtxt.style.animation='fadeInSlow 1s ease forwards';},50);}
+  document.getElementById('d-date').textContent=isZh?`${dn} · 第${G.day}天`:isKo?`${dn} · ${G.day}일차`:`${dn} · Day ${G.day}`;
+  if(G.livingDayUrl){document.getElementById('daily-room-img').src=G.livingDayUrl;document.getElementById('daily-room-img').style.display='block';document.getElementById('daily-room-ph').style.display='none';}
+  const ev=SCRIPTED[G.day];
+  const txt=await claude(`Write a very brief (1 sentence) poetic morning thought for ${G.playerName}, 23-year-old singer, Day ${G.day} in ${G.city}. ${ev?`Today she meets her ${ev.npc}.`:''} Second person "You...". Language: ${G.langName}. Return only the text.`);
+  document.getElementById('d-txt').textContent=txt.trim();
   buildDayOpts();
-  generateDayPhone();
+  generatePhoneContent();
   if(!G._nightReady)preGenNight();
 }
 
 function buildDayOpts(){
-  const opts=document.getElementById('d-opts');
-  const ev=SCRIPTED_EVENTS[G.day];
-  const lang=G.lang;
-  const isZh=lang==='zh-cn'||lang==='zh-tw';
-  const isJa=lang==='ja';const isKo=lang==='ko';
-
-  // Phone option always present
-  const phoneLabel=isZh?'查看手机':isJa?'スマホを確認':isKo?'휴대폰 확인':'Check your phone';
-  const phoneSub=isZh?'消息 · 行业资讯':isJa?'メッセージ · 業界ニュース':isKo?'메시지 · 업계 뉴스':'Messages · Industry news';
-  const phoneBtnHtml=`<button class="dopt phone-opt" onclick="openPhone();setActiveBn('bn-phone')">${phoneLabel}<span class="dsub">${phoneSub}</span></button>`;
-
+  const opts=document.getElementById('d-opts');opts.innerHTML='';
+  const ev=SCRIPTED[G.day];
+  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
+  const phoneLabel=isZh?'查看手机':isJa?'スマホを確認':isKo?'휴대폰 확인':'Check phone';
+  const phoneSub=isZh?'消息 · 朋友圈 · 行业资讯':isJa?'メッセージ · 業界':isKo?'메시지 · 업계 뉴스':'Messages · Moments · Industry';
+  const makeOpt=(label,sub,cls,onclick)=>{const btn=document.createElement('button');btn.className='daily-opt '+cls;btn.innerHTML=`<div><span>${label}</span><span class="opt-sub">${sub}</span></div><span class="opt-arrow">›</span>`;btn.onclick=onclick;return btn;};
   if(ev){
-    // Scripted event - show description + option
-    const story=isZh?ev.story_zhcn:isZh?ev.story_zhtw:isJa?ev.story_ja:isKo?ev.story_ko:ev.story_en;
-    const optLabel=getScriptedOptLabel(ev,lang);
-    opts.innerHTML=`
-      <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--ink-muted);line-height:1.9;margin-bottom:16px;text-align:left;max-width:400px">${story.replace(/\n/g,'<br>')}</div>
-      <button class="dopt work-opt" onclick="playScriptedDay()">${optLabel}</button>
-      ${phoneBtnHtml}`;
+    const actLabel=isZh?getActLabelZh(G.day):isJa?getActLabelJa(G.day):isKo?getActLabelKo(G.day):getActLabelEn(G.day);
+    const actSub=isZh?'今日事件':isJa?'今日のイベント':isKo?'오늘의 이벤트':'Today\'s event';
+    opts.appendChild(makeOpt(actLabel,actSub,'work',()=>playScripted(G.day)));
   } else {
-    // Free choice days
-    const workOpts=getWorkOpts(lang);
-    const socialOpts=getSocialOpts(lang);
+    // Free choice
+    const workOps=getWorkOps(lang);const socOps=getSocOps(lang);
     const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
-    const wPick=shuffle(workOpts).slice(0,1);
-    const sPick=shuffle(socialOpts).slice(0,2);
-    const workSub=isZh?'工作 · 提升知名度':isJa?'仕事 · 名声アップ':isKo?'커리어 · 명성 +':'Career · +Fame';
-    const socSub=isZh?'社交 · 可能遇到有趣的人':isJa?'外出 · 誰かに会うかも':isKo?'소셜 · 누군가를 만날 수도':'Social · May meet someone';
-    opts.innerHTML=[
-      ...wPick.map(o=>`<button class="dopt work-opt" onclick="playFreeDay('${o.key}','${o.label}',true)">${o.label}<span class="dsub">${workSub}</span></button>`),
-      ...sPick.map(o=>`<button class="dopt" onclick="playFreeDay('${o.key}','${o.label}',false)">${o.label}<span class="dsub">${socSub}</span></button>`),
-      phoneBtnHtml
-    ].join('');
+    const wPick=shuffle(workOps)[0];const sPicks=shuffle(socOps).slice(0,2);
+    const wSub=isZh?'工作 · +知名度':isJa?'仕事 · +名声':isKo?'커리어 · +명성':'Career · +Fame';
+    const sSub=isZh?'社交 · 可能遇到有趣的人':isJa?'外出 · 誰かに会うかも':isKo?'소셜 · 만남':'Social · May meet someone';
+    opts.appendChild(makeOpt(wPick.label,wSub,'work',()=>playFree(wPick.key,wPick.label,true)));
+    sPicks.forEach(s=>opts.appendChild(makeOpt(s.label,sSub,'',()=>playFree(s.key,s.label,false))));
   }
+  opts.appendChild(makeOpt(phoneLabel,phoneSub,'phone-btn',()=>{openPhone();setABn('bn-phone');}));
 }
 
-function getScriptedOptLabel(ev,lang){
-  const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  const labels={
-    1:{en:`Go to ${G.agentName}'s office`,zh:`去${G.agentName}的办公室`,ja:`${G.agentName}のオフィスへ行く`,ko:`${G.agentName}의 사무실로 가기`},
-    2:{en:`Head to the recording studio`,zh:`去录音室`,ja:`レコーディングスタジオへ行く`,ko:`녹음 스튜디오로 가기`},
-    3:{en:`Go to the magazine shoot`,zh:`去杂志拍摄`,ja:`雑誌の撮影へ行く`,ko:`잡지 촬영에 가기`},
-    4:{en:`Go back to your apartment`,zh:`回到公寓`,ja:`アパートに帰る`,ko:`아파트로 돌아가기`},
-    5:{en:`Meet him for coffee`,zh:`去见他喝咖啡`,ja:`コーヒーを飲みに行く`,ko:`커피 마시러 가기`},
-  };
-  const l=labels[ev?SCRIPTED_EVENTS[G.day]?G.day:1:1]||labels[1];
-  return isZh?l.zh:isJa?l.ja:isKo?l.ko:l.en;
-}
+function getActLabelEn(day){const m={1:`Meet ${G.agentName||'your agent'}`,2:`Recording Studio`,3:`Magazine Shoot`,4:`Back to your apartment`,5:`Coffee with ${G.agentName||'your agent'}`};return m[day]||'Today\'s event';}
+function getActLabelZh(day){const m={1:`去见${G.agentName||'经纪人'}`,2:`去录音室`,3:`去杂志拍摄`,4:`回到公寓`,5:`和${G.agentName||'经纪人'}喝咖啡`};return m[day]||'今日事件';}
+function getActLabelJa(day){const m={1:`${G.agentName||'エージェント'}に会いに行く`,2:`レコーディングスタジオ`,3:`雑誌撮影`,4:`アパートに帰る`,5:`${G.agentName||'エージェント'}とコーヒー`};return m[day]||'今日のイベント';}
+function getActLabelKo(day){const m={1:`${G.agentName||'에이전트'} 만나기`,2:`녹음 스튜디오`,3:`잡지 촬영`,4:`아파트로 돌아가기`,5:`${G.agentName||'에이전트'}와 커피`};return m[day]||'오늘 이벤트';}
 
-function getWorkOpts(lang){
+function getWorkOps(lang){
   const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  return[
-    {key:'recording_studio',label:isZh?'去录音室':isJa?'レコーディングスタジオ':isKo?'녹음 스튜디오':'Recording Studio'},
-    {key:'magazine_shoot',label:isZh?'杂志拍摄':isJa?'雑誌撮影':isKo?'잡지 촬영':'Magazine Photoshoot'},
-    {key:'brand_event',label:isZh?'品牌活动':isJa?'ブランドイベント':isKo?'브랜드 행사':'Brand Event'},
-    {key:'music_training',label:isZh?'音乐培训':isJa?'音楽トレーニング':isKo?'음악 트레이닝':'Music Training'},
-  ];
+  return[{key:'recording_studio',label:isZh?'去录音室':isJa?'レコーディングスタジオ':isKo?'녹음 스튜디오':'Recording Studio'},{key:'magazine_shoot',label:isZh?'杂志拍摄':isJa?'雑誌撮影':isKo?'잡지 촬영':'Magazine Shoot'},{key:'brand_event',label:isZh?'品牌活动':isJa?'ブランドイベント':isKo?'브랜드 행사':'Brand Event'},{key:'music_training',label:isZh?'音乐培训':isJa?'音楽トレーニング':isKo?'음악 트레이닝':'Music Training'}];
 }
-
-function getSocialOpts(lang){
+function getSocOps(lang){
   const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  return[
-    {key:'cafe',label:isZh?'市内咖啡馆':isJa?'街のカフェ':isKo?'도심 카페':'City Café'},
-    {key:'bookshop',label:isZh?'书店':isJa?'書店':isKo?'서점':'Bookshop'},
-    {key:'art_gallery',label:isZh?'美术馆':isJa?'美術館':isKo?'미술관':'Art Gallery'},
-    {key:'night_bar',label:isZh?'夜间酒吧':isJa?'ナイトバー':isKo?'나이트바':'Night Bar'},
-    {key:'street_market',label:isZh?'街边市集':isJa?'ストリートマーケット':isKo?'거리 시장':'Street Market'},
-  ];
+  return[{key:'cafe',label:isZh?'咖啡馆':isJa?'カフェ':isKo?'카페':'City Café'},{key:'art_gallery',label:isZh?'美术馆':isJa?'美術館':isKo?'미술관':'Art Gallery'},{key:'night_bar',label:isZh?'夜间酒吧':isJa?'ナイトバー':isKo?'나이트바':'Night Bar'},{key:'street_market',label:isZh?'街边市集':isJa?'マーケット':isKo?'거리 시장':'Street Market'},{key:'bookshop',label:isZh?'书店':isJa?'書店':isKo?'서점':'Bookshop'}];
 }
 
 // SCRIPTED DAY
-async function playScriptedDay(){
-  const ev=SCRIPTED_EVENTS[G.day];
-  go('s-scene');
-  document.getElementById('scene-stamp').textContent=ev.isWork?'10:30 AM':'2:00 PM';
-  document.getElementById('dlg-area').style.display='none';
-  document.getElementById('btn-scene-next').style.display='none';
-  document.getElementById('scene-ph').style.display='flex';
-  document.getElementById('scene-img-el').style.display='none';
-  if(ev.isWork){G.fame=Math.min(100,G.fame+5);G.daysWithoutWork=0;}
-  const story=G.lang==='zh-cn'?ev.story_zhcn:G.lang==='zh-tw'?ev.story_zhtw:G.lang==='ja'?ev.story_ja:G.lang==='ko'?ev.story_ko:ev.story_en;
-  document.getElementById('scene-nar').innerHTML=story.replace(/\n/g,'<br>');
-  // Generate NPC portrait
-  const npcUrl=await genNPCPortrait(ev.npc,G.day);
-  if(npcUrl)setImg('scene-img-el','scene-ph',npcUrl);
-  else{document.getElementById('scene-ph').style.display='none';}
-  // Run scripted dialogue
-  await runScriptedDialogue(ev.npc,G.day);
-  if(!G.metNPCs.includes(ev.npc))G.metNPCs.push(ev.npc);
-}
-
-async function genNPCPortrait(npc,day){
-  const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-  let prompt='';
-  if(npc==='agent'){
-    prompt=`Strikingly handsome 32-year-old ${G.agentOrigin} man, ${G.agentName}, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features, cold composed expression with hidden intensity, strong jawline, perfect masculine proportions, sitting behind a sleek modern desk with city view behind him, day ${day===1?'first meeting, slightly guarded':'growing tension'}, looking directly at camera with piercing gaze`;
-  } else if(npc==='drummer'){
-    prompt=`Handsome athletic 26-year-old ${G.agentOrigin||'American'} man, ${G._drummerName}, rock band drummer, slightly edgy style, dark hair tousled, strong hands, wearing casual dark clothing, sitting at drum kit in recording studio, arms crossed, evaluating expression, smoldering attractive, perfect athletic build`;
-  } else if(npc==='actor'){
-    prompt=`Devastatingly handsome 29-year-old ${G.agentOrigin||'American'} man, ${G._actorName}, rising actor, perfectly styled hair, charismatic smirk, wearing fashionable clothes, magazine photoshoot setting, effortlessly charming, model-perfect features and physique, flirtatious confident gaze toward camera`;
-  } else if(npc==='butler'){
-    prompt=`Adorable yet handsome 20-year-old ${G.agentOrigin||'Korean'} young man, ${G._butlerName}, building manager, clean-cut innocent features, slightly flushed cheeks, wearing neat uniform, holding a lemon cake box carefully, shy but earnest expression, apartment lobby setting, youthful perfect features`;
+async function playScripted(day){
+  const ev=SCRIPTED[day];
+  // Check if NPC needs origin selection first
+  if(ev.needsOriginBefore){
+    const npcKey=ev.npc;
+    const originKey=npcKey+'Origin';
+    if(!G[originKey]){
+      showNPCOrigin(npcKey,async(origin)=>{
+        G[npcKey+'Origin']=origin;
+        await startScriptedScene(day,ev);
+      });
+      return;
+    }
   }
-  // Add detective shadow for non-butler scenes
-  const detectiveShadow=npc!=='butler'?DETECTIVE_SHADOW:'';
-  return await img(prompt+detectiveShadow,`${npc.charAt(0).toUpperCase()+npc.slice(1)} — Day ${day}`,true);
+  await startScriptedScene(day,ev);
 }
 
-async function runScriptedDialogue(npc,day){
-  const cfg=NPC_CFG[npc];
-  const npcName=npc==='agent'?G.agentName:npc==='drummer'?G._drummerName:npc==='actor'?G._actorName:G._butlerName;
-  const lang=G.lang;
-  const openingKey=`opening_day${day}_${lang==='zh-cn'||lang==='zh-tw'?'zhcn':lang==='ja'?'ja':lang==='ko'?'ko':'en'}`;
-  const opening=cfg[openingKey]||cfg[`opening_day${day}_en`]||(await claude(`${npcName} (${cfg[`personality_${lang==='zh-cn'||lang==='zh-tw'?'zhcn':'en'}`]||cfg.personality_en}) opens a conversation with ${G.playerName}. Day ${day}. Write their opening line. 1-2 sentences in character. No quotes. Language: ${G.langName}.`));
-  document.getElementById('dlg-area').style.display='block';
-  document.getElementById('dlg-bubbles').innerHTML=`<div class="dlg-bubble"><div class="dlg-name">${npcName}</div><div class="dlg-text">${opening}</div></div>`;
+async function startScriptedScene(day,ev){
+  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';
+  const preText=(isZh&&ev.preText['zh-cn'])||ev.preText.en;
+  // Show loading with pre-text
+  go('s-scene');
+  document.getElementById('vn-loading').style.display='flex';
+  document.getElementById('vn-loading').querySelector('.vn-loading-txt').style.display='block';
+  document.getElementById('vn-pre-text').innerHTML=preText.replace(/\n/g,'<br>');
+  document.getElementById('vn-bg').style.display='none';
+  document.getElementById('vn-bg-ph').style.display='none';
+  document.getElementById('vn-overlay').style.display='none';
+  document.getElementById('vn-content').style.display='none';
+  if(ev.isWork)G.fame=Math.min(100,G.fame+5);
+  // Generate scene image (NPC portrait only for NPC scenes)
+  let sceneUrl=null;
+  if(ev.npc){
+    sceneUrl=await genNPCPortrait(ev.npc,day,ev.loc,ev.isPublic);
+  }
+  // Start dialogue
+  G.vnDialogRound=0;G.vnMaxRounds=ev.dialogs.length;G.vnCurrentNPC=ev.npc;G.vnSceneImg=sceneUrl;
+  showVNScene(sceneUrl,ev.dialogs,ev.npc,day);
+}
+
+async function showVNScene(sceneUrl,dialogs,npcKey,day){
+  // Hide loading, show scene
+  document.getElementById('vn-loading').style.display='none';
+  if(sceneUrl){
+    document.getElementById('vn-bg').src=sceneUrl;document.getElementById('vn-bg').style.display='block';
+  } else {
+    document.getElementById('vn-bg-ph').style.display='flex';
+  }
+  document.getElementById('vn-overlay').style.display='block';
+  document.getElementById('vn-content').style.display='flex';
+  await runVNDialog(dialogs,npcKey,day,0);
+}
+
+async function runVNDialog(dialogs,npcKey,day,round){
+  if(round>=dialogs.length){
+    // All rounds done
+    const endBtn=document.createElement('button');
+    endBtn.className='vn-next';
+    endBtn.textContent=t('end_day')||'End the day';
+    endBtn.onclick=goEvening;
+    document.getElementById('vn-opts').innerHTML='';
+    document.getElementById('vn-opts').appendChild(endBtn);
+    document.getElementById('vn-speaker').textContent='';
+    document.getElementById('vn-text').textContent='';
+    return;
+  }
+  const dlg=dialogs[round];
+  const npcName=getNPCName(npcKey);
+  document.getElementById('vn-speaker').textContent=npcName;
+  document.getElementById('vn-text').textContent='...';
+  document.getElementById('vn-opts').innerHTML=`<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>`;
+  // Generate NPC line
+  const rel=G.relationships[npcKey]||0;
+  const npcLine=await claude(`You are ${npcName}, a character in a romance game. ${getNPCPersonality(npcKey)} Current relationship with ${G.playerName}: ${rel}/100. Round ${round+1} of conversation (${dlg.context}). Write your dialogue line. 1-2 sentences, in character, natural. No quotes. Language: ${G.langName}.`);
+  document.getElementById('vn-text').textContent=npcLine.trim();
   // Generate 3 response options
-  const optP=`${G.playerName} just heard: "${opening}". Generate 3 short response options (each under 12 words). One that draws them closer (warm/curious), one neutral/professional, one that creates distance (cold/dismissive). Return ONLY a JSON array of 3 strings. Language: ${G.langName}.`;
-  let opts=['...','Okay.','I have to go.'];
-  try{const raw=await claude(optP);const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());if(Array.isArray(parsed)&&parsed.length===3)opts=parsed;}catch{}
+  const optPrompt=`${G.playerName} just heard: "${npcLine.trim()}". Generate exactly 3 short response options (each under 12 words). Option 1: warm/close response (+relationship). Option 2: neutral/polite response (neutral). Option 3: cold/distant response (-relationship). Return ONLY a JSON array of exactly 3 strings. Validate each string is meaningful (not "..." or empty). Language: ${G.langName}.`;
+  let opts=['I see.','Okay.','I need to go.'];
+  try{const raw=await claude(optPrompt);const p=JSON.parse(raw.replace(/```json|```/g,'').trim());if(Array.isArray(p)&&p.length===3&&p.every(o=>o&&o.trim().length>2))opts=p;}catch{}
   const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
-  const relChanges=[+15,+3,-5];
-  const relClasses=['rel-close','rel-neutral','rel-far'];
-  document.getElementById('dlg-opts').innerHTML=opts.map((o,i)=>`<button class="dlg-opt" onclick="chooseResp('${npc}','${npcName}',${relChanges[i]},'${o.replace(/'/g,"\\'")}')">${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span></button>`).join('');
+  const relChanges=[+15,+3,-5];const relClasses=['rel-close','rel-neutral','rel-far'];
+  document.getElementById('vn-opts').innerHTML=opts.map((o,i)=>`<div class="vn-opt" onclick="chooseVNOpt('${npcKey}',${relChanges[i]},'${o.replace(/'/g,"\\'")}',${JSON.stringify(dialogs)},${day},${round})">${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span></div>`).join('');
 }
 
-async function chooseResp(npc,npcName,relChange,playerReply){
-  G.relationships[npc]=Math.max(0,Math.min(100,(G.relationships[npc]||0)+relChange));
-  document.getElementById('dlg-opts').innerHTML='';
-  document.getElementById('dlg-bubbles').innerHTML+=`<div class="dlg-bubble player"><div class="dlg-name">${G.playerName}</div><div class="dlg-text">${playerReply}</div></div>`;
-  const cfg=NPC_CFG[npc];
-  const reaction=await claude(`${npcName} (${cfg.personality_en}) just heard ${G.playerName} say: "${playerReply}". Relationship: ${G.relationships[npc]}/100. Write his brief reaction (1-2 sentences). ${relChange>5?'He feels drawn to her.':relChange<0?'He feels slightly rebuffed.':'He remains composed.'} In character. No quotes. Language: ${G.langName}.`);
-  document.getElementById('dlg-bubbles').innerHTML+=`<div class="dlg-bubble"><div class="dlg-name">${npcName}</div><div class="dlg-text">${reaction}</div></div>`;
-  document.getElementById('btn-scene-next').textContent=t('end_day')||'End the day';
-  document.getElementById('btn-scene-next').style.display='inline-block';
+async function chooseVNOpt(npcKey,relChange,playerReply,dialogs,day,round){
+  G.relationships[npcKey]=Math.max(0,Math.min(100,(G.relationships[npcKey]||0)+relChange));
+  // Show player reply briefly then next round
+  document.getElementById('vn-speaker').textContent=G.playerName;
+  document.getElementById('vn-text').textContent=playerReply;
+  document.getElementById('vn-opts').innerHTML='';
+  setTimeout(()=>runVNDialog(dialogs,npcKey,day,round+1),1200);
+}
+
+function getNPCName(key){if(key==='agent')return G.agentName||'Agent';if(key==='drummer')return G.drummerName||'Drummer';if(key==='actor')return G.actorName||'Actor';if(key==='butler')return G.butlerName||'Butler';return key;}
+function getNPCPersonality(key){
+  const p={agent:`32-year-old ${G.agentOrigin||'talented'} talent agent. Cold exterior with hidden warmth. Professional but protective. ${G.day===1?'This is the first official meeting. In round 2, mention you assembled a band for her as lead singer, and she should meet the drummer tomorrow at the recording studio.':''}`,drummer:`26-year-old ${G.drummerOrigin||'cool'} rock drummer and band leader. Direct, slightly rough, initially dismissive of her singing but noticing her talent and effort.`,actor:`29-year-old ${G.actorOrigin||'charming'} rising actor. Charismatic, flirtatious with beautiful women, plays games with feelings, may be seeing multiple people.`,butler:`20-year-old ${G.butlerOrigin||'sweet'} building manager. Earnest, caring, slightly shy. Calls her "sister/noona/nee-san". Made her a lemon cake. His admiration is turning into something more.`};
+  return p[key]||key;
+}
+
+async function genNPCPortrait(npcKey,day,loc,isPublic){
+  const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
+  const detShadow=isPublic?DETECTIVE_SHADOW:'';
+  let prompt='';
+  const sceneComp=SCENE_COMPS[loc]||'elegant setting';
+  if(npcKey==='agent'){
+    const ast=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
+    prompt=`Strikingly handsome 32-year-old ${G.agentOrigin} man, ${ast.hair}, ${ast.skin} skin tone, ${ast.suit}, sharp distinguished features with depth, cold composed expression with hidden intensity, strong jawline, perfect masculine proportions, ${sceneComp}, direct piercing gaze`;
+  } else if(npcKey==='drummer'){
+    const dst=AS[G.drummerOrigin]||{hair:'dark tousled hair',skin:'medium',suit:'casual dark clothing'};
+    prompt=`Handsome athletic 26-year-old ${G.drummerOrigin||'American'} man, ${dst.hair}, ${dst.skin} skin, casual dark clothing, rock drummer energy, strong capable hands, slightly edgy style, evaluating expression, smoldering attractive, ${sceneComp}`;
+  } else if(npcKey==='actor'){
+    const act=AS[G.actorOrigin]||{hair:'perfectly styled hair',skin:'medium',suit:'fashionable stylish outfit'};
+    prompt=`Devastatingly handsome 29-year-old ${G.actorOrigin||'American'} man, ${act.hair}, ${act.skin} skin, ${act.suit}, model-perfect features and physique, effortlessly charismatic smirk, flirtatious confident energy, ${sceneComp}`;
+  } else if(npcKey==='butler'){
+    const but=AS[G.butlerOrigin]||{hair:'clean neat hair',skin:'light',suit:'neat building manager uniform'};
+    prompt=`Adorable yet handsome 20-year-old ${G.butlerOrigin||'Korean'} young man, ${but.hair}, ${but.skin} skin, neat uniform, clean-cut innocent features, slightly flushed cheeks, earnest expression, holding a lemon cake box, ${sceneComp}`;
+  }
+  return await img(prompt+detShadow,`${npcKey} — Day ${day}`,true,2);
 }
 
 // FREE DAY
-async function playFreeDay(locationKey,locationLabel,isWork){
+async function playFree(locKey,locLabel,isWork){
   go('s-scene');
-  document.getElementById('scene-stamp').textContent=isWork?'10:30 AM':'2:00 PM';
-  document.getElementById('dlg-area').style.display='none';
-  document.getElementById('btn-scene-next').style.display='none';
-  document.getElementById('scene-ph').style.display='flex';
-  document.getElementById('scene-img-el').style.display='none';
+  document.getElementById('vn-loading').style.display='flex';
+  document.getElementById('vn-pre-text').textContent='';
+  document.getElementById('vn-bg').style.display='none';
+  document.getElementById('vn-bg-ph').style.display='flex';
+  document.getElementById('vn-overlay').style.display='none';
+  document.getElementById('vn-content').style.display='none';
   if(isWork){G.fame=Math.min(100,G.fame+Math.floor(Math.random()*6)+3);G.daysWithoutWork=0;}
   else{G.daysWithoutWork++;if(G.daysWithoutWork>=3)G.fame=Math.max(0,G.fame-2);}
-  // Determine NPC
-  const npcChances={recording_studio:{drummer:0.95},magazine_shoot:{actor:0.8},brand_event:{actor:0.6,agent:0.4},music_training:{},cafe:{butler:0.5},bookshop:{},art_gallery:{},night_bar:{drummer:0.6,actor:0.5},street_market:{butler:0.6}};
-  const chances=npcChances[locationKey]||{};
-  let meetNPC=null;
-  for(const[npc,prob]of Object.entries(chances)){if(Math.random()<prob&&G.metNPCs.includes(npc)||npc==='drummer'&&locationKey==='recording_studio'){meetNPC=npc;break;}}
+  // Determine NPC encounter
+  const npcTable={recording_studio:'drummer',magazine_shoot:'actor',brand_event:Math.random()>0.5?'actor':'agent',music_training:null,cafe:Math.random()>0.5?'butler':null,art_gallery:null,night_bar:Math.random()>0.4?'drummer':null,street_market:Math.random()>0.5?'butler':null,bookshop:null};
+  let meetNPC=npcTable[locKey]||null;
+  if(meetNPC&&!G.metNPCs.includes(meetNPC))meetNPC=null;// Haven't met yet
+  const isPublic=PUBLIC_LOCS.includes(locKey);
+  const sceneComp=SCENE_COMPS[locKey]||'elegant urban setting';
+  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';
   // Generate scene narrative
-  const sceneText=await claude(`${G.playerName}, 23-year-old singer in ${G.city}, spends the day at: ${locationLabel}. ${meetNPC?`Unexpectedly encounters her ${meetNPC}.`:''} Write 2-3 vivid sentences describing this moment. Language: ${G.langName}. Return only the scene.`);
-  document.getElementById('scene-nar').innerHTML=sceneText.replace(/\n/g,'<br>');
+  const preText=await claude(`${G.playerName}, 23-year-old singer in ${G.city}, is spending time at: ${locLabel}. ${meetNPC?`She runs into ${getNPCName(meetNPC)}.`:''} Write 1-2 sentences of vivid scene-setting. Language: ${G.langName}. Return only the text.`);
+  document.getElementById('vn-pre-text').innerHTML=preText.replace(/\n/g,'<br>');
   if(meetNPC){
-    // Generate NPC portrait only
-    const npcUrl=await genNPCPortrait(meetNPC,G.day);
-    if(npcUrl)setImg('scene-img-el','scene-ph',npcUrl);
+    // Generate NPC portrait
+    const npcUrl=await genNPCPortrait(meetNPC,G.day,locKey,isPublic);
     if(!G.metNPCs.includes(meetNPC))G.metNPCs.push(meetNPC);
-    await runScriptedDialogue(meetNPC,G.day);
+    document.getElementById('vn-loading').style.display='none';
+    if(npcUrl){document.getElementById('vn-bg').src=npcUrl;document.getElementById('vn-bg').style.display='block';}
+    document.getElementById('vn-overlay').style.display='block';
+    document.getElementById('vn-content').style.display='flex';
+    // Single dialogue round for chance encounters
+    await runFreeDlg(meetNPC,locLabel);
   } else {
-    // Generate protagonist in scene
-    const lm=CL[G.city]||'city';
-    const protagonistPrompt=`Beautiful slender 23-year-old woman, ${G.motherEyes} eyes, ${G.fatherSkin} skin, ${G.hairStyle} ${G.hairColor} hair, artist physique, at ${locationLabel} in ${G.city}, ${isWork?'professional elegant setting':'relaxed casual chic'}, cinematic composition, natural lifestyle moment${DETECTIVE_SHADOW}`;
-    const sceneUrl=await img(protagonistPrompt,locationLabel,true);
-    if(sceneUrl)setImg('scene-img-el','scene-ph',sceneUrl);
-    document.getElementById('btn-scene-next').textContent=t('end_day')||'End the day';
-    document.getElementById('btn-scene-next').style.display='inline-block';
+    // Protagonist in scene
+    const protoPrompt=`Beautiful slender 23-year-old woman, ${G.mother} and ${G.father} heritage, ${G.motherEyes} eyes, ${G.fatherSkin} skin, ${G.hairStyle} ${G.hairColor} hair, artist physique, ${sceneComp}${isPublic?DETECTIVE_SHADOW:''}`;
+    const sceneUrl=await img(protoPrompt,locLabel,true);
+    document.getElementById('vn-loading').style.display='none';
+    if(sceneUrl){document.getElementById('vn-bg').src=sceneUrl;document.getElementById('vn-bg').style.display='block';}
+    document.getElementById('vn-overlay').style.display='block';
+    document.getElementById('vn-content').style.display='flex';
+    document.getElementById('vn-speaker').textContent='';
+    document.getElementById('vn-text').textContent=preText.trim();
+    const endBtn=document.createElement('button');endBtn.className='vn-next';endBtn.textContent=t('end_day')||'End the day';endBtn.onclick=goEvening;
+    document.getElementById('vn-opts').innerHTML='';document.getElementById('vn-opts').appendChild(endBtn);
   }
+}
+
+async function runFreeDlg(npcKey,locLabel){
+  const npcName=getNPCName(npcKey);const rel=G.relationships[npcKey]||0;
+  document.getElementById('vn-speaker').textContent=npcName;
+  document.getElementById('vn-text').textContent='...';
+  document.getElementById('vn-opts').innerHTML=`<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>`;
+  const line=await claude(`You are ${npcName}. ${getNPCPersonality(npcKey)} You unexpectedly run into ${G.playerName} at ${locLabel}. Relationship: ${rel}/100. Write a natural opening remark (1-2 sentences, in character). No quotes. Language: ${G.langName}.`);
+  document.getElementById('vn-text').textContent=line.trim();
+  const optP=`${G.playerName} just heard: "${line.trim()}". Generate 3 short responses (under 12 words each). 1: warm/close (+relationship). 2: neutral. 3: cold/distant (-relationship). ONLY a JSON array of 3 non-empty strings. Language: ${G.langName}.`;
+  let opts=['Hi there.','Oh, hello.','I\'m busy.'];
+  try{const raw=await claude(optP);const p=JSON.parse(raw.replace(/```json|```/g,'').trim());if(Array.isArray(p)&&p.length===3&&p.every(o=>o&&o.trim().length>2))opts=p;}catch{}
+  const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
+  const relChanges=[+10,+2,-4];const relClasses=['rel-close','rel-neutral','rel-far'];
+  document.getElementById('vn-opts').innerHTML=opts.map((o,i)=>`<div class="vn-opt" onclick="quickResp('${npcKey}',${relChanges[i]},'${o.replace(/'/g,"\\'")}')">${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span></div>`).join('');
+}
+
+async function quickResp(npcKey,relChange,reply){
+  G.relationships[npcKey]=Math.max(0,Math.min(100,(G.relationships[npcKey]||0)+relChange));
+  document.getElementById('vn-speaker').textContent=G.playerName;
+  document.getElementById('vn-text').textContent=reply;
+  document.getElementById('vn-opts').innerHTML='';
+  setTimeout(()=>{
+    const endBtn=document.createElement('button');endBtn.className='vn-next';endBtn.textContent=t('end_day')||'End the day';endBtn.onclick=goEvening;
+    document.getElementById('vn-opts').appendChild(endBtn);
+    document.getElementById('vn-speaker').textContent='';document.getElementById('vn-text').textContent='';
+  },900);
 }
 
 // EVENING
 async function goEvening(){
   go('s-evening');
-  document.getElementById('eve-stamp').textContent='10:30 PM';
-  if(G.livingNightUrl)setImg('eve-img','eve-ph',G.livingNightUrl);
-  else preGenNight().then(()=>{if(G.livingNightUrl)setImg('eve-img','eve-ph',G.livingNightUrl);});
-  const fr=getCurrentFame(G.fame);
+  // Night room
+  if(G.livingNightUrl){setImg('eve-img','eve-ph',G.livingNightUrl);}
+  else{preGenNight().then(()=>{if(G.livingNightUrl)setImg('eve-img','eve-ph',G.livingNightUrl);});}
+  const fr=getCurFame(G.fame);
   const[eveTxt,msgTxt]=await Promise.all([
-    claude(`Write 2 sentences evening inner monologue for ${G.playerName}, 23, singer in ${G.city}. Day ${G.day}. Fame: ${fr.en}. Reflective, emotional. Second person. Language: ${G.langName}. No quotes.`),
-    claude(`${G.agentName} (32, ${G.agentOrigin} talent agent, cold exterior with hidden warmth) sends ${G.playerName} a brief late-night text after Day ${G.day}. Relationship: ${G.relationships.agent}/100. ${G.relationships.agent>30?'Slightly warmer than usual.':'Strictly professional.'} 1-2 sentences. No quotes. Language: ${G.langName}.`)
+    claude(`Write 1 sentence evening inner monologue for ${G.playerName}, Day ${G.day} in ${G.city}. Fame: ${fr.en}. Reflective. Second person "You...". Language: ${G.langName}. No quotes.`),
+    claude(`${G.agentName} (${G.agentOrigin} talent agent, cold exterior with hidden warmth) sends ${G.playerName} a brief late-night text after Day ${G.day}. Relationship: ${G.relationships.agent}/100. ${G.relationships.agent>30?'Slightly warmer.':'Professional.'} 1-2 sentences. No quotes. Language: ${G.langName}.`)
   ]);
-  document.getElementById('eve-nar').innerHTML=eveTxt.replace(/\n/g,'<br>');
-  document.getElementById('eve-msgs').innerHTML=`<div class="msg-card"><div class="msg-from">${G.agentName}</div><div class="msg-text">${msgTxt}</div></div>`;
+  document.getElementById('eve-stamp').textContent=`${10+G.day}:${Math.floor(Math.random()*30+10)} PM`;
+  document.getElementById('eve-nar').textContent=eveTxt.trim();
+  document.getElementById('eve-msgs').innerHTML=`<div class="eve-msg"><div class="eve-msg-from">${G.agentName}</div><div class="eve-msg-txt">${msgTxt.trim()}</div></div>`;
 }
 
 function nextDay(){
   G.day++;
-  if(G.day>5){
-    const isZh=G.lang==='zh-cn'||G.lang==='zh-tw';
-    const msg=isZh?`5天结束！\n知名度：${G.fame}/100\n经纪人亲密度：${G.relationships.agent}/100\n\n更多章节即将到来。`:`5 days complete!\nFame: ${G.fame}/100\nAgent bond: ${G.relationships.agent}/100\n\nMore chapters coming soon.`;
-    alert(msg);return;
-  }
+  if(G.day>5){const isZh=G.lang==='zh-cn'||G.lang==='zh-tw';alert(isZh?`5天结束！\n知名度：${G.fame}/100\n经纪人亲密度：${G.relationships.agent}/100\n\n更多内容即将到来。`:`5 days complete!\nFame: ${G.fame}/100\nAgent bond: ${G.relationships.agent}/100\n\nMore coming soon.`);return;}
   startDay();
 }
 
-// PHONE
-async function generateDayPhone(){
-  const msgs=[];const notifs=[];const news=[];
-  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  // Industry notifications based on fame
-  const fr=getCurrentFame(G.fame);
-  const industryPrompts=isZh?[`生成一条娱乐行业推送通知（标题+一句话内容），关于一个大导演正在选角或一个重要音乐奖项开始评选，符合${fr['zh-cn']}级别的艺人会收到的消息。用中文，JSON格式{title,body}`]:[`Generate 1 entertainment industry push notification (title + one sentence body) about a director casting or music award. Relevant for a ${fr.en} level artist. Language: ${G.langName}. JSON format {title, body}`];
-  try{const raw=await claude(industryPrompts[0]);const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());if(parsed.title)notifs.push(parsed);}catch{}
-  // Messages from known NPCs (max 5 total)
-  const msgPromises=G.metNPCs.slice(0,3).map(async npc=>{
-    const npcName=npc==='agent'?G.agentName:npc==='drummer'?G._drummerName:npc==='actor'?G._actorName:G._butlerName;
-    const rel=G.relationships[npc]||0;
-    const cfg=NPC_CFG[npc];
-    const isVoice=Math.random()>0.6;
-    const msgText=await claude(`${npcName} (${cfg.personality_en}) sends ${G.playerName} a ${isVoice?'voice message transcript':'text message'} on Day ${G.day}. Relationship: ${rel}/100. ${rel>50?'More personal and warm.':rel>20?'Friendly but measured.':'Brief and professional.'} 1-2 sentences. Natural, in character. No quotes. Language: ${G.langName}.`);
-    return{npc,name:npcName,text:msgText.trim(),isVoice,emoji:cfg.emoji,color:cfg.color,rel,time:`${7+G.day}:${Math.floor(Math.random()*59).toString().padStart(2,'0')} ${Math.random()>0.5?'AM':'PM'}`};
-  });
-  const newMsgs=await Promise.all(msgPromises);
-  // Add industry news
-  const newsText=await claude(`Generate 2 short entertainment industry news items relevant to a ${getCurrentFame(G.fame).en} artist in ${G.city}. Format as JSON array [{title, detail}]. Language: ${G.langName}.`);
-  try{const parsed=JSON.parse(newsText.replace(/```json|```/g,'').trim());if(Array.isArray(parsed))parsed.forEach(n=>news.push(n));}catch{}
-  G.phoneMessages[G.day]=[...Object.values(G.phoneMessages).flat(),...newMsgs];
-  G.phoneNotifs=notifs;G.industryNews=news;
-  G.unreadCount=newMsgs.length+(notifs.length>0?1:0);
-  const badge=document.getElementById('phone-badge');if(badge){badge.textContent=G.unreadCount;badge.style.display=G.unreadCount>0?'flex':'none';}
+// PHONE - WeChat style
+async function generatePhoneContent(){
+  const msgs=[];
+  // Generate messages from met NPCs
+  for(const npc of G.metNPCs.slice(0,3)){
+    const name=getNPCName(npc);const rel=G.relationships[npc]||0;
+    const isVoice=Math.random()>0.65;
+    const txt=await claude(`${name} (${getNPCPersonality(npc)}) sends ${G.playerName} a ${isVoice?'voice message (write transcript)':'text message'}. Day ${G.day}. Relationship: ${rel}/100. 1-2 sentences, natural, in character. No quotes. Language: ${G.langName}.`);
+    msgs.push({npc,name,text:txt.trim(),isVoice,emoji:NPC_EMOJIS[npc]||'💬',rel,time:`${8+G.day}:${Math.floor(Math.random()*59).toString().padStart(2,'0')}`});
+  }
+  G.phoneMessages[G.day]=msgs;
+  // Generate moments
+  const moments=[];
+  for(const npc of G.metNPCs.slice(0,2)){
+    const name=getNPCName(npc);
+    const momentTxt=await claude(`${name} posts something on social media today (Day ${G.day}). ${getNPCPersonality(npc)} Write a natural social media post (1-3 sentences). In character. Language: ${G.langName}. Return only the post text.`);
+    moments.push({npc,name,text:momentTxt.trim(),emoji:NPC_EMOJIS[npc]||'💬',time:`${G.day} days ago`});
+  }
+  G.phoneMoments=moments;
+  // Industry news
+  const newsTxt=await claude(`Generate 2 short entertainment industry news items for a ${getCurFame(G.fame).en} artist in ${G.city}. Relevant opportunities or events. Format as JSON array [{title,detail}]. Language: ${G.langName}. Return only JSON.`);
+  try{G.industryNews=JSON.parse(newsTxt.replace(/```json|```/g,'').trim());}catch{G.industryNews=[];}
+  // Badge
+  const total=msgs.length;G.unreadMsgs=total;
+  const badge=document.getElementById('phone-badge');if(badge){badge.textContent=total;badge.classList.toggle('show',total>0);}
+  const wcBadge=document.getElementById('wc-unread-badge');if(wcBadge){wcBadge.textContent=total;wcBadge.classList.toggle('show',total>0);}
 }
+
+const NPC_EMOJIS={agent:'👔',drummer:'🥁',actor:'🎬',butler:'🎂'};
 
 function renderPhone(){
-  const now=new Date();document.getElementById('phone-time').textContent=`${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
-  const notifArea=document.getElementById('phone-notifs');
-  notifArea.innerHTML=G.phoneNotifs.map(n=>`<div class="phone-notif"><div class="notif-app">📰 ${t('industry_title')}</div><div class="notif-title">${n.title}</div><div class="notif-body">${n.body}</div></div>`).join('');
-  G.unreadCount=0;const badge=document.getElementById('phone-badge');if(badge){badge.style.display='none';}
+  const now=new Date();document.getElementById('wc-time').textContent=`${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
+  showWCTab('chats');
 }
 
-function openMessages(){
-  go('s-messages');
-  const allMsgs={};
-  const flat=Object.values(G.phoneMessages).flat();
-  flat.forEach(m=>{if(!allMsgs[m.npc]||m.time>allMsgs[m.npc].time)allMsgs[m.npc]=m;});
-  document.getElementById('msg-thread-list').innerHTML=Object.values(allMsgs).length===0
-    ?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 16px">${G.lang==='zh-cn'?'暂无消息':'No messages yet'}</p>`
-    :Object.values(allMsgs).map(m=>`<div class="msg-thread" onclick="openChat('${m.npc}')">
-      <div class="msg-avatar" style="background:${m.color}22">${m.emoji}</div>
-      <div class="msg-info"><div class="msg-sender" style="color:#fff">${m.name}</div><div class="msg-preview">${m.isVoice?'🎵 '+(G.lang==='zh-cn'?'语音消息':'Voice message'):m.text}</div></div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="msg-time">${m.time}</div></div>
-    </div>`).join('');
+function showWCTab(tab){
+  document.querySelectorAll('.wc-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('wct-'+tab)?.classList.add('active');
+  const content=document.getElementById('wc-content');
+  if(tab==='chats'){
+    document.getElementById('wct-chats').classList.add('active');
+    const allMsgs=Object.values(G.phoneMessages).flat();
+    const byNPC={};allMsgs.forEach(m=>{byNPC[m.npc]=m;});
+    const threads=Object.values(byNPC);
+    content.innerHTML=`<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">${t('wc_chats')}</div>`+
+      (threads.length===0?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">${G.lang==='zh-cn'?'暂无消息':'No messages yet'}</p>`:
+      threads.map(m=>`<div class="wc-chat-item" onclick="openWCChat('${m.npc}')">
+        <div class="wc-avatar" style="background:rgba(196,168,130,0.15)">${m.emoji}</div>
+        <div class="wc-chat-info"><div class="wc-chat-name">${m.name}</div><div class="wc-chat-preview">${m.isVoice?'🎵 '+(G.lang==='zh-cn'?'[语音消息]':'[Voice message]'):m.text}</div></div>
+        <div class="wc-chat-meta"><div class="wc-chat-time">${m.time}</div><div class="wc-unread">1</div></div>
+      </div>`).join(''));
+  } else if(tab==='moments'){
+    document.getElementById('wct-moments').classList.add('active');
+    content.innerHTML=`<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">${t('wc_moments')}</div>`+
+      (G.phoneMoments.length===0?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">${G.lang==='zh-cn'?'暂无动态':'No moments yet'}</p>`:
+      G.phoneMoments.map(m=>`<div class="wc-moment">
+        <div class="wc-moment-header"><div class="wc-moment-avatar">${m.emoji}</div><div><div class="wc-moment-name">${m.name}</div><div class="wc-moment-time">${m.time}</div></div></div>
+        <div class="wc-moment-text">${m.text}</div>
+        <div class="wc-moment-actions"><span class="wc-moment-like">👍 Like</span><span class="wc-moment-like">💬 Comment</span></div>
+      </div>`).join(''));
+  } else if(tab==='industry'){
+    document.getElementById('wct-industry').classList.add('active');
+    content.innerHTML=`<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">${t('wc_industry')}</div>`+
+      (G.industryNews.length===0?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">${G.lang==='zh-cn'?'暂无资讯':'No news yet'}</p>`:
+      G.industryNews.map(n=>`<div class="wc-discover-item"><div class="wc-discover-title">${n.title}</div><div class="wc-discover-sub">${n.detail}</div></div>`).join(''));
+  }
 }
 
-function openChat(npc){
-  const npcName=npc==='agent'?G.agentName:npc==='drummer'?G._drummerName:npc==='actor'?G._actorName:G._butlerName;
-  const cfg=NPC_CFG[npc];
+function openWCChat(npc){
+  const npcName=getNPCName(npc);
   document.getElementById('chat-name').textContent=npcName;
-  document.getElementById('chat-status').textContent=G.lang==='zh-cn'?'刚刚活跃':'Active recently';
+  const chat_time=new Date();document.getElementById('chat-wc-time').textContent=`${chat_time.getHours()}:${chat_time.getMinutes().toString().padStart(2,'0')}`;
   const msgs=Object.values(G.phoneMessages).flat().filter(m=>m.npc===npc);
-  document.getElementById('chat-msgs').innerHTML=msgs.map(m=>m.isVoice
-    ?`<div class="voice-msg from"><div class="voice-play">▶</div><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div><span class="voice-dur">0:${Math.floor(Math.random()*40+10)}</span></div>`
-    :`<div class="chat-bubble from">${m.text}</div>`
-  ).join('');
+  document.getElementById('chat-msgs').innerHTML=msgs.map(m=>{
+    if(m.isVoice){
+      const bars=Array(8).fill('').map((_,i)=>`<span style="height:${4+Math.random()*12}px"></span>`).join('');
+      return `<div class="wc-bubble-wrap"><div class="wc-bubble-avatar">${m.emoji}</div><div class="wc-voice" onclick="this.querySelector('.wc-voice-transcript').style.display=this.querySelector('.wc-voice-transcript').style.display==='block'?'none':'block'"><div class="wc-voice-icon">▶</div><div class="wc-voice-bar">${bars}</div><span class="wc-voice-dur">0:${Math.floor(Math.random()*40+10)}</span><div class="wc-voice-transcript">${m.text}</div></div></div>`;
+    }
+    return `<div class="wc-bubble-wrap"><div class="wc-bubble-avatar">${m.emoji}</div><div class="wc-bubble">${m.text}</div></div>`;
+  }).join('');
   go('s-chat');
-}
-
-function openIndustryNews(){
-  go('s-industry');
-  document.getElementById('industry-list').innerHTML=G.industryNews.length===0
-    ?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:16px">${G.lang==='zh-cn'?'暂无资讯':'No news yet'}</p>`
-    :G.industryNews.map(n=>`<div class="phone-notif" style="margin:0 0 8px"><div class="notif-title" style="font-size:14px;margin-bottom:6px">${n.title}</div><div class="notif-body">${n.detail}</div></div>`).join('');
 }
 
 // FAME
 function renderFame(){
   document.getElementById('fame-player-name').textContent=G.playerName||'—';
-  const fr=getCurrentFame(G.fame);
+  const fr=getCurFame(G.fame);
   document.getElementById('fame-level-lbl').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);
   document.getElementById('fame-bar').style.width=G.fame+'%';
-  document.getElementById('fame-pct').textContent=`${G.fame} / 100`;
-  document.getElementById('fame-ranks-list').innerHTML=FAME_DATA.map((fd,i)=>{
-    const isCurrent=G.fame>=fd.min&&(i===0||G.fame<FAME_DATA[i-1].min);
-    return `<div class="fame-rank-item${isCurrent?' current':''}${fd.danger?' danger':''}">
-      <span class="fr-crown" style="color:${fd.color}">${fd.emoji}</span>
-      <span class="fr-label">${getFameLabel(G.lang,fd)}</span>
-      <span class="fr-pts" style="color:${fd.color}">${fd.min}+</span>
-    </div>`;
+  document.getElementById('fame-pct').textContent=`${G.fame}/100`;
+  document.getElementById('fame-list').innerHTML=FAME_DATA.map((fd,i)=>{
+    const cur=G.fame>=fd.min&&(i===0||G.fame<FAME_DATA[i-1].min);
+    return `<div class="fame-item${cur?' cur':''}${fd.danger?' danger':''}"><span class="fi-crown" style="color:${fd.color}">${fd.emoji}</span><span class="fi-label">${getFameLabel(G.lang,fd)}</span><span class="fi-pts" style="color:${fd.color}">${fd.min}+</span></div>`;
   }).join('');
 }
 
 // GALLERY
 function renderGallery(){
   document.getElementById('ggrid').innerHTML=G.gallery.length===0
-    ?`<p style="color:var(--ink-muted);font-size:14px;text-align:center;grid-column:1/-1;padding:40px 0">${t('gallery_sub')}</p>`
+    ?`<p style="color:var(--ink-muted);font-size:13px;text-align:center;grid-column:1/-1;padding:32px 0">${G.lang==='zh-cn'?'暂无图片':'No images yet'}</p>`
     :G.gallery.map(item=>`<div class="gi" onclick="openLB('${item.url}')"><img src="${item.url}" alt="${item.label}"><div class="gl">${item.label}</div></div>`).join('');
 }
 
