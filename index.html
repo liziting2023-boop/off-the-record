@@ -337,7 +337,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.6</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.7</p>
   </div>
 </div>
 
@@ -1694,16 +1694,27 @@ async function goEvening() {
   else { preGenNight().then(() => { if (G.apartment.livingNightUrl) setImg('eve-img','eve-ph',G.apartment.livingNightUrl); }); }
   const fr = getCurFame(G.fame);
   const agentMemory = STATE.memory.getSummary('agent');
-  const [eveTxt, msgTxt] = await Promise.all([
-    claude('Write 1 sentence evening inner monologue for ' + G.player.name + ', Day ' + G.day + ' in ' + G.player.city + '. Fame: ' + fr.en + '. Reflective. Second person. Language: ' + G.langName + '. No quotes.'),
-    claude('You are ' + (G.npcs.agent.name||'the agent') + ', a ' + (G.npcs.agent.origin||'talented') + ' talent agent. Recent history with ' + G.player.name + ':\n' + agentMemory + '\n\nSend a brief late-night text after Day ' + G.day + '. Relationship: ' + G.npcs.agent.relationship + '/100. ' + (G.npcs.agent.relationship>30?'Slightly warmer than usual.':'Professional.') + ' 1-2 sentences. No quotes. Language: ' + G.langName + '.')
-  ]);
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // Default fallback texts in case Claude fails
+  const defaultNar = isZh ? '今天结束了。明天又是新的开始。' : 'The day is over. Tomorrow is a new beginning.';
+  const defaultMsg = isZh ? '明天九点，准时。' : 'Tomorrow at 9. Don\'t be late.';
   document.getElementById('eve-stamp').textContent = (22 + Math.floor(Math.random()*2)) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0');
-  document.getElementById('eve-nar').textContent = eveTxt.trim();
-  document.getElementById('eve-msgs').innerHTML = '<div class="eve-msg"><div class="eve-msg-from">' + (G.npcs.agent.name||'Agent') + '</div><div class="eve-msg-txt">' + msgTxt.trim() + '</div></div>';
-  // Record agent evening message in memory
-  STATE.memory.addEvent('agent', 'Sent evening text: "' + msgTxt.trim().slice(0,60) + '"', G.day);
-  // Auto-save
+  document.getElementById('eve-nar').textContent = defaultNar;
+  document.getElementById('eve-msgs').innerHTML = '<div class="eve-msg"><div class="eve-msg-from">' + (G.npcs.agent.name||'经纪人') + '</div><div class="eve-msg-txt">' + defaultMsg + '</div></div>';
+  // Try to get real Claude responses (non-blocking)
+  try {
+    const [eveTxt, msgTxt] = await Promise.all([
+      claude('Write 1 sentence evening inner monologue for ' + (G.player.name||'her') + ', Day ' + G.day + ' in ' + (G.player.city||'the city') + '. Reflective. Second person "You...". Language: ' + G.langName + '. No quotes. Return only the sentence.'),
+      claude('You are ' + (G.npcs.agent.name||'the agent') + ', a ' + (G.npcs.agent.origin||'talented') + ' talent agent. Send a brief late-night text after Day ' + G.day + '. ' + (G.npcs.agent.relationship>30?'Slightly warmer than usual.':'Cold and professional.') + ' 1-2 sentences. No quotes. Language: ' + G.langName + '.')
+    ]);
+    if (eveTxt && eveTxt.trim()) document.getElementById('eve-nar').textContent = eveTxt.trim();
+    if (msgTxt && msgTxt.trim()) {
+      document.getElementById('eve-msgs').innerHTML = '<div class="eve-msg"><div class="eve-msg-from">' + (G.npcs.agent.name||'经纪人') + '</div><div class="eve-msg-txt">' + msgTxt.trim() + '</div></div>';
+      STATE.memory.addEvent('agent', 'Evening text: "' + msgTxt.trim().slice(0,60) + '"', G.day);
+    }
+  } catch(e) {
+    console.log('Evening Claude failed, using defaults:', e);
+  }
   STATE.save.saveGame();
 }
 
@@ -1939,7 +1950,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.6 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.7 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
