@@ -174,7 +174,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 /* ── WECHAT PHONE ── */
 #s-phone{background:#000;padding:0;}
-.wc-phone{width:100%;height:100%;display:flex;flex-direction:column;background:#1A0A12;}
+.wc-phone{width:100%;height:100%;display:flex;flex-direction:column;background:#FFF5F7;}
 .wc-status{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 4px;flex-shrink:0;}
 .wc-time{font-size:13px;font-weight:600;color:#fff;}
 .wc-icons{font-size:11px;color:#fff;opacity:0.9;}
@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.17</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.18</p>
   </div>
 </div>
 
@@ -1444,10 +1444,10 @@ function showNPCOrigin(npcKey, callback) {
   // Role labels and imagination phrases per NPC
   const npcNosData = {
     drummer: {
-      zh: ['鼓手', '你觉得', '他的个性注定了他的来处。'],
-      ja: ['ドラマー', 'あなたが思う', '彼の個性が彼の出身を物語る。'],
-      ko: ['드러머', '당신이 생각하는', '그의 성격이 그의 출신을 말해준다.'],
-      en: ['The Drummer', 'You sense', 'His attitude says everything about where he comes from.'],
+      zh: ['鼓手', '你觉得', ''],
+      ja: ['ドラマー', 'あなたが思う', ''],
+      ko: ['드러머', '당신이 생각하는', ''],
+      en: ['The Drummer', 'You sense', ''],
     },
     actor: {
       zh: ['男演员', '你听说', '他的魅力带着某种地方的烙印。'],
@@ -1890,7 +1890,7 @@ function showWCTab(tab) {
     const allMsgs = {};
     Object.values(G.phone.messages).flat().forEach(m => { allMsgs[m.npc] = m; });
     const threads = Object.values(allMsgs);
-    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">' + t('wc_chats') + '</div>' +
+    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)">' + t('wc_chats') + '</div>' +
   (function(){
       if (threads.length===0) {
         content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无消息':'No messages yet') + '</p>';
@@ -1907,7 +1907,7 @@ function showWCTab(tab) {
       }
     })();
   } else if (tab === 'moments') {
-    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">' + t('wc_moments') + '</div>' +
+    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)">' + t('wc_moments') + '</div>' +
       (function(){
       if (G.phone.moments.length===0) {
         content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无动态':'No moments yet') + '</p>';
@@ -1921,7 +1921,7 @@ function showWCTab(tab) {
       }
     })();
   } else if (tab === 'industry') {
-    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">' + t('wc_industry') + '</div>' +
+    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)">' + t('wc_industry') + '</div>' +
       (function(){
       if (G.phone.industryNews.length===0) {
         content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无资讯':'No news yet') + '</p>';
@@ -2058,7 +2058,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.17 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.18 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
