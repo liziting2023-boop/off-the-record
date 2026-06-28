@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="story.js"></script>
+<script src="state.js"></script>
 <style>
 :root{--cream:#F7F3EE;--gold:#C4A882;--rose:#C4847A;--night:#0F0E0C;--night-warm:#1A1714;--night-glow:#2A2520;--ink-muted:#8A8078;--wechat-green:#07C160;--wechat-bg:#EDEDED;--wechat-dark:#111;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -315,7 +317,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v9.3</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v9.5</p>
   </div>
 </div>
 
@@ -644,7 +646,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
       <span class="wc-icons">●●● 📶 🔋</span>
     </div>
     <div class="wc-navbar">
-      <span class="wc-back" onclick="go('s-phone');setActiveBn('bn-phone')">‹ Back</span>
+      <span class="wc-back" onclick="go('s-phone');setABn('bn-phone')">‹ Back</span>
       <span class="wc-title" id="chat-name">—</span>
       <span style="width:52px"></span>
     </div>
@@ -722,179 +724,278 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 </div>
 
 <script>
-const WORKER='https://off-the-record-api.liziting2023.workers.dev';
+// ══════════════════════════════════════════════════════
+// OFF THE RECORD v10.0 - Game Engine
+// story.js と state.js から内容を読み込む
+// ══════════════════════════════════════════════════════
 
-// ── SEASON SYSTEM ──
-// Game starts March 15. Each chapter = 30 days.
-function getSeason(day){
-  // Day 1-75: Spring (Mar 15 - May 29)
-  // Day 76-165: Summer (May 30 - Aug 27)
-  // Day 166-255: Autumn (Aug 28 - Nov 26)
-  // Day 256-345: Winter (Nov 27 - Feb 24)
-  // Day 346-360: Spring again (Feb 25 - Mar 15)
-  if(day<=75) return 'spring';
-  if(day<=165) return 'summer';
-  if(day<=255) return 'autumn';
-  if(day<=345) return 'winter';
-  return 'spring';
-}
+const WORKER = 'https://off-the-record-api.liziting2023.workers.dev';
+const DEV_MODE = true; // 发布前改为 false
 
-function getSeasonPrompt(day, city){
-  const season=getSeason(day);
-  const citySeasons={
-    'New York':{
-      spring:'mild spring weather, cherry blossoms and fresh greenery, soft natural light',
-      summer:'hot humid summer, bright intense sunlight, lush green trees',
-      autumn:'stunning autumn foliage, golden and red leaves, crisp clear light',
-      winter:'cold winter, possible snow, grey sky, bare trees, warm interior lights visible',
-    },
-    'Los Angeles':{
-      spring:'warm dry spring, blooming jacaranda trees, golden California light',
-      summer:'hot sunny summer, hazy golden light, palm trees swaying',
-      autumn:'mild golden autumn, warm tones, dry Santa Ana wind feeling',
-      winter:'cool crisp winter, clear blue sky, occasional rain, green hills',
-    },
-    'London':{
-      spring:'grey cloudy spring, occasional drizzle, fresh green parks, soft light',
-      summer:'rare warm sunny summer, golden hour light, bustling streets',
-      autumn:'misty foggy autumn, wet cobblestones, amber leaves, moody atmosphere',
-      winter:'cold grey winter, early darkness, Christmas lights, bare trees, fog',
-    },
-    'Paris':{
-      spring:'romantic spring, blooming flowers, warm golden light, café terraces open',
-      summer:'warm sunny summer, golden Parisian light, tourists and locals on terraces',
-      autumn:'golden autumn, fallen leaves on boulevards, misty morning light',
-      winter:'grey cold winter, occasional light snow, warm café lights, holiday atmosphere',
-    },
-    'Tokyo':{
-      spring:'cherry blossom season, soft pink petals falling, warm gentle light',
-      summer:'hot humid summer, neon lights reflecting on wet streets, rainy season mood',
-      autumn:'stunning red and orange maple leaves, crisp clear autumn light',
-      winter:'cold dry winter, occasional snow, New Year festive atmosphere, bare ginkgo trees',
-    },
-    'Seoul':{
-      spring:'cherry and azalea blossoms, pastel pink tones, fresh spring breeze',
-      summer:'hot humid monsoon season, lush green, dramatic stormy sky',
-      autumn:'brilliant red and gold foliage, crisp mountain air, clear blue sky',
-      winter:'harsh cold winter, heavy snow, frozen Han River, warm cafe glow against cold',
-    },
-    'Sydney':{
-      // Southern hemisphere - seasons reversed
-      spring:'spring in September, jacaranda blooms, warm sunny days, harbour sparkling',
-      summer:'summer in December, hot bright sunshine, beach atmosphere, long days',
-      autumn:'autumn in March, mild golden light, falling leaves in parks',
-      winter:'mild winter in June, cool crisp air, green parks, occasional rain',
-    },
-    'Nashville':{
-      spring:'warm rainy spring, dogwood blossoms, lush green countryside, country music energy',
-      summer:'hot humid summer, vibrant Broadway honky-tonk neon, outdoor festival atmosphere',
-      autumn:'stunning autumn colors, harvest festivals, crisp air, rich warm tones',
-      winter:'occasional snow, Christmas lights on Broadway, cozy bar atmosphere',
-    },
-  };
-  const cityData=citySeasons[city]||citySeasons['New York'];
-  return cityData[season]||cityData['spring'];
-}
+// ── 快捷访问 STATE ──
+const G = STATE.data;
 
-// Outdoor locations that should have seasonal prompts
-const OUTDOOR_LOCS=['brand_event','street_market','cafe','art_gallery','night_bar','award_ceremony','magazine_shoot'];
-
-// ── DEV MODE: set to true to skip all image generation for testing ──
-const DEV_MODE=true;
-
-const IMG_STYLES={illustrated:'digital painting style, illustrated 2D art, painterly brush strokes, not photorealistic, stylized romance novel illustration',semi:'semi-realistic digital art, stylized not photographic, soft artistic rendering, romance game art style',cinematic:'cinematic film photography, film grain texture, dreamy color grading, movie still quality',photo:'photorealistic, lifestyle photography, authentic textures, editorial photography quality'};
-const FAME_DATA=[
+// ── FAME DATA ──
+const FAME_DATA = [
   {min:90,emoji:'👑',color:'#f4c840',en:'International Icon','zh-cn':'国际巨星','zh-tw':'國際巨星',ja:'国際的アイコン',ko:'국제적 아이콘'},
   {min:75,emoji:'🌟',color:'#C4A882',en:'Acclaimed Star','zh-cn':'实力派明星','zh-tw':'實力派明星',ja:'実力派スター',ko:'실력파 스타'},
   {min:60,emoji:'⭐',color:'#C4A882',en:'Hot Artist','zh-cn':'当红艺人','zh-tw':'當紅藝人',ja:'人気アーティスト',ko:'핫한 아티스트'},
   {min:45,emoji:'✨',color:'#8A8078',en:'Rising Star','zh-cn':'人气新星','zh-tw':'人氣新星',ja:'人気新星',ko:'인기 신성'},
   {min:30,emoji:'🎵',color:'#8A8078',en:'Breaking Through','zh-cn':'崭露头角','zh-tw':'嶄露頭角',ja:'頭角を現す',ko:'주목받는 신인'},
   {min:15,emoji:'🎤',color:'#5a5a5a',en:'Rising Talent','zh-cn':'新人艺人','zh-tw':'新人藝人',ja:'新人アーティスト',ko:'신인 아티스트'},
-  {min:5,emoji:'🎸',color:'#5a5a5a',en:'Street Performer','zh-cn':'街头歌手','zh-tw':'街頭歌手',ja:'ストリートパフォーマー',ko:'버스킹 아티스트'},
-  {min:0,emoji:'⚠️',color:'#ef4444',en:'Fading Artist','zh-cn':'过气艺人','zh-tw':'過氣藝人',ja:'落ち目のアーティスト',ko:'사라져가는 아티스트',danger:true},
+  {min:5, emoji:'🎸',color:'#5a5a5a',en:'Street Performer','zh-cn':'街头歌手','zh-tw':'街頭歌手',ja:'ストリートパフォーマー',ko:'버스킹 아티스트'},
+  {min:0, emoji:'⚠️',color:'#ef4444',en:'Fading Artist','zh-cn':'过气艺人','zh-tw':'過氣藝人',ja:'落ち目のアーティスト',ko:'사라져가는 아티스트',danger:true},
 ];
-function getFameLabel(lang,fd){return fd[lang]||fd['zh-cn']||fd.en;}
-function getCurFame(f){for(const fd of FAME_DATA)if(f>=fd.min)return fd;return FAME_DATA[FAME_DATA.length-1];}
+function getFameLabel(lang, fd) { return fd[lang] || fd['zh-cn'] || fd.en; }
+function getCurFame(f) { for (const fd of FAME_DATA) if (f >= fd.min) return fd; return FAME_DATA[FAME_DATA.length-1]; }
 
-// PUBLIC LOCATIONS (detective shadow appears)
-const PUBLIC_LOCS=['recording_studio','magazine_shoot','brand_event','award_ceremony','cafe','art_gallery','night_bar','street_market','music_training'];
-// Private locations (no detective)
-const PRIVATE_LOCS=['agent_office','cafe_meeting'];
+// ── NPC 配置（emoji + 颜色，用于UI显示）──
+const NPC_UI = {
+  agent:    { emoji:'👔', color:'#C4A882' },
+  drummer:  { emoji:'🥁', color:'#e8a87c' },
+  actor:    { emoji:'🎬', color:'#9b8ec4' },
+  detective:{ emoji:'🕵️', color:'#6b8cba' },
+  butler:   { emoji:'🎂', color:'#7ec48a' },
+};
 
-const DETECTIVE_SHADOW=`, in the far background barely noticeable, a tall man in a dark trench coat seen only from behind or in silhouette, face completely hidden, standing at the edge of the scene in shadow, mysterious presence that most people wouldn't notice`;
-function getDetShadow(isPublic){
-  if(!isPublic||G.day>=20) return '';
+// ── NPC 角色名称（多语言）──
+const NPC_ROLES = {
+  agent:    { 'zh-cn':'经纪人','zh-tw':'經紀人',ja:'エージェント',ko:'에이전트',en:'Talent Agent' },
+  drummer:  { 'zh-cn':'鼓手','zh-tw':'鼓手',ja:'ドラマー',ko:'드러머',en:'Drummer' },
+  actor:    { 'zh-cn':'男演员','zh-tw':'男演員',ja:'俳優',ko:'배우',en:'Actor' },
+  detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
+  butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Building Manager' },
+};
+function getNPCRole(key, lang) {
+  const r = NPC_ROLES[key];
+  return r ? (r[lang] || r['zh-cn'] || r.en) : '';
+}
+function getNPCName(key) {
+  const npc = G.npcs[key];
+  if (!npc) return key;
+  if (key==='agent')    return npc.name || G.npcs.agent.name || 'Agent';
+  if (key==='drummer')  return npc.name || 'Drummer';
+  if (key==='actor')    return npc.name || 'Actor';
+  if (key==='detective')return npc.name || 'Detective';
+  if (key==='butler')   return npc.name || 'Butler';
+  return key;
+}
+
+// ══════════════════════════════════════════════════════
+// API 调用
+// ══════════════════════════════════════════════════════
+
+async function claude(prompt, sys = '') {
+  if (DEV_MODE) {
+    const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
+    const isJa = G.lang === 'ja';
+    const isKo = G.lang === 'ko';
+    if (prompt.includes('JSON array') || prompt.includes('options')) {
+      if (isZh) return '["这听起来很有意思。","好的，我明白了。","我需要再想想。"]';
+      if (isJa) return '["それは面白そうですね。","わかりました。","少し考えさせてください。"]';
+      if (isKo) return '["흥미롭네요.","알겠어요.","좀 더 생각해볼게요."]';
+      return '["That sounds interesting.","I understand.","I need to think about it."]';
+    }
+    if (prompt.includes('full name') || prompt.includes('first name')) {
+      const origins = { Korean:'김서준', Japanese:'木村颯太', French:'Julien', Italian:'Marco', 'African-American':'Marcus', Brazilian:'Gabriel', British:'James', American:'Ryan' };
+      const words = prompt.split(' ').slice(3, 5).join(' ');
+      for (const [orig, name] of Object.entries(origins)) {
+        if (words.includes(orig)) return name;
+      }
+      return isZh ? '李明' : isJa ? '田中' : isKo ? '김민준' : 'Alex';
+    }
+    if (prompt.includes('morning') || prompt.includes('monologue')) {
+      if (isZh) return '今天感觉不一样。一切都在改变。';
+      if (isJa) return '今日は何かが違う。';
+      if (isKo) return '오늘은 뭔가 다르다.';
+      return 'Today feels different. Everything is about to change.';
+    }
+    if (prompt.includes('evening') || prompt.includes('night') || prompt.includes('sends')) {
+      if (isZh) return '明天9点，别迟到。';
+      if (isJa) return '明日9時。遅れないで。';
+      if (isKo) return '내일 9시. 늦지 마요.';
+      return "Tomorrow at 9. Don't be late.";
+    }
+    if (prompt.includes('social media') || prompt.includes('post') || prompt.includes('moments')) {
+      if (isZh) return '今天状态不错。努力终会有回报。';
+      if (isJa) return '今日は調子がいい。努力は報われる。';
+      if (isKo) return '오늘 컨디션 좋다.';
+      return 'Good session today.';
+    }
+    if (prompt.includes('industry') || prompt.includes('news')) {
+      if (isZh) return JSON.stringify([{title:'新片选角开始',detail:'某大型制片公司正在寻找新兴演员。'},{title:'音乐奖项提名开放',detail:'新人艺人类别的提名正式接受申请。'}]);
+      return JSON.stringify([{title:'New Film Casting Opens',detail:'Major studio seeking fresh talent.'},{title:'Music Awards Nominations',detail:'Emerging artists category now open.'}]);
+    }
+    if (isZh) return '（DEV）这是测试对话内容，正式版本会有真实台词。';
+    if (isJa) return '（DEV）これはテスト用の会話です。';
+    if (isKo) return '（DEV）이것은 테스트 대화입니다.';
+    return '(DEV) This is placeholder dialogue for testing.';
+  }
+  const body = { model: 'claude-sonnet-4-20250514', max_tokens: 800, messages: [{ role: 'user', content: prompt }] };
+  if (sys) body.system = sys;
+  const r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const d = await r.json();
+  return d.content?.[0]?.text || '';
+}
+
+async function img(prompt, label = '', save = false, retries = 2) {
+  if (DEV_MODE) return null;
+  const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
+  const fullPrompt = prompt + ', ' + style + ', portrait orientation, high quality';
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const r = await fetch(WORKER + '/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: fullPrompt, image_size: 'portrait_4_3', num_inference_steps: 4, num_images: 1 }) });
+      const d = await r.json();
+      const url = d.images?.[0]?.url;
+      if (url) {
+        const ok = await new Promise(res => { const i = new Image(); i.onload = () => res(true); i.onerror = () => res(false); i.src = url; setTimeout(() => res(false), 9000); });
+        if (ok) { if (save && label) G.gallery.push({ url, label }); return url; }
+      }
+    } catch {}
+    if (attempt < retries) await new Promise(r => setTimeout(r, 1500));
+  }
+  return null;
+}
+
+// ── 根据NPC类型调用正确的提示词构建函数 ──
+async function genNPCPortrait(npcKey, day, locKey) {
+  // 生成名字（如果还没有）
+  if (!G.npcs[npcKey].name) {
+    const origin = G.npcs[npcKey].origin || 'American';
+    const role = STORY.characters[npcKey]?.profession || npcKey;
+    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + STORY.characters[npcKey]?.age + '-year-old ' + role + '. MUST be a genuine ' + origin + ' name. Return ONLY the name, nothing else.');
+    G.npcs[npcKey].name = nameStr.trim().replace(/['"]/g, '');
+  }
+
+  const loc = STORY.locations[locKey] || {};
+  const sceneComp = loc.composition || 'elegant setting';
+  const isOutdoor = loc.isOutdoor || false;
+  const isPublic = loc.isPublic || false;
+
+  // 季节（只有室外才加）
+  const seasonDesc = isOutdoor ? STORY.seasons.getAtmosphere(G.player.city, day) : '';
+
+  // 侦探背影（只有公共场合）
   G.publicSceneCount++;
-  // Appears every 3rd public scene
-  if(G.publicSceneCount%3===0) return DETECTIVE_SHADOW;
-  return '';
+  const detShadow = (isPublic && npcKey !== 'detective')
+    ? STATE.imagePrompts.getDetectiveShadow(day, G.publicSceneCount)
+    : '';
+
+  // 秘密是否揭露（管家）
+  const secretRevealed = STATE.events.has('foundBirthCertificate');
+
+  // 根据NPC类型调用对应提示词构建函数
+  let prompt = '';
+  if (npcKey === 'agent')    prompt = STATE.imagePrompts.buildAgentPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
+  if (npcKey === 'drummer')  prompt = STATE.imagePrompts.buildDrummerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
+  if (npcKey === 'actor')    prompt = STATE.imagePrompts.buildActorPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
+  if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
+  if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
+
+  if (detShadow) prompt += detShadow;
+
+  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, true, 2);
 }
 
-// SCENE COMPOSITIONS by location
-const SCENE_COMPS={
-  agent_office:'inside a sleek modern high-rise office, floor-to-ceiling windows with city skyline, woman sitting across a glass desk from a man',
-  recording_studio:'professional recording studio, woman wearing headphones inside glass vocal booth, microphone in front, mixing board visible through glass, warm studio lighting',
-  magazine_shoot:'fashion magazine photoshoot set, dramatic studio lighting, woman in elegant outfit, professional cameras and crew visible',
-  brand_event:'luxury brand event red carpet, woman in beautiful gown walking red carpet, press photographers below with camera flashes, elegant venue backdrop, product display podium visible',
-  award_ceremony:'glamorous awards ceremony, woman in evening gown, spotlights, audience visible, stage backdrop',
-  music_training:'music practice room, woman singing or playing guitar, music stands, acoustic panels',
-  cafe:'cozy city café, woman sitting by window, coffee cup in hand, looking out at the street, city view through window, warm café lighting',
-  cafe_meeting:'cozy café, two people sitting across from each other at a small table, coffee cups between them, intimate conversation setting',
-  art_gallery:'contemporary art gallery, woman standing with her back to camera or in three-quarter profile looking at large artwork on white wall, gallery lighting, contemplative pose',
-  bookshop:'charming bookshop, woman in side profile reaching for books on shelf or browsing between shelves, warm lighting',
-  night_bar:'upscale night bar, woman sitting at bar counter or lounge sofa, intimate warm lighting, city lights visible through windows',
-  street_market:'vibrant street market, woman browsing stalls, colorful surroundings',
-  apartment_lobby:'modern apartment building lobby, marble floors, soft lighting',
-};
+async function genProtagonistScene(locKey, day) {
+  const loc = STORY.locations[locKey] || {};
+  const sceneComp = loc.composition || 'elegant setting';
+  const isOutdoor = loc.isOutdoor || false;
+  const isPublic = loc.isPublic || false;
+  const seasonDesc = isOutdoor ? STORY.seasons.getAtmosphere(G.player.city, day) : '';
+  G.publicSceneCount++;
+  const detShadow = isPublic ? STATE.imagePrompts.getDetectiveShadow(day, G.publicSceneCount) : '';
+  const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : '')) + (detShadow || '');
+  return await img(prompt, locKey, true, 2);
+}
 
-const HM={'East Asian':{eyes:'Dark brown, almond-shaped',skin:'Light to medium golden'},'Southeast Asian':{eyes:'Warm dark brown',skin:'Warm golden brown'},'South Asian':{eyes:'Deep brown',skin:'Medium to deep brown'},'Northern European':{eyes:'Blue or grey',skin:'Fair, cool-toned'},'Southern European':{eyes:'Warm brown or green',skin:'Warm olive'},'African':{eyes:'Rich dark brown',skin:'Rich deep brown to ebony'},'Latin American':{eyes:'Brown or hazel',skin:'Medium warm brown'},'Middle Eastern':{eyes:'Dark almond',skin:'Medium olive to tan'}};
-const CL={'New York':'Empire State Building and Times Square neon','Los Angeles':'Hollywood Hills and palm trees','London':'Tower Bridge and red double-decker bus','Paris':'Eiffel Tower and Haussmann rooftops','Tokyo':'Tokyo Tower and Shinjuku neon skyline','Seoul':'N Seoul Tower and Han River bridges','Sydney':'Opera House and Harbour Bridge','Nashville':'CN Tower and Lake Ontario waterfront'};
-const AS={British:{hair:'dark brown neatly swept back',skin:'fair',suit:'charcoal grey double-breasted suit'},American:{hair:'dark brown side-parted',skin:'medium',suit:'navy blue slim suit, open-collar shirt'},French:{hair:'dark chestnut tousled',skin:'light olive',suit:'black slim-cut suit, silk pocket square'},Italian:{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit'},Korean:{hair:'black precise side part',skin:'light',suit:'dark grey minimalist suit, black turtleneck'},Japanese:{hair:'black neat side part',skin:'light',suit:'anthracite suit, white shirt'},'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt'},Brazilian:{hair:'dark brown slight wave',skin:'warm tan',suit:'navy suit, open collar'}};
-const LIVING_LAYOUT=`rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, LEFT dining area with wooden dining table and chairs against left wall, two glass pendant lights hanging above dining table, CENTER BACK TV wall unit with built-in shelving, wall-mounted TV with floating cabinet and warm LED underglow, RIGHT large three-seater sofa with cushions, round coffee table on large area rug, curved accent armchair near window, round side table with lamp, FAR END floor-to-ceiling window with white sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, large format tile flooring, warm neutral tones`;
+// ══════════════════════════════════════════════════════
+// SOUND SYSTEM
+// ══════════════════════════════════════════════════════
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let _actx = null;
+function getACtx() { if (!_actx) try { _actx = new AudioCtx(); } catch {} return _actx; }
 
-// STATE
-const G={lang:'en',langName:'English',imgStyle:'semi',playerName:'',mother:null,motherEyes:null,father:null,fatherSkin:null,hairStyle:null,hairColor:null,city:null,decor:null,livingDayUrl:null,livingNightUrl:null,protagonistUrl:null,
-  agentOrigin:null,agentName:null,agentUrl:null,
-  drummerOrigin:null,drummerName:null,drummerUrl:null,
-  actorOrigin:null,actorName:null,actorUrl:null,
-  butlerOrigin:null,butlerName:null,butlerUrl:null,detectiveOrigin:null,detectiveName:null,
-  fame:5,day:1,daysWithoutWork:0,relationships:{agent:0,drummer:0,actor:0,butler:0},
-  metNPCs:[],gallery:[],_prevScreen:'s-daily',
-  _ru:{a:null,b:null,c:null},_pu:{a:null,b:null,c:null},_au:{a:null,b:null,c:null},
-  _nightReady:false,_pendingNPCKey:null,_pendingNPCCallback:null,
-  phoneMessages:{},phoneMoments:[],industryNews:[],unreadMsgs:0,
-  vnDialogRound:0,vnMaxRounds:3,vnCurrentNPC:null,vnSceneImg:null,
-};
+function playSound(type) {
+  if (!G.soundOn) return;
+  const ctx = getACtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  if (type === 'click')   { o.frequency.setValueAtTime(800, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(600, ctx.currentTime+0.08); g.gain.setValueAtTime(0.08, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.08); o.type='sine'; }
+  if (type === 'select')  { o.frequency.setValueAtTime(600, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(900, ctx.currentTime+0.1);  g.gain.setValueAtTime(0.07, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.1);  o.type='sine'; }
+  if (type === 'confirm') { o.frequency.setValueAtTime(500, ctx.currentTime); o.frequency.exponentialRampToValueAtTime(800, ctx.currentTime+0.15); g.gain.setValueAtTime(0.06, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.15); o.type='sine'; }
+  o.start(ctx.currentTime); o.stop(ctx.currentTime+0.2);
+}
 
-const SO=['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-agent-intro','s-agent-origin','s-agent-reveal','s-agent-signing','s-ch1','s-daily'];
+function playChapterSound() {
+  if (!G.soundOn) return;
+  const ctx = getACtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const notes = [261.6, 329.6, 392.0, 523.2];
+  const times = [0, 0.18, 0.36, 0.55];
+  const durs  = [0.3, 0.3, 0.3, 0.6];
+  notes.forEach((freq, i) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    const t = ctx.currentTime + times[i];
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.12, t+0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t+durs[i]);
+    o.start(t); o.stop(t+durs[i]+0.05);
+  });
+}
 
-// NAV
-function go(id){
-  if(id==='s-ch1'){document.getElementById('ch-name').textContent=G.playerName||'—';document.getElementById('ch-city').textContent=G.city||'—';document.getElementById('ch-agent').textContent=G.agentName||'—';const fr=getCurFame(G.fame);document.getElementById('ch-fame').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);}
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.addEventListener('click', e => {
+  const el = e.target.closest('button,.card,.lcard,.rcard,.trio-item,.nos-card,.vn-opt,.daily-opt,.wc-chat-item,.wc-tab,.s-lang-card,.s-style-card');
+  if (!el) return;
+  if (el.matches('.btn-p')) playSound('confirm');
+  else if (el.classList.contains('sel')) playSound('select');
+  else playSound('click');
+}, true);
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+const SETUP_SCREENS = ['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-agent-intro','s-agent-origin','s-agent-reveal','s-agent-signing','s-ch1','s-daily'];
+const GAME_SCREENS  = ['s-daily','s-scene','s-evening','s-phone','s-chat','s-fame','s-gallery','s-settings','s-affection','s-ch1'];
+const OVERLAY_SCREENS = ['s-fame','s-gallery','s-settings','s-phone','s-chat','s-affection'];
+
+function go(id) {
+  if (id === 's-ch1') updateChapterScreen();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const idx=SO.indexOf(id);
-  document.getElementById('prog').style.width=(idx<0?0:Math.round(idx/(SO.length-1)*100))+'%';
-  const inGame=['s-daily','s-scene','s-evening','s-phone','s-chat','s-fame','s-gallery','s-settings','s-ch1'].includes(id);
-  document.getElementById('bottom-nav').classList.toggle('show',inGame);
-  if(!['s-fame','s-gallery','s-settings','s-phone','s-chat'].includes(id))G._prevScreen=id;
+  const idx = SETUP_SCREENS.indexOf(id);
+  document.getElementById('prog').style.width = (idx < 0 ? 0 : Math.round(idx / (SETUP_SCREENS.length-1) * 100)) + '%';
+  document.getElementById('bottom-nav').classList.toggle('show', GAME_SCREENS.includes(id));
+  if (!OVERLAY_SCREENS.includes(id)) G._prevScreen = id;
+  window.scrollTo(0, 0);
 }
-function goHome(){go(G._prevScreen||'s-daily');setABn('bn-home');}
-function setABn(id){document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
-function openFame(){setABn('bn-fame');renderFame();go('s-fame');}
-function closeFame(){go(G._prevScreen||'s-daily');setABn('bn-home');}
-function openGallery(){setABn('bn-gallery');renderGallery();go('s-gallery');}
-function closeGallery(){go(G._prevScreen||'s-daily');setABn('bn-home');}
-function openSettings(){setABn('bn-settings');go('s-settings');}
-function closeSettings(){go(G._prevScreen||'s-daily');setABn('bn-home');}
-function openPhone(){setABn('bn-phone');renderPhone();go('s-phone');}
-function closePhone(){go(G._prevScreen||'s-daily');setABn('bn-home');}
-function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('open');}
-function closeLB(){document.getElementById('lb').classList.remove('open');}
 
+function goHome()       { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function setABn(id)     { document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active')); document.getElementById(id)?.classList.add('active'); }
+function openFame()     { setABn('bn-fame');      renderFame();      go('s-fame');      }
+function closeFame()    { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function openGallery()  { setABn('bn-gallery');   renderGallery();   go('s-gallery');   }
+function closeGallery() { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function openSettings() { setABn('bn-settings');                     go('s-settings');  }
+function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function openPhone()    { setABn('bn-phone');     renderPhone();     go('s-phone');     }
+function closePhone()   { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function openAffection(){ setABn('bn-affection'); renderAffection(); go('s-affection'); }
+function closeAffection(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function openLB(src)    { document.getElementById('lb-img').src = src; document.getElementById('lb').classList.add('open'); }
+function closeLB()      { document.getElementById('lb').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
 // TRANSLATIONS
-const TX={
-  en:{open_nar:`The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.`,name_title:"What's your name?",name_sub:'The name you perform under.',name_hint:'This is how everyone will know you.',mother_title:'My mother',mother_sub:'She always said I had her eyes.',father_title:'My father',father_sub:'He said my skin was just like his.',thats_right:"That's right",hair_title:'Yesterday',hair_sub:"I finally went to that salon.",city_title:'Two months ago',city_sub:'I packed two suitcases.',decor_title:'My apartment',decor_sub:"I made it mine.",rooms_title:'Choose your living room',rooms_sub:'Which one is home?',mirror_nar:`I looked at myself for a long moment.\nSame face. Different city.`,flash_nar:`Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever stayed.`,agent_intro_nar:`He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don't.`,agent_origin_title:'Where was he from?',agent_origin_sub:'Something about the way he carried himself.',ch1_quote:`"Every story has a beginning.\nThis is yours."`,open_stamp:'Friday · 7:14 AM',mirror_stamp:'Bathroom mirror · 7:31 AM',flashback_stamp:'Every night, for months',your_world:'YOUR WORLD',name_key:'Name',city_key:'City',agent_key:'Agent',fame_key:'Fame',ch1_label:'Chapter One',signed:'The Beginning',wake_up:'Day 1',today:'TODAY',sleep:'Sleep · Next day',home:'Home',phone:'Phone',fame:'Fame',gallery_lbl:'Gallery',settings_lbl:'Settings',lang_setting:'LANGUAGE',style_setting:'IMAGE STYLE',save_return:'Save & Return',sound_setting:'SOUND EFFECTS',sound_on:'🔊 On',sound_off:'🔇 Off',sound_on_sub:'Button feedback sounds',sound_off_sub:'Silent mode',her_origin:'HER ORIGIN',his_origin:'HIS ORIGIN',hair_style_lbl:'HAIR STYLE',hair_colour_lbl:'HAIR COLOUR',city_lbl:'WHERE DID YOU MOVE TO?',decor_lbl:'INTERIOR STYLE',close_lbl:'Closer',neutral_lbl:'Neutral',far_lbl:'Distance',choose_portrait:'CHOOSE HIS PORTRAIT',thats_him:"✓ That's him",choose_refl:'CHOOSE YOUR REFLECTION',this_is_me:'✓ This is me',end_day:'End the day',wc_chats:'Chats',wc_moments:'Moments',wc_industry:'Industry',wc_back:'Back',npc_origin_title:'Where is he from?',npc_origin_sub:'His background shapes who he is.',
+// ══════════════════════════════════════════════════════
+const TX = {
+  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Friday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Gallery', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Moments', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Relationships', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -908,1000 +1009,871 @@ const TX={
     agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'],
     agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio'],
   },
-  'zh-cn':{open_nar:`光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。`,name_title:'你叫什么名字？',name_sub:'你用来演出的名字。',name_hint:'所有人都会这样叫你。',mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',thats_right:'就是这样',hair_title:'昨天',hair_sub:'我终于去了那家发廊。',city_title:'两个月前',city_sub:'我拖着两个行李箱。',decor_title:'我的公寓',decor_sub:'我把它变成了我的样子。',rooms_title:'选择你的客厅',rooms_sub:'哪一个更像家？',mirror_nar:`我对着镜子看了很久。\n同一张脸。不同的城市。`,flash_nar:`每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。`,agent_intro_nar:`他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。`,agent_origin_title:'他是哪里人？',agent_origin_sub:'从他的气质就能感觉出来。',ch1_quote:`"每一个故事，都有一个起点。\n而你的，从今天开始。"`,open_stamp:'周五 · 上午 7:14',mirror_stamp:'洗手间镜子 · 上午 7:31',flashback_stamp:'每一个夜晚，几个月来',your_world:'你的世界',name_key:'名字',city_key:'城市',agent_key:'经纪人',fame_key:'知名度',ch1_label:'第一章',signed:'起点',wake_up:'第1天',today:'今天',sleep:'入睡 · 下一天',home:'主页',phone:'手机',fame:'知名度',gallery_lbl:'相册',settings_lbl:'设置',lang_setting:'语言',style_setting:'画面风格',save_return:'保存并返回',sound_setting:'音效',sound_on:'🔊 开启',sound_off:'🔇 关闭',sound_on_sub:'按键反馈音效',sound_off_sub:'静音模式',her_origin:'母亲来源',his_origin:'父亲来源',hair_style_lbl:'发型',hair_colour_lbl:'发色',city_lbl:'你搬到了哪个城市？',decor_lbl:'室内风格',close_lbl:'亲近',neutral_lbl:'一般',far_lbl:'疏远',choose_portrait:'选择他的形象',thats_him:'✓ 就是他',choose_refl:'选择你的样子',this_is_me:'✓ 就是我',end_day:'结束今天',wc_chats:'消息',wc_moments:'朋友圈',wc_industry:'行业资讯',wc_back:'返回',npc_origin_title:'他是哪里人？',npc_origin_sub:'他的背景造就了他这个人。',
-    regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东'],region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗'],
-    hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
-    hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫'],hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
-    cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','纳什维尔'],city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','美国·音乐之城'],
-    decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
-    agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人'],agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约'],
+  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周五 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'相册', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'朋友圈', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
+    regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东'],
+    region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗'],
+    hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
+    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
+    hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫'],
+    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
+    cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','纳什维尔'],
+    city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','美国·音乐之城'],
+    decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],
+    decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
+    agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人'],
+    agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约'],
   },
 };
-['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l=>{if(!TX[l])TX[l]=Object.assign({},TX.en);});
-TX['zh-tw']=Object.assign({},TX['zh-cn'],{ch1_quote:`「每一個故事，都有一個起點。\n而你的，從今天開始。」`,cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','納什維爾'],decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],wc_moments:'朋友圈',wc_industry:'行業資訊'});
+['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l => { if (!TX[l]) TX[l] = Object.assign({}, TX.en); });
+TX['zh-tw'] = Object.assign({}, TX['zh-cn'], { ch1_quote:'「每一個故事，都有一個起點。\n而你的，從今天開始。」', signed:'起點', cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','納什維爾'], decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'], wc_moments:'朋友圈', wc_industry:'行業資訊', affection_title:'好感度' });
 
-function t(k){return (TX[G.lang]&&TX[G.lang][k]!==undefined)?TX[G.lang][k]:TX.en[k]||k;}
+function t(k) { return (TX[G.lang] && TX[G.lang][k] !== undefined) ? TX[G.lang][k] : TX.en[k] || k; }
 
-function selLang(code,name,el){
-  document.querySelectorAll('#lang-grid-main .lcard').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');G.lang=code;G.langName=name;applyLang();
-  document.getElementById('btn-lang').style.visibility='visible';
+// ══════════════════════════════════════════════════════
+// LANGUAGE & SETTINGS
+// ══════════════════════════════════════════════════════
+function selLang(code, name, el) {
+  document.querySelectorAll('#lang-grid-main .lcard').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  G.lang = code; G.langName = name;
+  applyLang();
+  document.getElementById('btn-lang').style.visibility = 'visible';
 }
-function selLangSettings(code,name,el){
-  document.querySelectorAll('#settings-lang-grid .s-lang-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');G.lang=code;G.langName=name;applyLang();
+function selLangSettings(code, name, el) {
+  document.querySelectorAll('#settings-lang-grid .s-lang-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  G.lang = code; G.langName = name;
+  applyLang();
 }
-function selStyle(style,el){document.querySelectorAll('.s-style-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G.imgStyle=style;}
+function selStyle(style, el) {
+  document.querySelectorAll('.s-style-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  G.imgStyle = style;
+}
+function setSoundOn(on, el) {
+  G.soundOn = on;
+  document.querySelectorAll('#sound-on-card,#sound-off-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
 
-function applyLang(){
-  const s=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.innerHTML=(v+'').replace(/\n/g,'<br>');};
-  s('open-nar',t('open_nar'));s('open-stamp',t('open_stamp'));
-  s('name-title',t('name_title'));s('name-sub',t('name_sub'));s('name-hint',t('name_hint'));
-  s('mother-title',t('mother_title'));s('mother-sub',t('mother_sub'));
-  s('father-title',t('father_title'));s('father-sub',t('father_sub'));
-  s('hair-title',t('hair_title'));s('hair-sub',t('hair_sub'));
-  s('city-title',t('city_title'));s('city-sub',t('city_sub'));
-  s('decor-title',t('decor_title'));s('decor-sub',t('decor_sub'));
-  s('rooms-title',t('rooms_title'));s('rooms-sub',t('rooms_sub'));
-  s('mirror-nar',t('mirror_nar'));s('mirror-stamp',t('mirror_stamp'));
-  s('flash-nar',t('flash_nar'));s('flashback-stamp',t('flashback_stamp'));
-  s('agent-intro-nar',t('agent_intro_nar'));
-  s('agent-origin-title',t('agent_origin_title'));s('agent-origin-sub',t('agent_origin_sub'));
-  s('ch1-quote',t('ch1_quote'));
-  s('lbl-your-world',t('your_world'));s('lbl-name-key',t('name_key'));s('lbl-city-key',t('city_key'));s('lbl-agent-key',t('agent_key'));s('lbl-fame-key',t('fame_key'));
-  s('lbl-ch1',t('ch1_label'));s('lbl-signed',t('signed'));s('btn-wakeup',t('wake_up'));
-  s('bn-home-lbl',t('home'));s('bn-phone-lbl',t('phone'));s('bn-fame-lbl',t('fame'));s('bn-gallery-lbl',t('gallery_lbl'));s('bn-settings-lbl',t('settings_lbl'));
-  s('gallery-title',t('gallery_lbl'));s('lbl-lang-setting',t('lang_setting'));s('lbl-style-setting',t('style_setting'));s('btn-save-settings',t('save_return'));s('lbl-sound-setting',t('sound_setting'));s('lbl-sound-on',t('sound_on'));s('lbl-sound-off',t('sound_off'));s('lbl-sound-on-sub',t('sound_on_sub'));s('lbl-sound-off-sub',t('sound_off_sub'));
-  s('lbl-her-origin',t('her_origin'));s('lbl-his-origin',t('his_origin'));s('lbl-hair-style',t('hair_style_lbl'));s('lbl-hair-colour',t('hair_colour_lbl'));s('lbl-city',t('city_lbl'));s('lbl-decor',t('decor_lbl'));
-  s('lbl-choose-portrait',t('choose_portrait'));s('lbl-thats-him',t('thats_him'));s('lbl-choose-refl',t('choose_refl'));s('lbl-this-me',t('this_is_me'));
-  s('lbl-wct-chats',t('wc_chats'));s('lbl-wct-moments',t('wc_moments'));s('lbl-wct-industry',t('wc_industry'));s('lbl-wct-back',t('wc_back'));
-  s('lbl-wc-chats',t('wc_chats'));
+function applyLang() {
+  const s = (id, v) => { const e = document.getElementById(id); if (e && v !== undefined) e.innerHTML = (v+'').replace(/\n/g,'<br>'); };
+  s('open-nar', t('open_nar')); s('open-stamp', t('open_stamp'));
+  s('name-title', t('name_title')); s('name-sub', t('name_sub'));
+  s('mother-title', t('mother_title')); s('mother-sub', t('mother_sub'));
+  s('father-title', t('father_title')); s('father-sub', t('father_sub'));
+  s('hair-title', t('hair_title')); s('hair-sub', t('hair_sub'));
+  s('city-title', t('city_title')); s('city-sub', t('city_sub'));
+  s('decor-title', t('decor_title')); s('decor-sub', t('decor_sub'));
+  s('rooms-title', t('rooms_title')); s('rooms-sub', t('rooms_sub'));
+  s('mirror-nar', t('mirror_nar')); s('mirror-stamp', t('mirror_stamp'));
+  s('flash-nar', t('flash_nar')); s('flashback-stamp', t('flashback_stamp'));
+  s('agent-intro-nar', t('agent_intro_nar'));
+  s('ch1-quote', t('ch1_quote'));
+  s('lbl-your-world', t('your_world')); s('lbl-name-key', t('name_key')); s('lbl-city-key', t('city_key')); s('lbl-agent-key', t('agent_key')); s('lbl-fame-key', t('fame_key'));
+  s('lbl-ch1', t('ch1_label')); s('lbl-signed', t('signed')); s('btn-wakeup', t('wake_up'));
+  s('bn-home-lbl', t('home')); s('bn-phone-lbl', t('phone')); s('bn-fame-lbl', t('fame')); s('bn-gallery-lbl', t('gallery_lbl')); s('bn-settings-lbl', t('settings_lbl'));
+  s('gallery-title', t('gallery_lbl')); s('lbl-lang-setting', t('lang_setting')); s('lbl-style-setting', t('style_setting')); s('btn-save-settings', t('save_return'));
+  s('lbl-her-origin', t('her_origin')); s('lbl-his-origin', t('his_origin')); s('lbl-hair-style', t('hair_style_lbl')); s('lbl-hair-colour', t('hair_colour_lbl')); s('lbl-city', t('city_lbl')); s('lbl-decor', t('decor_lbl'));
+  s('lbl-choose-portrait', t('choose_portrait')); s('lbl-thats-him', t('thats_him')); s('lbl-choose-refl', t('choose_refl')); s('lbl-this-me', t('this_is_me'));
+  s('lbl-wct-chats', t('wc_chats')); s('lbl-wct-moments', t('wc_moments')); s('lbl-wct-industry', t('wc_industry')); s('lbl-wct-back', t('wc_back'));
+  s('lbl-wc-chats', t('wc_chats'));
+  s('lbl-affection-title', t('affection_title'));
+  s('lbl-sound-setting', t('sound_setting')); s('lbl-sound-on', t('sound_on')); s('lbl-sound-off', t('sound_off')); s('lbl-sound-on-sub', t('sound_on_sub')); s('lbl-sound-off-sub', t('sound_off_sub'));
   buildGrids();
 }
 
-function buildGrids(){
-  const rk=['East Asian','Southeast Asian','South Asian','Northern European','Southern European','African','Latin American','Middle Eastern'];
-  const cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'];
-  const dv=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
-  const av=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
-  const mk=(id,labels,subs,key,vals)=>{const g=document.getElementById(id);if(!g)return;g.innerHTML=labels.map((l,i)=>`<div class="card" onclick="selCard(this,'${key}','${vals?vals[i]:l}')">${l}<span class="sub">${(subs&&subs[i])||''}</span></div>`).join('');};
-  mk('g-mom',t('regions'),t('region_subs'),'mother',rk);mk('g-dad',t('regions'),t('region_subs'),'father',rk);
-  const hs=t('hair_styles'),hv=t('hair_style_vals');document.getElementById('g-hstyle').innerHTML=hs.map((l,i)=>`<div class="card" onclick="selCard(this,'hairStyle','${hv[i]}')">${l}</div>`).join('');
-  const hc=t('hair_colors'),hcv=t('hair_color_vals');document.getElementById('g-hcolor').innerHTML=hc.map((l,i)=>`<div class="card" onclick="selCard(this,'hairColor','${hcv[i]}')">${l}</div>`).join('');
-  mk('g-city',t('cities'),t('city_subs'),'city',cv);mk('g-decor',t('decors'),t('decor_subs'),'decor',dv);mk('g-aorigin',t('agent_origins'),t('agent_origin_subs'),'agentOrigin',av);
-}
-
-function selCard(el,key,value){
-  el.closest('.cgrid')?.querySelectorAll('.card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G[key]=value;
-  const bmap={mother:'btn-mom',father:'btn-dad',city:'btn-city',decor:'btn-decor',agentOrigin:'btn-aorigin'};
-  if(bmap[key])document.getElementById(bmap[key]).style.visibility='visible';
-  if(key==='hairStyle'||key==='hairColor')if(G.hairStyle&&G.hairColor)document.getElementById('btn-hair').style.visibility='visible';
-}
-
-// NPC ORIGIN SHEET
-const NPC_EMOJIS={agent:'👔',drummer:'🥁',actor:'🎬',butler:'🎂'};
-function showNPCOrigin(npcKey,callback){
-  G._pendingNPCKey=npcKey;G._pendingNPCCallback=callback;G._selectedNPCOrigin=null;
-  const origins=t('agent_origins');const subs=t('agent_origin_subs');
-  const vals=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
-  document.getElementById('nos-title').textContent=t('npc_origin_title');
-  document.getElementById('nos-sub').textContent=t('npc_origin_sub');
-  document.getElementById('nos-grid').innerHTML=origins.map((o,i)=>`<div class="nos-card" onclick="selNPCOrigin('${vals[i]}',this)">${o}<br><span style="font-size:9px;color:var(--ink-muted)">${subs[i]||''}</span></div>`).join('');
-  document.getElementById('nos-confirm').style.visibility='hidden';
-  document.getElementById('npc-origin-overlay').classList.add('open');
-}
-function selNPCOrigin(val,el){
-  document.querySelectorAll('.nos-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');
-  G._selectedNPCOrigin=val;document.getElementById('nos-confirm').style.visibility='visible';
-}
-function confirmNPCOrigin(){
-  document.getElementById('npc-origin-overlay').classList.remove('open');
-  if(G._pendingNPCCallback&&G._selectedNPCOrigin)G._pendingNPCCallback(G._selectedNPCOrigin);
-}
-
-function saveName(){const v=document.getElementById('name-inp').value.trim();if(!v){document.getElementById('name-inp').style.borderColor='var(--rose)';return;}G.playerName=v;go('s-mother');}
-
-function showHeritage(){
-  const m=HM[G.mother]||{eyes:'brown',skin:'medium'};const f=HM[G.father]||{eyes:'brown',skin:'medium'};
-  G.motherEyes=m.eyes;G.fatherSkin=f.skin;
-  const lang=G.lang;let nar,el,sl,hl;
-  if(lang==='zh-cn'||lang==='zh-tw'){nar=`我母亲来自<em>${G.mother}</em>。我父亲来自<em>${G.father}</em>。<br><br>人们总说我是他们两个人完美的融合。`;el='眼睛';sl='肤色';hl='血统';}
-  else if(lang==='ja'){nar=`母は<em>${G.mother}</em>出身。父は<em>${G.father}</em>出身。<br><br>みんないつも二人を完璧に混ぜ合わせたと言っていた。`;el='目';sl='肌';hl='出身';}
-  else if(lang==='ko'){nar=`어머니는 <em>${G.mother}</em> 출신. 아버지는 <em>${G.father}</em> 출신.<br><br>항상 두 분이 완벽하게 섞였다고 했다.`;el='눈';sl='피부';hl='혈통';}
-  else{nar=`My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>People always said I was a perfect mix of both of them.`;el='Eyes';sl='Skin';hl='Heritage';}
-  document.getElementById('h-nar').innerHTML=nar;
-  document.getElementById('h-traits').innerHTML=`<div class="ti"><div class="tl">${el}</div><div class="tv">${m.eyes}</div></div><div class="ti"><div class="tl">${sl}</div><div class="tv">${f.skin}</div></div><div class="ti"><div class="tl">${hl}</div><div class="tv">${G.mother} × ${G.father}</div></div>`;
-  document.getElementById('btn-heritage').textContent=t('thats_right');
-  go('s-heritage');preGenRooms();
-}
-
-// API
-const imgSuffix=()=>`, ${IMG_STYLES[G.imgStyle]||IMG_STYLES.semi}, portrait orientation, high quality`;
-async function claude(prompt,sys=''){
-  if(DEV_MODE){
-    const isZh=G.lang==='zh-cn'||G.lang==='zh-tw';
-    const isJa=G.lang==='ja';
-    const isKo=G.lang==='ko';
-    // Name generation - extract origin from prompt
-    if(prompt.includes('full name')||prompt.includes('first name')){
-      const origins={'Korean':isZh?'金书俊':'김서준','Japanese':isZh?'木村颯太':'木村颯太','French':'Julien','Italian':'Marco','African-American':'Marcus','Brazilian':'Gabriel','British':'James','American':'Ryan'};
-      const firstWord=prompt.split(' ').slice(3,5).join(' ');
-      for(const [orig,name] of Object.entries(origins)){
-        if(firstWord.includes(orig)) return name;
-      }
-      return isZh?'李明':isJa?'田中':isKo?'김민준':'Alex';
-    }
-    // Dialogue options
-    if(prompt.includes('JSON array')){
-      if(isZh) return '["这听起来很有意思。","好的，我明白了。","我需要再想想。"]';
-      if(isJa) return '["それは面白そうですね。","わかりました。","少し考えさせてください。"]';
-      if(isKo) return '["흥미롭네요.","알겠어요.","좀 더 생각해볼게요."]';
-      return '["That sounds interesting.","I understand.","I need to think about it."]';
-    }
-    // NPC dialogue line
-    if(prompt.includes('dialogue')||prompt.includes('opening')||prompt.includes('Write your')||prompt.includes('character')){
-      if(isZh) return '（DEV）今天的安排已经发给你了，记得准时。';
-      if(isJa) return '（DEV）今日のスケジュールは送った。時間通りに。';
-      if(isKo) return '（DEV）오늘 일정 보냈어요. 시간 맞춰요.';
-      return '(DEV) Schedule sent. Be on time.';
-    }
-    // Morning monologue
-    if(prompt.includes('morning')||prompt.includes('monologue')){
-      if(isZh) return '今天感觉不一样。一切都在改变。';
-      if(isJa) return '今日は何かが違う。何かが変わろうとしている。';
-      if(isKo) return '오늘은 뭔가 다르다. 모든 게 바뀌려 하고 있다.';
-      return 'Today feels different. Everything is about to change.';
-    }
-    // Evening monologue
-    if(prompt.includes('evening')||prompt.includes('night')){
-      if(isZh) return '窗外的城市安静下来了。';
-      if(isJa) return '外の街が静かになってきた。';
-      if(isKo) return '창밖의 도시가 조용해졌다.';
-      return 'The city outside is quiet now.';
-    }
-    // Text message
-    if(prompt.includes('text message')||prompt.includes('voice message')||prompt.includes('sends')){
-      if(isZh) return '明天9点，别迟到。';
-      if(isJa) return '明日9時。遅れないで。';
-      if(isKo) return '내일 9시. 늦지 마요.';
-      return "Tomorrow at 9. Don't be late.";
-    }
-    // Social media post
-    if(prompt.includes('social media')||prompt.includes('post')||prompt.includes('moments')){
-      if(isZh) return '今天状态不错。努力终会有回报。';
-      if(isJa) return '今日は調子がいい。努力は報われる。';
-      if(isKo) return '오늘 컨디션 좋다. 노력은 배신하지 않는다.';
-      return 'Good session today. Hard work pays off.';
-    }
-    // Industry news
-    if(prompt.includes('industry')||prompt.includes('news')){
-      if(isZh) return JSON.stringify([{title:'新片选角开始',detail:'某大型制片公司正在寻找新兴演员参与制作。'},{title:'音乐奖项提名开放',detail:'新人艺人类别的提名正式接受申请。'}]);
-      if(isJa) return JSON.stringify([{title:'新映画のオーディション開始',detail:'大手スタジオが新人俳優を募集中。'},{title:'音楽賞のノミネート開始',detail:'新人アーティスト部門の応募受付中。'}]);
-      if(isKo) return JSON.stringify([{title:'신작 캐스팅 시작',detail:'대형 제작사에서 신인 배우를 모집 중입니다.'},{title:'음악 시상식 후보 공개',detail:'신인 아티스트 부문 후보 신청 받는 중.'}]);
-      return JSON.stringify([{title:'New Film Casting Opens',detail:'Major studio seeking fresh talent.'},{title:'Music Awards Nominations Open',detail:'Emerging artists category now accepting entries.'}]);
-    }
-    // Scene description
-    if(isZh) return '这个空间里弥漫着某种可能性。';
-    if(isJa) return 'この場所には何か可能性が満ちている。';
-    if(isKo) return '이 공간에는 뭔가 가능성이 가득하다.';
-    return 'The room feels charged with possibility.';
+function buildGrids() {
+  var rk=['East Asian','Southeast Asian','South Asian','Northern European','Southern European','African','Latin American','Middle Eastern'];
+  var cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'];
+  var dv=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
+  var av=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
+  function mk(id, labels, subs, key, vals) {
+    var g=document.getElementById(id); if(!g)return;
+    var items=labels.map(function(l,i){
+      var val=vals?vals[i]:l;
+      var sub=subs&&subs[i]?subs[i]:'';
+      var el=document.createElement('div');
+      el.className='card';
+      el.dataset.key=key;
+      el.dataset.val=val;
+      el.innerHTML=l+'<span class="sub">'+sub+'</span>';
+      el.onclick=function(){selCard(this,this.dataset.key,this.dataset.val);};
+      return el;
+    });
+    g.innerHTML='';
+    items.forEach(function(el){g.appendChild(el);});
   }
-  const body={model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]};
-  if(sys)body.system=sys;
-  const r=await fetch(WORKER+'/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  const d=await r.json();return d.content?.[0]?.text||'';
+  mk('g-mom',t('regions'),t('region_subs'),'motherOrigin',rk);
+  mk('g-dad',t('regions'),t('region_subs'),'fatherOrigin',rk);
+  var hs=t('hair_styles'),hv=t('hair_style_vals');
+  var ghs=document.getElementById('g-hstyle');
+  if(ghs){ghs.innerHTML='';hs.forEach(function(l,i){var el=document.createElement('div');el.className='card';el.dataset.key='hairStyle';el.dataset.val=hv[i];el.textContent=l;el.onclick=function(){selCard(this,'hairStyle',this.dataset.val);};ghs.appendChild(el);});}
+  var hc=t('hair_colors'),hcv=t('hair_color_vals');
+  var ghc=document.getElementById('g-hcolor');
+  if(ghc){ghc.innerHTML='';hc.forEach(function(l,i){var el=document.createElement('div');el.className='card';el.dataset.key='hairColor';el.dataset.val=hcv[i];el.textContent=l;el.onclick=function(){selCard(this,'hairColor',this.dataset.val);};ghc.appendChild(el);});}
+  mk('g-city',t('cities'),t('city_subs'),'city',cv);
+  mk('g-decor',t('decors'),t('decor_subs'),'decor',dv);
+  mk('g-aorigin',t('agent_origins'),t('agent_origin_subs'),'agentOrigin',av);
 }
-async function img(prompt,label='',save=false,retries=2){
-  if(DEV_MODE) return null;
-  for(let attempt=0;attempt<=retries;attempt++){
-    try{
-      const r=await fetch(WORKER+'/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+imgSuffix(),image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});
-      const d=await r.json();const url=d.images?.[0]?.url;
-      if(url){const ok=await new Promise(res=>{const i=new Image();i.onload=()=>res(true);i.onerror=()=>res(false);i.src=url;setTimeout(()=>res(false),9000);});if(ok){if(save&&label)G.gallery.push({url,label});return url;}}
-    }catch{}
-    if(attempt<retries)await new Promise(r=>setTimeout(r,1500));
-  }return null;
+function selCard(el, key, value) {
+  el.closest('.cgrid')?.querySelectorAll('.card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  // 写入正确的位置
+  if (key === 'motherOrigin' || key === 'fatherOrigin' || key === 'hairStyle' || key === 'hairColor' || key === 'city' || key === 'decor') {
+    G.player[key] = value;
+    // 推导眼睛/肤色
+    if (key === 'motherOrigin') {
+      const traits = STATE.imagePrompts.heritageTraits[value] || { eyes: 'dark brown', skin: 'medium' };
+      G.player.motherEyes = traits.eyes;
+    }
+    if (key === 'fatherOrigin') {
+      const traits = STATE.imagePrompts.heritageTraits[value] || { eyes: 'dark brown', skin: 'medium' };
+      G.player.fatherSkin = traits.skin;
+    }
+  } else if (key === 'agentOrigin') {
+    G.npcs.agent.origin = value;
+  } else {
+    G[key] = value;
+  }
+  // 显示继续按钮
+  const bmap = { motherOrigin:'btn-mom', fatherOrigin:'btn-dad', city:'btn-city', decor:'btn-decor', agentOrigin:'btn-aorigin' };
+  if (bmap[key]) document.getElementById(bmap[key]).style.visibility = 'visible';
+  if (key === 'hairStyle' || key === 'hairColor') {
+    if (G.player.hairStyle && G.player.hairColor) document.getElementById('btn-hair').style.visibility = 'visible';
+  }
 }
-function setImg(imgId,phId,url){if(!url)return;const i=document.getElementById(imgId);const ph=document.getElementById(phId);if(i){i.src=url;i.style.display='block';}if(ph)ph.style.display='none';}
 
+function saveName() {
+  const v = document.getElementById('name-inp').value.trim();
+  if (!v) { document.getElementById('name-inp').style.borderColor = 'var(--rose)'; return; }
+  G.player.name = v;
+  go('s-mother');
+}
+
+// ══════════════════════════════════════════════════════
+// HERITAGE
+// ══════════════════════════════════════════════════════
+function showHeritage() {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  let nar, el, sl, hl;
+  if (isZh) { nar = '我母亲来自<em>' + G.player.motherOrigin + '</em>。我父亲来自<em>' + G.player.fatherOrigin + '</em>。<br><br>人们总说我是他们两个人完美的融合。'; el='眼睛'; sl='肤色'; hl='血统'; }
+  else if (lang==='ja') { nar = '母は<em>' + G.player.motherOrigin + '</em>出身。父は<em>' + G.player.fatherOrigin + '</em>出身。<br><br>みんないつも二人を完璧に混ぜ合わせたと言っていた。'; el='目'; sl='肌'; hl='出身'; }
+  else if (lang==='ko') { nar = '어머니는 <em>' + G.player.motherOrigin + '</em> 출신. 아버지는 <em>' + G.player.fatherOrigin + '</em> 출신.<br><br>항상 두 분이 완벽하게 섞였다고 했다.'; el='눈'; sl='피부'; hl='혈통'; }
+  else { nar = 'My mother was from <em>' + G.player.motherOrigin + '</em>. My father from <em>' + G.player.fatherOrigin + '</em>.<br><br>People always said I was a perfect mix of both.'; el='Eyes'; sl='Skin'; hl='Heritage'; }
+  document.getElementById('h-nar').innerHTML = nar;
+  document.getElementById('h-traits').innerHTML = '<div class="ti"><div class="tl">' + el + '</div><div class="tv">' + G.player.motherEyes + '</div></div><div class="ti"><div class="tl">' + sl + '</div><div class="tv">' + G.player.fatherSkin + '</div></div><div class="ti"><div class="tl">' + hl + '</div><div class="tv">' + G.player.motherOrigin + ' × ' + G.player.fatherOrigin + '</div></div>';
+  document.getElementById('btn-heritage').textContent = t('thats_right');
+  go('s-heritage');
+  preGenRooms();
+}
+
+// ══════════════════════════════════════════════════════
 // ROOMS
-let _roomsDone=false;
-async function preGenRooms(){
-  if(_roomsDone||!G.city)return;
-  const lm=CL[G.city]||'city skyline';
-  const styles=['Romantic Minimalist','Contemporary Organic','Modern Dark'];
-  const base=s=>`${s} interior design style, ${LIVING_LAYOUT}, abundant natural light at 10am morning, bright daylight, ${lm} visible through floor-to-ceiling windows`;
-  document.getElementById('ra-ph').innerHTML='<span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span>';
-  const a=await img(base(styles[0]),'Room A');setRCard('ra','ra-ph',a,'a');
-  const b=await img(base(styles[1]),'Room B');setRCard('rb','rb-ph',b,'b');
-  const c=await img(base(styles[2]),'Room C');setRCard('rc','rc-ph',c,'c');
-  G._ru={a,b,c};_roomsDone=true;
+// ══════════════════════════════════════════════════════
+const LIVING_LAYOUT = 'rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, LEFT dining area with wooden dining table and chairs, two glass pendant lights, CENTER BACK TV wall unit with LED underglow, RIGHT large three-seater sofa, round coffee table on area rug, curved accent armchair, FAR END floor-to-ceiling window with sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, large format tile flooring, warm neutral tones';
+let _roomsDone = false;
+let _roomUrls = { a: null, b: null, c: null };
+
+async function preGenRooms() {
+  if (_roomsDone || !G.player.city) return;
+  const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Tokyo':'Tokyo Tower and Shinjuku neon skyline', 'Seoul':'N Seoul Tower and Han River bridges', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
+  const lm = cityLandmarks[G.player.city] || 'city skyline';
+  const styles = ['Romantic Minimalist','Contemporary Organic','Modern Dark'];
+  const base = s => s + ' interior design style, ' + LIVING_LAYOUT + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' visible through floor-to-ceiling windows';
+  const a = await img(base(styles[0]), 'Room A'); setRCard('ra','ra-ph',a,'a'); _roomUrls.a = a;
+  const b = await img(base(styles[1]), 'Room B'); setRCard('rb','rb-ph',b,'b'); _roomUrls.b = b;
+  const c = await img(base(styles[2]), 'Room C'); setRCard('rc','rc-ph',c,'c'); _roomUrls.c = c;
+  _roomsDone = true;
 }
-async function genRooms(){go('s-rooms');if(!_roomsDone)await preGenRooms();}
-function setRCard(cid,pid,url,opt){
-  const ph=document.getElementById(pid);if(!ph||!url)return;
-  const i=document.createElement('img');i.src=url;i.style.cssText='width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;';
-  i.onclick=()=>openLB(url);i.onload=()=>{ph.replaceWith(i);if(G.livingDayUrl)document.getElementById('btn-rooms').style.visibility='visible';};
+
+async function genRooms() { go('s-rooms'); if (!_roomsDone) await preGenRooms(); }
+
+function setRCard(cid, pid, url, opt) {
+  const ph = document.getElementById(pid); if (!ph || !url) return;
+  const i = document.createElement('img');
+  i.src = url; i.style.cssText = 'width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;position:absolute;inset:0;height:100%;';
+  i.onclick = () => openLB(url);
+  i.onload = () => { ph.replaceWith(i); };
 }
-function selRoom(opt){
-  ['ra','rb','rc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+
+function selRoom(opt) {
+  ['ra','rb','rc'].forEach(id => document.getElementById(id)?.classList.remove('sel'));
   document.getElementById('r'+opt)?.classList.add('sel');
-  G.livingDayUrl=G._ru[opt];G.selectedDecor=opt==='a'?'Romantic Minimalist':opt==='b'?'Contemporary Organic':'Modern Dark';
-  document.getElementById('btn-rooms').style.visibility='visible';
+  G.apartment.livingDayUrl = _roomUrls[opt];
+  G.apartment.selectedStyle = opt==='a'?'Romantic Minimalist':opt==='b'?'Contemporary Organic':'Modern Dark';
+  document.getElementById('btn-rooms').style.visibility = 'visible';
   preGenNight();
 }
-async function preGenNight(){
-  const lm=CL[G.city]||'city';
-  // Night: looking toward sofa (opposite direction) to avoid inconsistency
-  const url=await img(`${G.selectedDecor||'Contemporary Organic'} interior design style, apartment living room at night, camera angle from window wall looking toward sofa area, large three-seater sofa with cushions as focal point, coffee table and rug in foreground, warm interior lighting, cozy intimate night mood, city lights softly visible through window behind camera perspective, warm lamp glow`,'Room — Night');
-  G.livingNightUrl=url;G._nightReady=true;
+
+async function preGenNight() {
+  const url = await img(
+    (G.apartment.selectedStyle||'Contemporary Organic') + ' interior design style, apartment living room at night, camera angle from window wall looking toward sofa area, large sofa as focal point, warm interior lighting, city lights softly visible, warm lamp glow'
+  , 'Room — Night');
+  G.apartment.livingNightUrl = url;
 }
 
+// ══════════════════════════════════════════════════════
 // PROTAGONIST
-// IMPORTANT: protagonist prompt uses ONLY player's own heritage, never agent's
-const protoBase=()=>`Naturally beautiful 23-year-old young woman, slender and well-proportioned artist figure, mixed ${G.mother} and ${G.father} heritage ONLY, ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, ${G.hairStyle} ${G.hairColor} hair, editorial beauty with real character`;
-const MIRRORS=[
-  'standing in front of bathroom mirror, over-the-shoulder mirror reflection composition, her back slightly blurred, face in mirror sharp and clear, gently touching cheek and corner of lips, medium close shot, shallow depth of field, soft 10am morning natural light, marble vanity sink visible below mirror, authentic skin texture, cinematic quality',
-  'bathroom vanity mirror, over-shoulder angle, marble countertop and sink visible, 10am morning light from window, thoughtful expression looking at reflection, candid intimate moment, shallow depth of field',
-  'bathroom mirror portrait over sink vanity, direct gaze into mirror, warm vanity lighting, 10am natural morning light, relaxed expression, cinematic shallow focus'
+// ══════════════════════════════════════════════════════
+const MIRRORS = [
+  'standing in front of bathroom mirror, over-the-shoulder reflection composition, face in mirror sharp and clear, gently touching cheek, medium close shot, shallow depth of field, soft morning natural light, marble vanity sink visible, cinematic quality',
+  'bathroom vanity mirror over-shoulder angle, marble countertop visible, 10am morning light from window, thoughtful expression, candid intimate moment',
+  'bathroom mirror portrait, direct gaze into mirror, warm vanity lighting, 10am natural morning light, relaxed expression',
 ];
-async function genProto(){
+
+async function genProto() {
   go('s-proto');
-  const base=protoBase();
-  const a=await img(base+', '+MIRRORS[0],'Portrait A');setTrio('pa',a);
-  const b=await img(base+', '+MIRRORS[1],'Portrait B');setTrio('pb',b);
-  const c=await img(base+', '+MIRRORS[2],'Portrait C');setTrio('pc',c);
-  document.getElementById('btn-rp').style.visibility='visible';
+  const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
+  // Generate sequentially
+  const a = await img(base + ', ' + MIRRORS[0], 'Portrait A'); setTrio('pa', a);
+  const b = await img(base + ', ' + MIRRORS[1], 'Portrait B'); setTrio('pb', b);
+  const c = await img(base + ', ' + MIRRORS[2], 'Portrait C'); setTrio('pc', c);
+  document.getElementById('btn-rp').style.visibility = 'visible';
 }
-async function regenProto(){
-  ['pa','pb','pc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('this_is_me')}</div>`;});
-  document.getElementById('btn-proto').style.display='none';await genProto();
+
+async function regenProto() {
+  ['pa','pb','pc'].forEach(id => { const e = document.getElementById(id); if (!e) return; e.classList.remove('sel'); e.innerHTML = '<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">' + t('this_is_me') + '</div>'; });
+  document.getElementById('btn-proto').style.visibility = 'hidden';
+  await genProto();
 }
-function setTrio(id,url){const el=document.getElementById(id);if(!el||!url)return;const i=document.createElement('img');i.src=url;i.onclick=()=>openLB(url);i.onload=()=>{const ph=el.querySelector('.iph');if(ph)ph.replaceWith(i);};}
-function selProto(opt){
-  ['pa','pb','pc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+
+function setTrio(id, url) {
+  const el = document.getElementById(id); if (!el || !url) return;
+  const i = document.createElement('img');
+  i.src = url; i.onclick = () => openLB(url);
+  i.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';
+  i.onload = () => { const ph = el.querySelector('.iph'); if (ph) ph.replaceWith(i); };
+}
+
+function selProto(opt) {
+  ['pa','pb','pc'].forEach(id => document.getElementById(id)?.classList.remove('sel'));
   document.getElementById('p'+opt)?.classList.add('sel');
-  G.protagonistUrl=G._pu[opt]=G._pu[opt]||null;
-  // Get the actual selected URL
-  const el=document.getElementById('p'+opt);const img_el=el?.querySelector('img');
-  if(img_el){G.protagonistUrl=img_el.src;G.gallery.push({url:img_el.src,label:'Your Portrait'});}
-  document.getElementById('btn-proto').style.visibility='visible';
+  const el = document.getElementById('p'+opt);
+  const imgEl = el?.querySelector('img');
+  if (imgEl) { G.player.portraitUrl = imgEl.src; G.gallery.push({ url: imgEl.src, label: t('this_is_me') }); }
+  document.getElementById('btn-proto').style.visibility = 'visible';
 }
 
-// AGENT
-async function genAgent(){
+// ══════════════════════════════════════════════════════
+// AGENT REVEAL
+// ══════════════════════════════════════════════════════
+async function genAgent() {
   go('s-agent-reveal');
-  const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-  // Agent prompt: ONLY agent's own origin, no player heritage mentioned
-  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features, cold composed expression with hidden warmth, strong jawline, commanding presence, perfect masculine proportions`;
-  const angles=[
-    'standing in high-rise office at night, three-quarter angle, city lights behind through floor-to-ceiling windows, direct intense gaze toward camera',
-    'close-up portrait, slight low angle, office setting, serious expression with subtle complexity and mystery, strong features',
-    'side profile turning toward camera, dark suit lapels visible, city night visible through window, cinematic brooding'
+  // Generate portraits first (using ONLY agent origin)
+  const angles = [
+    'standing in high-rise office at night, three-quarter angle, city lights behind, direct intense gaze toward camera',
+    'close-up portrait, office setting, serious expression with subtle complexity, strong features',
+    'side profile turning toward camera, city night visible through window, cinematic brooding',
   ];
-  // Generate portraits first
-  const a=await img(base+', '+angles[0],'Agent A');setTrio('aga',a);
-  const b=await img(base+', '+angles[1],'Agent B');setTrio('agb',b);
-  const c=await img(base+', '+angles[2],'Agent C');setTrio('agc',c);
-  // Generate name AFTER portraits so name shows up correctly
-  const nameStr=await claude(`Generate a realistic authentic ${G.agentOrigin} full name for a 32-year-old talent agent. The name MUST be a genuine ${G.agentOrigin} name, not a Western name unless the origin is British, American, or Brazilian. For Korean: use Korean name (e.g. Park Jihoon, Kim Seojun). For Japanese: use Japanese name. For French: use French name. For Italian: use Italian name. Cold, sophisticated. Return ONLY the full name, nothing else.`);
-  G.agentName=nameStr.trim().replace(/['"]/g,'');
-  const firstLine=await claude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent with cold exterior and hidden warmth. He approached a street busker named ${G.playerName} after watching her perform for tips several nights. Write his very first words to her. 1-2 sentences, sophisticated, slightly guarded. No quotation marks. Language: ${G.langName}.`);
-  document.getElementById('agent-reveal-box').style.display='block';
-  document.getElementById('agent-name-txt').textContent=G.agentName;
-  document.getElementById('agent-line-txt').innerHTML=`"${firstLine.trim()}"`;
-  document.getElementById('btn-rag').style.visibility='visible';
+  const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A'); setTrio('aga', a);
+  const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B'); setTrio('agb', b);
+  const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C'); setTrio('agc', c);
+  // Generate name AFTER portraits
+  const origin = G.npcs.agent.origin || 'American';
+  const nameStr = await claude('Generate a realistic authentic ' + origin + ' full name for a 32-year-old talent agent. MUST be a genuine ' + origin + ' name, not any other ethnicity. Return ONLY the full name.');
+  G.npcs.agent.name = nameStr.trim().replace(/['"]/g, '');
+  const firstLine = await claude(G.npcs.agent.name + ' is a 32-year-old ' + origin + ' talent agent, cold exterior with hidden warmth. He approached a street busker named ' + G.player.name + ' after watching her for three nights. Write his very first words to her. 1-2 sentences, sophisticated, slightly guarded. No quotes. Language: ' + G.langName + '.');
+  document.getElementById('agent-reveal-box').style.display = 'block';
+  document.getElementById('agent-name-txt').textContent = G.npcs.agent.name;
+  document.getElementById('agent-line-txt').innerHTML = '"' + firstLine.trim() + '"';
+  document.getElementById('btn-rag').style.visibility = 'visible';
 }
-async function regenAgent(){
-  ['aga','agb','agc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('thats_him')}</div>`;});
-  document.getElementById('btn-agent-ok').style.display='none';await genAgent();
+
+async function regenAgent() {
+  ['aga','agb','agc'].forEach(id => { const e = document.getElementById(id); if (!e) return; e.classList.remove('sel'); e.innerHTML = '<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">' + t('thats_him') + '</div>'; });
+  document.getElementById('btn-agent-ok').style.visibility = 'hidden';
+  await genAgent();
 }
-function selAgent(opt){
-  ['aga','agb','agc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
+
+function selAgent(opt) {
+  ['aga','agb','agc'].forEach(id => document.getElementById(id)?.classList.remove('sel'));
   document.getElementById('ag'+opt)?.classList.add('sel');
-  const el=document.getElementById('ag'+opt);const img_el=el?.querySelector('img');
-  if(img_el){G.agentUrl=img_el.src;G.gallery.push({url:img_el.src,label:G.agentName||'Agent'});}
-  document.getElementById('btn-agent-ok').style.visibility='visible';
+  const el = document.getElementById('ag'+opt);
+  const imgEl = el?.querySelector('img');
+  if (imgEl) { G.npcs.agent.portraitUrl = imgEl.src; G.gallery.push({ url: imgEl.src, label: G.npcs.agent.name || 'Agent' }); }
+  document.getElementById('btn-agent-ok').style.visibility = 'visible';
 }
 
+// ══════════════════════════════════════════════════════
+// SIGNING SCENE（街边初见 → 签约过渡）
+// ══════════════════════════════════════════════════════
+let _signingRound = 0;
 
-// ══ AGENT SIGNING SCENE ══
-const SIGNING_DIALOGS=[
-  {
-    // Street meeting Round 1: self-introduction, leaves card
-    getText:(lang,name)=>({
-      'zh-cn':`他在你收好吉他时走了过来。<br><br>"我叫<em style='color:var(--gold)'>${name}</em>，是经纪人。"<br><br>他递给你一张名片。<br>"我已经听你唱了三个晚上了。你有很特别的东西。"`,
-      'zh-tw':`他在你收好吉他時走了過來。<br><br>"我叫<em style='color:var(--gold)'>${name}</em>，是經紀人。"<br><br>他遞給你一張名片。<br>"我已經聽你唱了三個晚上了。你有很特別的東西。"`,
-      'ja':`あなたがギターをしまっているとき、彼が近づいてきた。<br><br>"<em style='color:var(--gold)'>${name}</em>です。マネージャーをしています。"<br><br>彼は名刺を差し出した。<br>"三晩、あなたの歌を聴いていました。特別なものを持っている。"`,
-      'ko':`당신이 기타를 챙기는 사이 그가 다가왔다.<br><br>"저는 <em style='color:var(--gold)'>${name}</em>입니다. 에이전트예요."<br><br>그가 명함을 건넸다.<br>"사흘 밤 동안 노래를 들었습니다. 특별한 게 있어요."`,
-      'en':`He walked over as you were packing up your guitar.<br><br>"My name is <em style='color:var(--gold)'>${name}</em>. I'm a talent agent."<br><br>He held out a card.<br>"I've been listening for three nights. You have something."`,
-    }[lang]||`He walked over as you were packing up your guitar.<br><br>"My name is <em style='color:var(--gold)'>${name}</em>. I'm a talent agent."<br><br>He held out a card.<br>"I've been listening for three nights. You have something."`),
-    opts:(lang)=>({
-      'zh-cn':['你有什么打算？','……我在听。','谢谢。但我不确定。'],
-      'zh-tw':['你有什麼打算？','……我在聽。','謝謝。但我不確定。'],
-      'ja':['どういうつもりですか？','……続けて。','ありがとう。でも迷ってます。'],
-      'ko':['어떤 생각이에요?','……계속 말씀하세요.','감사해요. 하지만 모르겠어요.'],
-      'en':["What do you have in mind?","...Go on.","Thank you. But I'm not sure."],
-    }[lang]||["What do you have in mind?","...Go on.","Thank you. But I'm not sure."]),
-    relChanges:[+8,+10,+3],
-  },
-  {
-    // Street meeting Round 2: proposes meeting, gives card
-    getText:(lang,name)=>({
-      'zh-cn':`"我不是随便找人的。"<br><br>他目光直接地看着你。<br><br>"如果你有兴趣，打给我。我们可以坐下来谈谈。"<br><br>他转身要走，然后停顿了一下。<br>"不急。但别等太久。"`,
-      'zh-tw':`"我不是隨便找人的。"<br><br>他目光直接地看著你。<br><br>"如果你有興趣，打給我。我們可以坐下來談談。"<br><br>他轉身要走，然後停頓了一下。<br>"不急。但別等太久。"`,
-      'ja':`"私は誰でも声をかけるわけじゃない。"<br><br>彼は真っ直ぐにあなたを見た。<br><br>"興味があれば、電話して。話し合いましょう。"<br><br>彼が背を向けかけ、少し間を置いた。<br>"急がなくていい。でも、あまり待たせないで。"`,
-      'ko':`"저는 아무한테나 찾아오지 않아요."<br><br>그가 당신을 똑바로 바라봤다.<br><br>"관심 있으면 전화 주세요. 이야기를 나눠봅시다."<br><br>그가 돌아서다 잠시 멈췄다.<br>"서두르지 않아도 돼요. 하지만 너무 오래 기다리게 하지는 마요."`,
-      'en':`"I don't do this for just anyone."<br><br>He looked at you directly.<br><br>"If you're interested, call me. We can sit down and talk."<br><br>He turned to leave, then paused.<br>"No rush. But don't keep me waiting too long."`,
-    }[lang]||`"I don't do this for just anyone."<br><br>He looked at you directly.<br><br>"If you're interested, call me. We can sit down and talk."<br><br>He turned to leave, then paused.<br>"No rush. But don't keep me waiting too long."`),
-    autoText:(lang)=>({
-      'zh-cn':'你在人群中看着他离开。<br><br>名片在手里，还带着一点温度。<br><br>三天后，你拨了那个号码。<br>他的办公室在24楼。<br><br>你坐在他对面，中间隔着一张玻璃桌。<br>他把合同推到你面前——一年，独家代理。<br><br>你签了。',
-      'zh-tw':'你在人群中看著他離開。<br><br>名片在手裡，還帶著一點溫度。<br><br>三天後，你撥了那個號碼。<br>他的辦公室在24樓。<br><br>你坐在他對面，中間隔著一張玻璃桌。<br>他把合約推到你面前——一年，獨家代理。<br><br>你簽了。',
-      'ja':'あなたは人混みの中で彼が去るのを見ていた。<br><br>名刺はまだ少し温かかった。<br><br>三日後、あなたはその番号に電話した。<br>彼のオフィスは24階にあった。<br><br>ガラスのデスクを挟んで向かい合った。<br>彼は契約書をあなたの前に滑らせた——一年間、専属契約。<br><br>あなたはサインした。',
-      'ko':'당신은 인파 속에서 그가 떠나는 걸 바라봤다.<br><br>명함이 아직 온기를 품고 있었다.<br><br>사흘 후, 당신은 그 번호로 전화를 걸었다.<br>그의 사무실은 24층에 있었다.<br><br>유리 책상을 사이에 두고 마주 앉았다.<br>그가 계약서를 밀어왔다——1년, 전속 계약.<br><br>당신은 사인했다.',
-      'en':'You watched him walk away through the crowd.<br><br>The card was still warm from his hand.<br><br>Three days later, you called the number.<br>His office was on the 24th floor.<br><br>You sat across from him at a glass desk.<br>He slid a contract toward you — one year, exclusive representation.<br><br>You signed it.',
-    }[lang]||'You watched him walk away through the crowd.<br><br>The card was still warm from his hand.<br><br>You made the call.<br>His office was on the 24th floor.'),
-    isAuto:true,
-  },
-];
-
-let _signingRound=0;
-
-function startSigningScene(){
+function startSigningScene() {
   go('s-agent-signing');
-  _signingRound=0;
-  // Set agent portrait as background
-  const bg=document.getElementById('signing-bg');
-  const ph=document.getElementById('signing-bg-ph');
-  if(G.agentUrl){bg.src=G.agentUrl;bg.style.display='block';if(ph)ph.style.display='none';}
-  else if(ph){ph.style.display='flex';}
+  _signingRound = 0;
+  const bg = document.getElementById('signing-bg');
+  const ph = document.getElementById('signing-bg-ph');
+  if (G.npcs.agent.portraitUrl) { bg.src = G.npcs.agent.portraitUrl; bg.style.display = 'block'; if(ph) ph.style.display = 'none'; }
   runSigningDialog(0);
 }
 
-function runSigningDialog(round){
-  const dlg=SIGNING_DIALOGS[round];
-  const lang=G.lang;
-  const speaker=document.getElementById('signing-speaker');
-  const text=document.getElementById('signing-text');
-  const opts=document.getElementById('signing-opts');
-  if(!dlg.isAuto){
-    // Round has player response options
-    speaker.textContent=G.agentName||'Agent';
-    text.innerHTML=dlg.getText(lang,G.agentName);
-    const optTexts=dlg.opts(lang);
-    const relChanges=dlg.relChanges;
-    const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
-    const relClasses=['rel-close','rel-neutral','rel-far'];
-    opts.innerHTML=optTexts.map((o,i)=>`<div class="vn-opt" onclick="chooseSigningOpt(${round},${relChanges[i]},'${o.replace(/'/g,"\'")}')">
-      ${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span>
-    </div>`).join('');
+function runSigningDialog(round) {
+  const rounds = STORY.signingScene.rounds;
+  if (round >= rounds.length) { go('s-ch1'); return; }
+  const dlg = rounds[round];
+  const lang = G.lang;
+  const speaker = document.getElementById('signing-speaker');
+  const text = document.getElementById('signing-text');
+  const opts = document.getElementById('signing-opts');
+  speaker.textContent = G.npcs.agent.name || 'Agent';
+  text.innerHTML = dlg.getNPCLine(G.npcs.agent.name, lang).replace(/\n/g, '<br>');
+  opts.innerHTML = '';
+  if (dlg.isAuto) {
+    var contLabel = lang==='zh-cn'||lang==='zh-tw'?'……':lang==='ja'?'……':lang==='ko'?'……':'...';
+    var autoEl = document.createElement('div');
+    autoEl.className = 'vn-opt';
+    autoEl.style.cssText = 'justify-content:center;font-style:italic;color:var(--ink-muted)';
+    autoEl.textContent = contLabel;
+    autoEl.onclick = (function(r){return function(){showSigningAuto(r);};})(round);
+    opts.appendChild(autoEl);
   } else {
-    // Auto round: agent speaks, then show transition text, then auto to ch1
-    speaker.textContent=G.agentName||'Agent';
-    text.innerHTML=dlg.getText(lang,G.agentName);
-    const contLabel=lang==='zh-cn'||lang==='zh-tw'?'……':lang==='ja'?'……':lang==='ko'?'……':'...';
-    opts.innerHTML=`<div class="vn-opt" onclick="showSigningAuto()" style="justify-content:center;font-style:italic;color:var(--ink-muted)">${contLabel}</div>`;
-  }
-}
-
-function chooseSigningOpt(round,relChange,reply){
-  G.relationships.agent=Math.max(0,Math.min(100,(G.relationships.agent||0)+relChange));
-  const speaker=document.getElementById('signing-speaker');
-  const text=document.getElementById('signing-text');
-  const opts=document.getElementById('signing-opts');
-  speaker.textContent=G.playerName;
-  text.textContent=reply;
-  // Player must tap to continue
-  const lang=G.lang;
-  const contLbl=lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
-  const btn=document.createElement('button');
-  btn.className='vn-next';
-  btn.textContent=contLbl;
-  btn.onclick=()=>runSigningDialog(round+1);
-  opts.innerHTML='';
-  opts.appendChild(btn);
-}
-
-function showSigningAuto(){
-  const lang=G.lang;
-  const speaker=document.getElementById('signing-speaker');
-  const text=document.getElementById('signing-text');
-  const opts=document.getElementById('signing-opts');
-  speaker.textContent='';
-  // autoText is on index 1 (the last dialog)
-  const lastDlg=SIGNING_DIALOGS[SIGNING_DIALOGS.length-1];
-  text.innerHTML=lastDlg.autoText(lang);
-  // Show Continue button - player must tap to proceed
-  const continueLabel=lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
-  const btn=document.createElement('button');
-  btn.className='vn-next';
-  btn.textContent=continueLabel;
-  btn.onclick=()=>{playChapterSound();setTimeout(()=>go('s-ch1'),300);};
-  opts.innerHTML='';
-  opts.appendChild(btn);
-}
-
-// SCRIPTED 5-DAY EVENTS
-const SCRIPTED={
-  1:{npc:'agent',loc:'agent_office',isWork:true,isPublic:false,
-    preText:{en:`Your agent's office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nHe's already sitting behind his desk when you walk in.\nHe doesn't look up immediately.`,
-    'zh-cn':`经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你走进去时，他已经坐在桌后。\n没有立刻抬头看你。`},
-    dialogs:[
-      {speaker_role:'agent',context:`You are ${G.agentName}, a 32-year-old ${G.agentOrigin} talent agent. Cold, precise, in absolute control. This is your first official work meeting with ${G.playerName} after she signed the contract. You are assessing her readiness. You are evaluating her like a product, not a person. Start by giving her a high-pressure directive or critique about her training or preparation. No warmth at all yet. Language: ${G.langName}.`},
-      {speaker_role:'agent',context:`You are ${G.agentName}. Still cold and professional. Now tell ${G.playerName} that you have assembled a band for her — she is the lead singer. The band leader is the drummer. She should go to the recording studio tomorrow to meet him. Warn her that the drummer is difficult and has high standards, but he is the best. Make it sound like an order, not a suggestion. Language: ${G.langName}.`},
-      {speaker_role:'agent',context:`You are ${G.agentName}. The meeting is ending. You are about to dismiss her. But there is one small moment — you do something unexpectedly considerate, like sliding a glass of water toward her without comment, or briefly pausing before she leaves as if you want to say something more, then deciding against it. Reveal nothing. End the scene with controlled distance that barely masks something warmer underneath. Language: ${G.langName}.`},
-    ]
-  },
-  2:{npc:'drummer',loc:'recording_studio',isWork:true,isPublic:false,
-    preText:{en:`The recording studio smells like coffee and ambition.\n\nHe's behind the drum kit when you walk in — not playing, just sitting there, arms crossed, watching you like he's already made up his mind.`,
-    'zh-cn':`录音室里弥漫着咖啡和野心的气息。\n\n你走进来时，他坐在鼓架后面——没在打鼓，只是坐着，双臂交叉，用一种好像已经下了判断的眼神看着你。`},
-    dialogs:[
-      {speaker_role:'drummer',context:'first meeting the new lead singer, skeptical and slightly dismissive of her singing ability, blunt and direct'},
-      {speaker_role:'drummer',context:'challenging her to prove herself, testing her commitment and professionalism, still rough but slightly curious'},
-      {speaker_role:'drummer',context:'reluctant acknowledgment that she might have something, not willing to fully admit it yet, ending with something that could be interpreted as a very guarded compliment'},
-    ],
-    needsOriginBefore:true
-  },
-  3:{npc:'actor',loc:'magazine_shoot',isWork:true,isPublic:true,
-    preText:{en:`You didn't expect to share a shoot with anyone today.\n\nYou hear his laugh through the wall before you see him. When he walks in to say hello, he looks at you the way men like him always do.\n\nLike you're a problem he wouldn't mind having.`,
-    'zh-cn':`你今天没想到会和别人共用拍摄场地。\n\n你先听到他的笑声，才看到人。他走过来打招呼时，用那种他这类男人惯常的眼神看着你。\n\n像是你是个他不介意有的麻烦。`},
-    dialogs:[
-      {speaker_role:'actor',context:'charming introduction, flirtatious from the start, effortlessly confident and charismatic'},
-      {speaker_role:'actor',context:'showing interest but also casually mentioning other women, revealing his playboy nature without shame'},
-      {speaker_role:'actor',context:'trying to make plans with her, charming but leaving ambiguous whether he treats everyone this way'},
-    ],
-    needsOriginBefore:true
-  },
-  4:{npc:'butler',loc:'apartment_lobby',isWork:false,isPublic:false,
-    preText:{en:`You almost walked past him.\n\nHe was crouched in the lobby, carefully placing something on your mailbox. He startled when he heard you — then turned, and you saw his face properly for the first time.\n\nYounger than you expected. A little flustered.`,
-    'zh-cn':`你差点就走过去了。\n\n他蹲在大堂里，小心翼翼地往你的信箱上放东西。听到你的声音，他吓了一跳——然后转过来，你第一次正式看清了他的脸。\n\n比你想象的年轻。有点慌张。`},
-    dialogs:[
-      {speaker_role:'butler',context:'introducing himself as the building manager for this floor, a little nervous and formal, then presenting the lemon cake he made for her, calls her "sister/noona/nee-san" depending on language'},
-      {speaker_role:'butler',context:'explaining he noticed small things about her, earnest and sweet, revealing he pays attention to details'},
-      {speaker_role:'butler',context:'offering help with anything she needs, sincere and devoted, a hint of something more than just professional care'},
-    ],
-    needsOriginBefore:true
-  },
-  5:{npc:'agent',loc:'cafe_meeting',isWork:false,isPublic:true,
-    preText:{en:`He texts at 9am: "Are you free? I'll buy you coffee."\n\nNo reason given. You go anyway.\n\nHe's already there when you arrive. Hands wrapped around a cup, eyes somewhere else.`,
-    'zh-cn':`他早上9点发消息："有空吗？我请你喝咖啡。"\n\n没说原因。你还是去了。\n\n你到的时候他已经在了。双手捧着杯子，眼神在别处。`},
-    dialogs:[
-      {speaker_role:'agent',context:'seemingly casual meeting but with purpose, professional exterior, slightly less guarded than usual'},
-      {speaker_role:'agent',context:'discussing her progress and potential, revealing he has been thinking about her career carefully, something almost like pride'},
-      {speaker_role:'agent',context:'something almost personal, a question or observation that goes beyond work, catching himself, ending ambiguously'},
-    ]
-  },
-};
-
-// DAILY
-async function startDay(){
-  go('s-daily');setABn('bn-home');
-  const days_en=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const days_zh=['周日','周一','周二','周三','周四','周五','周六'];
-  const days_ja=['日','月','火','水','木','金','土'];
-  const days_ko=['일','월','화','수','목','금','토'];
-  // Game starts March 15 = Monday (index 1)
-  const idx=(1+G.day-1)%7;
-  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  const dn=isZh?days_zh[idx]:isJa?days_ja[idx]+'曜日':isKo?days_ko[idx]+'요일':days_en[idx];
-  document.getElementById('d-clock').textContent='8:07';
-  document.getElementById('d-date').textContent=isZh?`${dn} · 第${G.day}天`:isKo?`${dn} · ${G.day}일차`:`${dn} · Day ${G.day}`;
-  if(G.livingDayUrl){document.getElementById('daily-room-img').src=G.livingDayUrl;document.getElementById('daily-room-img').style.display='block';document.getElementById('daily-room-ph').style.display='none';}
-  const ev=SCRIPTED[G.day];
-  const txt=await claude(`Write a very brief (1 sentence) poetic morning thought for ${G.playerName}, 23-year-old singer, Day ${G.day} in ${G.city}. ${ev?`Today she meets her ${ev.npc}.`:''} Second person "You...". Language: ${G.langName}. Return only the text.`);
-  document.getElementById('d-txt').textContent=txt.trim();
-  buildDayOpts();
-  generatePhoneContent();
-  if(!G._nightReady)preGenNight();
-}
-
-function buildDayOpts(){
-  const opts=document.getElementById('d-opts');opts.innerHTML='';
-  const ev=SCRIPTED[G.day];
-  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  const phoneLabel=isZh?'查看手机':isJa?'スマホを確認':isKo?'휴대폰 확인':'Check phone';
-  const phoneSub=isZh?'消息 · 朋友圈 · 行业资讯':isJa?'メッセージ · 業界':isKo?'메시지 · 업계 뉴스':'Messages · Moments · Industry';
-  const makeOpt=(label,sub,cls,onclick)=>{const btn=document.createElement('button');btn.className='daily-opt '+cls;btn.innerHTML=`<div><span>${label}</span><span class="opt-sub">${sub}</span></div><span class="opt-arrow">›</span>`;btn.onclick=onclick;return btn;};
-  if(ev){
-    const actLabel=isZh?getActLabelZh(G.day):isJa?getActLabelJa(G.day):isKo?getActLabelKo(G.day):getActLabelEn(G.day);
-    const actSub=isZh?'今日事件':isJa?'今日のイベント':isKo?'오늘의 이벤트':'Today\'s event';
-    opts.appendChild(makeOpt(actLabel,actSub,'work',()=>playScripted(G.day)));
-  } else {
-    // Free choice
-    const workOps=getWorkOps(lang);const socOps=getSocOps(lang);
-    const shuffle=a=>[...a].sort(()=>Math.random()-0.5);
-    const wPick=shuffle(workOps)[0];const sPicks=shuffle(socOps).slice(0,2);
-    const wSub=isZh?'工作 · +知名度':isJa?'仕事 · +名声':isKo?'커리어 · +명성':'Career · +Fame';
-    const sSub=isZh?'社交 · 可能遇到有趣的人':isJa?'外出 · 誰かに会うかも':isKo?'소셜 · 만남':'Social · May meet someone';
-    opts.appendChild(makeOpt(wPick.label,wSub,'work',()=>playFree(wPick.key,wPick.label,true)));
-    sPicks.forEach(s=>opts.appendChild(makeOpt(s.label,sSub,'',()=>playFree(s.key,s.label,false))));
-  }
-  opts.appendChild(makeOpt(phoneLabel,phoneSub,'phone-btn',()=>{openPhone();setABn('bn-phone');}));
-}
-
-function getActLabelEn(day){const m={1:`Meet ${G.agentName||'your agent'}`,2:`Recording Studio`,3:`Magazine Shoot`,4:`Back to your apartment`,5:`Coffee with ${G.agentName||'your agent'}`};return m[day]||'Today\'s event';}
-function getActLabelZh(day){const m={1:`去见${G.agentName||'经纪人'}`,2:`去录音室`,3:`去杂志拍摄`,4:`回到公寓`,5:`和${G.agentName||'经纪人'}喝咖啡`};return m[day]||'今日事件';}
-function getActLabelJa(day){const m={1:`${G.agentName||'エージェント'}に会いに行く`,2:`レコーディングスタジオ`,3:`雑誌撮影`,4:`アパートに帰る`,5:`${G.agentName||'エージェント'}とコーヒー`};return m[day]||'今日のイベント';}
-function getActLabelKo(day){const m={1:`${G.agentName||'에이전트'} 만나기`,2:`녹음 스튜디오`,3:`잡지 촬영`,4:`아파트로 돌아가기`,5:`${G.agentName||'에이전트'}와 커피`};return m[day]||'오늘 이벤트';}
-
-function getWorkOps(lang){
-  const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  return[{key:'recording_studio',label:isZh?'去录音室':isJa?'レコーディングスタジオ':isKo?'녹음 스튜디오':'Recording Studio'},{key:'magazine_shoot',label:isZh?'杂志拍摄':isJa?'雑誌撮影':isKo?'잡지 촬영':'Magazine Shoot'},{key:'brand_event',label:isZh?'品牌活动':isJa?'ブランドイベント':isKo?'브랜드 행사':'Brand Event'},{key:'music_training',label:isZh?'音乐培训':isJa?'音楽トレーニング':isKo?'음악 트레이닝':'Music Training'}];
-}
-function getSocOps(lang){
-  const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
-  return[{key:'cafe',label:isZh?'咖啡馆':isJa?'カフェ':isKo?'카페':'City Café'},{key:'art_gallery',label:isZh?'美术馆':isJa?'美術館':isKo?'미술관':'Art Gallery'},{key:'night_bar',label:isZh?'夜间酒吧':isJa?'ナイトバー':isKo?'나이트바':'Night Bar'},{key:'street_market',label:isZh?'街边市集':isJa?'マーケット':isKo?'거리 시장':'Street Market'},{key:'bookshop',label:isZh?'书店':isJa?'書店':isKo?'서점':'Bookshop'}];
-}
-
-// SCRIPTED DAY
-async function playScripted(day){
-  const ev=SCRIPTED[day];
-  // Check if NPC needs origin selection first
-  if(ev.needsOriginBefore){
-    const npcKey=ev.npc;
-    const originKey=npcKey+'Origin';
-    if(!G[originKey]){
-      showNPCOrigin(npcKey,async(origin)=>{
-        G[npcKey+'Origin']=origin;
-        await startScriptedScene(day,ev);
-      });
-      return;
-    }
-  }
-  await startScriptedScene(day,ev);
-}
-
-async function startScriptedScene(day,ev){
-  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';
-  const preText=(isZh&&ev.preText['zh-cn'])||ev.preText.en;
-  go('s-scene');
-  // Show placeholder + pre-text immediately, don't wait for image
-  document.getElementById('vn-loading').style.display='none';
-  document.getElementById('vn-bg-ph').style.display='flex';
-  document.getElementById('vn-overlay').style.display='block';
-  document.getElementById('vn-content').style.display='flex';
-  document.getElementById('vn-pre-text').innerHTML=preText.replace(/\n/g,'<br>');
-  document.getElementById('vn-speaker').textContent='';
-  document.getElementById('vn-text').innerHTML=preText.replace(/\n/g,'<br>');
-  document.getElementById('vn-opts').innerHTML='';
-  if(ev.isWork)G.fame=Math.min(100,G.fame+5);
-  // Add NPC to met list after scripted encounter
-  if(ev.npc&&!G.metNPCs.includes(ev.npc))G.metNPCs.push(ev.npc);
-  // Generate image in background - swap in when ready
-  if(ev.npc&&!DEV_MODE){
-    genNPCPortrait(ev.npc,day,ev.loc,ev.isPublic).then(url=>{
-      if(url){document.getElementById('vn-bg').src=url;document.getElementById('vn-bg').style.display='block';document.getElementById('vn-bg-ph').style.display='none';}
+    var optTexts = dlg.options[lang] || dlg.options['en'];
+    var relLabels = [t('close_lbl'), t('neutral_lbl'), t('far_lbl')];
+    var relClasses = ['rel-close','rel-neutral','rel-far'];
+    optTexts.forEach(function(o, i) {
+      var el = document.createElement('div');
+      el.className = 'vn-opt';
+      el.innerHTML = o + '<span class="rel-tag ' + relClasses[i] + '">' + relLabels[i] + '</span>';
+      el.onclick = (function(rnd, rc, reply){return function(){chooseSigningOpt(rnd, rc, reply);};})(round, dlg.relChanges[i], o);
+      opts.appendChild(el);
     });
   }
-  // Start dialogue immediately - agent intro on day 1
-  G.vnDialogRound=0;G.vnMaxRounds=ev.dialogs.length;G.vnCurrentNPC=ev.npc;
-  // Show Continue button to start dialogue - player must tap
-  const contLbl=G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
-  const startBtn=document.createElement('button');
-  startBtn.className='vn-next';
-  startBtn.textContent=contLbl;
-  startBtn.onclick=()=>runVNDialog(ev.dialogs,ev.npc,G.day,0);
+}
+
+function chooseSigningOpt(round, relChange, reply) {
+  STATE.relationships.change('agent', relChange);
+  STATE.memory.addEvent('agent', 'Street meeting round ' + (round+1) + '. Player said: "' + reply + '"', 0);
+  const speaker = document.getElementById('signing-speaker');
+  const text = document.getElementById('signing-text');
+  const opts = document.getElementById('signing-opts');
+  speaker.textContent = G.player.name;
+  text.textContent = reply;
+  const contLabel = G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
+  const btn = document.createElement('button'); btn.className = 'vn-next'; btn.textContent = contLabel;
+  btn.onclick = () => runSigningDialog(round + 1);
+  opts.innerHTML = ''; opts.appendChild(btn);
+}
+
+function showSigningAuto(round) {
+  const dlg = STORY.signingScene.rounds[round];
+  const lang = G.lang;
+  const speaker = document.getElementById('signing-speaker');
+  const text = document.getElementById('signing-text');
+  const opts = document.getElementById('signing-opts');
+  speaker.textContent = '';
+  text.innerHTML = (dlg.autoText[lang] || dlg.autoText['en']).replace(/\n/g, '<br>');
+  const contLabel = lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+  const btn = document.createElement('button'); btn.className = 'vn-next'; btn.textContent = contLabel;
+  btn.onclick = () => { playChapterSound(); setTimeout(() => go('s-ch1'), 300); };
+  opts.innerHTML = ''; opts.appendChild(btn);
+}
+
+// ══════════════════════════════════════════════════════
+// CHAPTER ONE SCREEN
+// ══════════════════════════════════════════════════════
+function updateChapterScreen() {
+  document.getElementById('ch-name').textContent = G.player.name || '—';
+  document.getElementById('ch-city').textContent = G.player.city || '—';
+  document.getElementById('ch-agent').textContent = G.npcs.agent.name || '—';
+  const fr = getCurFame(G.fame);
+  document.getElementById('ch-fame').textContent = fr.emoji + ' ' + getFameLabel(G.lang, fr);
+}
+
+// ══════════════════════════════════════════════════════
+// NPC ORIGIN SHEET
+// ══════════════════════════════════════════════════════
+let _pendingNPCKey = null;
+let _pendingNPCCallback = null;
+let _selectedNPCOrigin = null;
+
+function showNPCOrigin(npcKey, callback) {
+  _pendingNPCKey = npcKey; _pendingNPCCallback = callback; _selectedNPCOrigin = null;
+  const origins = t('agent_origins'); const subs = t('agent_origin_subs');
+  const vals = ['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
+  document.getElementById('nos-title').textContent = t('npc_origin_title');
+  document.getElementById('nos-sub').textContent = t('npc_origin_sub');
+  var nosGrid = document.getElementById('nos-grid');
+  nosGrid.innerHTML = '';
+  origins.forEach(function(o, i) {
+    var el = document.createElement('div');
+    el.className = 'nos-card';
+    el.dataset.val = vals[i];
+    el.innerHTML = o + '<br><span style="font-size:9px;color:var(--ink-muted)">' + (subs[i]||'') + '</span>';
+    el.onclick = (function(v){return function(){selNPCOrigin(v, this);};})(vals[i]);
+    nosGrid.appendChild(el);
+  });
+  document.getElementById('nos-confirm').style.visibility = 'hidden';
+  document.getElementById('npc-origin-overlay').classList.add('open');
+}
+
+function selNPCOrigin(val, el) {
+  document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  _selectedNPCOrigin = val;
+  document.getElementById('nos-confirm').style.visibility = 'visible';
+}
+
+function confirmNPCOrigin() {
+  document.getElementById('npc-origin-overlay').classList.remove('open');
+  if (_pendingNPCCallback && _selectedNPCOrigin) {
+    G.npcs[_pendingNPCKey].origin = _selectedNPCOrigin;
+    _pendingNPCCallback(_selectedNPCOrigin);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// DAILY SCREEN
+// ══════════════════════════════════════════════════════
+async function startDay() {
+  go('s-daily'); setABn('bn-home');
+  const days_en = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const days_zh = ['周日','周一','周二','周三','周四','周五','周六'];
+  const days_ja = ['日','月','火','水','木','金','土'];
+  const days_ko = ['일','월','화','수','목','금','토'];
+  const idx = (1 + G.day - 1) % 7; // March 15 = Monday = index 1
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const dn = isZh?days_zh[idx]:lang==='ja'?days_ja[idx]+'曜日':lang==='ko'?days_ko[idx]+'요일':days_en[idx];
+  const monthDay = getGameDate(G.day);
+  document.getElementById('d-clock').textContent = '8:07';
+  document.getElementById('d-date').textContent = isZh ? dn + ' · ' + monthDay + ' · 第' + G.day + '天' : lang==='ko' ? dn + ' · ' + monthDay + ' · ' + G.day + '일차' : dn + ' · ' + monthDay + ' · Day ' + G.day;
+  if (G.apartment.livingDayUrl) {
+    document.getElementById('daily-room-img').src = G.apartment.livingDayUrl;
+    document.getElementById('daily-room-img').style.display = 'block';
+    document.getElementById('daily-room-ph').style.display = 'none';
+  }
+  const ev = STORY.utils.getScriptedEvent(G.day);
+  const txt = await claude('Write a very brief (1 sentence) poetic morning thought for ' + G.player.name + ', 23-year-old singer, Day ' + G.day + ' in ' + G.player.city + '.' + (ev?' Today she meets her ' + ev.npc + '.':'') + ' Second person "You...". Language: ' + G.langName + '. Return only the text.');
+  document.getElementById('d-txt').textContent = txt.trim();
+  buildDayOpts();
+  generatePhoneContent();
+  if (!G.apartment.livingNightUrl) preGenNight();
+}
+
+function getGameDate(day) {
+  // Start: March 15
+  const start = new Date(2024, 2, 15); // month is 0-indexed
+  const current = new Date(start);
+  current.setDate(start.getDate() + day - 1);
+  const months_en = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months_zh = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  if (isZh) return months_zh[current.getMonth()] + current.getDate() + '日';
+  return months_en[current.getMonth()] + ' ' + current.getDate();
+}
+
+function buildDayOpts() {
+  const opts = document.getElementById('d-opts'); opts.innerHTML = '';
+  const ev = STORY.utils.getScriptedEvent(G.day);
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const phoneLabel = isZh?'查看手机':lang==='ja'?'スマホを確認':lang==='ko'?'휴대폰 확인':'Check phone';
+  const phoneSub = isZh?'消息 · 朋友圈 · 行业资讯':'Messages · Moments · Industry';
+  const makeOpt = (label, sub, cls, onclick) => {
+    const btn = document.createElement('button');
+    btn.className = 'daily-opt ' + cls;
+    btn.innerHTML = '<div><span>' + label + '</span><span class="opt-sub">' + sub + '</span></div><span class="opt-arrow">›</span>';
+    btn.onclick = onclick;
+    return btn;
+  };
+  if (ev) {
+    const actLabel = getScriptedLabel(ev, G.day, lang);
+    const actSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
+    opts.appendChild(makeOpt(actLabel, actSub, 'work', () => playScripted(G.day)));
+  } else {
+    const workOps = getWorkOps(lang); const socOps = getSocOps(lang);
+    const shuffle = a => [...a].sort(() => Math.random()-0.5);
+    const wPick = shuffle(workOps)[0]; const sPicks = shuffle(socOps).slice(0,2);
+    const wSub = isZh?'工作 · +知名度':'Career · +Fame';
+    const sSub = isZh?'社交 · 可能遇到有趣的人':'Social · May meet someone';
+    opts.appendChild(makeOpt(wPick.label, wSub, 'work', () => playFree(wPick.key, wPick.label, true)));
+    sPicks.forEach(s => opts.appendChild(makeOpt(s.label, sSub, '', () => playFree(s.key, s.label, false))));
+  }
+  opts.appendChild(makeOpt(phoneLabel, phoneSub, 'phone-btn', () => { openPhone(); setABn('bn-phone'); }));
+}
+
+function getScriptedLabel(ev, day, lang) {
+  const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const name = getNPCName(ev.npc);
+  if (day===1) return isZh ? '去见' + name : 'Meet ' + name;
+  if (day===2) return isZh ? '去录音室' : 'Recording Studio';
+  if (day===3) return isZh ? '去杂志拍摄' : 'Magazine Shoot';
+  if (day===4) return isZh ? '回到公寓' : 'Back to the apartment';
+  if (day===5) return isZh ? '和' + name + '喝咖啡' : 'Coffee with ' + name;
+  return isZh ? '今日剧情' : "Today's story";
+}
+
+function getWorkOps(lang) {
+  const isZh = lang==='zh-cn'||lang==='zh-tw';
+  return [
+    { key:'recording_studio', label:isZh?'去录音室':lang==='ja'?'レコーディングスタジオ':lang==='ko'?'녹음 스튜디오':'Recording Studio' },
+    { key:'magazine_shoot',   label:isZh?'杂志拍摄':lang==='ja'?'雑誌撮影':lang==='ko'?'잡지 촬영':'Magazine Shoot' },
+    { key:'brand_event',      label:isZh?'品牌活动':lang==='ja'?'ブランドイベント':lang==='ko'?'브랜드 행사':'Brand Event' },
+    { key:'music_training',   label:isZh?'音乐培训':lang==='ja'?'音楽トレーニング':lang==='ko'?'음악 트레이닝':'Music Training' },
+  ];
+}
+function getSocOps(lang) {
+  const isZh = lang==='zh-cn'||lang==='zh-tw';
+  return [
+    { key:'cafe',         label:isZh?'咖啡馆':lang==='ja'?'カフェ':lang==='ko'?'카페':'City Café' },
+    { key:'art_gallery',  label:isZh?'美术馆':lang==='ja'?'美術館':lang==='ko'?'미술관':'Art Gallery' },
+    { key:'night_bar',    label:isZh?'夜间酒吧':lang==='ja'?'ナイトバー':lang==='ko'?'나이트바':'Night Bar' },
+    { key:'street_market',label:isZh?'街边市集':lang==='ja'?'マーケット':lang==='ko'?'거리 시장':'Street Market' },
+    { key:'bookshop',     label:isZh?'书店':lang==='ja'?'書店':lang==='ko'?'서점':'Bookshop' },
+  ];
+}
+
+// ══════════════════════════════════════════════════════
+// VISUAL NOVEL SCENE
+// ══════════════════════════════════════════════════════
+async function playScripted(day) {
+  const ev = STORY.utils.getScriptedEvent(day);
+  if (!ev) return;
+  if (ev.needsOriginBefore && !G.npcs[ev.npc].origin) {
+    showNPCOrigin(ev.npc, async () => await startScriptedScene(day, ev));
+    return;
+  }
+  await startScriptedScene(day, ev);
+}
+
+async function startScriptedScene(day, ev) {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const preText = (ev.preText[lang] || ev.preText[isZh?'zh-cn':'en'] || ev.preText['en'] || '').replace(/\n/g, '<br>');
+  go('s-scene');
+  // Show immediately without waiting for image
+  document.getElementById('vn-loading').style.display = 'none';
+  document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-overlay').style.display = 'block';
+  document.getElementById('vn-content').style.display = 'flex';
+  document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').innerHTML = preText;
+  document.getElementById('vn-opts').innerHTML = '';
+  if (ev.isWork) { G.fame = Math.min(100, G.fame + 5); G.daysWithoutWork = 0; }
+  if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
+  // Load image in background
+  genNPCPortrait(ev.npc, day, ev.location).then(url => {
+    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+  });
+  // Show Continue button to start dialogue
+  const contLabel = lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+  const startBtn = document.createElement('button'); startBtn.className = 'vn-next'; startBtn.textContent = contLabel;
+  startBtn.onclick = () => runVNDialog(ev.dialogRounds, ev.npc, day, 0);
   document.getElementById('vn-opts').appendChild(startBtn);
 }
 
-async function showVNScene(sceneUrl,dialogs,npcKey,day){
-  document.getElementById('vn-loading').style.display='none';
-  if(sceneUrl){document.getElementById('vn-bg').src=sceneUrl;document.getElementById('vn-bg').style.display='block';}
-  else{document.getElementById('vn-bg-ph').style.display='flex';}
-  document.getElementById('vn-overlay').style.display='block';
-  document.getElementById('vn-content').style.display='flex';
-  await runVNDialog(dialogs,npcKey,day,0);
-}
-
-async function runVNDialog(dialogs,npcKey,day,round){
-  if(round>=dialogs.length){
-    const endBtn=document.createElement('button');
-    endBtn.className='vn-next';
-    endBtn.textContent=t('end_day')||'End the day';
-    endBtn.onclick=goEvening;
-    document.getElementById('vn-opts').innerHTML='';
-    document.getElementById('vn-opts').appendChild(endBtn);
-    document.getElementById('vn-speaker').textContent='';
-    document.getElementById('vn-text').textContent='';
+async function runVNDialog(dialogRounds, npcKey, day, round) {
+  if (round >= dialogRounds.length) {
+    const endBtn = document.createElement('button'); endBtn.className = 'vn-next';
+    endBtn.textContent = t('end_day') || 'End the day'; endBtn.onclick = goEvening;
+    document.getElementById('vn-opts').innerHTML = ''; document.getElementById('vn-opts').appendChild(endBtn);
+    document.getElementById('vn-speaker').textContent = ''; document.getElementById('vn-text').textContent = '';
     return;
   }
-
-  const dlg=dialogs[round];
-  const npcName=getNPCName(npcKey);
-  document.getElementById('vn-speaker').textContent=npcName;
-  document.getElementById('vn-text').textContent='...';
-  document.getElementById('vn-opts').innerHTML=`<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>`;
-  // Generate NPC line
-  const rel=G.relationships[npcKey]||0;
-  const npcLine=await claude(`You are ${npcName}, a character in a romance game. ${getNPCPersonality(npcKey)} Current relationship with ${G.playerName}: ${rel}/100. Round ${round+1} of conversation (${dlg.context}). Write your dialogue line. 1-2 sentences, in character, natural. No quotes. Language: ${G.langName}.`);
-  document.getElementById('vn-text').textContent=npcLine.trim();
-  // Generate 3 response options
-  const optPrompt=`${G.playerName} just heard: "${npcLine.trim()}". Generate exactly 3 short response options (each under 12 words). Option 1: warm/close response (+relationship). Option 2: neutral/polite response (neutral). Option 3: cold/distant response (-relationship). Return ONLY a JSON array of exactly 3 strings. Validate each string is meaningful (not "..." or empty). Language: ${G.langName}.`;
-  let opts=['I see.','Okay.','I need to go.'];
-  try{const raw=await claude(optPrompt);const p=JSON.parse(raw.replace(/```json|```/g,'').trim());if(Array.isArray(p)&&p.length===3&&p.every(o=>o&&o.trim().length>2))opts=p;}catch{}
-  const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
-  const relChanges=[+15,+3,-5];const relClasses=['rel-close','rel-neutral','rel-far'];
-  document.getElementById('vn-opts').innerHTML=opts.map((o,i)=>`<div class="vn-opt" onclick="chooseVNOpt('${npcKey}',${relChanges[i]},'${o.replace(/'/g,"\\'")}',${JSON.stringify(dialogs)},${day},${round})">${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span></div>`).join('');
-}
-
-async function chooseVNOpt(npcKey,relChange,playerReply,dialogs,day,round){
-  G.relationships[npcKey]=Math.max(0,Math.min(100,(G.relationships[npcKey]||0)+relChange));
-  // Show player reply briefly then next round
-  document.getElementById('vn-speaker').textContent=G.playerName;
-  document.getElementById('vn-text').textContent=playerReply;
-  // Show tap-to-continue instead of auto-advance
-  const tapLbl=G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
-  const tapBtn=document.createElement('button');
-  tapBtn.className='vn-next';
-  tapBtn.textContent=tapLbl;
-  tapBtn.onclick=()=>runVNDialog(dialogs,npcKey,day,round+1);
-  document.getElementById('vn-opts').innerHTML='';
-  document.getElementById('vn-opts').appendChild(tapBtn);
-}
-
-function getNPCName(key){if(key==='agent')return G.agentName||'Agent';if(key==='drummer')return G.drummerName||'Drummer';if(key==='actor')return G.actorName||'Actor';if(key==='butler')return G.butlerName||'Butler';return key;}
-function getNPCPersonality(key){
-  const chapter=Math.ceil(G.day/30);
-  const rel=G.relationships[key]||0;
-  const agentCtx=chapter<=2?'You are the absolute authority figure, strict and evaluating. Almost no warmth shown yet.':chapter<=4?'Cracks are forming in your cold exterior. You protect her instinctively but deny it.':chapter<=6?'You are beginning to lose control of your feelings but fight it with professionalism.':'The pretense is crumbling. Your protectiveness has become something you can no longer hide.';
-  const drummerCtx=chapter<=1?'You are openly dismissive of her singing ability.':chapter<=3?'You noticed something in her voice that surprised you, but refuse to admit it.':chapter<=5?'You are clearly falling for her but express it through fierce protectiveness.':'You are deeply attached but terrified of showing it.';
-  const actorCtx=chapter<=2?'You are in full seduction mode — playful, provocative, effortlessly charming.':chapter<=5?'Genuine interest is emerging beneath the performance, but old habits die hard.':chapter<=7?'Your feelings are becoming real and that terrifies you.':'You have dropped most of the act.';
-  const detectiveCtx=chapter<=3?'Your interest is professional — mostly. You are using her as an information source.':chapter<=6?'Your professional detachment is eroding. You find reasons to see her.':'The case is almost closed. What remains feels dangerously personal.';
-  const butlerCtx=chapter<=4?'You are purely devoted and warm. Your darker complicated side is completely hidden.':chapter<=6?'Small cracks appear — an unguarded look when her agent is mentioned.':chapter<=7?'The secret is about to break. Your warmth is real but so is your complicated motivation.':'Everything is in the open. You are trying to be just a good person who genuinely loves her.';
-  const p={
-    agent:`You are ${G.agentName||'the agent'}, a 32-year-old ${G.agentOrigin||'talented'} talent agent. Cold exterior masking deep warmth and protectiveness. Chapter ${chapter}, relationship ${rel}/100. ${agentCtx} Language: ${G.langName}.`,
-    drummer:`You are ${G.drummerName||'the drummer'}, a 26-year-old ${G.drummerOrigin||'passionate'} rock drummer and band leader. Direct, rough, fiercely loyal, terrible at expressing feelings. Chapter ${chapter}, relationship ${rel}/100. ${drummerCtx} Language: ${G.langName}.`,
-    actor:`You are ${G.actorName||'the actor'}, a 29-year-old ${G.actorOrigin||'charming'} rising actor. Charming and flirtatious, possibly seeing multiple women. Chapter ${chapter}, relationship ${rel}/100. ${actorCtx} Language: ${G.langName}.`,
-    detective:`You are ${G.detectiveName||'the detective'}, a 36-year-old ${G.detectiveOrigin||'perceptive'} private detective. Quietly intense, observes everything. Secretly investigating the agent's father. Chapter ${chapter}, relationship ${rel}/100. ${detectiveCtx} Language: ${G.langName}.`,
-    butler:`You are ${G.butlerName||'the butler'}, a 20-year-old ${G.butlerOrigin||'warm-hearted'} building manager. Earnest, caring, calls ${G.playerName} "姐姐/noona/nee-san/sis". HIDDEN: you are the agent's younger brother who discovered ${G.playerName} on the street. Chapter ${chapter}, relationship ${rel}/100. ${butlerCtx} Language: ${G.langName}.`,
-  };
-  return p[key]||key;
-}
-
-async function genNPCPortrait(npcKey,day,loc,isPublic){
-  // Generate name for NPC if not yet set
-  if(npcKey==='drummer'&&!G.drummerName&&G.drummerOrigin){
-    const n=await claude(`Generate a realistic authentic ${G.drummerOrigin} first name for a 26-year-old rock drummer. MUST be a genuine ${G.drummerOrigin} name. Return ONLY the first name.`);
-    G.drummerName=n.trim().replace(/['"]/g,'');
+  const dlg = dialogRounds[round];
+  const npcName = getNPCName(npcKey);
+  const lang = G.langName;
+  document.getElementById('vn-speaker').textContent = npcName;
+  document.getElementById('vn-text').textContent = '...';
+  document.getElementById('vn-opts').innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
+  // Build prompt using story bible + memory system
+  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext);
+  const npcLine = await claude(memoryContext + '\n\nNow write your dialogue line. 1-2 sentences, completely in character. No quotes. Just the speech.');
+  document.getElementById('vn-speaker').textContent = npcName;
+  document.getElementById('vn-text').textContent = npcLine.trim();
+  // Generate options
+  const playerLang = G.lang; const isZh = playerLang==='zh-cn'||playerLang==='zh-tw';
+  // Use scripted options if available
+  let opts = null;
+  if (dlg.playerOptions) {
+    opts = dlg.playerOptions[playerLang] || dlg.playerOptions['en'];
   }
-  if(npcKey==='actor'&&!G.actorName&&G.actorOrigin){
-    const n=await claude(`Generate a realistic authentic ${G.actorOrigin} full name for a 29-year-old actor. MUST be a genuine ${G.actorOrigin} name. Return ONLY the full name.`);
-    G.actorName=n.trim().replace(/['"]/g,'');
+  if (!opts) {
+    // Generate dynamically
+    const optPrompt = G.player.name + ' just heard: "' + npcLine.trim() + '". Generate exactly 3 short response options (under 12 words each). 1: warm/close. 2: neutral. 3: cold/distant. Return ONLY a JSON array of 3 strings. Language: ' + lang + '.';
+    try { const raw = await claude(optPrompt); const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); if (Array.isArray(p)&&p.length===3&&p.every(o=>o&&o.trim().length>2)) opts=p; } catch {}
+    if (!opts) opts = isZh?['好的，我明白了。','……我在听。','我还有事。']:['I understand.','...I see.','I have to go.'];
   }
-  if(npcKey==='butler'&&!G.butlerName&&G.butlerOrigin){
-    const n=await claude(`Generate a realistic authentic ${G.butlerOrigin} first name for a 20-year-old young man, sweet and warm. MUST be a genuine ${G.butlerOrigin} name. Return ONLY the first name.`);
-    G.butlerName=n.trim().replace(/['"]/g,'');
-  }
-  const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-  const detShadow=getDetShadow(isPublic);
-  let prompt='';
-  const sceneComp=SCENE_COMPS[loc]||'elegant setting';
-  if(npcKey==='agent'){
-    const ast=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-    prompt=`Strikingly handsome 32-year-old ${G.agentOrigin} man, ${ast.hair}, ${ast.skin} skin tone, ${ast.suit}, sharp distinguished features with depth, cold composed expression with hidden intensity, strong jawline, perfect masculine proportions, ${sceneComp}, direct piercing gaze`;
-  } else if(npcKey==='drummer'){
-    const dst=AS[G.drummerOrigin]||{hair:'dark tousled hair',skin:'medium',suit:'casual dark clothing'};
-    prompt=`Handsome athletic 26-year-old ${G.drummerOrigin||'American'} man, ${dst.hair}, ${dst.skin} skin, casual dark clothing, rock drummer energy, strong capable hands, slightly edgy style, evaluating expression, smoldering attractive, ${sceneComp}`;
-  } else if(npcKey==='actor'){
-    const act=AS[G.actorOrigin]||{hair:'perfectly styled hair',skin:'medium',suit:'fashionable stylish outfit'};
-    prompt=`Devastatingly handsome 29-year-old ${G.actorOrigin||'American'} man, ${act.hair}, ${act.skin} skin, ${act.suit}, model-perfect features and physique, effortlessly charismatic smirk, flirtatious confident energy, ${sceneComp}`;
-  } else if(npcKey==='butler'){
-    const but=AS[G.butlerOrigin]||{hair:'clean neat dark hair',skin:'medium light',suit:'neat building manager uniform'};
-    prompt=`Adorable yet handsome 20-year-old ${G.butlerOrigin||'Asian'} young man, ${but.hair}, ${but.skin} skin tone, neat uniform, clean-cut innocent features, slightly flushed cheeks, earnest warm expression, holding a lemon cake box carefully, ${sceneComp}`;
-  }
-  const _npcSeason=OUTDOOR_LOCS.includes(loc)?", "+getSeasonPrompt(day,G.city):"";return await img(prompt+_npcSeason+detShadow,`${npcKey} — Day ${day}`,true,2);
+  const relLabels = [t('close_lbl'), t('neutral_lbl'), t('far_lbl')];
+  const relChanges = [+15, +3, -5];
+  const relClasses = ['rel-close','rel-neutral','rel-far'];
+  var vopts2 = document.getElementById('vn-opts');
+  vopts2.innerHTML = '';
+  opts.forEach(function(o, i) {
+    var el = document.createElement('div');
+    el.className = 'vn-opt';
+    el.innerHTML = o + '<span class="rel-tag ' + relClasses[i] + '">' + relLabels[i] + '</span>';
+    el.onclick = (function(key, rc, reply, dlgs, d, r){return function(){chooseVNOpt(key, rc, reply, dlgs, d, r);};})(npcKey, relChanges[i], o, dialogRounds, day, round);
+    vopts2.appendChild(el);
+  });
 }
 
-// FREE DAY
-async function playFree(locKey,locLabel,isWork){
-  go('s-scene');
-  document.getElementById('vn-loading').style.display='flex';
-  document.getElementById('vn-pre-text').textContent='';
-  document.getElementById('vn-bg').style.display='none';
-  document.getElementById('vn-bg-ph').style.display='flex';
-  document.getElementById('vn-overlay').style.display='none';
-  document.getElementById('vn-content').style.display='none';
-  if(isWork){G.fame=Math.min(100,G.fame+Math.floor(Math.random()*6)+3);G.daysWithoutWork=0;}
-  else{G.daysWithoutWork++;if(G.daysWithoutWork>=3)G.fame=Math.max(0,G.fame-2);}
-  // Determine NPC encounter
-  const npcTable={recording_studio:'drummer',magazine_shoot:'actor',brand_event:Math.random()>0.5?'actor':'agent',music_training:null,cafe:Math.random()>0.5?'butler':null,art_gallery:null,night_bar:Math.random()>0.4?'drummer':null,street_market:Math.random()>0.5?'butler':null,bookshop:null};
-  let meetNPC=npcTable[locKey]||null;
-  if(meetNPC&&!G.metNPCs.includes(meetNPC))meetNPC=null;// Haven't met yet
-  const isPublic=PUBLIC_LOCS.includes(locKey);
-  const sceneComp=SCENE_COMPS[locKey]||'elegant urban setting';
-  const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';
-  // Generate scene narrative
-  const preText=await claude(`${G.playerName}, 23-year-old singer in ${G.city}, is spending time at: ${locLabel}. ${meetNPC?`She runs into ${getNPCName(meetNPC)}.`:''} Write 1-2 sentences of vivid scene-setting. Language: ${G.langName}. Return only the text.`);
-  document.getElementById('vn-pre-text').innerHTML=preText.replace(/\n/g,'<br>');
-  // Show scene immediately without waiting for image
-  document.getElementById('vn-loading').style.display='none';
-  document.getElementById('vn-bg-ph').style.display='flex';
-  document.getElementById('vn-overlay').style.display='block';
-  document.getElementById('vn-content').style.display='flex';
-  document.getElementById('vn-speaker').textContent='';
-  document.getElementById('vn-text').innerHTML=preText.replace(/\n/g,'<br>');
-  document.getElementById('vn-opts').innerHTML='';
-  if(meetNPC){
-    if(!G.metNPCs.includes(meetNPC))G.metNPCs.push(meetNPC);
-    // Load NPC portrait in background
-    genNPCPortrait(meetNPC,G.day,locKey,isPublic).then(url=>{
-      if(url){document.getElementById('vn-bg').src=url;document.getElementById('vn-bg').style.display='block';document.getElementById('vn-bg-ph').style.display='none';}
-    });
-    await runFreeDlg(meetNPC,locLabel);
-  } else {
-    // Load protagonist in background
-    const _seasonDesc=OUTDOOR_LOCS.includes(locKey)?', '+getSeasonPrompt(G.day,G.city):'';
-    const protoPrompt=`Beautiful slender 23-year-old woman, ${G.mother} and ${G.father} heritage ONLY, ${G.motherEyes} eyes, ${G.fatherSkin} skin, ${G.hairStyle} ${G.hairColor} hair, artist physique, ${sceneComp}${_seasonDesc}${getDetShadow(isPublic)}`;
-    img(protoPrompt,locLabel,true).then(url=>{
-      if(url){document.getElementById('vn-bg').src=url;document.getElementById('vn-bg').style.display='block';document.getElementById('vn-bg-ph').style.display='none';}
-    });
-    const endBtn=document.createElement('button');endBtn.className='vn-next';endBtn.textContent=t('end_day')||'End the day';endBtn.onclick=goEvening;
-    document.getElementById('vn-opts').appendChild(endBtn);
-  }
-}
-
-async function runFreeDlg(npcKey,locLabel){
-  const npcName=getNPCName(npcKey);const rel=G.relationships[npcKey]||0;
-  document.getElementById('vn-speaker').textContent=npcName;
-  document.getElementById('vn-text').textContent='...';
-  document.getElementById('vn-opts').innerHTML=`<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>`;
-  const line=await claude(`You are ${npcName}. ${getNPCPersonality(npcKey)} You unexpectedly run into ${G.playerName} at ${locLabel}. Relationship: ${rel}/100. Write a natural opening remark (1-2 sentences, in character). No quotes. Language: ${G.langName}.`);
-  document.getElementById('vn-text').textContent=line.trim();
-  const optP=`${G.playerName} just heard: "${line.trim()}". Generate 3 short responses (under 12 words each). 1: warm/close (+relationship). 2: neutral. 3: cold/distant (-relationship). ONLY a JSON array of 3 non-empty strings. Language: ${G.langName}.`;
-  let opts=['Hi there.','Oh, hello.','I\'m busy.'];
-  try{const raw=await claude(optP);const p=JSON.parse(raw.replace(/```json|```/g,'').trim());if(Array.isArray(p)&&p.length===3&&p.every(o=>o&&o.trim().length>2))opts=p;}catch{}
-  const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
-  const relChanges=[+10,+2,-4];const relClasses=['rel-close','rel-neutral','rel-far'];
-  document.getElementById('vn-opts').innerHTML=opts.map((o,i)=>`<div class="vn-opt" onclick="quickResp('${npcKey}',${relChanges[i]},'${o.replace(/'/g,"\\'")}')">${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span></div>`).join('');
-}
-
-async function quickResp(npcKey,relChange,reply){
-  G.relationships[npcKey]=Math.max(0,Math.min(100,(G.relationships[npcKey]||0)+relChange));
-  document.getElementById('vn-speaker').textContent=G.playerName;
-  document.getElementById('vn-text').textContent=reply;
-  const endBtn=document.createElement('button');
-  endBtn.className='vn-next';
-  endBtn.textContent=t('end_day')||'End the day';
-  endBtn.onclick=goEvening;
-  document.getElementById('vn-opts').innerHTML='';
+async function quickResp(npcKey, relChange, reply) {
+  STATE.relationships.change(npcKey, relChange);
+  const npcText = document.getElementById('vn-text').textContent;
+  STATE.memory.recordDialogue(npcKey, G.day, npcText, reply);
+  document.getElementById('vn-speaker').textContent = G.player.name;
+  document.getElementById('vn-text').textContent = reply;
+  document.getElementById('vn-opts').innerHTML = '';
+  const endBtn = document.createElement('button'); endBtn.className='vn-next'; endBtn.textContent=t('end_day')||'End the day'; endBtn.onclick=goEvening;
   document.getElementById('vn-opts').appendChild(endBtn);
 }
 
+// ══════════════════════════════════════════════════════
 // EVENING
-async function goEvening(){
+// ══════════════════════════════════════════════════════
+async function goEvening() {
   go('s-evening');
-  // Night room
-  if(G.livingNightUrl){setImg('eve-img','eve-ph',G.livingNightUrl);}
-  else{preGenNight().then(()=>{if(G.livingNightUrl)setImg('eve-img','eve-ph',G.livingNightUrl);});}
-  const fr=getCurFame(G.fame);
-  const[eveTxt,msgTxt]=await Promise.all([
-    claude(`Write 1 sentence evening inner monologue for ${G.playerName}, Day ${G.day} in ${G.city}. Fame: ${fr.en}. Reflective. Second person "You...". Language: ${G.langName}. No quotes.`),
-    claude(`${G.agentName} (${G.agentOrigin} talent agent, cold exterior with hidden warmth) sends ${G.playerName} a brief late-night text after Day ${G.day}. Relationship: ${G.relationships.agent}/100. ${G.relationships.agent>30?'Slightly warmer.':'Professional.'} 1-2 sentences. No quotes. Language: ${G.langName}.`)
+  if (G.apartment.livingNightUrl) { setImg('eve-img','eve-ph',G.apartment.livingNightUrl); }
+  else { preGenNight().then(() => { if (G.apartment.livingNightUrl) setImg('eve-img','eve-ph',G.apartment.livingNightUrl); }); }
+  const fr = getCurFame(G.fame);
+  const agentMemory = STATE.memory.getSummary('agent');
+  const [eveTxt, msgTxt] = await Promise.all([
+    claude('Write 1 sentence evening inner monologue for ' + G.player.name + ', Day ' + G.day + ' in ' + G.player.city + '. Fame: ' + fr.en + '. Reflective. Second person. Language: ' + G.langName + '. No quotes.'),
+    claude('You are ' + (G.npcs.agent.name||'the agent') + ', a ' + (G.npcs.agent.origin||'talented') + ' talent agent. Recent history with ' + G.player.name + ':\n' + agentMemory + '\n\nSend a brief late-night text after Day ' + G.day + '. Relationship: ' + G.npcs.agent.relationship + '/100. ' + (G.npcs.agent.relationship>30?'Slightly warmer than usual.':'Professional.') + ' 1-2 sentences. No quotes. Language: ' + G.langName + '.')
   ]);
-  document.getElementById('eve-stamp').textContent=`${10+G.day}:${Math.floor(Math.random()*30+10)} PM`;
-  document.getElementById('eve-nar').textContent=eveTxt.trim();
-  document.getElementById('eve-msgs').innerHTML=`<div class="eve-msg"><div class="eve-msg-from">${G.agentName}</div><div class="eve-msg-txt">${msgTxt.trim()}</div></div>`;
+  document.getElementById('eve-stamp').textContent = (22 + Math.floor(Math.random()*2)) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0');
+  document.getElementById('eve-nar').textContent = eveTxt.trim();
+  document.getElementById('eve-msgs').innerHTML = '<div class="eve-msg"><div class="eve-msg-from">' + (G.npcs.agent.name||'Agent') + '</div><div class="eve-msg-txt">' + msgTxt.trim() + '</div></div>';
+  // Record agent evening message in memory
+  STATE.memory.addEvent('agent', 'Sent evening text: "' + msgTxt.trim().slice(0,60) + '"', G.day);
+  // Auto-save
+  STATE.save.saveGame();
 }
 
-function nextDay(){
+function nextDay() {
   G.day++;
-  if(G.day>5){const isZh=G.lang==='zh-cn'||G.lang==='zh-tw';alert(isZh?`5天结束！\n知名度：${G.fame}/100\n经纪人亲密度：${G.relationships.agent}/100\n\n更多内容即将到来。`:`5 days complete!\nFame: ${G.fame}/100\nAgent bond: ${G.relationships.agent}/100\n\nMore coming soon.`);return;}
+  if (G.day > 5) {
+    const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+    alert(isZh ? '5天结束！\n知名度：' + G.fame + '/100\n\n更多内容即将到来。' : '5 days complete!\nFame: ' + G.fame + '/100\n\nMore coming soon.');
+    return;
+  }
   startDay();
 }
 
-// PHONE - WeChat style
-async function generatePhoneContent(){
-  const msgs=[];
-  // Generate messages from met NPCs
-  for(const npc of G.metNPCs.slice(0,3)){
-    const name=getNPCName(npc);const rel=G.relationships[npc]||0;
-    const isVoice=Math.random()>0.65;
-    const txt=await claude(`${name} (${getNPCPersonality(npc)}) sends ${G.playerName} a ${isVoice?'voice message (write transcript)':'text message'}. Day ${G.day}. Relationship: ${rel}/100. 1-2 sentences, natural, in character. No quotes. Language: ${G.langName}.`);
-    msgs.push({npc,name,text:txt.trim(),isVoice,emoji:NPC_EMOJIS[npc]||'💬',rel,time:`${8+G.day}:${Math.floor(Math.random()*59).toString().padStart(2,'0')}`});
-  }
-  G.phoneMessages[G.day]=msgs;
-  // Generate moments
-  const moments=[];
-  for(const npc of G.metNPCs.slice(0,2)){
-    const name=getNPCName(npc);
-    const momentTxt=await claude(`${name} posts something on social media today (Day ${G.day}). ${getNPCPersonality(npc)} Write a natural social media post (1-3 sentences). In character. Language: ${G.langName}. Return only the post text.`);
-    moments.push({npc,name,text:momentTxt.trim(),emoji:NPC_EMOJIS[npc]||'💬',time:`${G.day} days ago`});
-  }
-  G.phoneMoments=moments;
-  // Industry news
-  const newsTxt=await claude(`Generate 2 short entertainment industry news items for a ${getCurFame(G.fame).en} artist in ${G.city}. Relevant opportunities or events. Format as JSON array [{title,detail}]. Language: ${G.langName}. Return only JSON.`);
-  try{G.industryNews=JSON.parse(newsTxt.replace(/```json|```/g,'').trim());}catch{G.industryNews=[];}
-  // Badge
-  const total=msgs.length;G.unreadMsgs=total;
-  const badge=document.getElementById('phone-badge');if(badge){badge.textContent=total;badge.classList.toggle('show',total>0);}
-  const wcBadge=document.getElementById('wc-unread-badge');if(wcBadge){wcBadge.textContent=total;wcBadge.classList.toggle('show',total>0);}
+function setImg(imgId, phId, url) {
+  if (!url) return;
+  const i = document.getElementById(imgId); const ph = document.getElementById(phId);
+  if (i) { i.src = url; i.style.display = 'block'; }
+  if (ph) ph.style.display = 'none';
 }
 
+// ══════════════════════════════════════════════════════
+// PHONE (WeChat style)
+// ══════════════════════════════════════════════════════
+async function generatePhoneContent() {
+  const msgs = [];
+  for (const npc of Object.keys(G.npcs).filter(k => G.npcs[k].met).slice(0,3)) {
+    const isVoice = Math.random() > 0.65;
+    const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name, 'Send a ' + (isVoice?'voice message transcript':'text message') + ' today.');
+    const txt = await claude(memCtx + '\n\n1-2 sentences, natural. No quotes.');
+    msgs.push({ npc, name: getNPCName(npc), text: txt.trim(), isVoice, emoji: NPC_UI[npc]?.emoji||'💬', color: NPC_UI[npc]?.color||'#C4A882', rel: G.npcs[npc].relationship, time: (8+G.day) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0') });
+    // Record in memory
+    STATE.memory.addEvent(npc, 'Sent phone message: "' + txt.trim().slice(0,50) + '"', G.day);
+  }
+  G.phone.messages[G.day] = msgs;
+  // Moments
+  const moments = [];
+  for (const npc of Object.keys(G.npcs).filter(k => G.npcs[k].met).slice(0,2)) {
+    const char = STORY.characters[npc];
+    const momentTxt = await claude('You are ' + getNPCName(npc) + ', ' + (char?.corePersonality?.[0]||'') + '. Post something on social media today (Day ' + G.day + '). 1-3 sentences, in character. Language: ' + G.langName + '.');
+    moments.push({ npc, name: getNPCName(npc), text: momentTxt.trim(), emoji: NPC_UI[npc]?.emoji||'💬', time: G.day + ' days ago' });
+  }
+  G.phone.moments = moments;
+  // Industry news
+  try {
+    const newsTxt = await claude('Generate 2 short entertainment industry news for a ' + getCurFame(G.fame).en + ' artist in ' + G.player.city + '. JSON array [{title,detail}]. Language: ' + G.langName + '.');
+    G.phone.industryNews = JSON.parse(newsTxt.replace(/```json|```/g,'').trim());
+  } catch { G.phone.industryNews = []; }
+  G.phone.unreadCount = msgs.length;
+  const badge = document.getElementById('phone-badge');
+  if (badge) { badge.textContent = msgs.length; badge.classList.toggle('show', msgs.length>0); }
+}
 
-function renderPhone(){
-  const now=new Date();document.getElementById('wc-time').textContent=`${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
+function renderPhone() {
+  const now = new Date();
+  document.getElementById('wc-time').textContent = now.getHours() + ':' + now.getMinutes().toString().padStart(2,'0');
   showWCTab('chats');
 }
 
-function showWCTab(tab){
-  document.querySelectorAll('.wc-tab').forEach(t=>t.classList.remove('active'));
+function showWCTab(tab) {
+  document.querySelectorAll('.wc-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('wct-'+tab)?.classList.add('active');
-  const content=document.getElementById('wc-content');
-  if(tab==='chats'){
-    document.getElementById('wct-chats').classList.add('active');
-    const allMsgs=Object.values(G.phoneMessages).flat();
-    const byNPC={};allMsgs.forEach(m=>{byNPC[m.npc]=m;});
-    const threads=Object.values(byNPC);
-    content.innerHTML=`<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">${t('wc_chats')}</div>`+
-      (threads.length===0?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">${G.lang==='zh-cn'?'暂无消息':'No messages yet'}</p>`:
-      threads.map(m=>`<div class="wc-chat-item" onclick="openWCChat('${m.npc}')">
-        <div class="wc-avatar" style="background:rgba(196,168,130,0.15)">${m.emoji}</div>
-        <div class="wc-chat-info"><div class="wc-chat-name">${m.name}</div><div class="wc-chat-preview">${m.isVoice?'🎵 '+(G.lang==='zh-cn'?'[语音消息]':'[Voice message]'):m.text}</div></div>
-        <div class="wc-chat-meta"><div class="wc-chat-time">${m.time}</div><div class="wc-unread">1</div></div>
-      </div>`).join(''));
-  } else if(tab==='moments'){
-    document.getElementById('wct-moments').classList.add('active');
-    content.innerHTML=`<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">${t('wc_moments')}</div>`+
-      (G.phoneMoments.length===0?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">${G.lang==='zh-cn'?'暂无动态':'No moments yet'}</p>`:
-      G.phoneMoments.map(m=>`<div class="wc-moment">
-        <div class="wc-moment-header"><div class="wc-moment-avatar">${m.emoji}</div><div><div class="wc-moment-name">${m.name}</div><div class="wc-moment-time">${m.time}</div></div></div>
-        <div class="wc-moment-text">${m.text}</div>
-        <div class="wc-moment-actions"><span class="wc-moment-like">👍 Like</span><span class="wc-moment-like">💬 Comment</span></div>
-      </div>`).join(''));
-  } else if(tab==='industry'){
-    document.getElementById('wct-industry').classList.add('active');
-    content.innerHTML=`<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">${t('wc_industry')}</div>`+
-      (G.industryNews.length===0?`<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">${G.lang==='zh-cn'?'暂无资讯':'No news yet'}</p>`:
-      G.industryNews.map(n=>`<div class="wc-discover-item"><div class="wc-discover-title">${n.title}</div><div class="wc-discover-sub">${n.detail}</div></div>`).join(''));
+  const content = document.getElementById('wc-content');
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  if (tab === 'chats') {
+    const allMsgs = {};
+    Object.values(G.phone.messages).flat().forEach(m => { allMsgs[m.npc] = m; });
+    const threads = Object.values(allMsgs);
+    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">' + t('wc_chats') + '</div>' +
+  (function(){
+      if (threads.length===0) {
+        content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无消息':'No messages yet') + '</p>';
+      } else {
+        threads.forEach(function(m) {
+          var el = document.createElement('div');
+          el.className = 'wc-chat-item';
+          el.innerHTML = '<div class="wc-avatar" style="background:' + (m.color||'#C4A882') + '33">' + m.emoji + '</div>' +
+            '<div class="wc-chat-info"><div class="wc-chat-name">' + m.name + '</div><div class="wc-chat-preview">' + (m.isVoice?'🎵 '+(isZh?'[语音消息]':'[Voice message]'):m.text) + '</div></div>' +
+            '<div class="wc-chat-meta"><div class="wc-chat-time">' + m.time + '</div><div class="wc-unread">1</div></div>';
+          el.onclick = (function(npc){return function(){openWCChat(npc);};})(m.npc);
+          content.appendChild(el);
+        });
+      }
+    })();
+  } else if (tab === 'moments') {
+    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">' + t('wc_moments') + '</div>' +
+      (function(){
+      if (G.phone.moments.length===0) {
+        content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无动态':'No moments yet') + '</p>';
+      } else {
+        G.phone.moments.forEach(function(m) {
+          var el = document.createElement('div');
+          el.className = 'wc-moment';
+          el.innerHTML = '<div class="wc-moment-header"><div class="wc-moment-avatar">' + m.emoji + '</div><div><div class="wc-moment-name">' + m.name + '</div><div class="wc-moment-time">' + m.time + '</div></div></div><div class="wc-moment-text">' + m.text + '</div><div class="wc-moment-actions"><span class="wc-moment-like">👍</span><span class="wc-moment-like">💬</span></div>';
+          content.appendChild(el);
+        });
+      }
+    })();
+  } else if (tab === 'industry') {
+    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff">' + t('wc_industry') + '</div>' +
+      (function(){
+      if (G.phone.industryNews.length===0) {
+        content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无资讯':'No news yet') + '</p>';
+      } else {
+        G.phone.industryNews.forEach(function(n) {
+          var el = document.createElement('div');
+          el.className = 'wc-discover-item';
+          el.innerHTML = '<div class="wc-discover-title">' + n.title + '</div><div class="wc-discover-sub">' + n.detail + '</div>';
+          content.appendChild(el);
+        });
+      }
+    })();
   }
 }
 
-function openWCChat(npc){
-  const npcName=getNPCName(npc);
-  document.getElementById('chat-name').textContent=npcName;
-  const chat_time=new Date();document.getElementById('chat-wc-time').textContent=`${chat_time.getHours()}:${chat_time.getMinutes().toString().padStart(2,'0')}`;
-  const msgs=Object.values(G.phoneMessages).flat().filter(m=>m.npc===npc);
-  document.getElementById('chat-msgs').innerHTML=msgs.map(m=>{
-    if(m.isVoice){
-      const bars=Array(8).fill('').map((_,i)=>`<span style="height:${4+Math.random()*12}px"></span>`).join('');
-      return `<div class="wc-bubble-wrap"><div class="wc-bubble-avatar">${m.emoji}</div><div class="wc-voice" onclick="this.querySelector('.wc-voice-transcript').style.display=this.querySelector('.wc-voice-transcript').style.display==='block'?'none':'block'"><div class="wc-voice-icon">▶</div><div class="wc-voice-bar">${bars}</div><span class="wc-voice-dur">0:${Math.floor(Math.random()*40+10)}</span><div class="wc-voice-transcript">${m.text}</div></div></div>`;
+function openWCChat(npc) {
+  const npcName = getNPCName(npc);
+  document.getElementById('chat-name').textContent = npcName;
+  const chatTime = new Date();
+  document.getElementById('chat-wc-time').textContent = chatTime.getHours() + ':' + chatTime.getMinutes().toString().padStart(2,'0');
+  const msgs = Object.values(G.phone.messages).flat().filter(m => m.npc===npc);
+  const bars = Array(8).fill('').map((_,i) => '<span style="height:' + (4+Math.random()*12) + 'px"></span>').join('');
+  var chatMsgs = document.getElementById('chat-msgs');
+  chatMsgs.innerHTML = '';
+  var npcEmoji = (NPC_UI[npc] && NPC_UI[npc].emoji) ? NPC_UI[npc].emoji : '💬';
+  msgs.forEach(function(m) {
+    var wrap = document.createElement('div');
+    wrap.className = 'wc-bubble-wrap';
+    if (m.isVoice) {
+      var voiceEl = document.createElement('div');
+      voiceEl.className = 'wc-voice';
+      voiceEl.innerHTML = '<div class="wc-voice-icon">▶</div><div class="wc-voice-bar">' + bars + '</div><span class="wc-voice-dur">0:' + Math.floor(Math.random()*40+10) + '</span><div class="wc-voice-transcript" style="display:none">' + m.text + '</div>';
+      voiceEl.onclick = function() {
+        var tr = this.querySelector('.wc-voice-transcript');
+        tr.style.display = tr.style.display==='block' ? 'none' : 'block';
+      };
+      wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div>';
+      wrap.appendChild(voiceEl);
+    } else {
+      wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div><div class="wc-bubble">' + m.text + '</div>';
     }
-    return `<div class="wc-bubble-wrap"><div class="wc-bubble-avatar">${m.emoji}</div><div class="wc-bubble">${m.text}</div></div>`;
-  }).join('');
+    chatMsgs.appendChild(wrap);
+  });
   go('s-chat');
 }
 
+// ══════════════════════════════════════════════════════
 // FAME
-// ── AFFECTION SYSTEM ──
-const NPC_ROLES={
-  agent:{emoji:'👔',role_en:'Talent Agent',role_zhcn:'经纪人',role_zhtw:'經紀人',role_ja:'エージェント',role_ko:'에이전트',color:'#C4A882'},
-  drummer:{emoji:'🥁',role_en:'Drummer & Band Leader',role_zhcn:'乐队队长',role_zhtw:'樂隊隊長',role_ja:'ドラマー',role_ko:'드러머',color:'#e8a87c'},
-  actor:{emoji:'🎬',role_en:'Rising Actor',role_zhcn:'男演员',role_zhtw:'男演員',role_ja:'俳優',role_ko:'배우',color:'#9b8ec4'},
-  detective:{emoji:'🕵️',role_en:'Private Detective',role_zhcn:'私家侦探',role_zhtw:'私家偵探',role_ja:'探偵',role_ko:'탐정',color:'#6b8cba'},
-  butler:{emoji:'🎂',role_en:'Building Manager',role_zhcn:'楼管',role_zhtw:'樓管',role_ja:'管理人',role_ko:'관리인',color:'#7ec48a'},
-};
-
-function getNPCRole(key,lang){
-  const r=NPC_ROLES[key];if(!r)return '';
-  if(lang==='zh-cn')return r.role_zhcn;
-  if(lang==='zh-tw')return r.role_zhtw;
-  if(lang==='ja')return r.role_ja;
-  if(lang==='ko')return r.role_ko;
-  return r.role_en;
+// ══════════════════════════════════════════════════════
+function renderFame() {
+  document.getElementById('fame-player-name').textContent = G.player.name || '—';
+  const fr = getCurFame(G.fame);
+  document.getElementById('fame-level-lbl').textContent = fr.emoji + ' ' + getFameLabel(G.lang, fr);
+  document.getElementById('fame-bar').style.width = G.fame + '%';
+  document.getElementById('fame-pct').textContent = G.fame + '/100';
+  document.getElementById('fame-list').innerHTML = FAME_DATA.map((fd, i) => {
+    const cur = G.fame >= fd.min && (i===0 || G.fame < FAME_DATA[i-1].min);
+    return '<div class="fame-item' + (cur?' cur':'') + '"><span class="fi-crown" style="color:' + fd.color + '">' + fd.emoji + '</span><span class="fi-label">' + getFameLabel(G.lang, fd) + '</span><span class="fi-pts" style="color:' + fd.color + '">' + fd.min + '+</span></div>';
+  }).join('');
 }
 
-function openAffection(){
-  setABn('bn-affection');
-  renderAffection();
-  go('s-affection');
-}
-function closeAffection(){go(G._prevScreen||'s-daily');setABn('bn-home');}
-
-function renderAffection(){
-  const lang=G.lang;
-  // Only show met NPCs, sorted by relationship score descending
-  const metAndScored=G.metNPCs
-    .map(key=>({key,score:G.relationships[key]||0,name:getNPCName(key),role:getNPCRole(key,lang),...NPC_ROLES[key]}))
-    .sort((a,b)=>b.score-a.score);
-
-  if(metAndScored.length===0){
-    document.getElementById('affection-list').innerHTML=`<p style="color:var(--ink-muted);font-size:14px;text-align:center;padding:40px 0">${lang==='zh-cn'?'还没有认识任何人':lang==='zh-tw'?'還沒有認識任何人':lang==='ja'?'まだ誰とも出会っていません':lang==='ko'?'아직 만난 사람이 없습니다':'No connections yet'}</p>`;
+// ══════════════════════════════════════════════════════
+// AFFECTION
+// ══════════════════════════════════════════════════════
+function renderAffection() {
+  const lang = G.lang;
+  const ranked = STATE.relationships.getRanked();
+  if (ranked.length === 0) {
+    document.getElementById('affection-list').innerHTML = '<p style="color:var(--ink-muted);font-size:14px;text-align:center;padding:40px 0">' + (lang==='zh-cn'?'还没有认识任何人':'No connections yet') + '</p>';
     return;
   }
-
-  document.getElementById('affection-list').innerHTML=metAndScored.map((npc,i)=>{
-    const pct=Math.min(100,npc.score);
-    const heart=pct>=80?'❤️❤️❤️':pct>=50?'❤️❤️':pct>=20?'❤️':'🤍';
-    return `<div class="affection-item">
-      <div class="aff-emoji">${npc.emoji}</div>
-      <div class="aff-info">
-        <div class="aff-name">${npc.name}${i===0?' ✦':''}</div>
-        <div class="aff-role">${npc.role}</div>
-        <div class="aff-bar-bg"><div class="aff-bar-fill" style="width:${pct}%;background:${npc.color}"></div></div>
-        <div class="aff-score">${heart} ${pct} / 100</div>
-      </div>
-    </div>`;
+  document.getElementById('affection-list').innerHTML = ranked.map((npc, i) => {
+    const pct = Math.min(100, npc.relationship);
+    const heart = pct>=80?'❤️❤️❤️':pct>=50?'❤️❤️':pct>=20?'❤️':'🤍';
+    const color = NPC_UI[npc.key]?.color || '#C4A882';
+    return '<div class="affection-item">' +
+      '<div class="aff-emoji">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>' +
+      '<div class="aff-info">' +
+        '<div class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + '</div>' +
+        '<div class="aff-role">' + getNPCRole(npc.key, lang) + '</div>' +
+        '<div class="aff-bar-bg"><div class="aff-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+        '<div class="aff-score">' + heart + ' ' + pct + ' / 100</div>' +
+      '</div></div>';
   }).join('');
 }
 
-function renderFame(){
-  document.getElementById('fame-player-name').textContent=G.playerName||'—';
-  const fr=getCurFame(G.fame);
-  document.getElementById('fame-level-lbl').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);
-  document.getElementById('fame-bar').style.width=G.fame+'%';
-  document.getElementById('fame-pct').textContent=`${G.fame}/100`;
-  document.getElementById('fame-list').innerHTML=FAME_DATA.map((fd,i)=>{
-    const cur=G.fame>=fd.min&&(i===0||G.fame<FAME_DATA[i-1].min);
-    return `<div class="fame-item${cur?' cur':''}${fd.danger?' danger':''}"><span class="fi-crown" style="color:${fd.color}">${fd.emoji}</span><span class="fi-label">${getFameLabel(G.lang,fd)}</span><span class="fi-pts" style="color:${fd.color}">${fd.min}+</span></div>`;
-  }).join('');
-}
-
+// ══════════════════════════════════════════════════════
 // GALLERY
-function renderGallery(){
-  document.getElementById('ggrid').innerHTML=G.gallery.length===0
-    ?`<p style="color:var(--ink-muted);font-size:13px;text-align:center;grid-column:1/-1;padding:32px 0">${G.lang==='zh-cn'?'暂无图片':'No images yet'}</p>`
-    :G.gallery.map(item=>`<div class="gi" onclick="openLB('${item.url}')"><img src="${item.url}" alt="${item.label}"><div class="gl">${item.label}</div></div>`).join('');
+// ══════════════════════════════════════════════════════
+function renderGallery() {
+  var ggridEl = document.getElementById('ggrid');
+  ggridEl.innerHTML = '';
+  if (G.gallery.length===0) {
+    ggridEl.innerHTML = '<p style="color:var(--ink-muted);font-size:13px;text-align:center;grid-column:1/-1;padding:32px 0">' + (G.lang==='zh-cn'?'暂无图片':'No images yet') + '</p>';
+  } else
+(function(){
+      var grid = document.getElementById('ggrid');
+      G.gallery.forEach(function(item) {
+        var el = document.createElement('div');
+        el.className = 'gi';
+        el.innerHTML = '<img src="' + item.url + '" alt="' + item.label + '"><div class="gl">' + item.label + '</div>';
+        el.onclick = (function(url){return function(){openLB(url);};})(item.url);
+        grid.appendChild(el);
+      });
+    })();
 }
 
-// ── SOUND EFFECTS ──
-G.soundOn=true;
-const AudioCtx=window.AudioContext||window.webkitAudioContext;let _actx=null;
-function getACtx(){if(!_actx)try{_actx=new AudioCtx();}catch{}return _actx;}
-function setSoundOn(on,el){G.soundOn=on;document.querySelectorAll('#sound-on-card,#sound-off-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
-function playSound(type){if(!G.soundOn)return;const ctx=getACtx();if(!ctx)return;if(ctx.state==='suspended')ctx.resume();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);if(type==='click'){o.frequency.setValueAtTime(800,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(600,ctx.currentTime+0.08);g.gain.setValueAtTime(0.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.type='sine';}else if(type==='select'){o.frequency.setValueAtTime(600,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.1);g.gain.setValueAtTime(0.07,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.1);o.type='sine';}else if(type==='confirm'){o.frequency.setValueAtTime(500,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.15);g.gain.setValueAtTime(0.06,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);o.type='sine';}o.start(ctx.currentTime);o.stop(ctx.currentTime+0.2);}
-
-function playChapterSound(){
-  if(!G.soundOn)return;
-  const ctx=getACtx();if(!ctx)return;
-  if(ctx.state==='suspended')ctx.resume();
-  // Rising arpeggio: C E G C — four notes, warm and cinematic
-  const notes=[261.6,329.6,392.0,523.2];
-  const times=[0,0.18,0.36,0.55];
-  const durs=[0.3,0.3,0.3,0.6];
-  notes.forEach((freq,i)=>{
-    const o=ctx.createOscillator();
-    const g=ctx.createGain();
-    const t=ctx.currentTime+times[i];
-    o.connect(g);g.connect(ctx.destination);
-    o.type='sine';
-    o.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(0,t);
-    g.gain.linearRampToValueAtTime(0.12,t+0.05);
-    g.gain.exponentialRampToValueAtTime(0.001,t+durs[i]);
-    o.start(t);o.stop(t+durs[i]+0.05);
-  });
-}
-document.addEventListener('click',e=>{const el=e.target.closest('button,.card,.lcard,.rcard,.trio-item,.nos-card,.vn-opt,.daily-opt,.wc-chat-item,.wc-tab,.s-lang-card,.s-style-card');if(!el)return;if(el.matches('.btn-p'))playSound('confirm');else if(el.classList.contains('sel'))playSound('select');else playSound('click');},true);
-// ── DEV HELPERS ──
-function devSkipToDay(){
-  // Fill in minimum required state and go straight to daily
-  if(!G.playerName) G.playerName='Ting';
-  if(!G.mother) G.mother='East Asian';
-  if(!G.father) G.father='East Asian';
-  G.motherEyes='Dark brown';G.fatherSkin='Light golden';
-  if(!G.hairStyle) G.hairStyle='long wavy hair';
-  if(!G.hairColor) G.hairColor='dark brown';
-  if(!G.city) G.city='Los Angeles';
-  if(!G.decor) G.decor='Contemporary Organic';
-  if(!G.agentName) G.agentName='Alex Chen';
-  if(!G.agentOrigin) G.agentOrigin='American';
-  G.livingDayUrl=null;G.livingNightUrl=null;
+// ══════════════════════════════════════════════════════
+// DEV HELPERS
+// ══════════════════════════════════════════════════════
+function devSkipToDay() {
+  G.player.name = G.player.name || 'Ting';
+  G.player.motherOrigin = G.player.motherOrigin || 'East Asian';
+  G.player.fatherOrigin = G.player.fatherOrigin || 'East Asian';
+  G.player.motherEyes = G.player.motherEyes || 'Dark brown';
+  G.player.fatherSkin = G.player.fatherSkin || 'Light golden';
+  G.player.hairStyle = G.player.hairStyle || 'long wavy hair';
+  G.player.hairColor = G.player.hairColor || 'dark brown';
+  G.player.city = G.player.city || 'Los Angeles';
+  G.player.decor = G.player.decor || 'Contemporary Organic';
+  G.npcs.agent.name = G.npcs.agent.name || 'Alex Chen';
+  G.npcs.agent.origin = G.npcs.agent.origin || 'American';
+  G.lang = G.lang || 'zh-cn';
+  G.langName = G.langName || '简体中文';
   go('s-ch1');
-  document.getElementById('ch-name').textContent=G.playerName;
-  document.getElementById('ch-city').textContent=G.city;
-  document.getElementById('ch-agent').textContent=G.agentName;
-  const fr=getCurFame(G.fame);
-  document.getElementById('ch-fame').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);
+  updateChapterScreen();
 }
 
-window.addEventListener('load',()=>{
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  STATE.init();
   applyLang();
-  if(DEV_MODE){
-    // Show DEV mode indicator on title screen
-    const v=document.querySelector('#s-title p:last-child');
-    if(v) v.innerHTML='v9.3 · <span style="color:#f66">DEV MODE</span>';
-    // Show skip button everywhere in game
-    document.getElementById('dev-skip-bar').style.display='block';
+  if (DEV_MODE) {
+    const v = document.querySelector('#s-title p:last-child');
+    if (v) v.innerHTML = 'v10.0 · <span style="color:#f66">DEV MODE</span>';
+    document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
 </script>
