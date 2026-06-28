@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.19</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.20</p>
   </div>
 </div>
 
@@ -859,8 +859,8 @@ async function claude(prompt, sys = '') {
     if (isKo) return '（DEV）이것은 테스트 대화입니다.';
     return '(DEV) This is placeholder dialogue for testing.';
   }
-  const body = { model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: prompt }] };
-  if (sys) body.system = sys;
+  const _culturalCtx = 'CULTURAL CONTEXT: This story is set in the Western entertainment industry (' + (G.player.city||'a major Western city') + '). All characters behave according to Western social and professional norms. They are direct, individualistic, and do NOT follow Chinese cultural norms. No face-saving, no indirect language, no WeChat-style communication. Dialogue should feel like it belongs in a Western TV drama or film, not a Chinese drama. The language used is ' + G.langName + ' but the cultural context is always Western.';
+  const body = { model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: prompt }], system: (_culturalCtx + (sys ? '\n\n' + sys : '')) };
   const r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const d = await r.json();
   return d.content?.[0]?.text || '';
@@ -2087,7 +2087,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.19 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.20 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
