@@ -366,7 +366,19 @@ const STATE = {
       return npc.memory.slice(-8).join('\n'); // 最近8条
     },
 
-    // 构建完整的对话提示词（包含性格+记忆+当前状态）
+    // 族裔文化特征
+    culturalTraits: {
+      'British':          'Dry wit, understatement, emotionally reserved. Says less than he means. Would never admit vulnerability directly.',
+      'American':         'Direct, confident, action-oriented. Comfortable with eye contact and physical space. Gets to the point.',
+      'French':           'Philosophical, sensual, slightly intellectual. May reference food, art, or ideas. Comfortable with silence and ambiguity.',
+      'Italian':          'Expressive, passionate, family-oriented at heart. Warmth comes naturally but pride runs deep. Gestures matter.',
+      'Korean':           'Disciplined, intense work ethic, emotionally controlled in public. Loyalty is everything. Indirect about feelings but not about opinions.',
+      'Japanese':         'Precise, considerate, reads the room carefully. Would never cause embarrassment. Restraint is a form of respect.',
+      'African-American': 'Direct, culturally fluent, rhythm in his speech. Has navigated being underestimated — resilient and sharp.',
+      'Brazilian':        'Warm, physically expressive, food and music are love languages. Enthusiastic but not superficial. Lives in the present.',
+    },
+
+    // 构建完整的对话提示词（包含性格+记忆+当前状态+族裔文化）
     buildDialoguePrompt(npcKey, day, lang, playerName, additionalContext = '') {
       const npc = STATE.data.npcs[npcKey];
       const char = STORY.characters[npcKey];
@@ -378,16 +390,27 @@ const STATE = {
       const memorySummary = STATE.memory.getSummary(npcKey);
       const personality = char.corePersonality.join('; ');
 
-      return `You are ${npc.name || 'this character'}, ${char.age} years old. 
+      // Add cultural background if origin is set
+      const origin = npc.origin || '';
+      const culturalNote = origin && STATE.memory.culturalTraits[origin]
+        ? `Cultural background (${origin}): ${STATE.memory.culturalTraits[origin]}`
+        : '';
+
+      // Add character's own culture note from story.js
+      const charCulture = char.culture || '';
+
+      return `You are ${npc.name || 'this character'}, ${char.age} years old, ${origin || 'Western'} background.
 Role: ${char.profession}.
 Core personality: ${personality}.
+${charCulture ? 'Character culture: ' + charCulture : ''}
+${culturalNote}
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
 Emotional state this chapter: ${emotionalState}.
 Previous interactions you remember:
 ${memorySummary}
 ${additionalContext ? 'Current context: ' + additionalContext : ''}
-Language: ${lang}.
-Stay completely in character. Do not break the fourth wall.`;
+Respond in: ${lang}.
+Stay completely in character. Let your cultural background subtly influence how you speak — not as a stereotype, but as authentic texture.`;
     },
 
     // 对话结束后自动记录
