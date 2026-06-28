@@ -126,9 +126,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(255,245,248,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:2px solid rgba(196,96,122,0.2);padding:12px 16px 8px;}
 .vn-speaker{font-size:10px;letter-spacing:3px;color:var(--rose);text-transform:uppercase;margin-bottom:6px;opacity:0.9;}
-.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:10px;}
+.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);font-style:italic;color:var(--text-dark);line-height:1.7;margin-bottom:10px;}
 .vn-opts{display:grid;gap:6px;}
-.vn-opt{background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.15);border-radius:12px;padding:9px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:var(--cream);display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
+.vn-opt{background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.15);border-radius:12px;padding:9px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:var(--text-dark);display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
 .vn-opt:active{border-color:var(--rose);background:rgba(196,96,122,0.1);}
 .rel-tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:8px;font-family:'Jost',sans-serif;flex-shrink:0;margin-left:8px;}
 .rel-close{background:rgba(74,222,128,0.15);color:#4ade80;}
@@ -143,7 +143,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-daily{padding:0;}
 .daily-wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
 .daily-top{flex:0 0 auto;padding:12px 16px 8px;}
-.daily-clock{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--cream);letter-spacing:-2px;line-height:1;opacity:1;}
+.daily-clock{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;opacity:1;}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.9;text-transform:uppercase;margin-top:2px;}
 .daily-room{flex:0 0 auto;position:relative;overflow:hidden;}
 .daily-room img{width:100%;height:32vw;max-height:140px;object-fit:cover;display:block;}
@@ -168,7 +168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .eve-msgs{display:flex;flex-direction:column;gap:6px;overflow:hidden;}
 .eve-msg{background:rgba(255,255,255,0.8);border:1px solid rgba(196,96,122,0.2);border-radius:12px;padding:10px 12px;}
 .eve-msg-from{font-size:9px;letter-spacing:2px;color:var(--rose);text-transform:uppercase;margin-bottom:4px;}
-.eve-msg-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);font-style:italic;color:var(--cream);line-height:1.6;}
+.eve-msg-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);font-style:italic;color:var(--text-dark);line-height:1.6;}
 
 /* ── WECHAT PHONE ── */
 #s-phone{background:#000;padding:0;}
@@ -294,7 +294,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .nos-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--pink-deep);text-align:center;margin-bottom:4px;}
 .nos-sub{font-size:11px;color:var(--ink-muted);text-align:center;margin-bottom:12px;}
 .nos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;}
-.nos-card{background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.15);border-radius:8px;padding:9px 6px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--cream);transition:all 0.15s;}
+.nos-card{background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.15);border-radius:8px;padding:9px 6px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text-dark);transition:all 0.15s;}
 .nos-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
 
 /* ── SETUP SCREENS (with back button space) ── */
@@ -586,7 +586,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   </div>
   <!-- Loading state -->
   <div class="vn-loading" id="vn-loading">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);font-style:italic;color:var(--cream);text-align:center;line-height:1.8;padding:0 24px;max-width:400px" id="vn-pre-text"></div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);font-style:italic;color:var(--cream);text-align:center;line-height:1.8;padding:0 24px;max-width:400px" id="vn-pre-text" style="color:var(--text-dark)"></div>
     <div class="gt" style="margin-top:16px">Painting the scene<span class="loading-dots"></span></div>
   </div>
   <!-- Scene state -->
@@ -1602,9 +1602,18 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   document.getElementById('vn-text').textContent = '...';
   document.getElementById('vn-opts').innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
   // Build prompt using story bible + memory system
+  // Ensure NPC name is set
+  if (!G.npcs[npcKey].name) {
+    const origin = G.npcs[npcKey].origin || 'American';
+    const char = STORY.characters[npcKey];
+    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + (char?.age||30) + '-year-old. MUST be a genuine ' + origin + ' name. Return ONLY the name.');
+    G.npcs[npcKey].name = nameStr.trim().replace(/['"]/g,'');
+  }
+  const npcName2 = getNPCName(npcKey);
+  document.getElementById('vn-speaker').textContent = npcName2;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext);
   const npcLine = await claude(memoryContext + '\n\nNow write your dialogue line. 1-2 sentences, completely in character. No quotes. Just the speech.');
-  document.getElementById('vn-speaker').textContent = npcName;
+  document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   document.getElementById('vn-text').textContent = npcLine.trim();
   // Generate options
   const playerLang = G.lang; const isZh = playerLang==='zh-cn'||playerLang==='zh-tw';
@@ -1913,7 +1922,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.3 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.4 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
