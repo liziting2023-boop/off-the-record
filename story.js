@@ -205,6 +205,9 @@ const STORY = {
       noGlasses: true, // 平时不戴眼镜
       maxSunglasses: true, // 最多墨镜
       // 按章节的情感状态
+      // UNIVERSAL RULE for all NPCs:
+      // Never say the real name of any other NPC in dialogue.
+      // Refer to others only by role: "band leader", "the actor", "building manager", "the detective"
       emotionalArc: {
         1: 'Absolute authority. Evaluating her like a product. Zero warmth shown.',
         2: 'Still cold but acts to protect her from industry predators without acknowledging it.',
