@@ -625,7 +625,7 @@ const STORY = {
         },
         {
           // Round 3: 微小的温度
-          npcContext: 'The meeting is ending. Dismiss her efficiently. But leave one small crack: either let the silence run a beat too long before nodding toward the door, or say something terse that could mean two things, or glance at your watch but do not actually check the time. Nothing theatrical. Western professional restraint — the crack shows in what you do NOT say.',
+          npcContext: 'The meeting is ending. Dismiss her efficiently — "Nine o\'clock tomorrow" — but then do one thing that contradicts the coldness. NOT theatrical. Something small and almost deniable: you say something quietly under your breath that could be a compliment or just an observation, then immediately open a file like you said nothing. Or you use her name for the first time in the whole meeting, just once, right at the end. The player should feel: wait, did he just—? Leave it ambiguous. Western restraint: the hook is in what barely happened.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],
@@ -671,7 +671,7 @@ const STORY = {
           relChanges: [8, 15, 12],
         },
         {
-          npcContext: 'Reluctant, barely-there acknowledgment that she might have something. Do NOT give her a compliment. Maybe you turn back to your drums, or say something that could be interpreted as either dismissal or a very guarded form of respect. The door is not fully closed.',
+          npcContext: 'She is leaving. You have turned back to your drums — classic dismissal. But just as she reaches the door, say one more thing. Not a compliment. A challenge. Something like "that high note — do it again tomorrow" or "show up early." It sounds like an order but it means: I\'m paying attention. Do NOT soften it. Do NOT explain it. Just say it to her back, like it costs you nothing. But it does.',
           playerOptions: {
             'zh-cn': ['……明天见。', '我知道了，谢谢你。', '我会让你改变主意的。'],
             'en': ['...See you tomorrow.', 'Understood. Thank you.', 'I will change your mind.'],
@@ -697,7 +697,7 @@ const STORY = {
       },
       dialogRounds: [
         {
-          npcContext: 'You are charming and effortlessly self-assured. Introduce yourself — you have heard of her (you heard her single). Make a comment that is just on the edge of a compliment, leaving it ambiguous whether you are being sincere or playing with her.',
+          npcContext: 'You are charming and effortlessly self-assured. You have heard her music — be specific about one thing in it that actually caught you off guard. Not generic praise. Something that reveals you actually listened. Then immediately pivot back to your usual playful surface, like you gave away too much and need to take it back. The hook: for one second, the performance dropped.',
           playerOptions: {
             'zh-cn': ['你也听过我的歌？', '谢谢你……我想。', '你是在夸我还是调侃我？'],
             'en': ['You have heard my song?', 'Thank you... I think.', 'Is that a compliment or are you teasing?'],
@@ -764,7 +764,7 @@ const STORY = {
           relChanges: [8, 5, 15],
         },
         {
-          npcContext: 'Offer to help with anything she needs — carry things, fix something in the apartment, anything. You are genuinely happy to be useful. Let a tiny flash of something more than professional helpfulness show, then immediately cover it with cheerfulness.',
+          npcContext: 'You have offered to help. Now as she is about to leave, say one thing that reveals you have been thinking about her more than a building manager should. Not creepy — genuine. Maybe you remembered something specific she mentioned once in passing, or you stayed up to fix something in her apartment before she even asked. Then immediately get flustered and cover it with something practical. The hook: he noticed. He always notices.',
           playerOptions: {
             'zh-cn': ['我会记住的，谢谢。', '那……能帮我修一下门铃吗？', '你真的很好。'],
             'en': ['I will keep that in mind, thank you.', 'Actually... could you fix my doorbell?', 'You are very kind.'],
@@ -809,7 +809,7 @@ const STORY = {
           relChanges: [12, 10, 8],
         },
         {
-          npcContext: 'The meeting is ending. You came close to saying something personal and pulled back. End with something professional, but let one small thing slip — a question about how she is really doing, or a moment where you almost say something and then change it to something safer. Leave her wondering.',
+          npcContext: 'The meeting is ending. You almost said something real — you can feel it. Pull back into professional mode, but not before one small slip: maybe you say her name again in a way that is slightly different from how you usually say it. Or you pause at the door instead of leaving cleanly, just a second too long. Or you answer a question she did not ask. Western emotional restraint at its most maddening: the hook is that she can feel something is there, but she cannot name it. Neither can you.',
           playerOptions: {
             'zh-cn': ['我挺好的。', '……你呢？', '谢谢你今天的咖啡。'],
             'en': ['I am fine.', '...And you?', 'Thank you for the coffee today.'],
