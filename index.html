@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.28</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.29</p>
   </div>
 </div>
 
@@ -1282,9 +1282,9 @@ async function preGenNight() {
 // PROTAGONIST
 // ══════════════════════════════════════════════════════
 const MIRRORS = [
-  'close-up portrait of young woman by window, soft morning natural light from left, looking slightly off camera, thoughtful expression, clean neutral background, fully clothed in casual top, cinematic quality, NO mirror, NO reflection',
-  'portrait of young woman in morning light, standing by large window, city view behind, casual everyday outfit, natural makeup, warm golden hour light, NO mirror, NO reflection, NO bare skin',
-  'young woman sitting at window seat in morning, coffee cup in hand, looking out at city, casual comfortable clothing, soft natural daylight, intimate candid feel, NO mirror, NO reflection',
+  'young woman in her bathroom, morning routine, standing at marble vanity sink washing face, wearing cozy oversized t-shirt, soft warm bathroom lighting, city view through frosted window, shot from side angle NOT facing mirror, NO reflection, NO duplicate person, cinematic intimate feel',
+  'young woman in modern bathroom, morning light, leaning against tiled wall near window, fully dressed in casual home clothes, looking thoughtfully downward, warm backlighting, NO mirror visible, NO reflection, single person only',
+  'young woman in elegant bathroom, morning, sitting on edge of bathtub, wearing comfortable oversized shirt, natural soft light from window, contemplative mood, shot from slight above angle, NO mirror, NO reflection, one person only',
 ];
 
 async function genProto() {
@@ -2208,7 +2208,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.28 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.29 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
