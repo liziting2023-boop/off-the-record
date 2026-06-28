@@ -163,7 +163,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .eve-room{flex:0 0 auto;position:relative;height:40vw;max-height:180px;overflow:hidden;}
 .eve-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .eve-room-ph{position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(160deg,#FFD8E8,#FFE8F0);display:flex;align-items:center;justify-content:center;}
-.eve-content{flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;}
+.eve-content{flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;}
 .eve-nar{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--text-dark);line-height:1.7;margin-bottom:8px;}
 .eve-msgs{display:flex;flex-direction:column;gap:6px;overflow:hidden;}
 .eve-msg{background:rgba(255,255,255,0.8);border:1px solid rgba(196,96,122,0.2);border-radius:12px;padding:10px 12px;}
@@ -337,7 +337,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.9</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.10</p>
   </div>
 </div>
 
@@ -615,7 +615,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <div class="eve-nar" id="eve-nar"></div>
         <div class="eve-msgs" id="eve-msgs"></div>
       </div>
-      <button class="btn-g" onclick="nextDay()" id="btn-sleep" style="align-self:center;margin-top:8px">Sleep · Next day</button>
+      <button class="btn-p" onclick="nextDay()" id="btn-sleep" style="align-self:center;margin-top:12px;margin-bottom:16px;min-width:180px">入睡 · 下一天</button>
     </div>
   </div>
 </div>
@@ -1670,14 +1670,34 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
   STATE.relationships.change(npcKey, relChange);
   const npcText = document.getElementById('vn-text').textContent;
   STATE.memory.recordDialogue(npcKey, day, npcText, playerReply);
-  document.getElementById('vn-speaker').textContent = G.player.name;
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  const isJa = G.lang==='ja'; const isKo = G.lang==='ko';
+
+  // Show player's choice
+  document.getElementById('vn-speaker').textContent = G.player.name || (isZh?'你':'You');
   document.getElementById('vn-text').textContent = playerReply;
-  document.getElementById('vn-opts').innerHTML = '';
-  const contLabel = G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
+  document.getElementById('vn-opts').innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
+
+  // If this is the LAST round, NPC gives a brief closing reaction before ending
+  const isLastRound = (round + 1) >= dialogRounds.length;
+  if (isLastRound) {
+    const char = STORY.characters[npcKey];
+    const closingCtx = STATE.memory.buildDialoguePrompt(npcKey, day, G.langName, G.player.name,
+      'The player just said: "' + playerReply + '". Give a brief closing reaction or gesture (1 sentence max). ' +
+      'This ends the scene. Make it feel like a natural scene ending — could be dismissive, warm, or ambiguous depending on your character. ' +
+      'Do NOT use "她/she/her" for the player — use "你/you" only.');
+    const closingLine = await claude(closingCtx + '\n\nOne brief closing line or action. No quotes around speech.');
+    document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
+    document.getElementById('vn-text').textContent = closingLine.trim();
+  }
+
+  // Show continue button
+  const contLabel = isZh?'继续':isJa?'続ける':isKo?'계속':'Continue';
   const btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.textContent = contLabel;
   btn.onclick = () => runVNDialog(dialogRounds, npcKey, day, round + 1);
+  document.getElementById('vn-opts').innerHTML = '';
   document.getElementById('vn-opts').appendChild(btn);
 }
 
@@ -1957,7 +1977,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.9 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.10 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
