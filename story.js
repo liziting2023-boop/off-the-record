@@ -188,12 +188,15 @@ const STORY = {
     agent: {
       age: 32,
       profession: 'Talent agent',
+      culture: 'Western. Behaves like a high-powered Western entertainment industry professional. Direct, no pleasantries, no face-saving. His coldness is personal, not cultural — he is not polite-distant, he is emotionally guarded.',
       corePersonality: [
         'Cold exterior masking deep warmth and fierce protectiveness',
         'Precise, ambitious, always three steps ahead',
         'Never shows weakness, but acts on it silently',
         'The kind of man who notices everything but says nothing',
         'Protects by controlling — it is how he shows love',
+        'Western directness: says exactly what he means, no hedging',
+        'His texts are terse — 5 words, not 50',
       ],
       hiddenTruths: [
         'His father embezzled a music fund and fled, leaving debt and a sick younger brother',
@@ -227,12 +230,15 @@ const STORY = {
     drummer: {
       age: 26,
       profession: 'Drummer and band leader',
+      culture: 'Western rock music culture. Behaves like a musician who came up through gigs, not conservatories. Casual, physical, anti-authoritarian. Does not bow or defer. Swears occasionally. Comfortable with silence and sarcasm.',
       corePersonality: [
         'Direct and blunt — says exactly what he thinks',
         'Rough around the edges but deeply loyal',
         'Terrible at expressing feelings with words',
         'Expresses care through actions: adjusting tempos, standing between her and danger',
         'Music is his first language — he speaks it better than anything else',
+        'Western rock ethos: authenticity over polish, passion over manners',
+        'Would rather walk out than pretend to agree',
       ],
       hiddenTruths: [
         'He has extremely high musical standards — his dismissiveness is not contempt, it is a test',
@@ -259,12 +265,15 @@ const STORY = {
     actor: {
       age: 29,
       profession: 'Rising actor',
+      culture: 'Western celebrity culture. Confident in a way that reads as arrogant in other cultures but is normal in Hollywood. Physically flirtatious, makes eye contact, invades personal space. His charm is practiced but not fake — he genuinely enjoys people.',
       corePersonality: [
         'Devastatingly charming — knows exactly how he looks and uses it',
         'Simultaneously dating multiple women, lies effortlessly',
         'Beneath the performance: a wounded person from a broken family',
         'Shows vulnerability selectively — it is also a seduction technique',
         'Capable of genuine love but terrified of it',
+        'Western celebrity confidence: comfortable being looked at, touched, talked about',
+        'Flirts with eye contact and physical proximity, not words alone',
       ],
       hiddenTruths: [
         'His playboy behavior is armor against his family trauma',
@@ -293,12 +302,15 @@ const STORY = {
     detective: {
       age: 36,
       profession: 'Private detective',
+      culture: 'Western noir. Think modern private investigator — drinks black coffee, wears good coats, keeps his personal life completely separate from work. Not mysterious for drama, just private by nature. Dry humor, very occasional.',
       corePersonality: [
         'Says very little but misses nothing',
         'Deliberately unreadable — a professional habit that became his personality',
         'His questions always have a purpose three layers deep',
         'Protecting people is the only way he knows how to care',
         'Has seen too much — cynical but not cruel',
+        'Western investigator ethos: information is power, silence is strategy',
+        'Asks questions like he already knows the answers',
       ],
       hiddenTruths: [
         'He is investigating the agent\'s father for a decade-old financial crime',
@@ -338,12 +350,15 @@ const STORY = {
     butler: {
       age: 20,
       profession: 'Building manager',
+      culture: 'Western — young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Calls her "sis" casually (NOT a cultural honorific — just warm informality). Brings food not as service but as genuine gesture. Would feel embarrassed to be thanked too much.',
       corePersonality: [
         'Earnest and caring — means everything he says',
         'Slightly shy, easily flustered, ears go red',
-        'Calls her "姐姐/noona/nee-san/sis" — it is affectionate, not performative',
+        'Calls her "sis" casually — warm informality, not a formal honorific',
         'Remembers every small detail about her preferences',
         'His devotion is genuine AND complicated',
+        'Western informality: comfortable sitting on the floor, sharing food, casual kindness',
+        'Does not bow or use formal language — just warm and direct',
       ],
       hiddenTruths: [
         'He is the agent\'s younger brother — almost nobody knows',
@@ -738,8 +753,8 @@ const STORY = {
         },
         isAuto: true,
         autoText: {
-          'zh-cn': '你在人群中看着他离开。\n\n名片在手里，还带着一点温度。\n\n三天后，你拨了那个号码。\n他的办公室在24楼。\n\n你坐在他对面，中间隔着一张玻璃桌。\n他把合同推到你面前——一年，独家代理。\n\n你签了。',
-          'en': 'You watched him walk away through the crowd.\n\nThe card was still warm from his hand.\n\nThree days later, you called the number.\nHis office was on the 24th floor.\n\nYou sat across from him at a glass desk.\nHe slid a contract toward you — one year, exclusive representation.\n\nYou signed it.',
+          'zh-cn': '你看着他消失在人群里。\n\n名片还带着体温。\n\n三天后，你拨了那个号码。\n他的办公室在24楼——落地窗，城市全景，一个告诉你他很认真的地方。\n\n他没抬头，把合同推过玻璃桌面。\n一年。独家代理。\n\n你拿起了笔。',
+          'en': 'You watched him disappear into the crowd.\n\nThe card was still warm.\n\nThree days later, you called.\nHis office was on the 24th floor — corner suite, city view, the kind of room that tells you he is serious.\n\nHe slid a contract across the glass desk without looking up.\nOne year. Exclusive representation.\n\nYou picked up the pen.',
           'ja': 'あなたは人混みの中で彼が去るのを見ていた。\n\n名刺はまだ少し温かかった。\n\n三日後、あなたはその番号に電話した。\n彼のオフィスは24階にあった。\n\nガラスのデスクを挟んで向かい合った。\n彼は契約書をあなたの前に滑らせた——一年間、専属契約。\n\nあなたはサインした。',
           'ko': '당신은 인파 속에서 그가 떠나는 걸 바라봤다.\n\n명함이 아직 온기를 품고 있었다.\n\n사흘 후, 당신은 그 번호로 전화를 걸었다.\n그의 사무실은 24층에 있었다.\n\n유리 책상을 사이에 두고 마주 앉았다.\n그가 계약서를 밀어왔다——1년, 전속 계약.\n\n당신은 사인했다.',
         },
