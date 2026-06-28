@@ -488,8 +488,8 @@ const STORY = {
           relChanges: [5, 3, 8],
         },
         {
-          // Round 2: 提到乐队，但不说鼓手的名字（玩家还没见过他）
-          npcContext: 'Now give her the work plan. Tell her you have assembled a band for her — she is the lead singer. The band leader is the drummer. DO NOT say the drummer\'s name. Just describe him briefly: difficult to work with, extremely high standards, but the best in the city. Tell her to go to the recording studio tomorrow at 9am. Make it sound like an order, not a suggestion.',
+          // Round 2: 提到乐队，严禁说鼓手的名字（玩家还没见过他）
+          npcContext: 'Give her the work directive. You have assembled a band — she is the lead singer. The band leader is a drummer. CRITICAL: Do NOT mention the drummer by name under any circumstances. He is unnamed in this scene. Describe him only as: difficult, high standards, best in the city. Tell her to go to the recording studio tomorrow at 9am sharp. This is an order.',
           playerOptions: {
             'zh-cn': ['我明天一定去。', '他好相处吗？', '你为什么要为我组乐队？'],
             'en': ['I will be there tomorrow.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
