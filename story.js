@@ -19,6 +19,113 @@ const STORY = {
   },
 
   // ══════════════════════════════════════════════════════
+  // 生日 & 特殊节日
+  // ══════════════════════════════════════════════════════
+  specialDates: {
+    // NPC生日 { month, day }
+    birthdays: {
+      agent:    { month: 11, day: 15, label: { 'zh-cn':'经纪人的生日', en:"Agent's Birthday" } },
+      drummer:  { month: 6,  day: 21, label: { 'zh-cn':'鼓手的生日',   en:"Drummer's Birthday" } },
+      actor:    { month: 2,  day: 14, label: { 'zh-cn':'男演员的生日', en:"Actor's Birthday" } },
+      detective:{ month: 9,  day: 3,  label: { 'zh-cn':'侦探的生日',   en:"Detective's Birthday" } },
+      butler:   { month: 3,  day: 21, label: { 'zh-cn':'管家的生日',   en:"Butler's Birthday" } },
+      player:   { month: 8,  day: 10, label: { 'zh-cn':'你的生日',     en:'Your Birthday' } },
+    },
+
+    // 西方节日（月/日）
+    holidays: {
+      valentine:    { month: 2,  day: 14, label: { 'zh-cn':"情人节",       en:"Valentine's Day" } },
+      halloween:    { month: 10, day: 31, label: { 'zh-cn':"万圣节",       en:"Halloween" } },
+      thanksgiving: { month: 11, day: 28, label: { 'zh-cn':"感恩节",       en:"Thanksgiving" } },
+      christmas_eve:{ month: 12, day: 24, label: { 'zh-cn':"圣诞前夜",     en:"Christmas Eve" } },
+      christmas:    { month: 12, day: 25, label: { 'zh-cn':"圣诞节",       en:"Christmas Day" } },
+      newyear_eve:  { month: 12, day: 31, label: { 'zh-cn':"新年前夜",     en:"New Year's Eve" } },
+      newyear:      { month: 1,  day: 1,  label: { 'zh-cn':"新年",         en:"New Year's Day" } },
+    },
+
+    // 根据游戏天数获取当前日期（从3月15日开始）
+    getGameDate(day) {
+      const start = new Date(2024, 2, 15); // March 15
+      const current = new Date(start);
+      current.setDate(start.getDate() + day - 1);
+      return { month: current.getMonth() + 1, day: current.getDate() };
+    },
+
+    // 检查今天是否是NPC生日
+    getNPCBirthday(gameDay) {
+      const { month, day } = this.getGameDate(gameDay);
+      for (const [npc, bd] of Object.entries(this.birthdays)) {
+        if (bd.month === month && bd.day === day) return { npc, ...bd };
+      }
+      return null;
+    },
+
+    // 检查今天是否是节日
+    getHoliday(gameDay) {
+      const { month, day } = this.getGameDate(gameDay);
+      for (const [key, hd] of Object.entries(this.holidays)) {
+        if (hd.month === month && hd.day === day) return { key, ...hd };
+      }
+      return null;
+    },
+
+    // 根据好感度决定NPC行为
+    getAffinityTier(relationship) {
+      if (relationship >= 81) return 'high';    // 主动出现 + 特殊邀约
+      if (relationship >= 61) return 'mid';     // 频繁消息 + 偶尔邀约
+      if (relationship >= 31) return 'low';     // 偶尔消息
+      return 'none';                             // 基本不联系
+    },
+
+    // 生成NPC主动消息的场景描述
+    getProactiveContext(npcKey, tier, occasion, lang, playerName, npcName) {
+      const isZh = lang === 'zh-cn' || lang === 'zh-tw';
+      const isHoliday = occasion && occasion.key;
+      const isBirthday = occasion && occasion.npc;
+      const isPlayerBday = occasion && occasion.npc === 'player';
+
+      if (isPlayerBday) {
+        return {
+          'zh-cn': npcName + '记得你的生日。发一条消息或是邀约。',
+          en: npcName + ' remembered your birthday. Send a message or invitation based on your relationship tier: ' + tier,
+        }[lang] || npcName + ' remembered your birthday.';
+      }
+
+      if (isBirthday) {
+        return {
+          'zh-cn': '今天是' + npcName + '的生日。他可能提到，也可能假装没事。',
+          en: "It is " + npcName + "'s birthday today. He may mention it or pretend nothing.",
+        }[lang] || "It is " + npcName + "'s birthday.";
+      }
+
+      const tierContexts = {
+        high: {
+          'zh-cn': tier === 'high' ? '好感度很高。他主动联系，语气比平时亲密，可能提出今晚见面或特殊邀约。' : '',
+          en: 'High affinity. He reaches out proactively, warmer than usual, may suggest meeting up.',
+        },
+        mid: {
+          'zh-cn': '好感度中等偏高。他发来消息，语气轻松，可能是随手一条也可能别有用意。',
+          en: 'Medium-high affinity. He sends a casual message, relaxed tone, may have ulterior motives.',
+        },
+        low: {
+          'zh-cn': '好感度一般。他偶尔联系，保持适当距离。',
+          en: 'Low-medium affinity. Occasional contact, maintaining appropriate distance.',
+        },
+      };
+
+      if (isHoliday) {
+        const holidayName = occasion.label[lang] || occasion.label.en;
+        return (isZh ? '今天是' + holidayName + '。' : 'Today is ' + holidayName + '. ') +
+          (tierContexts[tier] ? (isZh ? tierContexts[tier]['zh-cn'] : tierContexts[tier].en) : '');
+      }
+
+      return isZh ?
+        (tierContexts[tier] ? tierContexts[tier]['zh-cn'] : '') :
+        (tierContexts[tier] ? tierContexts[tier].en : '');
+    },
+  },
+
+  // ══════════════════════════════════════════════════════
   // 季节设定
   // ══════════════════════════════════════════════════════
   seasons: {
