@@ -9,126 +9,146 @@
 :root{--cream:#F7F3EE;--ink-muted:#8A8078;--gold:#C4A882;--rose:#C4847A;--night:#0F0E0C;--night-warm:#1A1714;--night-glow:#2A2520;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
-.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 40px;animation:fadeIn 0.8s ease;}
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 90px;animation:fadeIn 0.8s ease;}
 .screen.active{display:flex;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeInSlow{from{opacity:0}to{opacity:1}}
 @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
 @keyframes dots{0%{content:''}33%{content:'.'}66%{content:'..'}100%{content:'...'}}
+@keyframes shimmer{0%{opacity:0.4}50%{opacity:0.8}100%{opacity:0.4}}
 .loading-dots::after{content:'';animation:dots 1.5s infinite;}
+.gt{font-size:11px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;animation:pulse 1.5s infinite;}
 
-/* TYPOGRAPHY - Mobile optimized */
+/* TYPE */
 .eyebrow{font-size:11px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;opacity:0.7;}
 .title-main{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,14vw,88px);font-weight:300;font-style:italic;line-height:0.9;color:var(--cream);text-align:center;margin-bottom:24px;}
 .divider-h{width:40px;height:1px;background:var(--gold);margin:0 auto 32px;opacity:0.5;}
-.divider-thin{width:60px;height:1px;background:rgba(196,168,130,0.3);margin:0 auto 24px;}
-.sec-head{text-align:center;margin-bottom:24px;width:100%;max-width:500px;}
+.divider-thin{width:60px;height:1px;background:rgba(196,168,130,0.3);margin:0 auto 20px;}
+.sec-head{text-align:center;margin-bottom:20px;width:100%;max-width:500px;}
 .sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,7vw,40px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:8px;}
 .sec-head p{font-size:14px;color:var(--ink-muted);line-height:1.8;}
-.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4.5vw,24px);font-weight:300;font-style:italic;line-height:2;color:var(--cream);margin-bottom:32px;opacity:0;animation:fadeInSlow 1.2s ease 0.3s forwards;text-align:center;}
+.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4.5vw,22px);font-weight:300;font-style:italic;line-height:2;color:var(--cream);margin-bottom:28px;opacity:0;animation:fadeInSlow 1.2s ease 0.3s forwards;text-align:center;}
 .nar em{color:var(--gold);font-style:normal;}
-.stamp{font-size:11px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:32px;opacity:0.6;}
-.clabel{font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;opacity:0.8;text-align:center;}
-.dialogue{font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4.5vw,24px);font-style:italic;color:var(--cream);margin-bottom:20px;line-height:1.7;text-align:center;}
-.speaker{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;opacity:0.7;text-align:center;}
+.stamp{font-size:11px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:28px;opacity:0.6;}
+.clabel{font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;opacity:0.8;text-align:center;}
+.dialogue{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4.5vw,22px);font-style:italic;color:var(--cream);margin-bottom:20px;line-height:1.7;text-align:center;}
 
-/* BUTTONS - Mobile sized */
-.btn-p{background:var(--gold);border:none;border-radius:2px;padding:16px 40px;color:var(--night);font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;min-height:52px;}
-.btn-p:hover{background:var(--cream);}
-.btn-g{background:transparent;border:1px solid rgba(196,168,130,0.35);border-radius:2px;padding:14px 32px;color:var(--gold);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.25s;min-height:52px;}
-.btn-g:hover{border-color:var(--gold);background:rgba(196,168,130,0.06);}
-.btn-t{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:color 0.2s;padding:10px;min-height:44px;}
-.btn-t:hover{color:var(--gold);}
+/* BUTTONS */
+.btn-p{background:var(--gold);border:none;border-radius:2px;padding:16px 40px;color:var(--night);font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:52px;display:inline-block;}
+.btn-g{background:transparent;border:1px solid rgba(196,168,130,0.35);border-radius:2px;padding:14px 28px;color:var(--gold);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:52px;display:inline-block;}
+.btn-t{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:10px;min-height:44px;}
 
-/* CARDS - Mobile touch friendly */
-.cgrid{display:grid;gap:10px;width:100%;max-width:500px;margin-bottom:24px;}
+/* CARDS */
+.cgrid{display:grid;gap:10px;width:100%;max-width:500px;margin-bottom:20px;}
 .cgrid.c2{grid-template-columns:1fr 1fr;}
 .cgrid.c3{grid-template-columns:1fr 1fr 1fr;}
 .cgrid.c1{grid-template-columns:1fr;max-width:400px;}
-.card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px 12px;cursor:pointer;transition:all 0.2s;text-align:center;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-weight:300;color:var(--cream);line-height:1.4;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;}
-.card:active{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
-.card.active-sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:15px 12px;cursor:pointer;transition:all 0.2s;text-align:center;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-weight:300;color:var(--cream);line-height:1.4;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;}
+.card:active,.card.active-sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
 .card .sub{display:block;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-top:4px;}
 
-/* LANG GRID */
-.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:460px;margin-bottom:24px;}
+/* LANG */
+.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:460px;margin-bottom:20px;}
 .lcard{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px;cursor:pointer;transition:all 0.2s;text-align:center;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;}
-.lcard:active{border-color:var(--gold);background:rgba(196,168,130,0.1);}
-.lcard.active-sel{border-color:var(--gold);background:rgba(196,168,130,0.1);}
+.lcard:active,.lcard.active-sel{border-color:var(--gold);background:rgba(196,168,130,0.1);}
 .lname{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--cream);display:block;margin-bottom:3px;}
 .lcard.active-sel .lname{color:var(--gold);}
 .lmkt{font-size:10px;letter-spacing:1px;color:var(--ink-muted);}
 
-/* TRIO - 3 portrait images */
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:500px;margin-bottom:16px;}
-.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
-.trio-item:active{border-color:var(--gold);}
+/* TRIO */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:500px;margin-bottom:14px;}
+.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;}
 .trio-item.active-sel{border-color:var(--gold);}
 .trio-item img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;}
 .trio-item .iph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:6px;}
 .trio-item .sbadge{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--night);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;opacity:0;transition:opacity 0.2s;white-space:nowrap;}
 .trio-item.active-sel .sbadge{opacity:1;}
 
-/* ROOM - 3 options horizontal scroll on mobile */
-.room-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:500px;margin-bottom:16px;}
-.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.25s;position:relative;}
-.rcard:active{border-color:var(--gold);}
+/* ROOM TRIO */
+.room-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:500px;margin-bottom:14px;}
+.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative;}
 .rcard.active-sel{border-color:var(--gold);}
 .rcard img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
 .rcard .rph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:6px;}
 .rcard .rlabel{padding:8px;font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--cream);background:var(--night-warm);text-align:center;}
 .rcard.active-sel .rlabel{color:var(--gold);}
-.rcard .rbadge{position:absolute;top:6px;right:6px;background:var(--gold);color:var(--night);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:2px;opacity:0;transition:opacity 0.2s;}
+.rcard .rbadge{position:absolute;top:6px;right:6px;background:var(--gold);color:var(--night);font-size:9px;padding:2px 6px;border-radius:2px;opacity:0;}
 .rcard.active-sel .rbadge{opacity:1;}
 
-/* SCENE IMAGE */
-.scene-img{width:100%;max-width:400px;border-radius:6px;overflow:hidden;margin:0 auto 20px;position:relative;}
-.scene-img img{width:100%;display:block;border-radius:6px;}
+/* SCENE */
+.scene-img{width:100%;max-width:400px;border-radius:6px;overflow:hidden;margin:0 auto 20px;}
+.scene-img img{width:100%;display:block;border-radius:6px;cursor:pointer;}
 .scene-img .sph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);border-radius:6px;flex-direction:column;gap:8px;}
+.scene-wide .sph{aspect-ratio:3/4;}
 
-/* FULLSCREEN LIGHTBOX */
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:1000;align-items:center;justify-content:center;}
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:1000;align-items:center;justify-content:center;}
 .lightbox.open{display:flex;}
 .lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:4px;}
-.lightbox-close{position:absolute;top:16px;right:16px;background:rgba(196,168,130,0.2);border:1px solid rgba(196,168,130,0.4);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gold);font-size:18px;}
+.lb-close{position:absolute;top:16px;right:16px;background:rgba(196,168,130,0.2);border:1px solid rgba(196,168,130,0.4);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gold);font-size:20px;z-index:1001;}
 
-/* PROFILE BOX */
+/* PROFILE */
 .pbox{width:100%;max-width:340px;background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:4px;padding:16px 20px;margin-bottom:20px;}
 .pbox .ptitle{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;opacity:0.8;}
 .prow{display:flex;justify-content:space-between;margin-bottom:7px;font-size:14px;}
 .prow .pk{color:var(--ink-muted);}
 .prow .pv{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--cream);}
 
-/* HERITAGE BOX */
+/* HERITAGE */
 .hbox{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.2);border-radius:4px;padding:14px 20px;margin-bottom:20px;width:100%;max-width:500px;text-align:center;}
 .trow{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
 .ti .tl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;}
 .ti .tv{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--gold);}
 
-/* FAME SYSTEM */
-.fame-screen{width:100%;max-width:400px;}
-.fame-title{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,6vw,32px);font-style:italic;color:var(--cream);text-align:center;margin-bottom:8px;}
-.fame-level{font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:20px;opacity:0.8;}
-.fame-bar-wrap{background:rgba(255,255,255,0.05);border-radius:20px;height:6px;margin-bottom:6px;overflow:hidden;}
-.fame-bar{height:100%;background:linear-gradient(90deg,var(--gold),#e8c99a);border-radius:20px;transition:width 1s ease;}
-.fame-pct{font-size:11px;color:var(--ink-muted);text-align:right;margin-bottom:20px;}
-.fame-rank{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.2);border-radius:4px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
-.fame-rank .fr-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:rgba(196,168,130,0.3);min-width:28px;}
-.fame-rank.current .fr-num{color:var(--gold);}
-.fame-rank .fr-label{font-size:14px;color:var(--ink-muted);}
-.fame-rank.current .fr-label{color:var(--cream);}
-
 /* NAME INPUT */
-.name-input{width:100%;max-width:360px;background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.3);border-radius:4px;padding:16px;color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;text-align:center;outline:none;margin-bottom:8px;}
-.name-input:focus{border-color:var(--gold);}
-.name-input::placeholder{color:rgba(196,168,130,0.3);}
+.name-inp{width:100%;max-width:360px;background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.3);border-radius:4px;padding:16px;color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;text-align:center;outline:none;margin-bottom:8px;}
+.name-inp:focus{border-color:var(--gold);}
+.name-inp::placeholder{color:rgba(196,168,130,0.3);}
 
 /* DAILY */
 .mclock{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,12vw,64px);font-weight:300;color:var(--cream);letter-spacing:-2px;margin-bottom:4px;}
-.mdate{font-size:11px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:24px;}
-.dopt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:18px 20px;cursor:pointer;transition:all 0.2s;width:100%;max-width:380px;margin-bottom:10px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);color:var(--cream);display:block;min-height:64px;}
+.mdate{font-size:11px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:20px;}
+.dopt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:16px 18px;cursor:pointer;transition:all 0.2s;width:100%;max-width:400px;margin-bottom:10px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);color:var(--cream);display:block;min-height:64px;}
 .dopt:active{border-color:var(--gold);background:rgba(196,168,130,0.06);color:var(--gold);}
 .dopt .dsub{display:block;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-top:4px;}
+.dopt.work-opt{border-left:2px solid rgba(196,168,130,0.4);}
+.dopt.social-opt{border-left:2px solid rgba(196,168,130,0.15);}
+
+/* DIALOGUE OPTIONS */
+.dlg-wrap{width:100%;max-width:420px;margin-bottom:16px;}
+.dlg-bubble{background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.2);border-radius:12px 12px 12px 2px;padding:14px 18px;margin-bottom:16px;text-align:left;}
+.dlg-bubble.player{background:rgba(196,168,130,0.04);border-radius:12px 12px 2px 12px;border-color:rgba(196,168,130,0.1);}
+.dlg-name{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;opacity:0.8;}
+.dlg-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--cream);line-height:1.8;}
+.dlg-opt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:14px 16px;cursor:pointer;transition:all 0.2s;width:100%;max-width:400px;margin-bottom:8px;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);color:var(--cream);display:block;min-height:54px;}
+.dlg-opt:active{border-color:var(--gold);background:rgba(196,168,130,0.08);color:var(--gold);}
+.rel-badge{display:inline-block;font-size:10px;letter-spacing:2px;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;}
+.rel-close{background:rgba(74,222,128,0.15);color:#4ade80;}
+.rel-neutral{background:rgba(196,168,130,0.15);color:var(--gold);}
+.rel-far{background:rgba(239,68,68,0.15);color:#ef4444;}
+
+/* FAME */
+.fame-wrap{width:100%;max-width:400px;}
+.fame-header{text-align:center;margin-bottom:20px;}
+.fame-player{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,6vw,30px);font-style:italic;color:var(--cream);margin-bottom:4px;}
+.fame-current{font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;opacity:0.8;}
+.fame-bar-bg{background:rgba(255,255,255,0.05);border-radius:20px;height:6px;margin-bottom:4px;overflow:hidden;}
+.fame-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),#e8c99a);border-radius:20px;transition:width 1s ease;}
+.fame-pct{font-size:11px;color:var(--ink-muted);text-align:right;margin-bottom:20px;}
+.fame-rank-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:4px;margin-bottom:6px;transition:all 0.2s;}
+.fame-rank-item.current{background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.25);}
+.fame-rank-item.danger{opacity:0.6;}
+.fr-crown{font-size:18px;min-width:28px;text-align:center;}
+.fr-label{font-size:14px;color:var(--ink-muted);flex:1;}
+.fame-rank-item.current .fr-label{color:var(--cream);}
+.fr-pts{font-size:11px;color:var(--ink-muted);letter-spacing:1px;}
+
+/* SETTINGS */
+.settings-section{width:100%;max-width:400px;margin-bottom:24px;}
+.settings-title{font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;opacity:0.7;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.1);border-radius:3px;margin-bottom:8px;}
+.settings-label{font-size:14px;color:var(--cream);}
+.settings-val{font-size:13px;color:var(--gold);font-family:'Cormorant Garamond',serif;font-style:italic;}
 
 /* GALLERY */
 .ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:500px;max-height:60vh;overflow-y:auto;margin-bottom:16px;}
@@ -136,19 +156,18 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 .gi img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
 .gi .gl{background:var(--night-warm);padding:4px 6px;font-size:9px;color:var(--ink-muted);letter-spacing:1px;}
 
-/* GT */
-.gt{font-size:11px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;animation:pulse 1.5s infinite;}
+/* MSG BUBBLE */
+.msg-card{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.15);border-radius:8px;padding:16px;text-align:left;width:100%;max-width:400px;margin-bottom:12px;}
+.msg-from{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+.msg-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--cream);line-height:1.8;}
 
 /* NAV */
 .prog{position:fixed;top:0;left:0;height:2px;background:var(--gold);transition:width 0.5s ease;z-index:200;opacity:0.5;}
-.back{position:fixed;top:14px;left:16px;font-size:11px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:8px;min-height:44px;}
+.back-btn{position:fixed;top:14px;left:16px;font-size:11px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:8px;min-height:44px;}
 .sind{position:fixed;top:18px;right:16px;font-size:9px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;z-index:200;}
-
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,14,12,0.95);border-top:1px solid rgba(196,168,130,0.1);display:none;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:150;}
-.bottom-nav.visible{display:flex;}
-.bnav-btn{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:8px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:60px;min-height:44px;transition:color 0.2s;}
-.bnav-btn:active{color:var(--gold);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,14,12,0.97);border-top:1px solid rgba(196,168,130,0.1);display:none;justify-content:space-around;padding:8px 0 max(8px,env(safe-area-inset-bottom));z-index:150;}
+.bottom-nav.show{display:flex;}
+.bnav-btn{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:6px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;min-height:44px;transition:color 0.2s;}
 .bnav-btn.active{color:var(--gold);}
 .bnav-icon{font-size:18px;}
 
@@ -160,21 +179,24 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <div class="prog" id="prog" style="width:0%"></div>
 
 <!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <div class="lightbox-close">✕</div>
-  <img id="lightbox-img" src="" alt="">
+<div class="lightbox" id="lightbox" onclick="closeLB()">
+  <div class="lb-close" onclick="closeLB()">✕</div>
+  <img id="lb-img" src="" alt="">
 </div>
 
-<!-- BOTTOM NAV (shown during gameplay) -->
+<!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
-  <button class="bnav-btn active" id="bn-home" onclick="goDaily()">
-    <span class="bnav-icon">🏠</span>Home
+  <button class="bnav-btn active" id="bn-home" onclick="goHome()">
+    <span class="bnav-icon">🏠</span><span id="bn-home-lbl">Home</span>
   </button>
   <button class="bnav-btn" id="bn-fame" onclick="openFame()">
-    <span class="bnav-icon">⭐</span>Fame
+    <span class="bnav-icon">⭐</span><span id="bn-fame-lbl">Fame</span>
   </button>
   <button class="bnav-btn" id="bn-gallery" onclick="openGallery()">
-    <span class="bnav-icon">📷</span>Gallery
+    <span class="bnav-icon">📷</span><span id="bn-gallery-lbl">Gallery</span>
+  </button>
+  <button class="bnav-btn" id="bn-settings" onclick="openSettings()">
+    <span class="bnav-icon">⚙️</span><span id="bn-settings-lbl">Settings</span>
   </button>
 </div>
 
@@ -186,7 +208,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="divider-h"></div>
     <p style="font-size:12px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:44px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.4);text-transform:uppercase;margin-top:32px">v4.0</p>
+    <p style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.35);margin-top:28px">v5.0</p>
   </div>
 </div>
 
@@ -197,42 +219,39 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US · UK · Australia</span></div>
     <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
     <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">South Korea</span></div>
-    <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">Germany · Austria</span></div>
+    <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">Germany</span></div>
     <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">France · Canada</span></div>
     <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">Spain · Latin America</span></div>
     <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">Brazil</span></div>
     <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">Turkey</span></div>
-    <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">Overseas Chinese</span></div>
-    <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">Taiwan · Hong Kong</span></div>
+    <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">海外华人</span></div>
+    <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">台灣 · 香港</span></div>
   </div>
   <button class="btn-p" id="btn-lang" onclick="go('s-open')" style="display:none">Continue</button>
 </div>
 
-<!-- ══ MORNING OPEN ══ -->
+<!-- ══ OPEN ══ -->
 <div class="screen" id="s-open">
   <div class="wrap">
     <div class="stamp" id="open-stamp">Friday · 7:14 AM</div>
     <p class="nar" id="open-nar"></p>
-    <button class="btn-g" onclick="go('s-name')">Continue</button>
+    <button class="btn-g" onclick="go('s-name')" id="btn-open">Continue</button>
   </div>
 </div>
 
-<!-- ══ PLAYER NAME ══ -->
+<!-- ══ NAME ══ -->
 <div class="screen" id="s-name">
-  <button class="back" onclick="go('s-open')">← Back</button>
-  <div class="sec-head">
-    <h2 id="name-title">What's your name?</h2>
-    <p id="name-sub">The name you perform under. The one that will mean something someday.</p>
-  </div>
-  <input class="name-input" id="name-inp" type="text" maxlength="20" id="name-inp" placeholder="Your name...">
-  <p style="font-size:11px;color:var(--ink-muted);margin-bottom:24px;letter-spacing:1px" id="name-hint">This is how everyone will know you.</p>
+  <button class="back-btn" onclick="go('s-open')">← Back</button>
+  <div class="sec-head"><h2 id="name-title">What's your name?</h2><p id="name-sub">The name you perform under.</p></div>
+  <input class="name-inp" id="name-inp" type="text" maxlength="20" placeholder="Your name...">
+  <p style="font-size:12px;color:var(--ink-muted);margin-bottom:20px;letter-spacing:1px" id="name-hint">This is how everyone will know you.</p>
   <button class="btn-p" onclick="saveName()">Continue</button>
 </div>
 
 <!-- ══ MOTHER ══ -->
 <div class="screen" id="s-mother">
-  <button class="back" onclick="go('s-name')">← Back</button>
-  <div class="sind">1 / 6</div>
+  <button class="back-btn" onclick="go('s-name')">← Back</button>
+  <div class="sind">1 / 5</div>
   <div class="sec-head"><h2 id="mother-title">My mother</h2><p id="mother-sub">She always said I had her eyes.</p></div>
   <div class="clabel" id="lbl-her-origin">HER ORIGIN</div>
   <div class="cgrid c2" id="g-mom"></div>
@@ -241,8 +260,8 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ FATHER ══ -->
 <div class="screen" id="s-father">
-  <button class="back" onclick="go('s-mother')">← Back</button>
-  <div class="sind">2 / 6</div>
+  <button class="back-btn" onclick="go('s-mother')">← Back</button>
+  <div class="sind">2 / 5</div>
   <div class="sec-head"><h2 id="father-title">My father</h2><p id="father-sub">He said my skin was just like his.</p></div>
   <div class="clabel" id="lbl-his-origin">HIS ORIGIN</div>
   <div class="cgrid c2" id="g-dad"></div>
@@ -251,21 +270,21 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ HERITAGE ══ -->
 <div class="screen" id="s-heritage">
-  <button class="back" onclick="go('s-father')">← Back</button>
+  <button class="back-btn" onclick="go('s-father')">← Back</button>
   <div class="wrap">
     <p class="nar" id="h-nar"></p>
     <div class="hbox"><div class="trow" id="h-traits"></div></div>
-    <button class="btn-g" onclick="go('s-hair')" id="btn-heritage">That's right</button>
+    <button class="btn-g" id="btn-heritage" onclick="go('s-hair')">That's right</button>
   </div>
 </div>
 
 <!-- ══ HAIR ══ -->
 <div class="screen" id="s-hair">
-  <button class="back" onclick="go('s-heritage')">← Back</button>
-  <div class="sind">3 / 6</div>
+  <button class="back-btn" onclick="go('s-heritage')">← Back</button>
+  <div class="sind">3 / 5</div>
   <div class="sec-head"><h2 id="hair-title">Yesterday</h2><p id="hair-sub">I finally went to that salon.</p></div>
   <div class="clabel" id="lbl-hair-style">HAIR STYLE</div>
-  <div class="cgrid c2" id="g-hstyle" style="margin-bottom:16px"></div>
+  <div class="cgrid c2" id="g-hstyle" style="margin-bottom:14px"></div>
   <div class="clabel" id="lbl-hair-colour">HAIR COLOUR</div>
   <div class="cgrid c3" id="g-hcolor"></div>
   <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="display:none;margin-top:4px">Continue</button>
@@ -273,9 +292,9 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ CITY ══ -->
 <div class="screen" id="s-city">
-  <button class="back" onclick="go('s-hair')">← Back</button>
-  <div class="sind">4 / 6</div>
-  <div class="sec-head"><h2 id="city-title">Two months ago</h2><p id="city-sub">I packed two suitcases and told myself it was just for a year.</p></div>
+  <button class="back-btn" onclick="go('s-hair')">← Back</button>
+  <div class="sind">4 / 5</div>
+  <div class="sec-head"><h2 id="city-title">Two months ago</h2><p id="city-sub">I packed two suitcases.</p></div>
   <div class="clabel" id="lbl-city">WHERE DID YOU MOVE TO?</div>
   <div class="cgrid c2" id="g-city"></div>
   <button class="btn-p" id="btn-city" onclick="go('s-decor')" style="display:none">Continue</button>
@@ -283,51 +302,47 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ DECOR ══ -->
 <div class="screen" id="s-decor">
-  <button class="back" onclick="go('s-city')">← Back</button>
-  <div class="sind">5 / 6</div>
-  <div class="sec-head"><h2 id="decor-title">My apartment</h2><p id="decor-sub">It wasn't much when I moved in. But I made it mine.</p></div>
+  <button class="back-btn" onclick="go('s-city')">← Back</button>
+  <div class="sind">5 / 5</div>
+  <div class="sec-head"><h2 id="decor-title">My apartment</h2><p id="decor-sub">I made it mine.</p></div>
   <div class="clabel" id="lbl-decor">INTERIOR STYLE</div>
   <div class="cgrid c1" id="g-decor"></div>
-  <button class="btn-p" id="btn-decor" onclick="genRooms()" style="display:none;margin-top:4px" id="lbl-gen-apt">Generate my apartment</button>
+  <button class="btn-p" id="btn-decor" onclick="genRooms()" style="display:none;margin-top:4px" id="lbl-gen">Generate my apartment</button>
 </div>
 
 <!-- ══ ROOMS ══ -->
 <div class="screen" id="s-rooms">
-  <div class="sind">6 / 6</div>
   <div class="sec-head"><h2 id="rooms-title">Choose your living room</h2><p id="rooms-sub">Three styles. Which one is home?</p></div>
-  <div class="room-trio" id="room-trio">
+  <div class="room-trio">
     <div class="rcard" id="ra" onclick="selRoom('a')">
-      <div class="rph" id="ra-ph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div>
-      <div class="rlabel" id="lbl-opt-a">Style A</div>
-      <div class="rbadge">✓</div>
+      <div class="rph" id="ra-ph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div>
+      <div class="rlabel" id="lbl-style-a">Style A</div><div class="rbadge">✓</div>
     </div>
     <div class="rcard" id="rb" onclick="selRoom('b')">
-      <div class="rph" id="rb-ph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div>
-      <div class="rlabel" id="lbl-opt-b">Style B</div>
-      <div class="rbadge">✓</div>
+      <div class="rph" id="rb-ph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div>
+      <div class="rlabel" id="lbl-style-b">Style B</div><div class="rbadge">✓</div>
     </div>
     <div class="rcard" id="rc" onclick="selRoom('c')">
-      <div class="rph" id="rc-ph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div>
-      <div class="rlabel" id="lbl-opt-c">Style C</div>
-      <div class="rbadge">✓</div>
+      <div class="rph" id="rc-ph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div>
+      <div class="rlabel" id="lbl-style-c">Style C</div><div class="rbadge">✓</div>
     </div>
   </div>
-  <button class="btn-p" id="btn-rooms" onclick="genProtagonist()" style="display:none">This is my home</button>
+  <button class="btn-p" id="btn-rooms" onclick="genProto()" style="display:none" id="lbl-this-home">This is my home</button>
 </div>
 
 <!-- ══ PROTAGONIST ══ -->
 <div class="screen" id="s-proto">
   <div class="wrap">
     <div class="stamp" id="mirror-stamp">Bathroom mirror · 7:31 AM</div>
-    <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4vw,19px);font-style:italic;color:var(--ink-muted);margin-bottom:16px;line-height:1.9" id="mirror-nar"></p>
-    <div class="clabel" id="lbl-choose-reflection">CHOOSE YOUR REFLECTION</div>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--ink-muted);margin-bottom:14px;line-height:1.9" id="mirror-nar"></p>
+    <div class="clabel" id="lbl-choose-refl">CHOOSE YOUR REFLECTION</div>
     <div class="trio" id="tr-proto">
-      <div class="trio-item" id="pa" onclick="selProto('a')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-this-is-me">✓ This is me</div></div>
-      <div class="trio-item" id="pb" onclick="selProto('b')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
-      <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+      <div class="trio-item" id="pa" onclick="selProto('a')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-this-me">✓ This is me</div></div>
+      <div class="trio-item" id="pb" onclick="selProto('b')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
+      <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
     </div>
-    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:12px" id="lbl-regen">↺ Generate new options</button>
-    <button class="btn-p" id="btn-proto" onclick="go('s-flash-intro')" style="display:none" id="lbl-thats-me">That's me</button>
+    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:10px" id="lbl-regen">↺ Generate new options</button>
+    <button class="btn-p" id="btn-proto" onclick="go('s-flash-intro')" style="display:none">That's me</button>
   </div>
 </div>
 
@@ -343,9 +358,9 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <!-- ══ FLASHBACK STREET ══ -->
 <div class="screen" id="s-flash-scene">
   <div class="wrap">
-    <div class="scene-img" id="street-scene-wrap">
+    <div class="scene-img scene-wide">
       <div class="sph" id="street-ph"><span class="gt">Painting the scene<span class="loading-dots"></span></span></div>
-      <img id="street-img" style="display:none;cursor:pointer" onclick="openLightbox(this.src)" alt="Street scene">
+      <img id="street-img" style="display:none" onclick="openLB(this.src)" alt="Street scene">
     </div>
     <p class="nar" id="street-nar"></p>
     <button class="btn-g" id="btn-street" onclick="go('s-agent-intro')">He was still there when the song ended</button>
@@ -362,11 +377,11 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ AGENT ORIGIN ══ -->
 <div class="screen" id="s-agent-origin">
-  <button class="back" onclick="go('s-agent-intro')">← Back</button>
+  <button class="back-btn" onclick="go('s-agent-intro')">← Back</button>
   <div class="sec-head"><h2 id="agent-origin-title">Where was he from?</h2><p id="agent-origin-sub">Something about the way he carried himself.</p></div>
   <div class="clabel" id="lbl-his-bg">HIS BACKGROUND</div>
   <div class="cgrid c2" id="g-aorigin"></div>
-  <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="display:none">I remember him</button>
+  <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="display:none" id="lbl-i-remember">I remember him</button>
 </div>
 
 <!-- ══ AGENT REVEAL ══ -->
@@ -374,15 +389,15 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
   <div class="wrap">
     <div class="clabel" id="lbl-choose-portrait">CHOOSE HIS PORTRAIT</div>
     <div class="trio" id="tr-agent">
-      <div class="trio-item" id="aga" onclick="selAgent('a')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-thats-him">✓ That's him</div></div>
-      <div class="trio-item" id="agb" onclick="selAgent('b')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
-      <div class="trio-item" id="agc" onclick="selAgent('c')"><div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
+      <div class="trio-item" id="aga" onclick="selAgent('a')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-thats-him">✓ That's him</div></div>
+      <div class="trio-item" id="agb" onclick="selAgent('b')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
+      <div class="trio-item" id="agc" onclick="selAgent('c')"><div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div></div>
     </div>
-    <button class="btn-t" id="btn-rag" onclick="regenAgent()" style="display:none;margin-bottom:12px">↺ Generate new options</button>
-    <div id="agent-reveal-txt" style="display:none;margin-bottom:20px">
-      <div class="speaker" id="lbl-his-name">HIS NAME</div>
+    <button class="btn-t" id="btn-rag" onclick="regenAgent()" style="display:none;margin-bottom:10px">↺ New options</button>
+    <div id="agent-reveal-box" style="display:none;margin-bottom:16px">
+      <div style="font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;opacity:0.7" id="lbl-his-name">HIS NAME</div>
       <p class="dialogue" id="agent-name-txt"></p>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:var(--ink-muted);line-height:1.8" id="agent-line-txt"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--ink-muted);line-height:1.8" id="agent-line-txt"></p>
     </div>
     <button class="btn-p" id="btn-agent-ok" onclick="go('s-ch1')" style="display:none" id="lbl-and-so">And so it began</button>
   </div>
@@ -391,104 +406,225 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <!-- ══ CHAPTER ONE ══ -->
 <div class="screen" id="s-ch1">
   <div class="wrap">
-    <div class="stamp" style="margin-bottom:24px">Chapter One</div>
+    <div class="stamp" style="margin-bottom:20px" id="lbl-ch1">Chapter One</div>
     <div class="divider-thin"></div>
-    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(40px,10vw,60px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:16px">Signed</h2>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(40px,10vw,60px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:16px" id="lbl-signed">Signed</h2>
     <div class="divider-thin"></div>
-    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4vw,17px);color:var(--ink-muted);margin-bottom:28px;line-height:1.9" id="ch1-quote"></p>
-    <div class="pbox" style="margin:0 auto 28px">
-      <div class="ptitle">YOUR WORLD</div>
-      <div class="prow"><span class="pk">Name</span><span class="pv" id="ch-name">—</span></div>
-      <div class="prow"><span class="pk">City</span><span class="pv" id="ch-city">—</span></div>
-      <div class="prow"><span class="pk">Agent</span><span class="pv" id="ch-agent">—</span></div>
-      <div class="prow"><span class="pk">Fame</span><span class="pv">⭐ Street Performer</span></div>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(14px,4vw,16px);color:var(--ink-muted);margin-bottom:24px;line-height:1.9" id="ch1-quote"></p>
+    <div class="pbox" style="margin:0 auto 24px">
+      <div class="ptitle" id="lbl-your-world">YOUR WORLD</div>
+      <div class="prow"><span class="pk" id="lbl-name-key">Name</span><span class="pv" id="ch-name">—</span></div>
+      <div class="prow"><span class="pk" id="lbl-city-key">City</span><span class="pv" id="ch-city">—</span></div>
+      <div class="prow"><span class="pk" id="lbl-agent-key">Agent</span><span class="pv" id="ch-agent">—</span></div>
+      <div class="prow"><span class="pk" id="lbl-fame-key">Fame</span><span class="pv" id="ch-fame">⭐ —</span></div>
     </div>
-    <button class="btn-p" onclick="startDay()">Wake up · Day 1</button>
+    <button class="btn-p" onclick="startDay()" id="btn-wakeup">Wake up · Day 1</button>
   </div>
 </div>
 
 <!-- ══ DAILY ══ -->
-<div class="screen" id="s-daily" style="padding-bottom:80px">
+<div class="screen" id="s-daily">
   <div style="width:100%;max-width:420px;text-align:center">
     <div class="mclock" id="d-clock">8:07</div>
     <div class="mdate" id="d-date">Saturday · Day 1</div>
-
-    <!-- Living room daytime bg -->
-    <div class="scene-img" id="daily-room-wrap" style="margin-bottom:20px;display:none">
-      <img id="daily-room-img" style="cursor:pointer;border-radius:6px;width:100%" onclick="openLightbox(this.src)" alt="Your apartment">
+    <div class="scene-img" id="daily-room-wrap" style="display:none">
+      <img id="daily-room-img" onclick="openLB(this.src)" alt="Your apartment" style="border-radius:6px;width:100%">
     </div>
-
-    <div class="divider-thin"></div>
-    <p class="nar" style="font-size:clamp(15px,4vw,18px);margin-bottom:24px" id="d-txt"></p>
-    <div class="clabel">TODAY</div>
+    <div class="divider-thin" style="margin-top:16px"></div>
+    <p class="nar" style="font-size:clamp(14px,4vw,17px);margin-bottom:20px" id="d-txt"></p>
+    <div class="clabel" id="lbl-today">TODAY</div>
     <div id="d-opts" style="display:flex;flex-direction:column;align-items:center;width:100%"></div>
   </div>
 </div>
 
-<!-- ══ EVENING ══ -->
-<div class="screen" id="s-evening" style="padding-bottom:80px">
-  <div style="width:100%;max-width:420px;text-align:center">
-    <div class="stamp" id="eve-stamp">10:30 PM</div>
-    <!-- Night room -->
-    <div class="scene-img" style="margin-bottom:20px">
-      <div class="sph" id="eve-room-ph" style="aspect-ratio:3/4"><span class="gt">Setting the scene<span class="loading-dots"></span></span></div>
-      <img id="eve-room-img" style="display:none;cursor:pointer;border-radius:6px;width:100%" onclick="openLightbox(this.src)" alt="Evening apartment">
+<!-- ══ SCENE (daily activity result) ══ -->
+<div class="screen" id="s-scene">
+  <div class="wrap">
+    <div class="stamp" id="scene-stamp">10:30 AM</div>
+    <div class="scene-img">
+      <div class="sph" id="scene-ph"><span class="gt">Generating scene<span class="loading-dots"></span></span></div>
+      <img id="scene-img-el" style="display:none;border-radius:6px;width:100%" onclick="openLB(this.src)" alt="Scene">
     </div>
-    <p class="nar" id="eve-nar"></p>
-    <div id="eve-messages" style="width:100%;max-width:380px;margin-bottom:20px"></div>
-    <button class="btn-g" onclick="nextDay()">Sleep · Next day</button>
+    <p class="nar" id="scene-nar"></p>
+    <!-- NPC dialogue area -->
+    <div id="dlg-area" style="display:none;width:100%;max-width:420px">
+      <div id="dlg-bubbles"></div>
+      <div id="dlg-opts"></div>
+    </div>
+    <button class="btn-g" id="btn-scene-next" onclick="goEvening()" style="display:none" id="lbl-end-day">End the day</button>
   </div>
 </div>
 
-<!-- ══ FAME SCREEN ══ -->
-<div class="screen" id="s-fame" style="padding-bottom:80px">
-  <button class="back" onclick="closeFame()">← Back</button>
-  <div class="fame-screen">
-    <div class="fame-title" id="fame-player-name">—</div>
-    <div class="fame-level" id="fame-level-label">⭐ Street Performer</div>
-    <div class="fame-bar-wrap"><div class="fame-bar" id="fame-bar" style="width:5%"></div></div>
+<!-- ══ EVENING ══ -->
+<div class="screen" id="s-evening">
+  <div style="width:100%;max-width:420px;text-align:center">
+    <div class="stamp" id="eve-stamp">10:30 PM</div>
+    <div class="scene-img">
+      <div class="sph" id="eve-ph"><span class="gt">Setting the scene<span class="loading-dots"></span></span></div>
+      <img id="eve-img" style="display:none;border-radius:6px;width:100%" onclick="openLB(this.src)" alt="Evening">
+    </div>
+    <p class="nar" id="eve-nar"></p>
+    <div id="eve-msgs" style="width:100%;max-width:400px;margin-bottom:16px"></div>
+    <button class="btn-g" onclick="nextDay()" id="btn-sleep">Sleep · Next day</button>
+  </div>
+</div>
+
+<!-- ══ FAME ══ -->
+<div class="screen" id="s-fame">
+  <button class="back-btn" onclick="closeFame()">← Back</button>
+  <div class="fame-wrap">
+    <div class="fame-header">
+      <div class="fame-player" id="fame-player-name">—</div>
+      <div class="fame-current" id="fame-level-lbl">⭐ Street Performer</div>
+    </div>
+    <div class="fame-bar-bg"><div class="fame-bar-fill" id="fame-bar" style="width:5%"></div></div>
     <div class="fame-pct" id="fame-pct">5 / 100</div>
-    <div id="fame-ranks"></div>
+    <div id="fame-ranks-list"></div>
   </div>
 </div>
 
 <!-- ══ GALLERY ══ -->
-<div class="screen" id="s-gallery" style="padding-bottom:80px">
-  <button class="back" onclick="closeGallery()">← Back</button>
-  <div class="sec-head"><h2 id="gallery-title">Your story so far</h2><p id="gallery-sub">Every moment, saved.</p></div>
+<div class="screen" id="s-gallery">
+  <button class="back-btn" onclick="closeGallery()">← Back</button>
+  <div class="sec-head"><h2 id="gallery-title">Gallery</h2><p id="gallery-sub">Your moments.</p></div>
   <div class="ggrid" id="ggrid"></div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div class="screen" id="s-settings">
+  <button class="back-btn" onclick="closeSettings()">← Back</button>
+  <div class="sec-head"><h2 id="settings-title">Settings</h2></div>
+
+  <div class="settings-section">
+    <div class="settings-title" id="lbl-lang-setting">LANGUAGE</div>
+    <div class="lgrid" id="settings-lang-grid">
+      <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US · UK</span></div>
+      <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
+      <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">Korea</span></div>
+      <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">Germany</span></div>
+      <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">France</span></div>
+      <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">Latin America</span></div>
+      <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">Brazil</span></div>
+      <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">Turkey</span></div>
+      <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">海外华人</span></div>
+      <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">台灣·香港</span></div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-title" id="lbl-style-setting">IMAGE STYLE</div>
+    <div class="cgrid c1" style="max-width:400px" id="style-grid">
+      <div class="card" onclick="selImgStyle('illustrated','Illustrated',this)" id="style-illustrated">
+        Illustrated<span class="sub">Digital painting · Painterly · Stylized</span>
+      </div>
+      <div class="card active-sel" onclick="selImgStyle('semi-realistic','Semi-Realistic',this)" id="style-semi">
+        Semi-Realistic<span class="sub">Stylized art · Soft rendering · Not photographic</span>
+      </div>
+      <div class="card" onclick="selImgStyle('cinematic','Cinematic Film',this)" id="style-cinematic">
+        Cinematic Film<span class="sub">Film grain · Dreamy · Movie poster</span>
+      </div>
+      <div class="card" onclick="selImgStyle('photorealistic','Photorealistic',this)" id="style-photo">
+        Photorealistic<span class="sub">Lifestyle photography · Real textures</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-g" onclick="closeSettings()" id="btn-save-settings">Save & Return</button>
 </div>
 
 <script>
 const WORKER='https://off-the-record-api.liziting2023.workers.dev';
 
+// ══ IMAGE STYLES ══
+const IMG_STYLES={
+  'illustrated':'digital painting style, illustrated art, painterly brush strokes visible, not photorealistic, stylized 2D art, romance novel illustration, vibrant colors, artistic rendering',
+  'semi-realistic':'semi-realistic digital art, stylized but not photographic, soft artistic rendering, romance game art style, Choices Stories You Play aesthetic, refined illustration',
+  'cinematic':'cinematic film photography style, film grain texture, dreamy color grading, movie still quality, romantic atmosphere, soft focus',
+  'photorealistic':'photorealistic, lifestyle photography style, real authentic textures, high resolution photography'
+};
+
 // ══ FAME RANKS ══
-const FAME_RANKS=[
-  {level:1,label:'Street Performer',min:0},
-  {level:2,label:'Rising Talent',min:15},
-  {level:3,label:'Breaking Through',min:30},
-  {level:4,label:'Rising Star',min:45},
-  {level:5,label:'Hot Artist',min:60},
-  {level:6,label:'Acclaimed Star',min:75},
-  {level:7,label:'International Icon',min:90},
+const FAME_DATA=[
+  {min:90,emoji:'👑',color:'#f4c840',label_en:'International Icon',label_zhcn:'国际巨星',label_zhtw:'國際巨星',label_ja:'国際的アイコン',label_ko:'국제적 아이콘'},
+  {min:75,emoji:'🌟',color:'#C4A882',label_en:'Acclaimed Star',label_zhcn:'实力派明星',label_zhtw:'實力派明星',label_ja:'実力派スター',label_ko:'실력파 스타'},
+  {min:60,emoji:'⭐',color:'#C4A882',label_en:'Hot Artist',label_zhcn:'当红艺人',label_zhtw:'當紅藝人',label_ja:'人気アーティスト',label_ko:'핫한 아티스트'},
+  {min:45,emoji:'✨',color:'#8A8078',label_en:'Rising Star',label_zhcn:'人气新星',label_zhtw:'人氣新星',label_ja:'人気新星',label_ko:'인기 신성'},
+  {min:30,emoji:'🎵',color:'#8A8078',label_en:'Breaking Through',label_zhcn:'崭露头角',label_zhtw:'嶄露頭角',label_ja:'頭角を現す',label_ko:'주목받는 신인'},
+  {min:15,emoji:'🎤',color:'#5a5a5a',label_en:'Rising Talent',label_zhcn:'新人艺人',label_zhtw:'新人藝人',label_ja:'新人アーティスト',label_ko:'신인 아티스트'},
+  {min:5,emoji:'🎸',color:'#5a5a5a',label_en:'Street Performer',label_zhcn:'街头歌手',label_zhtw:'街頭歌手',label_ja:'ストリートパフォーマー',label_ko:'버스킹 아티스트'},
+  {min:0,emoji:'⚠️',color:'#ef4444',label_en:'Fading Artist',label_zhcn:'过气艺人',label_zhtw:'過氣藝人',label_ja:'落ち目のアーティスト',label_ko:'사라져가는 아티스트',danger:true},
 ];
+
+function getFameLabel(lang,fd){
+  if(lang==='zh-cn') return fd.label_zhcn;
+  if(lang==='zh-tw') return fd.label_zhtw;
+  if(lang==='ja') return fd.label_ja;
+  if(lang==='ko') return fd.label_ko;
+  return fd.label_en;
+}
+
+function getCurrentFameRank(fame){
+  for(const fd of FAME_DATA){if(fame>=fd.min) return fd;}
+  return FAME_DATA[FAME_DATA.length-1];
+}
+
+// ══ DAILY ACTIVITIES ══
+const WORK_ACTIVITIES={
+  en:['Recording Studio','Magazine Photoshoot','Brand Event','Music Training','Award Ceremony'],
+  'zh-cn':['录音室录歌','杂志拍摄','品牌活动','音乐培训','颁奖典礼'],
+  'zh-tw':['錄音室錄歌','雜誌拍攝','品牌活動','音樂培訓','頒獎典禮'],
+  ja:['レコーディングスタジオ','雑誌撮影','ブランドイベント','音楽トレーニング','授賞式'],
+  ko:['녹음 스튜디오','잡지 촬영','브랜드 행사','음악 트레이닝','시상식'],
+};
+const SOCIAL_ACTIVITIES={
+  en:['Café in the city','Bookshop','Art gallery','Night bar','Street market'],
+  'zh-cn':['市内咖啡馆','书店','美术馆','夜间酒吧','街边市集'],
+  'zh-tw':['市內咖啡館','書店','美術館','夜間酒吧','街邊市集'],
+  ja:['街のカフェ','書店','美術館','ナイトバー','ストリートマーケット'],
+  ko:['도심 카페','서점','미술관','나이트바','거리 시장'],
+};
+const WORK_SUBS={en:'Career · +Fame',ja:'キャリア · +名声','zh-cn':'事业 · +知名度','zh-tw':'事業 · +知名度',ko:'커리어 · +명성'};
+const SOCIAL_SUBS={en:'Social · May meet someone',ja:'社交 · 誰かに会うかも','zh-cn':'社交 · 可能遇到有趣的人','zh-tw':'社交 · 可能遇到有趣的人',ko:'소셜 · 누군가를 만날 수도'};
+
+// ══ NPC DATA ══
+const NPCS={
+  agent:{nameKey:'agentName',age:32,role_en:'Your talent agent',role_zhcn:'你的经纪人',role_zhtw:'你的經紀人',role_ja:'あなたのエージェント',role_ko:'당신의 에이전트',personality:'cold exterior, secretly warm, professional, ambitious, protective'},
+  drummer:{name:'',age:26,role_en:'Band drummer & leader',role_zhcn:'乐队鼓手兼队长',role_zhtw:'樂隊鼓手兼隊長',role_ja:'バンドドラマー兼リーダー',role_ko:'밴드 드러머 겸 리더',personality:'direct, slightly rough, loyal, passionate about music'},
+  actor:{name:'',age:29,role_en:'Rising actor',role_zhcn:'新晋男演员',role_zhtw:'新晉男演員',role_ja:'人気俳優',role_ko:'떠오르는 배우',personality:'charming, mysterious, plays games, hard to read'},
+  detective:{name:'',age:36,role_en:'Private detective',role_zhcn:'私家侦探',role_zhtw:'私家偵探',role_ja:'私立探偵',role_ko:'사립 탐정',personality:'quiet, observant, knows secrets, intense but gentle'},
+  butler:{name:'',age:20,role_en:'Building manager',role_zhcn:'楼管',role_zhtw:'樓管',role_ja:'マンション管理人',role_ko:'건물 관리인',personality:'earnest, slightly shy, devoted, younger than you'},
+};
+
+// Which NPCs appear at which locations (day 1 = only agent)
+const LOCATION_NPCS={
+  'Recording Studio':['drummer'],
+  'Magazine Photoshoot':['actor'],
+  'Brand Event':['actor','agent'],
+  'Music Training':[],
+  'Award Ceremony':['agent','actor'],
+  'Café in the city':['detective','butler'],
+  'Bookshop':['detective'],
+  'Art gallery':['detective','actor'],
+  'Night bar':['drummer','actor'],
+  'Street market':['butler'],
+};
 
 // ══ STATE ══
 const G={
-  lang:'en', langName:'English',
+  lang:'en',langName:'English',
+  imgStyle:'semi-realistic',
   playerName:'',
-  mother:null, motherEyes:null,
-  father:null, fatherSkin:null,
-  hairStyle:null, hairColor:null,
-  city:null, decor:null,
-  livingDayUrl:null, livingNightUrl:null,
-  protagonistUrl:null,
-  agentOrigin:null, agentName:null, agentUrl:null,
-  fame:5, day:1,
-  gallery:[], _prevScreen:'s-daily',
+  mother:null,motherEyes:null,father:null,fatherSkin:null,
+  hairStyle:null,hairColor:null,city:null,decor:null,
+  livingDayUrl:null,livingNightUrl:null,
+  protagonistUrl:null,agentOrigin:null,agentName:null,agentUrl:null,
+  fame:5,day:1,daysWithoutWork:0,
+  relationships:{agent:0,drummer:0,actor:0,detective:0,butler:0},
+  gallery:[],_prevScreen:'s-daily',
   _ru:{a:null,b:null,c:null},
   _pu:{a:null,b:null,c:null},
   _au:{a:null,b:null,c:null},
+  _streetUrl:null,_nightReady:false,
 };
 
 const HM={
@@ -504,7 +640,7 @@ const HM={
 
 const CL={
   'New York':'Empire State Building, Times Square neon signs',
-  'Los Angeles':'Hollywood Hills sign, palm trees against blue sky',
+  'Los Angeles':'Hollywood Hills sign, palm trees',
   'London':'Tower Bridge, red double-decker bus',
   'Paris':'Eiffel Tower, Haussmann rooftops',
   'Tokyo':'Tokyo Tower, Shinjuku neon skyline',
@@ -517,59 +653,58 @@ const AS={
   'British':{hair:'dark brown neatly swept back',skin:'fair',suit:'charcoal grey double-breasted suit, open collar'},
   'American':{hair:'dark brown side-parted',skin:'medium',suit:'navy blue slim suit, white open-collar shirt'},
   'French':{hair:'dark chestnut slightly tousled',skin:'light olive',suit:'black slim-cut suit, silk pocket square'},
-  'Italian':{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit, no tie'},
+  'Italian':{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit'},
   'Korean':{hair:'black precise side part',skin:'light',suit:'dark grey minimalist suit, black turtleneck'},
   'Japanese':{hair:'black neat side part',skin:'light',suit:'anthracite suit, white shirt'},
-  'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt, no tie'},
+  'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt'},
   'Brazilian':{hair:'dark brown slight wave',skin:'warm tan',suit:'navy suit, open collar white shirt'},
 };
 
-// Fixed living room layout
-const LIVING_LAYOUT=`open-plan living and dining room combined, rectangular floor plan, camera angle from entrance foyer looking toward balcony, LEFT SIDE four-person sintered stone dining table with four fabric dining chairs and two pendant lights above, CENTER floating TV feature wall with wall-mounted 75-inch television and floating TV cabinet below with warm LED strip lighting and open bookshelf on reverse side, RIGHT SIDE three-seater fabric sofa facing TV with round coffee table and large area rug in front, curved single armchair by window with round side table and table lamp, decorative artwork on sofa feature wall, FAR END full-height floor-to-ceiling glass windows with double-layer sheer curtains and drapes and large indoor plant on right, NO central ceiling light, recessed downlights around perimeter, large round chandelier in living area, warm white lighting, clean and organized space`;
-
-const DECOR_STYLES=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
+const LIVING_LAYOUT=`rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, strong perspective depth, LEFT dining area with wooden dining table and chairs against left wall, two glass pendant lights hanging above dining table, CENTER BACK TV wall unit with built-in shelving on both sides, wall-mounted TV with floating cabinet and warm LED underglow, RIGHT large cream three-seater sofa with cushions, round coffee table on large area rug, curved accent armchair near window, round side table with lamp on far right, FAR END floor-to-ceiling window with white sheer curtains and drapes, large indoor plant near window, NO main ceiling light, recessed spotlights, single round pendant light in living area, large format tile flooring, warm neutral tones, clean organized`;
 
 const SO=['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-flash-scene','s-agent-intro','s-agent-origin','s-agent-reveal','s-ch1','s-daily'];
 
-// ══ NAVIGATION ══
+// ══ NAV ══
 function go(id){
   if(id==='s-ch1'){
     document.getElementById('ch-name').textContent=G.playerName||'—';
     document.getElementById('ch-city').textContent=G.city||'—';
     document.getElementById('ch-agent').textContent=G.agentName||'—';
+    const fr=getCurrentFameRank(G.fame);
+    document.getElementById('ch-fame').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);
   }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const idx=SO.indexOf(id);
   document.getElementById('prog').style.width=(idx<0?0:Math.round(idx/(SO.length-1)*100))+'%';
-  const inGame=idx>=SO.indexOf('s-ch1')||id==='s-fame'||id==='s-gallery'||id==='s-evening';
-  document.getElementById('bottom-nav').classList.toggle('visible',inGame);
-  if(id!=='s-fame'&&id!=='s-gallery') G._prevScreen=id;
+  const inGame=['s-daily','s-scene','s-evening','s-fame','s-gallery','s-settings','s-ch1'].includes(id);
+  document.getElementById('bottom-nav').classList.toggle('show',inGame);
+  if(!['s-fame','s-gallery','s-settings'].includes(id)) G._prevScreen=id;
   window.scrollTo(0,0);
 }
 
-function goDaily(){go('s-daily');setActive('bn-home');}
-function setActive(id){document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
+function goHome(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
+function setActiveBn(id){document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id)?.classList.add('active');}
+function openFame(){setActiveBn('bn-fame');renderFame();go('s-fame');}
+function closeFame(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
+function openGallery(){setActiveBn('bn-gallery');renderGallery();go('s-gallery');}
+function closeGallery(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
+function openSettings(){setActiveBn('bn-settings');go('s-settings');}
+function closeSettings(){go(G._prevScreen||'s-daily');setActiveBn('bn-home');}
 
 // ══ LIGHTBOX ══
-function openLightbox(src){
-  document.getElementById('lightbox-img').src=src;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+function openLB(src){document.getElementById('lb-img').src=src;document.getElementById('lightbox').classList.add('open');}
+function closeLB(){document.getElementById('lightbox').classList.remove('open');}
 
-// ══ LANG ══
-const T={
+// ══ TRANSLATIONS ══
+const TX={
   en:{
     open_nar:`The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.`,
-    name_title:"What's your name?",name_sub:'The name you perform under. The one that will mean something someday.',name_hint:'This is how everyone will know you.',
-    mother_title:'My mother',mother_sub:'She always said I had her eyes.',
-    father_title:'My father',father_sub:'He said my skin was just like his.',
-    thats_right:"That's right",
-    hair_title:'Yesterday',hair_sub:'I finally went to that salon I\'d been walking past for weeks.',
+    name_title:"What's your name?",name_sub:'The name you perform under.',name_hint:'This is how everyone will know you.',
+    mother_title:'My mother',mother_sub:'She always said I had her eyes.',father_title:'My father',father_sub:'He said my skin was just like his.',
+    thats_right:"That's right",hair_title:'Yesterday',hair_sub:"I finally went to that salon I'd been walking past for weeks.",
     city_title:'Two months ago',city_sub:'I packed two suitcases and told myself it was just for a year.',
-    decor_title:'My apartment',decor_sub:"It wasn't much when I moved in. But I made it mine.",
-    rooms_title:'Choose your living room',rooms_sub:'Three styles. Which one is home?',
+    decor_title:'My apartment',decor_sub:"I made it mine.",rooms_title:'Choose your living room',rooms_sub:'Which one is home?',
     mirror_nar:`I looked at myself for a long moment.\nSame face. Different city.`,
     flash_nar:`Every night, I set up in the same spot.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nThe pianist was always there before me.\nWe never talked much. We just played.\n\nAnd every night, the city walked past without looking.`,
     street_nar:`Until one night — someone stopped.\nAnd didn't leave.`,
@@ -577,6 +712,12 @@ const T={
     agent_origin_title:'Where was he from?',agent_origin_sub:'Something about the way he carried himself.',
     ch1_quote:`"Everything changes the moment\nsomeone finally sees you."`,
     open_stamp:'Friday · 7:14 AM',mirror_stamp:'Bathroom mirror · 7:31 AM',flashback_stamp:'Every night, for months',
+    your_world:'YOUR WORLD',name_key:'Name',city_key:'City',agent_key:'Agent',fame_key:'Fame',
+    ch1_label:'Chapter One',signed:'Signed',wake_up:'Wake up · Day 1',
+    today:'TODAY',end_day:'End the day',sleep:'Sleep · Next day',
+    home:'Home',fame:'Fame',gallery_lbl:'Gallery',settings_lbl:'Settings',
+    gallery_title:'Gallery',gallery_sub:'Your moments.',settings_title:'Settings',
+    lang_setting:'LANGUAGE',style_setting:'IMAGE STYLE',save_return:'Save & Return',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -589,19 +730,20 @@ const T={
     decor_subs:['Soft voiles · Delicate details · Dreamy pastels','Natural curves · Oak & walnut · Warm textures','Vintage frames · Heirloom textiles · Florals','Deep tones · Gold accents · City-sleek','Warm layers · Trailing plants · Candlelight'],
     agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'],
     agent_origin_subs:['England · Scotland','East Coast · West Coast','Paris · South of France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio'],
-    fame_ranks:['Street Performer','Rising Talent','Breaking Through','Rising Star','Hot Artist','Acclaimed Star','International Icon'],
-    gallery_title:'Your story so far',gallery_sub:'Every moment, saved.',
+    close_lbl:'Closer',neutral_lbl:'Neutral',far_lbl:'Distance',
+    his_name:'HIS NAME',choose_portrait:'CHOOSE HIS PORTRAIT',and_so:'And so it began',
+    tell_him:'Tell me about him',his_bg:'HIS BACKGROUND',i_remember:'I remember him',
+    choose_refl:'CHOOSE YOUR REFLECTION',this_is_me:'✓ This is me',thats_him:"✓ That's him",
+    style_a:'Style A',style_b:'Style B',style_c:'Style C',this_home:'This is my home',
+    her_origin:'HER ORIGIN',his_origin:'HIS ORIGIN',hair_style_lbl:'HAIR STYLE',hair_colour_lbl:'HAIR COLOUR',city_lbl:'WHERE DID YOU MOVE TO?',decor_lbl:'INTERIOR STYLE',
   },
   'zh-cn':{
     open_nar:`光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。`,
-    name_title:'你叫什么名字？',name_sub:'你用来演出的名字。那个终将被人记住的名字。',name_hint:'所有人都会这样叫你。',
-    mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',
-    father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',
-    thats_right:'就是这样',
-    hair_title:'昨天',hair_sub:'我终于去了那家经过了好几周的发廊。',
+    name_title:'你叫什么名字？',name_sub:'你用来演出的名字。',name_hint:'所有人都会这样叫你。',
+    mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',
+    thats_right:'就是这样',hair_title:'昨天',hair_sub:'我终于去了那家经过了好几周的发廊。',
     city_title:'两个月前',city_sub:'我拖着两个行李箱，告诉自己只是一年。',
-    decor_title:'我的公寓',decor_sub:'刚搬进来什么都没有。但我把它变成了我的样子。',
-    rooms_title:'选择你的客厅',rooms_sub:'三种风格，哪一个更像家？',
+    decor_title:'我的公寓',decor_sub:'我把它变成了我的样子。',rooms_title:'选择你的客厅',rooms_sub:'哪一个更像家？',
     mirror_nar:`我对着镜子看了很久。\n同一张脸。不同的城市。`,
     flash_nar:`每天晚上，我都在同一个地方摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n那个钢琴师总是比我早到。\n我们没有多说话。只是一起演奏。\n\n每天晚上，这座城市从我们身边走过，没有人回头看。`,
     street_nar:`直到那一晚——有一个人停下来了。\n而且没有离开。`,
@@ -609,6 +751,12 @@ const T={
     agent_origin_title:'他是哪里人？',agent_origin_sub:'从他的气质就能感觉出来。',
     ch1_quote:`"一切都在那一刻改变了——\n当有人终于真正看见你。"`,
     open_stamp:'周五 · 上午 7:14',mirror_stamp:'洗手间镜子 · 上午 7:31',flashback_stamp:'每一个夜晚，几个月来',
+    your_world:'你的世界',name_key:'名字',city_key:'城市',agent_key:'经纪人',fame_key:'知名度',
+    ch1_label:'第一章',signed:'签约',wake_up:'醒来 · 第1天',
+    today:'今天',end_day:'结束今天',sleep:'入睡 · 下一天',
+    home:'主页',fame:'知名度',gallery_lbl:'相册',settings_lbl:'设置',
+    gallery_title:'相册',gallery_sub:'每一个瞬间，都被珍藏。',settings_title:'设置',
+    lang_setting:'语言',style_setting:'画面风格',save_return:'保存并返回',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东'],
     region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
@@ -621,140 +769,88 @@ const T={
     decor_subs:['柔纱·细腻质感·梦幻粉彩','自然曲线·橡木胡桃·温暖纹理','复古画框·传家纺织·花卉图案','深色调·金色点缀·都市精致','温暖层次·垂挂植物·烛光氛围'],
     agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人'],
     agent_origin_subs:['英格兰·苏格兰','东海岸·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约'],
-    fame_ranks:['街头歌手','新人艺人','崭露头角','人气新星','当红艺人','实力派明星','国际巨星'],
-    gallery_title:'你的故事',gallery_sub:'每一个瞬间，都被珍藏。',
-  },
-  'zh-tw':{
-    open_nar:`光總是以同樣的方式照進來——\n緩慢地，帶著一點金色。\n\n我躺著，想起自己在哪裡之前，先靜了一會兒。\n來這座城市兩個月了。感覺還像個秘密。`,
-    name_title:'你叫什麼名字？',name_sub:'你用來演出的名字。那個終將被人記住的名字。',name_hint:'所有人都會這樣叫你。',
-    mother_title:'我的母親',mother_sub:'她總說我有她的眼睛。',
-    father_title:'我的父親',father_sub:'他說我的膚色和他一模一樣。',
-    thats_right:'就是這樣',
-    hair_title:'昨天',hair_sub:'我終於去了那家路過了好幾週的髮廊。',
-    city_title:'兩個月前',city_sub:'我拖著兩個行李箱，告訴自己只是一年。',
-    decor_title:'我的公寓',decor_sub:'剛搬進來什麼都沒有。但我把它變成了我的樣子。',
-    rooms_title:'選擇你的客廳',rooms_sub:'三種風格，哪一個更像家？',
-    mirror_nar:`我對著鏡子看了很久。\n同一張臉。不同的城市。`,
-    flash_nar:`每天晚上，我都在同一個地方擺好位置。\n吉他盒打開在地上。\n靠唱歌收小費——為了房租，為了食物，為了夢想。\n\n那個鋼琴師總是比我早到。\n我們沒有多說話。只是一起演奏。\n\n每天晚上，這座城市從我們身邊走過，沒有人回頭看。`,
-    street_nar:`直到那一晚——有一個人停下來了。\n而且沒有離開。`,
-    agent_intro_nar:`他慢慢走過來。\n深色西裝。不急不忙。\n\n我當時想——誰會在週五晚上穿西裝？\n\n他在我面前停下來。\n用一種普通人不會有的眼神看著我。`,
-    agent_origin_title:'他是哪裡人？',agent_origin_sub:'從他的氣質就能感覺出來。',
-    ch1_quote:`「一切都在那一刻改變了——\n當有人終於真正看見你。」`,
-    open_stamp:'週五 · 上午 7:14',mirror_stamp:'洗手間鏡子 · 上午 7:31',flashback_stamp:'每一個夜晚，幾個月來',
-    regions:['東亞','東南亞','南亞','北歐','南歐','非洲','拉丁美洲','中東'],
-    region_subs:['中國·日本·韓國','菲律賓·越南·泰國','印度·巴基斯坦·斯里蘭卡','英國·北歐·德國','義大利·西班牙·希臘','西·東·南','巴西·墨西哥·哥倫比亞','黎巴嫩·埃及·伊朗'],
-    hair_styles:['長直髮','長波浪髮','長捲髮','波波頭','短髮精靈切','慵懶髮髻'],
-    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
-    hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒紅','銀紫'],
-    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
-    cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','多倫多'],
-    city_subs:['美國東海岸','美國西海岸','英國','法國','日本','韓國','澳大利亞','加拿大'],
-    decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],
-    decor_subs:['柔紗·細膩質感·夢幻粉彩','自然曲線·橡木胡桃·溫暖紋理','復古畫框·傳家紡織·花卉圖案','深色調·金色點綴·都市精緻','溫暖層次·垂掛植物·燭光氛圍'],
-    agent_origins:['英國人','美國人','法國人','義大利人','韓國人','日本人','非裔美國人','巴西人'],
-    agent_origin_subs:['英格蘭·蘇格蘭','東海岸·西海岸','巴黎·法國南部','米蘭·羅馬','首爾·釜山','東京·大阪','紐約·亞特蘭大','聖保羅·里約'],
-    fame_ranks:['街頭歌手','新人藝人','嶄露頭角','人氣新星','當紅藝人','實力派明星','國際巨星'],
-    gallery_title:'你的故事',gallery_sub:'每一個瞬間，都被珍藏。',
-  },
-  ja:{
-    open_nar:`光はいつも同じように差し込んでくる——\nゆっくりと、少し金色に。\n\nどこにいるかを思い出す前に、しばらくじっとしている。\nこの街に来て二ヶ月。まだ秘密のような気がする。`,
-    name_title:'あなたの名前は？',name_sub:'舞台で使う名前。いつか意味を持つようになる名前。',name_hint:'みんなこの名前であなたを呼ぶ。',
-    mother_title:'私の母',mother_sub:'あなたの目は私に似ていると、いつも言っていた。',
-    father_title:'私の父',father_sub:'肌の色は父と同じだと言っていた。',
-    thats_right:'そうです',
-    hair_title:'昨日',hair_sub:'ずっと気になっていたサロンについに行った。',
-    city_title:'二ヶ月前',city_sub:'スーツケースを二つ持って、一年だけと言い聞かせて。',
-    decor_title:'私のアパート',decor_sub:'最初は何もなかった。でも私の色に染めた。',
-    rooms_title:'リビングを選んで',rooms_sub:'三つのスタイル。どれが家らしい？',
-    mirror_nar:`しばらく自分を見つめた。\n同じ顔。違う街。`,
-    flash_nar:`毎晩、同じ場所に陣取った。\nギターケースを地面に開けて。\nチップのために歌う——家賃のため、食費のため、夢のため。\n\nピアニストはいつも私より早く来ていた。\nあまり話さなかった。ただ一緒に演奏した。\n\n毎晩、街は私たちの横を通り過ぎた。誰も振り返らなかった。`,
-    street_nar:`ある夜——一人が立ち止まった。\nそして、去らなかった。`,
-    agent_intro_nar:`彼はゆっくりと歩いてきた。\n濃いスーツ。急ぐ様子もない。\n\n金曜の夜にスーツを着るのは誰？と思った。\n\n彼は私の前で立ち止まった。\nそして、普通の人がしないような目で私を見た。`,
-    agent_origin_title:'彼はどこの人？',agent_origin_sub:'その立ち居振る舞いで分かった。',
-    ch1_quote:`「すべては、誰かにあなたが\n見えた瞬間から変わる。」`,
-    open_stamp:'金曜日 · 午前7:14',mirror_stamp:'洗面所の鏡 · 午前7:31',flashback_stamp:'何ヶ月もの夜、毎晩',
-    regions:['東アジア','東南アジア','南アジア','北ヨーロッパ','南ヨーロッパ','アフリカ','ラテンアメリカ','中東'],
-    region_subs:['中国・日本・韓国','フィリピン・ベトナム・タイ','インド・パキスタン・スリランカ','英国・北欧・ドイツ','イタリア・スペイン・ギリシャ','西・東・南','ブラジル・メキシコ・コロンビア','レバノン・エジプト・イラン'],
-    hair_styles:['ロングストレート','ロングウェーブ','ロングカール','ボブカット','ショートピクシー','ルーズバン'],
-    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
-    hair_colors:['ジェットブラック','ダークブラウン','チェスナット','ハニーブロンド','バーガンディ','シルバーラベンダー'],
-    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
-    cities:['ニューヨーク','ロサンゼルス','ロンドン','パリ','東京','ソウル','シドニー','トロント'],
-    city_subs:['米国東海岸','米国西海岸','イギリス','フランス','日本','韓国','オーストラリア','カナダ'],
-    decors:['ロマンティックミニマル','コンテンポラリーオーガニック','イングリッシュコテージ','モダンダーク','ボヘミアンウォーム'],
-    decor_subs:['柔らかなヴォイル・繊細・夢見るパステル','自然な曲線・オーク・ウォームテクスチャー','ヴィンテージフレーム・家宝テキスタイル・フローラル','深いトーン・ゴールドアクセント・シティスリーク','温かみのある層・植物・キャンドルライト'],
-    agent_origins:['イギリス人','アメリカ人','フランス人','イタリア人','韓国人','日本人','アフリカ系アメリカ人','ブラジル人'],
-    agent_origin_subs:['イングランド・スコットランド','東海岸・西海岸','パリ・南フランス','ミラノ・ローマ','ソウル・釜山','東京・大阪','ニューヨーク・アトランタ','サンパウロ・リオ'],
-    fame_ranks:['ストリートパフォーマー','新人アーティスト','頭角を現す','人気新星','人気アーティスト','実力派スター','国際的アイコン'],
-    gallery_title:'あなたの物語',gallery_sub:'すべての瞬間が保存されています。',
-  },
-  ko:{
-    open_nar:`빛은 항상 같은 방식으로 들어온다 ——\n느리게, 조금 황금빛으로.\n\n어디 있는지 기억하기 전에 잠시 가만히 누워 있다.\n이 도시에 온 지 두 달. 아직도 비밀처럼 느껴진다.`,
-    name_title:'이름이 뭐예요?',name_sub:'무대에서 쓰는 이름. 언젠가 의미를 갖게 될 이름.',name_hint:'모든 사람이 이 이름으로 당신을 부를 거예요.',
-    mother_title:'나의 어머니',mother_sub:'항상 내 눈이 자기를 닮았다고 했다.',
-    father_title:'나의 아버지',father_sub:'피부색이 자기와 똑같다고 했다.',
-    thats_right:'맞아요',
-    hair_title:'어제',hair_sub:'몇 주째 지나치기만 했던 미용실에 드디어 갔다.',
-    city_title:'두 달 전',city_sub:'캐리어 두 개를 들고, 1년만이라고 스스로를 달랬다.',
-    decor_title:'나의 아파트',decor_sub:'처음엔 아무것도 없었다. 하지만 내 것으로 만들었다.',
-    rooms_title:'거실을 선택하세요',rooms_sub:'세 가지 스타일. 어느 쪽이 집처럼 느껴지나요?',
-    mirror_nar:`한참 동안 자신을 바라봤다.\n같은 얼굴. 다른 도시.`,
-    flash_nar:`매일 밤, 같은 자리에 자리를 잡았다.\n기타 케이스를 바닥에 열어두고.\n팁을 위해 노래했다——집세, 식비, 꿈을 위해.\n\n피아니스트는 항상 나보다 먼저 와 있었다.\n우리는 많이 이야기하지 않았다. 그냥 함께 연주했다.\n\n매일 밤, 도시는 우리 옆을 지나쳤다. 아무도 돌아보지 않았다.`,
-    street_nar:`그러던 어느 밤——한 사람이 멈췄다.\n그리고 떠나지 않았다.`,
-    agent_intro_nar:`그는 천천히 걸어왔다.\n짙은 수트. 서두르는 기색이 없었다.\n\n금요일 밤에 수트를 입는 사람이 누구야, 라고 생각했다.\n\n그는 내 앞에서 멈췄다.\n그리고 보통 사람들이 하지 않는 방식으로 나를 바라봤다.`,
-    agent_origin_title:'그는 어디 출신인가요?',agent_origin_sub:'그의 태도에서 알 수 있었다.',
-    ch1_quote:`"모든 것은 누군가가\n당신을 발견하는 순간 바뀐다."`,
-    open_stamp:'금요일 · 오전 7:14',mirror_stamp:'욕실 거울 · 오전 7:31',flashback_stamp:'몇 달 동안, 매일 밤',
-    regions:['동아시아','동남아시아','남아시아','북유럽','남유럽','아프리카','라틴아메리카','중동'],
-    region_subs:['중국·일본·한국','필리핀·베트남·태국','인도·파키스탄·스리랑카','영국·북유럽·독일','이탈리아·스페인·그리스','서·동·남','브라질·멕시코·콜롬비아','레바논·이집트·이란'],
-    hair_styles:['긴 생머리','긴 웨이브','긴 컬','단발','픽시컷','느슨한 번'],
-    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
-    hair_colors:['젯 블랙','다크 브라운','체스넛','허니 블론드','버건디','실버 라벤더'],
-    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
-    cities:['뉴욕','로스앤젤레스','런던','파리','도쿄','서울','시드니','토론토'],
-    city_subs:['미국 동부','미국 서부','영국','프랑스','일본','한국','호주','캐나다'],
-    decors:['로맨틱 미니멀','컨템포러리 오가닉','잉글리시 코티지','모던 다크','보헤미안 웜'],
-    decor_subs:['부드러운 베일·섬세한 디테일·몽환적인 파스텔','자연스러운 곡선·오크·따뜻한 텍스처','빈티지 프레임·가보 직물·플로럴','짙은 톤·골드 액센트·시티 슬릭','따뜻한 레이어·식물·캔들라이트'],
-    agent_origins:['영국인','미국인','프랑스인','이탈리아인','한국인','일본인','아프리카계 미국인','브라질인'],
-    agent_origin_subs:['잉글랜드·스코틀랜드','동부·서부 해안','파리·남프랑스','밀라노·로마','서울·부산','도쿄·오사카','뉴욕·애틀란타','상파울루·리우'],
-    fame_ranks:['버스킹 아티스트','신인 아티스트','주목받는 신인','인기 신성','핫한 아티스트','실력파 스타','국제적 아이콘'],
-    gallery_title:'당신의 이야기',gallery_sub:'모든 순간이 저장되었습니다.',
+    close_lbl:'亲近',neutral_lbl:'一般',far_lbl:'疏远',
+    his_name:'他的名字',choose_portrait:'选择他的形象',and_so:'故事就这样开始了',
+    tell_him:'告诉我关于他的事',his_bg:'他的背景',i_remember:'我记得他',
+    choose_refl:'选择你的样子',this_is_me:'✓ 就是我',thats_him:'✓ 就是他',
+    style_a:'风格 A',style_b:'风格 B',style_c:'风格 C',this_home:'这就是我的家',
+    her_origin:'母亲来源',his_origin:'父亲来源',hair_style_lbl:'发型',hair_colour_lbl:'发色',city_lbl:'你搬到了哪个城市？',decor_lbl:'室内风格',
   },
 };
-// Fallback other languages to English
-['de','fr','es','pt','tr'].forEach(l=>{T[l]=Object.assign({},T.en);});
+// Fallback for other languages
+['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l=>{
+  if(!TX[l]) TX[l]=Object.assign({},TX.en);
+});
+// zh-tw specific overrides
+TX['zh-tw']=Object.assign({},TX['zh-cn'],{
+  open_nar:`光總是以同樣的方式照進來——\n緩慢地，帶著一點金色。\n\n我躺著，想起自己在哪裡之前，先靜了一會兒。\n來這座城市兩個月了。感覺還像個秘密。`,
+  name_title:'你叫什麼名字？',mother_title:'我的母親',father_title:'我的父親',
+  thats_right:'就是這樣',your_world:'你的世界',name_key:'名字',city_key:'城市',
+  agent_key:'經紀人',fame_key:'知名度',ch1_label:'第一章',signed:'簽約',wake_up:'醒來 · 第1天',
+  today:'今天',end_day:'結束今天',sleep:'入睡 · 下一天',home:'主頁',fame:'知名度',
+  gallery_lbl:'相冊',settings_lbl:'設置',gallery_title:'相冊',settings_title:'設置',
+  lang_setting:'語言',style_setting:'畫面風格',save_return:'保存並返回',
+  close_lbl:'親近',neutral_lbl:'一般',far_lbl:'疏遠',
+  his_name:'他的名字',choose_portrait:'選擇他的形象',and_so:'故事就這樣開始了',
+  this_is_me:'✓ 就是我',thats_him:'✓ 就是他',this_home:'這就是我的家',
+  ch1_quote:`「一切都在那一刻改變了——\n當有人終於真正看見你。」`,
+  cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','多倫多'],
+  decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],
+});
 
-function t(k){return (T[G.lang]&&T[G.lang][k])||T.en[k]||k;}
+function t(k){return (TX[G.lang]&&TX[G.lang][k]!==undefined)?TX[G.lang][k]:TX.en[k]||k;}
 
+// ══ LANG SELECT ══
 function selLang(code,name,el){
-  document.querySelectorAll('.lcard').forEach(c=>c.classList.remove('active-sel'));
-  el.classList.add('active-sel');
+  // Mark selected in both grids
+  document.querySelectorAll('.lcard').forEach(c=>{
+    if(c.querySelector('.lname')?.textContent===el.querySelector('.lname')?.textContent) c.classList.add('active-sel');
+    else c.classList.remove('active-sel');
+  });
   G.lang=code; G.langName=name;
   applyLang();
   document.getElementById('btn-lang').style.display='inline-block';
 }
 
 function applyLang(){
-  const setEl=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.innerHTML=v.replace(/\n/g,'<br>');};
-  setEl('open-nar',t('open_nar')); setEl('open-stamp',t('open_stamp'));
-  setEl('name-title',t('name_title')); setEl('name-sub',t('name_sub')); setEl('name-hint',t('name_hint'));
-  setEl('mother-title',t('mother_title')); setEl('mother-sub',t('mother_sub'));
-  setEl('father-title',t('father_title')); setEl('father-sub',t('father_sub'));
-  setEl('hair-title',t('hair_title')); setEl('hair-sub',t('hair_sub'));
-  setEl('city-title',t('city_title')); setEl('city-sub',t('city_sub'));
-  setEl('decor-title',t('decor_title')); setEl('decor-sub',t('decor_sub'));
-  setEl('rooms-title',t('rooms_title')); setEl('rooms-sub',t('rooms_sub'));
-  setEl('mirror-nar',t('mirror_nar')); setEl('mirror-stamp',t('mirror_stamp'));
-  setEl('flash-nar',t('flash_nar')); setEl('flashback-stamp',t('flashback_stamp'));
-  setEl('street-nar',t('street_nar'));
-  setEl('agent-intro-nar',t('agent_intro_nar'));
-  setEl('agent-origin-title',t('agent_origin_title')); setEl('agent-origin-sub',t('agent_origin_sub'));
-  setEl('ch1-quote',t('ch1_quote'));
-  setEl('gallery-title',t('gallery_title')); setEl('gallery-sub',t('gallery_sub'));
+  const s=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.innerHTML=(v+'').replace(/\n/g,'<br>');};
+  s('open-nar',t('open_nar')); s('open-stamp',t('open_stamp'));
+  s('name-title',t('name_title')); s('name-sub',t('name_sub')); s('name-hint',t('name_hint'));
+  s('mother-title',t('mother_title')); s('mother-sub',t('mother_sub'));
+  s('father-title',t('father_title')); s('father-sub',t('father_sub'));
+  s('hair-title',t('hair_title')); s('hair-sub',t('hair_sub'));
+  s('city-title',t('city_title')); s('city-sub',t('city_sub'));
+  s('decor-title',t('decor_title')); s('decor-sub',t('decor_sub'));
+  s('rooms-title',t('rooms_title')); s('rooms-sub',t('rooms_sub'));
+  s('mirror-nar',t('mirror_nar')); s('mirror-stamp',t('mirror_stamp'));
+  s('flash-nar',t('flash_nar')); s('flashback-stamp',t('flashback_stamp'));
+  s('street-nar',t('street_nar'));
+  s('agent-intro-nar',t('agent_intro_nar'));
+  s('agent-origin-title',t('agent_origin_title')); s('agent-origin-sub',t('agent_origin_sub'));
+  s('ch1-quote',t('ch1_quote'));
+  s('lbl-your-world',t('your_world'));
+  s('lbl-name-key',t('name_key')); s('lbl-city-key',t('city_key'));
+  s('lbl-agent-key',t('agent_key')); s('lbl-fame-key',t('fame_key'));
+  s('lbl-ch1',t('ch1_label')); s('lbl-signed',t('signed')); s('btn-wakeup',t('wake_up'));
+  s('lbl-today',t('today'));
+  s('bn-home-lbl',t('home')); s('bn-fame-lbl',t('fame'));
+  s('bn-gallery-lbl',t('gallery_lbl')); s('bn-settings-lbl',t('settings_lbl'));
+  s('gallery-title',t('gallery_title')); s('gallery-sub',t('gallery_sub'));
+  s('settings-title',t('settings_title'));
+  s('lbl-lang-setting',t('lang_setting')); s('lbl-style-setting',t('style_setting'));
+  s('btn-save-settings',t('save_return'));
+  s('lbl-her-origin',t('her_origin')); s('lbl-his-origin',t('his_origin'));
+  s('lbl-hair-style',t('hair_style_lbl')); s('lbl-hair-colour',t('hair_colour_lbl'));
+  s('lbl-city',t('city_lbl')); s('lbl-decor',t('decor_lbl'));
+  s('lbl-his-name',t('his_name')); s('lbl-choose-portrait',t('choose_portrait'));
+  s('lbl-and-so',t('and_so')); s('lbl-tell-him',t('tell_him'));
+  s('lbl-his-bg',t('his_bg')); s('lbl-i-remember',t('i_remember'));
+  s('lbl-choose-refl',t('choose_refl')); s('lbl-this-me',t('this_is_me'));
+  s('lbl-thats-him',t('thats_him')); s('btn-sleep',t('sleep'));
+  s('btn-open',t('wake_up')==='Wake up · Day 1'?'Continue':'続ける'||'Continue');
+  s('lbl-style-a',t('style_a')); s('lbl-style-b',t('style_b')); s('lbl-style-c',t('style_c'));
+  s('lbl-this-home',t('this_home')); s('btn-heritage',t('thats_right'));
   buildGrids();
-  // Bottom nav labels
-  const bnLabels=document.querySelectorAll('.bnav-btn');
-  // Update bottom nav language (keep icons)
 }
 
 function buildGrids(){
@@ -762,22 +858,22 @@ function buildGrids(){
   const cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Toronto'];
   const dv=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
   const av=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
-  const buildG=(id,labels,subs,key,vals)=>{
+  const mk=(id,labels,subs,key,vals)=>{
     const g=document.getElementById(id);if(!g)return;
-    g.innerHTML=labels.map((l,i)=>`<div class="card" onclick="selCard(this,'${key}','${vals?vals[i]:l}')">${l}<span class="sub">${subs[i]||''}</span></div>`).join('');
+    g.innerHTML=labels.map((l,i)=>`<div class="card" onclick="selCard(this,'${key}','${vals?vals[i]:l}')">${l}<span class="sub">${(subs&&subs[i])||''}</span></div>`).join('');
   };
-  buildG('g-mom',t('regions'),t('region_subs'),'mother',rk);
-  buildG('g-dad',t('regions'),t('region_subs'),'father',rk);
+  mk('g-mom',t('regions'),t('region_subs'),'mother',rk);
+  mk('g-dad',t('regions'),t('region_subs'),'father',rk);
   const hs=t('hair_styles'),hv=t('hair_style_vals');
   document.getElementById('g-hstyle').innerHTML=hs.map((l,i)=>`<div class="card" onclick="selCard(this,'hairStyle','${hv[i]}')">${l}</div>`).join('');
   const hc=t('hair_colors'),hcv=t('hair_color_vals');
   document.getElementById('g-hcolor').innerHTML=hc.map((l,i)=>`<div class="card" onclick="selCard(this,'hairColor','${hcv[i]}')">${l}</div>`).join('');
-  buildG('g-city',t('cities'),t('city_subs'),'city',cv);
-  buildG('g-decor',t('decors'),t('decor_subs'),'decor',dv);
-  buildG('g-aorigin',t('agent_origins'),t('agent_origin_subs'),'agentOrigin',av);
+  mk('g-city',t('cities'),t('city_subs'),'city',cv);
+  mk('g-decor',t('decors'),t('decor_subs'),'decor',dv);
+  mk('g-aorigin',t('agent_origins'),t('agent_origin_subs'),'agentOrigin',av);
 }
 
-// ══ CARD SELECTION ══
+// ══ CARD SEL ══
 function selCard(el,key,value){
   el.closest('.cgrid')?.querySelectorAll('.card').forEach(c=>c.classList.remove('active-sel'));
   el.classList.add('active-sel');
@@ -787,12 +883,17 @@ function selCard(el,key,value){
   if(key==='hairStyle'||key==='hairColor') if(G.hairStyle&&G.hairColor) document.getElementById('btn-hair').style.display='inline-block';
 }
 
+function selImgStyle(style,label,el){
+  document.querySelectorAll('#style-grid .card').forEach(c=>c.classList.remove('active-sel'));
+  el.classList.add('active-sel');
+  G.imgStyle=style;
+}
+
 // ══ NAME ══
 function saveName(){
   const v=document.getElementById('name-inp').value.trim();
   if(!v){document.getElementById('name-inp').style.borderColor='var(--rose)';return;}
   G.playerName=v;
-  // Start generating rooms in background while player fills in heritage
   go('s-mother');
 }
 
@@ -803,124 +904,119 @@ function showHeritage(){
   G.motherEyes=m.eyes; G.fatherSkin=f.skin;
   const lang=G.lang;
   let nar,el,sl,hl;
-  if(lang==='zh-cn'||lang==='zh-tw'){nar=`我母亲来自<em>${G.mother}</em>。我父亲来自<em>${G.father}</em>。<br><br>人们总说我完美地融合了他们两个人。`;el='眼睛';sl='肤色';hl='血统';}
-  else if(lang==='ja'){nar=`母は<em>${G.mother}</em>出身。父は<em>${G.father}</em>出身。<br><br>みんないつも、二人を完璧に混ぜ合わせたと言っていた。`;el='目';sl='肌';hl='出身';}
-  else if(lang==='ko'){nar=`어머니는 <em>${G.mother}</em> 출신. 아버지는 <em>${G.father}</em> 출신.<br><br>사람들은 항상 두 분이 완벽하게 섞였다고 했다.`;el='눈';sl='피부';hl='혈통';}
-  else{nar=`My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>People always said I was a perfect mix of both of them.`;el='Eyes';sl='Skin';hl='Heritage';}
+  if(lang==='zh-cn'||lang==='zh-tw'){
+    nar=`我母亲来自<em>${G.mother}</em>。我父亲来自<em>${G.father}</em>。<br><br>人们总说我完美地融合了他们两个人。`;
+    el='眼睛';sl='肤色';hl='血统';
+  }else if(lang==='ja'){
+    nar=`母は<em>${G.mother}</em>出身。父は<em>${G.father}</em>出身。<br><br>みんないつも、二人を完璧に混ぜ合わせたと言っていた。`;
+    el='目';sl='肌';hl='出身';
+  }else if(lang==='ko'){
+    nar=`어머니는 <em>${G.mother}</em> 출신. 아버지는 <em>${G.father}</em> 출신.<br><br>항상 두 분이 완벽하게 섞였다고 했다.`;
+    el='눈';sl='피부';hl='혈통';
+  }else{
+    nar=`My mother was from <em>${G.mother}</em>. My father from <em>${G.father}</em>.<br><br>People always said I was a perfect mix of both of them.`;
+    el='Eyes';sl='Skin';hl='Heritage';
+  }
   document.getElementById('h-nar').innerHTML=nar;
   document.getElementById('h-traits').innerHTML=`<div class="ti"><div class="tl">${el}</div><div class="tv">${m.eyes}</div></div><div class="ti"><div class="tl">${sl}</div><div class="tv">${f.skin}</div></div><div class="ti"><div class="tl">${hl}</div><div class="tv">${G.mother} × ${G.father}</div></div>`;
-  document.getElementById('btn-heritage').textContent=t('thats_right');
   go('s-heritage');
-  // Pre-generate rooms in background
+  // Pre-gen rooms in background
   preGenRooms();
 }
 
-// ══ API CALLS ══
-async function callClaude(prompt,sys=''){
-  const body={model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]};
+// ══ API ══
+const imgStyleSuffix=()=>', '+IMG_STYLES[G.imgStyle]+', portrait orientation, high quality';
+
+async function claude(prompt,sys=''){
+  const body={model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]};
   if(sys) body.system=sys;
   const r=await fetch(WORKER+'/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const d=await r.json();
   return d.content?.[0]?.text||'';
 }
 
-const IMG_STYLE=', Western glamour stylized 2D illustration, romance novel cover art style, rich saturated colors, detailed fashion styling, cinematic dramatic lighting, high quality digital painting, portrait orientation';
-
-async function genImg(prompt,label=''){
+async function img(prompt,label='',save=false){
   try{
-    const r=await fetch(WORKER+'/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+IMG_STYLE,image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});
+    const r=await fetch(WORKER+'/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+imgStyleSuffix(),image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});
     const d=await r.json();
     const url=d.images?.[0]?.url;
-    if(url){if(label) G.gallery.push({url,label});return url;}
-    return null;
+    if(url&&save&&label) G.gallery.push({url,label});
+    return url||null;
   }catch{return null;}
 }
 
-function setImgEl(imgEl,phEl,url){
+function setImg(imgId,phId,url){
   if(!url)return;
-  imgEl.src=url;
-  imgEl.style.display='block';
-  if(phEl) phEl.style.display='none';
+  const i=document.getElementById(imgId);
+  const ph=document.getElementById(phId);
+  if(i){i.src=url;i.style.display='block';}
+  if(ph) ph.style.display='none';
 }
 
-// ══ PRE-GENERATE ROOMS ══
-let _roomGenDone=false;
+// ══ ROOMS ══
+let _roomsDone=false;
 async function preGenRooms(){
-  if(_roomGenDone) return;
-  // Generate all 3 room styles in background
-  const styles=['Romantic Minimalist','Contemporary Organic','Modern Dark'];
+  if(_roomsDone||!G.city) return;
   const lm=CL[G.city]||'city skyline';
-  const base=(style)=>`${style} interior design style, ${LIVING_LAYOUT}, abundant natural light at 10am morning, bright clear daylight, ${lm} visible through floor-to-ceiling windows`;
-  const [a,b,c]=await Promise.all([
-    genImg(base(styles[0]),'Living Room A'),
-    genImg(base(styles[1]),'Living Room B'),
-    genImg(base(styles[2]),'Living Room C'),
-  ]);
+  const styles=['Romantic Minimalist','Contemporary Organic','Modern Dark'];
+  const base=s=>`${s} interior design style, ${LIVING_LAYOUT}, abundant natural light at 10am morning, bright clear daylight, ${lm} visible through floor-to-ceiling windows`;
+  const [a,b,c]=await Promise.all([img(base(styles[0]),'Room A'),img(base(styles[1]),'Room B'),img(base(styles[2]),'Room C')]);
   G._ru={a,b,c};
-  _roomGenDone=true;
+  _roomsDone=true;
 }
 
 async function genRooms(){
   go('s-rooms');
-  if(!_roomGenDone){
-    await preGenRooms();
-  }
-  // Show images
-  if(G._ru.a) setRoomImg('ra-ph','ra',G._ru.a,'A');
-  if(G._ru.b) setRoomImg('rb-ph','rb',G._ru.b,'B');
-  if(G._ru.c) setRoomImg('rc-ph','rc',G._ru.c,'C');
+  if(!_roomsDone) await preGenRooms();
+  if(G._ru.a) setRoomCard('ra','ra-ph',G._ru.a);
+  if(G._ru.b) setRoomCard('rb','rb-ph',G._ru.b);
+  if(G._ru.c) setRoomCard('rc','rc-ph',G._ru.c);
 }
 
-function setRoomImg(phId,cardId,url,label){
-  const ph=document.getElementById(phId);
-  if(!ph||!url)return;
-  const img=document.createElement('img');
-  img.src=url;img.style.cssText='width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;';
-  img.onclick=()=>openLightbox(url);
-  img.onload=()=>{ph.replaceWith(img);checkRooms();};
-  img.onerror=()=>{ph.innerHTML=`<span style="color:var(--ink-muted);font-size:11px">${label}</span>`;checkRooms();};
+function setRoomCard(cardId,phId,url){
+  const ph=document.getElementById(phId);if(!ph||!url)return;
+  const i=document.createElement('img');
+  i.src=url;i.style.cssText='width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;';
+  i.onclick=()=>openLB(url);
+  i.onload=()=>{ph.replaceWith(i);if(G.livingDayUrl) document.getElementById('btn-rooms').style.display='inline-block';};
+  i.onerror=()=>{ph.innerHTML='<span style="color:var(--ink-muted);font-size:11px">—</span>';};
 }
-
-function checkRooms(){if(G.livingDayUrl) document.getElementById('btn-rooms').style.display='inline-block';}
 
 function selRoom(opt){
   ['ra','rb','rc'].forEach(id=>document.getElementById(id)?.classList.remove('active-sel'));
   document.getElementById('r'+opt)?.classList.add('active-sel');
   G.livingDayUrl=G._ru[opt];
-  G.selectedDecor=DECOR_STYLES[opt==='a'?0:opt==='b'?1:3];
   document.getElementById('btn-rooms').style.display='inline-block';
-  // Pre-generate night version in background
-  preGenNightRoom();
+  preGenNight();
 }
 
-async function preGenNightRoom(){
+async function preGenNight(){
   const lm=CL[G.city]||'city skyline';
-  const style=G.selectedDecor||'Contemporary Organic';
-  const url=await genImg(`${style} interior design style, ${LIVING_LAYOUT}, evening atmosphere, warm interior lighting, city lights visible through floor-to-ceiling windows at night, ${lm} city lights at night, cozy intimate night mood`,'Living Room — Night');
+  const style=G.decor||'Contemporary Organic';
+  const url=await img(`${style} interior design style, ${LIVING_LAYOUT}, evening atmosphere, warm interior lighting, city lights visible through floor-to-ceiling windows, ${lm} city lights at night, cozy intimate night mood`,'Room — Night');
   G.livingNightUrl=url;
+  G._nightReady=true;
 }
 
 // ══ PROTAGONIST ══
-const protoBase=()=>`Naturally beautiful 23-year-old young woman, mixed ${G.mother} and ${G.father} heritage, ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, ${G.hairStyle} ${G.hairColor} hair, editorial beauty with real character and warmth, standing in a modern bathroom`;
+const protoBase=()=>`Naturally beautiful 23-year-old young woman, mixed ${G.mother} and ${G.father} heritage, ${G.motherEyes} eyes, ${G.fatherSkin} skin tone, ${G.hairStyle} ${G.hairColor} hair, editorial beauty with real character and warmth`;
 const MIRROR_ANGLES=[
-  'looking at herself in bathroom vanity mirror mounted above white marble sink and faucet, bathroom counter and toiletries visible, morning 10am natural light from window, soft vanity light, intimate mirror reflection POV, gentle expression',
-  'bathroom vanity mirror reflection, marble countertop and sink visible below mirror, 10am morning light, thoughtful expression looking at her reflection, candid intimate moment',
-  'close-up bathroom mirror portrait above sink vanity, direct gaze into mirror, warm vanity lighting, natural 10am morning light, relaxed expression, hair slightly tousled'
+  'standing in front of bathroom mirror, over-the-shoulder mirror reflection composition, subject back slightly out of focus, face in mirror sharp and clear, gently touching her cheek and corner of lips, medium close shot, shallow depth of field, soft 10am morning natural light, warm home bathroom environment, marble vanity sink visible below mirror, lifestyle photography feeling, real authentic skin texture, cinematic quality, natural subtle gesture',
+  'bathroom vanity mirror reflection, over-shoulder angle, marble countertop and sink visible, 10am morning light from window, thoughtful expression looking at reflection, candid intimate moment, shallow depth of field',
+  'close-up bathroom mirror portrait over sink vanity, direct gaze into mirror, warm vanity lighting, 10am natural morning light, relaxed expression, hair slightly tousled, cinematic shallow focus'
 ];
 
-async function genProtagonist(){
+async function genProto(){
   go('s-proto');
   const base=protoBase();
-  // Start all 3 in parallel - also start street scene
   const [a,b,c]=await Promise.all([
-    genImg(base+', '+MIRROR_ANGLES[0],'Your Portrait A'),
-    genImg(base+', '+MIRROR_ANGLES[1],'Your Portrait B'),
-    genImg(base+', '+MIRROR_ANGLES[2],'Your Portrait C'),
+    img(base+', '+MIRROR_ANGLES[0],'Portrait A'),
+    img(base+', '+MIRROR_ANGLES[1],'Portrait B'),
+    img(base+', '+MIRROR_ANGLES[2],'Portrait C'),
   ]);
   G._pu={a,b,c};
-  setTrio('pa',a); setTrio('pb',b); setTrio('pc',c);
+  setTrio('pa',a);setTrio('pb',b);setTrio('pc',c);
   document.getElementById('btn-rp').style.display='inline-block';
-  // Pre-generate street scene in background
   preGenStreet();
 }
 
@@ -928,185 +1024,308 @@ async function regenProto(){
   ['pa','pb','pc'].forEach(id=>{
     const e=document.getElementById(id);if(!e)return;
     e.classList.remove('active-sel');
-    e.innerHTML=`<div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ ${t('this_is_me')||'This is me'}</div>`;
+    e.innerHTML=`<div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('this_is_me')}</div>`;
   });
   document.getElementById('btn-proto').style.display='none';
-  await genProtagonist();
+  await genProto();
 }
 
 function setTrio(id,url){
   const el=document.getElementById(id);if(!el||!url)return;
-  const img=document.createElement('img');img.src=url;
-  img.onclick=()=>openLightbox(url);
-  img.onload=()=>{const ph=el.querySelector('.iph');if(ph)ph.replaceWith(img);};
+  const i=document.createElement('img');i.src=url;
+  i.onclick=()=>openLB(url);
+  i.onload=()=>{const ph=el.querySelector('.iph');if(ph)ph.replaceWith(i);};
 }
 
 function selProto(opt){
   ['pa','pb','pc'].forEach(id=>document.getElementById(id)?.classList.remove('active-sel'));
   document.getElementById('p'+opt)?.classList.add('active-sel');
   G.protagonistUrl=G._pu[opt];
+  // Only save SELECTED portrait to gallery
+  G.gallery.push({url:G.protagonistUrl,label:'Your Portrait'});
   document.getElementById('btn-proto').style.display='inline-block';
 }
 
-// ══ STREET SCENE PRE-GEN ══
-let _streetUrl=null;
+// ══ STREET SCENE ══
 async function preGenStreet(){
   const lm=CL[G.city]||'city street';
-  _streetUrl=await genImg(`Cinematic nighttime street scene in ${G.city}, ${lm} visible in background, beautiful 23-year-old singer performing on stone steps with acoustic guitar, ${G.hairStyle} ${G.hairColor} hair, elegant street pianist at upright piano beside her playing together, guitar case open on pavement with coins, warm amber streetlight and neon glow, blurred crowd passing by not paying attention, one man in dark tailored suit standing completely still watching intently from across the street, low angle dramatic camera composition, film noir romance atmosphere`,'First Meeting');
+  G._streetUrl=await img(`Cinematic nighttime street scene in ${G.city}, ${lm} visible in background, beautiful 23-year-old singer performing on stone steps with acoustic guitar, ${G.hairStyle} ${G.hairColor} hair, elegant street pianist at upright piano beside her, guitar case open on pavement with coins inside, warm amber streetlight and neon glow, blurred crowd passing by not paying attention, one man in dark tailored suit standing completely still watching intently from across the street, low angle dramatic camera, film noir romance atmosphere`,'First Meeting',true);
 }
 
 // ══ AGENT ══
 async function genAgent(){
   go('s-agent-reveal');
-  const name=await callClaude(`Generate a realistic full name for a 32-year-old ${G.agentOrigin} talent agent. Sophisticated, successful, cold exterior. Return ONLY the full name.`);
-  G.agentName=name.trim().replace(/['"]/g,'');
-  const firstLine=await callClaude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent, cold exterior with hidden warmth. He has watched a street busker perform for tips several nights in a row and finally approaches her. Write his very first words to her. Brief (1-2 sentences), sophisticated, slightly guarded but compelling. No quotation marks. Language: ${G.langName}.`);
+  const nameStr=await claude(`Generate a realistic full name for a 32-year-old ${G.agentOrigin} talent agent. Sophisticated, successful, cold exterior. Return ONLY the full name.`);
+  G.agentName=nameStr.trim().replace(/['"]/g,'');
+  const firstLine=await claude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent, cold exterior with hidden warmth. He has watched a street busker named ${G.playerName} perform for tips several nights in a row and finally approaches her. Write his very first words to her. 1-2 sentences, sophisticated, slightly guarded but compelling. No quotation marks. Language: ${G.langName}.`);
   const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features with real character, cold composed expression with hidden warmth, strong jawline, commanding presence, editorial handsome not generic`;
+  const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin tone, ${st.suit}, sharp distinguished features with real depth and character, cold composed expression with hidden warmth, strong jawline, commanding presence, editorial handsome not generic`;
   const angles=[
     'standing on nighttime city street, three-quarter angle, warm streetlight dramatic rim light from behind, direct intense gaze toward camera, city lights bokeh background',
-    'close-up portrait, slight low angle looking up at him, city night bokeh background, serious expression with subtle complexity',
-    'turning toward camera from side profile, dark suit lapels visible, wet city street reflections, cinematic brooding romantic'
+    'close-up portrait, slight low angle looking up at him, city night bokeh, serious expression with subtle complexity and mystery',
+    'turning toward camera from side profile, dark suit lapels visible, wet city street reflections, cinematic brooding romantic lead'
   ];
-  const [a,b,c]=await Promise.all([
-    genImg(base+', '+angles[0],'Agent Portrait A'),
-    genImg(base+', '+angles[1],'Agent Portrait B'),
-    genImg(base+', '+angles[2],'Agent Portrait C'),
-  ]);
+  const [a,b,c]=await Promise.all([img(base+', '+angles[0],'Agent A'),img(base+', '+angles[1],'Agent B'),img(base+', '+angles[2],'Agent C')]);
   G._au={a,b,c};
-  setTrio('aga',a); setTrio('agb',b); setTrio('agc',c);
-  document.getElementById('agent-reveal-txt').style.display='block';
+  setTrio('aga',a);setTrio('agb',b);setTrio('agc',c);
+  document.getElementById('agent-reveal-box').style.display='block';
   document.getElementById('agent-name-txt').textContent=G.agentName;
   document.getElementById('agent-line-txt').innerHTML=`"${firstLine.trim()}"`;
   document.getElementById('btn-rag').style.display='inline-block';
-  // Show street scene (should be ready by now)
-  showStreetScene();
-}
-
-function showStreetScene(){
-  const ph=document.getElementById('street-ph');
-  const img=document.getElementById('street-img');
-  if(_streetUrl&&img){
-    img.src=_streetUrl; img.style.display='block';
-    if(ph) ph.style.display='none';
-  }
+  // Show street scene
+  if(G._streetUrl) setImg('street-img','street-ph',G._streetUrl);
 }
 
 async function regenAgent(){
   ['aga','agb','agc'].forEach(id=>{
     const e=document.getElementById(id);if(!e)return;
     e.classList.remove('active-sel');
-    e.innerHTML=`<div class="iph"><span class="gt" style="font-size:10px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ That's him</div>`;
+    e.innerHTML=`<div class="iph"><span class="gt" style="font-size:9px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('thats_him')}</div>`;
   });
   document.getElementById('btn-agent-ok').style.display='none';
   const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
   const base=`Strikingly handsome 32-year-old ${G.agentOrigin} man, talent agent, ${st.hair}, ${st.skin} skin, ${st.suit}, sharp distinguished features, cold composed expression with hidden warmth, commanding presence`;
-  const angles=['three-quarter angle on nighttime street, streetlight rim light, direct intense gaze','close-up portrait low angle, city night bokeh, serious with complexity','side profile turning toward camera, dark suit, city night reflections'];
-  const [a,b,c]=await Promise.all([genImg(base+', '+angles[0],'Agent A'),genImg(base+', '+angles[1],'Agent B'),genImg(base+', '+angles[2],'Agent C')]);
+  const angles=['three-quarter on nighttime street, streetlight rim light, direct gaze','close-up low angle, city night bokeh, serious with mystery','side profile turning toward camera, city night reflections'];
+  const [a,b,c]=await Promise.all([img(base+', '+angles[0],'Agent A'),img(base+', '+angles[1],'Agent B'),img(base+', '+angles[2],'Agent C')]);
   G._au={a,b,c};
-  setTrio('aga',a); setTrio('agb',b); setTrio('agc',c);
+  setTrio('aga',a);setTrio('agb',b);setTrio('agc',c);
 }
 
 function selAgent(opt){
   ['aga','agb','agc'].forEach(id=>document.getElementById(id)?.classList.remove('active-sel'));
   document.getElementById('ag'+opt)?.classList.add('active-sel');
   G.agentUrl=G._au[opt];
+  // Only save selected agent portrait
+  G.gallery.push({url:G.agentUrl,label:G.agentName||'Agent'});
   document.getElementById('btn-agent-ok').style.display='inline-block';
 }
 
-// ══ FLASHBACK SCENE - show pre-generated image ══
-function goFlashScene(){
-  go('s-flash-scene');
-  showStreetScene();
+// ══ DAILY ══
+const DAYS_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS_ZH=['周日','周一','周二','周三','周四','周五','周六'];
+const DAYS_JA=['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
+const DAYS_KO=['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+
+function getDayName(dayNum){
+  const idx=(6+dayNum)%7;
+  if(G.lang==='zh-cn'||G.lang==='zh-tw') return DAYS_ZH[idx];
+  if(G.lang==='ja') return DAYS_JA[idx];
+  if(G.lang==='ko') return DAYS_KO[idx];
+  return DAYS_EN[idx];
 }
 
-// ══ DAILY ══
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 async function startDay(){
   go('s-daily');
-  setActive('bn-home');
+  setActiveBn('bn-home');
   document.getElementById('d-clock').textContent='8:07';
-  document.getElementById('d-date').textContent=`Saturday · Day ${G.day}`;
+  const dayName=getDayName(G.day);
+  const lang=G.lang;
+  const dayLabel=lang==='zh-cn'||lang==='zh-tw'?`${dayName} · 第${G.day}天`:lang==='ja'?`${dayName} · Day ${G.day}`:lang==='ko'?`${dayName} · ${G.day}일차`:`${dayName} · Day ${G.day}`;
+  document.getElementById('d-date').textContent=dayLabel;
   // Show daytime room
-  const roomWrap=document.getElementById('daily-room-wrap');
-  const roomImg=document.getElementById('daily-room-img');
-  if(G.livingDayUrl&&roomImg){
-    roomImg.src=G.livingDayUrl;
-    roomWrap.style.display='block';
+  if(G.livingDayUrl){
+    document.getElementById('daily-room-img').src=G.livingDayUrl;
+    document.getElementById('daily-room-wrap').style.display='block';
   }
   // Morning monologue
-  const txt=await callClaude(`Write a brief poetic morning inner monologue (2 sentences) for a 23-year-old singer named ${G.playerName}. Day 1 in ${G.city}. She recently signed with talent agent ${G.agentName} and today is their first real work meeting. Nervous but quietly excited. Second person "You...". Language: ${G.langName}. Return only the text, no quotes.`);
+  const txt=await claude(`Write a brief poetic morning inner monologue (2 sentences) for ${G.playerName}, a 23-year-old singer. Day ${G.day} in ${G.city}. ${G.day===1?`She just signed with agent ${G.agentName} and today is their first real work meeting.`:`She has been in ${G.city} for a while, fame level: ${getCurrentFameRank(G.fame).label_en}.`} Second person "You...". Language: ${G.langName}. Return only the text.`);
   const dtxt=document.getElementById('d-txt');
   if(dtxt){dtxt.style.opacity='0';dtxt.style.animation='none';dtxt.innerHTML=txt.trim().replace(/\n/g,'<br>');setTimeout(()=>{dtxt.style.animation='fadeInSlow 1s ease forwards';},50);}
-  // Day 1: only one option
-  const opts=document.getElementById('d-opts');
-  opts.innerHTML=`<button class="dopt" onclick="goEvening()">${G.agentName||'Your agent'} wants to meet<span class="dsub">First official meeting · His office</span></button>`;
-  // Pre-generate evening room
-  if(!G.livingNightUrl) preGenNightRoom();
+  // Build activity options
+  buildDayOptions();
+  if(!G._nightReady) preGenNight();
 }
 
+function buildDayOptions(){
+  const opts=document.getElementById('d-opts');
+  const lang=G.lang;
+  const workList=WORK_ACTIVITIES[lang]||WORK_ACTIVITIES.en;
+  const socList=SOCIAL_ACTIVITIES[lang]||SOCIAL_ACTIVITIES.en;
+  const workSub=WORK_SUBS[lang]||WORK_SUBS.en;
+  const socSub=SOCIAL_SUBS[lang]||SOCIAL_SUBS.en;
+
+  if(G.day===1){
+    // Force meet agent day 1
+    opts.innerHTML=`<button class="dopt work-opt" onclick="playDay('agent_meeting','${workList[0]}',true)">${lang==='zh-cn'?'去见'+G.agentName:lang==='zh-tw'?'去見'+G.agentName:lang==='ja'?G.agentName+'に会いに行く':lang==='ko'?G.agentName+' 만나러 가기':'Meet '+G.agentName}<span class="dsub">${lang==='zh-cn'?'第一次正式工作会面':lang==='zh-tw'?'第一次正式工作會面':lang==='ja'?'最初の正式な仕事の打ち合わせ':lang==='ko'?'첫 공식 업무 미팅':'First official meeting'}</span></button>`;
+    return;
+  }
+
+  // Pick 1 work + 2 social options randomly
+  const shuffle=arr=>[...arr].sort(()=>Math.random()-0.5);
+  const wOpts=shuffle(workList).slice(0,1);
+  const sOpts=shuffle(socList).slice(0,2);
+  const wVals=WORK_ACTIVITIES.en;
+  const sVals=SOCIAL_ACTIVITIES.en;
+  const wIdx=i=>WORK_ACTIVITIES[lang]?.indexOf(i)||0;
+  const sIdx=i=>SOCIAL_ACTIVITIES[lang]?.indexOf(i)||0;
+
+  opts.innerHTML=[
+    ...wOpts.map(o=>`<button class="dopt work-opt" onclick="playDay('${wVals[WORK_ACTIVITIES[lang].indexOf(o)]}','${o}',true)">${o}<span class="dsub">${workSub}</span></button>`),
+    ...sOpts.map(o=>`<button class="dopt social-opt" onclick="playDay('${sVals[SOCIAL_ACTIVITIES[lang].indexOf(o)]}','${o}',false)">${o}<span class="dsub">${socSub}</span></button>`),
+  ].join('');
+}
+
+// ══ PLAY DAY ══
+async function playDay(activityKey,activityLabel,isWork){
+  go('s-scene');
+  document.getElementById('scene-stamp').textContent=isWork?'10:30 AM':'2:00 PM';
+  document.getElementById('dlg-area').style.display='none';
+  document.getElementById('btn-scene-next').style.display='none';
+  document.getElementById('scene-ph').style.display='flex';
+  document.getElementById('scene-img-el').style.display='none';
+
+  // Fame update
+  if(isWork){
+    G.fame=Math.min(100,G.fame+Math.floor(Math.random()*8)+3);
+    G.daysWithoutWork=0;
+  } else {
+    G.daysWithoutWork++;
+    if(G.daysWithoutWork>=3) G.fame=Math.max(0,G.fame-2);
+  }
+
+  // Determine NPC encounter
+  const possibleNPCs=LOCATION_NPCS[activityKey]||[];
+  const meetNPC=G.day===1?'agent':(possibleNPCs.length>0&&Math.random()>0.35?possibleNPCs[Math.floor(Math.random()*possibleNPCs.length)]:null);
+
+  // Generate scene narrative + image in parallel
+  const lm=CL[G.city]||'city';
+  const scenePrompt=`${G.playerName} is a 23-year-old singer in ${G.city}. She chose to spend the day at: ${activityLabel}. ${meetNPC?`She encounters her ${meetNPC} there.`:''} Write 2-3 sentences describing this scene vividly. Language: ${G.langName}. Return only the scene description.`;
+
+  const imgPrompt=`${activityLabel} scene in ${G.city}, ${lm} atmosphere, beautiful 23-year-old woman with ${G.hairStyle} ${G.hairColor} hair, ${G.motherEyes} eyes, ${G.fatherSkin} skin, lifestyle scene, ${isWork?'professional setting, elegant':'casual elegant, relaxed'}, cinematic composition, warm lighting`;
+
+  const [sceneTxt,sceneUrl]=await Promise.all([claude(scenePrompt),img(imgPrompt,activityLabel,true)]);
+
+  document.getElementById('scene-nar').innerHTML=sceneTxt.replace(/\n/g,'<br>');
+  if(sceneUrl) setImg('scene-img-el','scene-ph',sceneUrl);
+
+  if(meetNPC){
+    await runDialogue(meetNPC,activityKey,activityLabel);
+  } else {
+    document.getElementById('btn-scene-next').textContent=t('end_day')||'End the day';
+    document.getElementById('btn-scene-next').style.display='inline-block';
+  }
+}
+
+// ══ DIALOGUE SYSTEM ══
+async function runDialogue(npcKey,location,locationLabel){
+  const npc=NPCS[npcKey];
+  const npcName=npcKey==='agent'?G.agentName:(npc.name||npcKey);
+  const rel=G.relationships[npcKey]||0;
+  const npcRole=G.lang==='zh-cn'?npc.role_zhcn:G.lang==='zh-tw'?npc.role_zhtw:G.lang==='ja'?npc.role_ja:G.lang==='ko'?npc.role_ko:npc.role_en;
+
+  // Generate NPC opening line
+  const openingPrompt=`${npcName} is a ${npc.age}-year-old ${npcRole} (${npc.personality}). His relationship with ${G.playerName} is at level ${rel}/100 (${rel<30?'barely acquainted':rel<60?'developing rapport':'growing close'}). They unexpectedly meet at ${locationLabel} in ${G.city}. Write his opening line to her. 1-2 sentences, in character. No quotes. Language: ${G.langName}.`;
+  const opening=await claude(openingPrompt);
+
+  // Generate 3 response options
+  const optionsPrompt=`${G.playerName} (23, singer) just heard this from ${npcName}: "${opening}". Generate 3 short response options for her. Each response should lead to different relationship outcomes: one that brings them closer (warm/playful), one neutral/professional, one that creates distance (cold/dismissive). Format as JSON array of 3 strings, each under 15 words. Language: ${G.langName}. Return ONLY the JSON array.`;
+  let options=['...','Okay.','I have to go.'];
+  try{
+    const raw=await claude(optionsPrompt);
+    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if(Array.isArray(parsed)&&parsed.length===3) options=parsed;
+  }catch{}
+
+  // Show dialogue
+  const dlgArea=document.getElementById('dlg-area');
+  const dlgBubbles=document.getElementById('dlg-bubbles');
+  const dlgOpts=document.getElementById('dlg-opts');
+  dlgArea.style.display='block';
+
+  dlgBubbles.innerHTML=`<div class="dlg-bubble"><div class="dlg-name">${npcName}</div><div class="dlg-text">${opening}</div></div>`;
+
+  const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
+  const relClasses=['rel-close','rel-neutral','rel-far'];
+  const relChanges=[+15,+2,-8];
+
+  dlgOpts.innerHTML=options.map((opt,i)=>`
+    <button class="dlg-opt" onclick="chooseResponse(${i},'${npcKey}','${npcName}',${relChanges[i]},this,'${opt.replace(/'/g,"\\'")}')">
+      ${opt}<span class="rel-badge ${relClasses[i]}">${relLabels[i]}</span>
+    </button>`).join('');
+}
+
+async function chooseResponse(idx,npcKey,npcName,relChange,el,playerReply){
+  // Update relationship
+  G.relationships[npcKey]=Math.max(0,Math.min(100,(G.relationships[npcKey]||0)+relChange));
+
+  // Show player's choice
+  document.getElementById('dlg-opts').innerHTML='';
+  document.getElementById('dlg-bubbles').innerHTML+=`<div class="dlg-bubble player"><div class="dlg-name">${G.playerName}</div><div class="dlg-text">${playerReply}</div></div>`;
+
+  // Generate NPC reaction
+  const npc=NPCS[npcKey];
+  const reaction=await claude(`${npcName} (${npc.personality}) just heard ${G.playerName} say: "${playerReply}". Write his brief reaction (1-2 sentences). ${relChange>0?'He feels drawn to her.':relChange<0?'He feels slightly rebuffed.':'He remains composed.'} In character. No quotes. Language: ${G.langName}.`);
+  document.getElementById('dlg-bubbles').innerHTML+=`<div class="dlg-bubble"><div class="dlg-name">${npcName}</div><div class="dlg-text">${reaction}</div></div>`;
+
+  // Show end day button
+  document.getElementById('btn-scene-next').textContent=t('end_day')||'End the day';
+  document.getElementById('btn-scene-next').style.display='inline-block';
+}
+
+// ══ EVENING ══
 async function goEvening(){
   go('s-evening');
-  setActive('bn-home');
-  document.getElementById('eve-stamp').textContent='10:47 PM';
-  // Night room
-  const ph=document.getElementById('eve-room-ph');
-  const img=document.getElementById('eve-room-img');
+  document.getElementById('eve-stamp').textContent='10:30 PM';
+
+  // Show night room
   if(G.livingNightUrl){
-    img.src=G.livingNightUrl; img.style.display='block';
-    if(ph) ph.style.display='none';
+    setImg('eve-img','eve-ph',G.livingNightUrl);
   } else {
-    // Still generating, wait
-    preGenNightRoom().then(()=>{
-      if(G.livingNightUrl){img.src=G.livingNightUrl;img.style.display='block';if(ph)ph.style.display='none';}
-    });
+    preGenNight().then(()=>{if(G.livingNightUrl) setImg('eve-img','eve-ph',G.livingNightUrl);});
   }
-  // Evening monologue + message from agent
-  const [eve, msg]=await Promise.all([
-    callClaude(`Write 2 sentences of evening inner monologue for ${G.playerName}, 23, singer. She just had her first real meeting with her agent ${G.agentName} today. Reflective, slightly overwhelmed, hopeful. Second person. Language: ${G.langName}. No quotes.`),
-    callClaude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent, cold exterior, hidden warmth. He just had his first official meeting with his new artist ${G.playerName}. Write a brief late-night text message he sends her. 1-2 sentences, professional but with a hint of something more. No quotation marks. Language: ${G.langName}.`)
+
+  // Evening monologue
+  const fr=getCurrentFameRank(G.fame);
+  const [eveTxt,msgTxt]=await Promise.all([
+    claude(`Write 2 sentences of evening inner monologue for ${G.playerName}, 23, singer in ${G.city}. Day ${G.day}. Fame: ${getFameLabel(G.lang,fr)}. Reflective, emotional. Second person. Language: ${G.langName}. No quotes.`),
+    claude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent, cold exterior with hidden warmth. He sends ${G.playerName} a brief late-night text after Day ${G.day}. Relationship level: ${G.relationships.agent}/100. 1-2 sentences. Professional but hinting at more. No quotes. Language: ${G.langName}.`)
   ]);
-  document.getElementById('eve-nar').innerHTML=eve.replace(/\n/g,'<br>');
-  document.getElementById('eve-messages').innerHTML=`
-    <div style="background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.2);border-radius:8px;padding:16px;text-align:left">
-      <div style="font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px">${G.agentName}</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4vw,19px);font-style:italic;color:var(--cream);line-height:1.8">${msg}</p>
-    </div>`;
+
+  document.getElementById('eve-nar').innerHTML=eveTxt.replace(/\n/g,'<br>');
+  document.getElementById('eve-msgs').innerHTML=`<div class="msg-card"><div class="msg-from">${G.agentName}</div><div class="msg-text">${msgTxt}</div></div>`;
 }
 
-function nextDay(){G.day++;startDay();}
+function nextDay(){
+  G.day++;
+  if(G.day>5){
+    // After day 5 show summary
+    alert(G.lang==='zh-cn'?`5天已结束！\n最终知名度：${G.fame}/100\n经纪人亲密度：${G.relationships.agent}/100`:
+          G.lang==='zh-tw'?`5天已結束！\n最終知名度：${G.fame}/100\n經紀人親密度：${G.relationships.agent}/100`:
+          `5 days complete!\nFame: ${G.fame}/100\nAgent bond: ${G.relationships.agent}/100\n\nMore coming soon.`);
+    return;
+  }
+  startDay();
+}
 
 // ══ FAME ══
-function openFame(){
-  setActive('bn-fame');
-  const ranks=t('fame_ranks')||FAME_RANKS.map(r=>r.label);
-  const cur=FAME_RANKS.findIndex(r=>G.fame<(FAME_RANKS[FAME_RANKS.indexOf(r)+1]?.min||101));
+function renderFame(){
   document.getElementById('fame-player-name').textContent=G.playerName||'—';
-  document.getElementById('fame-level-label').textContent=`⭐ ${ranks[Math.max(0,cur)]}`;
+  const fr=getCurrentFameRank(G.fame);
+  document.getElementById('fame-level-lbl').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);
   document.getElementById('fame-bar').style.width=G.fame+'%';
   document.getElementById('fame-pct').textContent=`${G.fame} / 100`;
-  document.getElementById('fame-ranks').innerHTML=FAME_RANKS.map((r,i)=>`
-    <div class="fame-rank${G.fame>=r.min&&(G.fame<(FAME_RANKS[i+1]?.min||101))?' current':''}">
-      <span class="fr-num">${i+1}</span>
-      <span class="fr-label">${ranks[i]||r.label}</span>
-    </div>`).join('');
-  go('s-fame');
+  // Render ranks top to bottom (highest first)
+  document.getElementById('fame-ranks-list').innerHTML=FAME_DATA.map((fd,i)=>{
+    const isCurrent=G.fame>=fd.min&&(i===0||G.fame<FAME_DATA[i-1].min);
+    const label=getFameLabel(G.lang,fd);
+    return `<div class="fame-rank-item${isCurrent?' current':''}${fd.danger?' danger':''}">
+      <span class="fr-crown" style="color:${fd.color}">${fd.emoji}</span>
+      <span class="fr-label">${label}</span>
+      <span class="fr-pts" style="color:${fd.color}">${fd.min}+</span>
+    </div>`;
+  }).join('');
 }
-function closeFame(){go(G._prevScreen||'s-daily');setActive('bn-home');}
 
 // ══ GALLERY ══
-function openGallery(){
-  setActive('bn-gallery');
+function renderGallery(){
   const grid=document.getElementById('ggrid');
   grid.innerHTML=G.gallery.length===0
     ?`<p style="color:var(--ink-muted);font-size:14px;text-align:center;grid-column:1/-1;padding:40px 0">${t('gallery_sub')}</p>`
-    :G.gallery.map(item=>`<div class="gi" onclick="openLightbox('${item.url}')"><img src="${item.url}" alt="${item.label}"><div class="gl">${item.label}</div></div>`).join('');
-  go('s-gallery');
+    :G.gallery.map(item=>`<div class="gi" onclick="openLB('${item.url}')"><img src="${item.url}" alt="${item.label}"><div class="gl">${item.label}</div></div>`).join('');
 }
-function closeGallery(){go(G._prevScreen||'s-daily');setActive('bn-home');}
 
 // ══ INIT ══
-window.addEventListener('load',()=>{applyLang();});
+window.addEventListener('load',()=>applyLang());
 </script>
 </body>
 </html>
