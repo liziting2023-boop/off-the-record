@@ -730,7 +730,8 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 // ══════════════════════════════════════════════════════
 
 const WORKER = 'https://off-the-record-api.liziting2023.workers.dev';
-const DEV_MODE = true; // 发布前改为 false
+const DEV_MODE_IMG = true;  // true = 跳过图片生成（省钱）
+const DEV_MODE_TXT = false; // true = 跳过Claude对话（用占位文字）
 
 // ── 快捷访问 STATE ──
 const G = STATE.data;
@@ -786,7 +787,7 @@ function getNPCName(key) {
 // ══════════════════════════════════════════════════════
 
 async function claude(prompt, sys = '') {
-  if (DEV_MODE) {
+  if (DEV_MODE_TXT) {
     const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
     const isJa = G.lang === 'ja';
     const isKo = G.lang === 'ko';
@@ -839,7 +840,7 @@ async function claude(prompt, sys = '') {
 }
 
 async function img(prompt, label = '', save = false, retries = 2) {
-  if (DEV_MODE) return null;
+  if (DEV_MODE_IMG) return null;
   const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
   const fullPrompt = prompt + ', ' + style + ', portrait orientation, high quality';
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -1885,9 +1886,9 @@ function devSkipToDay() {
 window.addEventListener('load', () => {
   STATE.init();
   applyLang();
-  if (DEV_MODE) {
+  if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.0 · <span style="color:#f66">DEV MODE</span>';
+    if (v) v.innerHTML = 'v10.1 · <span style="color:#f90">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
