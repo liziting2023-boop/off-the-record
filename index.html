@@ -134,7 +134,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">Overseas Chinese</span></div>
     <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">Taiwan · Hong Kong</span></div>
   </div>
-  <button class="btn-p" id="btn-lang" onclick="go('s-apikey')" style="display:none" data-i18n="continue">Continue</button>
+  <button class="btn-p" id="btn-lang" onclick="go('s-open')" style="display:none" data-i18n="continue">Continue</button>
 </div>
 
 <!-- API KEY -->
@@ -1011,32 +1011,28 @@ function showHeritage() {
   go('s-heritage');
 }
 
-// ══════════════════════════════
+const WORKER = 'https://off-the-record-api.liziting2023.workers.dev';
+
 // CLAUDE API
-// ══════════════════════════════
 async function callClaude(prompt, sys='') {
   const body={model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]};
   if(sys) body.system=sys;
-  const r=await fetch('https://api.anthropic.com/v1/messages',{
+  const r=await fetch(WORKER+'/claude',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify(body)
   });
   const d=await r.json();
   return d.content?.[0]?.text||'';
 }
 
-// ══════════════════════════════
 // IMAGE GENERATION
-// ══════════════════════════════
 async function genImg(prompt, label='') {
-  const fk=localStorage.getItem('otr_fal')||'';
   const style=', Western glamour stylized 2D illustration, Choices Stories You Play art style, romance novel cover art, rich saturated colors, detailed fashion styling, cinematic dramatic lighting, high quality digital painting';
-  if(!fk) return placeholder(label);
   try {
-    const r=await fetch('https://fal.run/fal-ai/flux/schnell',{
+    const r=await fetch(WORKER+'/image',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Key '+fk},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({prompt:prompt+style,image_size:'portrait_4_3',num_inference_steps:4,num_images:1})
     });
     const d=await r.json();
