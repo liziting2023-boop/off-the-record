@@ -27,17 +27,17 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 .title-main{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,12vw,72px);font-weight:300;font-style:italic;line-height:0.9;color:var(--cream);text-align:center;margin-bottom:20px;}
 .divider-h{width:36px;height:1px;background:var(--gold);margin:0 auto 24px;opacity:0.5;}
 .divider-thin{width:48px;height:1px;background:rgba(196,168,130,0.3);margin:0 auto 16px;}
-.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,19px);font-weight:300;font-style:italic;line-height:1.85;color:var(--cream);margin-bottom:20px;opacity:0;animation:fadeInSlow 1s ease 0.2s forwards;text-align:center;}
+.nar{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,5vw,21px);font-weight:300;font-style:italic;line-height:1.85;color:var(--cream);margin-bottom:20px;opacity:0;animation:fadeInSlow 1s ease 0.2s forwards;text-align:center;}
 .nar em{color:var(--gold);font-style:normal;}
 .stamp{font-size:10px;letter-spacing:4px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:20px;opacity:0.6;}
 .clabel{font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;opacity:0.8;text-align:center;}
 .sec-head{text-align:center;margin-bottom:14px;width:100%;}
-.sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,6vw,32px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:4px;}
+.sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,7vw,34px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:4px;}
 .sec-head p{font-size:12px;color:var(--ink-muted);line-height:1.6;}
 
 /* ── BUTTONS ── */
-.btn-p{background:var(--gold);border:none;border-radius:2px;padding:13px 32px;color:var(--night);font-family:'Jost',sans-serif;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;cursor:pointer;min-height:46px;display:inline-block;}
-.btn-g{background:transparent;border:1px solid rgba(196,168,130,0.35);border-radius:2px;padding:11px 24px;color:var(--gold);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;min-height:46px;display:inline-block;}
+.btn-p{background:var(--gold);border:none;border-radius:2px;padding:14px 32px;color:var(--night);font-family:'Jost',sans-serif;font-size:13px;font-weight:500;letter-spacing:3px;text-transform:uppercase;cursor:pointer;min-height:46px;display:inline-block;}
+.btn-g{background:transparent;border:2px solid rgba(196,168,130,0.35);border-radius:2px;padding:11px 24px;color:var(--gold);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;min-height:46px;display:inline-block;}
 .btn-t{background:none;border:none;color:var(--ink-muted);font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:8px;min-height:40px;}
 
 /* ── CARDS ── */
@@ -45,13 +45,13 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 .cgrid.c2{grid-template-columns:1fr 1fr;}
 .cgrid.c3{grid-template-columns:1fr 1fr 1fr;}
 .cgrid.c1{grid-template-columns:1fr;max-width:360px;}
-.card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:11px 10px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);color:var(--cream);line-height:1.3;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;transition:all 0.15s;}
+.card{background:rgba(255,255,255,0.03);border:2px solid rgba(196,168,130,0.15);border-radius:3px;padding:11px 10px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:var(--cream);line-height:1.3;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;transition:all 0.15s;}
 .card:active,.card.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
 .card .sub{display:block;font-family:'Jost',sans-serif;font-size:9px;letter-spacing:1px;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
 
 /* ── LANG GRID ── */
 .lgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%;margin-bottom:14px;}
-.lcard{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.12);border-radius:3px;padding:10px 6px;cursor:pointer;text-align:center;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;transition:all 0.15s;}
+.lcard{background:rgba(255,255,255,0.03);border:2px solid rgba(196,168,130,0.12);border-radius:3px;padding:10px 6px;cursor:pointer;text-align:center;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;transition:all 0.15s;}
 .lcard:active,.lcard.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);}
 .lname{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--cream);display:block;margin-bottom:2px;}
 .lcard.sel .lname{color:var(--gold);}
@@ -59,18 +59,19 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 /* ── TRIO (portrait select) ── */
 .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-bottom:10px;}
-.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;transition:border-color 0.15s;}
+.trio-item{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;transition:border-color 0.15s;aspect-ratio:3/4;}
 .trio-item.sel{border-color:var(--gold);}
-.trio-item img{width:100%;display:block;aspect-ratio:3/4;object-fit:cover;}
-.trio-item .iph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:4px;}
+.trio-item img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;}
+.trio-item .iph{position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:4px;}
 .trio-item .sbadge{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--night);font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:2px;opacity:0;white-space:nowrap;}
 .trio-item.sel .sbadge{opacity:1;}
 
 /* ── ROOM TRIO ── */
 .room-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-bottom:10px;}
-.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;transition:border-color 0.15s;}
+.rcard{border:2px solid rgba(196,168,130,0.15);border-radius:4px;overflow:hidden;cursor:pointer;position:relative;transition:border-color 0.15s;aspect-ratio:3/4;}
 .rcard.sel{border-color:var(--gold);}
-.rcard img,.rcard .rph{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
+.rcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.rcard .rph{position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:4px;}
 .rcard .rph{display:flex;align-items:center;justify-content:center;background:var(--night-glow);flex-direction:column;gap:4px;}
 .rcard .rlabel{padding:5px;font-family:'Cormorant Garamond',serif;font-size:11px;font-style:italic;color:var(--cream);background:var(--night-warm);text-align:center;}
 .rcard.sel .rlabel{color:var(--gold);}
@@ -103,9 +104,9 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(10,10,10,0.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid rgba(196,168,130,0.2);padding:12px 16px 8px;}
 .vn-speaker{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;opacity:0.9;}
-.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:10px;}
+.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:10px;}
 .vn-opts{display:grid;gap:6px;}
-.vn-opt{background:rgba(196,168,130,0.08);border:1px solid rgba(196,168,130,0.2);border-radius:3px;padding:9px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3.5vw,14px);color:var(--cream);display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
+.vn-opt{background:rgba(196,168,130,0.08);border:2px solid rgba(196,168,130,0.2);border-radius:3px;padding:9px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:var(--cream);display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
 .vn-opt:active{border-color:var(--gold);background:rgba(196,168,130,0.15);}
 .rel-tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:8px;font-family:'Jost',sans-serif;flex-shrink:0;margin-left:8px;}
 .rel-close{background:rgba(74,222,128,0.15);color:#4ade80;}
@@ -120,14 +121,14 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 #s-daily{padding:0;}
 .daily-wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
 .daily-top{flex:0 0 auto;padding:12px 16px 8px;}
-.daily-clock{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--cream);letter-spacing:-2px;line-height:1;}
-.daily-date{font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-top:2px;}
+.daily-clock{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--cream);letter-spacing:-2px;line-height:1;opacity:1;}
+.daily-date{font-size:12px;letter-spacing:3px;color:var(--cream);opacity:0.7;text-transform:uppercase;margin-top:2px;}
 .daily-room{flex:0 0 auto;position:relative;overflow:hidden;}
 .daily-room img{width:100%;height:32vw;max-height:140px;object-fit:cover;display:block;}
 .daily-room-ph{width:100%;height:32vw;max-height:140px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
-.daily-nar{flex:0 0 auto;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
+.daily-nar{flex:0 0 auto;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
 .daily-opts{flex:1;padding:6px 12px 0;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
-.daily-opt{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.15);border-radius:3px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,4vw,15px);color:var(--cream);display:flex;justify-content:space-between;align-items:center;flex:1;transition:all 0.15s;}
+.daily-opt{background:rgba(255,255,255,0.03);border:2px solid rgba(196,168,130,0.15);border-radius:3px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,4vw,15px);color:var(--cream);display:flex;justify-content:space-between;align-items:center;flex:1;transition:all 0.15s;}
 .daily-opt:active{border-color:var(--gold);background:rgba(196,168,130,0.06);}
 .daily-opt.work{border-left:2px solid rgba(196,168,130,0.5);}
 .daily-opt.phone-btn{border-left:2px solid rgba(74,222,128,0.4);}
@@ -137,15 +138,15 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 /* ── EVENING SCREEN ── */
 #s-evening{padding:0;}
 .eve-wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
-.eve-room{flex:0 0 auto;}
-.eve-room img{width:100%;height:40vw;max-height:180px;object-fit:cover;display:block;}
-.eve-room-ph{width:100%;height:40vw;max-height:180px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
+.eve-room{flex:0 0 auto;position:relative;height:40vw;max-height:180px;overflow:hidden;}
+.eve-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.eve-room-ph{position:absolute;inset:0;width:100%;height:100%;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
 .eve-content{flex:1;padding:10px 16px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;}
 .eve-nar{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--cream);line-height:1.7;margin-bottom:8px;}
 .eve-msgs{display:flex;flex-direction:column;gap:6px;overflow:hidden;}
 .eve-msg{background:rgba(196,168,130,0.06);border:1px solid rgba(196,168,130,0.12);border-radius:6px;padding:10px 12px;}
 .eve-msg-from{font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;}
-.eve-msg-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3.5vw,14px);font-style:italic;color:var(--cream);line-height:1.6;}
+.eve-msg-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);font-style:italic;color:var(--cream);line-height:1.6;}
 
 /* ── WECHAT PHONE ── */
 #s-phone{background:#000;padding:0;}
@@ -236,11 +237,11 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 .settings-section-title{font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;opacity:0.7;margin-bottom:6px;}
 .settings-lang{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
 .settings-style{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-.s-lang-card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.1);border-radius:2px;padding:7px 4px;cursor:pointer;text-align:center;}
+.s-lang-card{background:rgba(255,255,255,0.03);border:2px solid rgba(196,168,130,0.1);border-radius:2px;padding:7px 4px;cursor:pointer;text-align:center;}
 .s-lang-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.08);}
 .s-lang-card .sl-name{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--cream);display:block;}
 .s-lang-card.sel .sl-name{color:var(--gold);}
-.s-style-card{background:rgba(255,255,255,0.03);border:1px solid rgba(196,168,130,0.1);border-radius:2px;padding:9px 10px;cursor:pointer;}
+.s-style-card{background:rgba(255,255,255,0.03);border:2px solid rgba(196,168,130,0.1);border-radius:2px;padding:9px 10px;cursor:pointer;}
 .s-style-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.08);}
 .s-style-name{font-size:12px;color:var(--cream);display:block;margin-bottom:2px;}
 .s-style-card.sel .s-style-name{color:var(--gold);}
@@ -271,7 +272,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 .nos-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--cream);text-align:center;margin-bottom:4px;}
 .nos-sub{font-size:11px;color:var(--ink-muted);text-align:center;margin-bottom:12px;}
 .nos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px;}
-.nos-card{background:rgba(255,255,255,0.04);border:1px solid rgba(196,168,130,0.12);border-radius:3px;padding:9px 6px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--cream);transition:all 0.15s;}
+.nos-card{background:rgba(255,255,255,0.04);border:2px solid rgba(196,168,130,0.12);border-radius:3px;padding:9px 6px;cursor:pointer;text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--cream);transition:all 0.15s;}
 .nos-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.1);color:var(--gold);}
 
 /* ── SETUP SCREENS (with back button space) ── */
@@ -292,7 +293,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="nos-title" id="nos-title">Where is he from?</div>
     <div class="nos-sub" id="nos-sub">His background shapes who he is.</div>
     <div class="nos-grid" id="nos-grid"></div>
-    <button class="btn-p" id="nos-confirm" onclick="confirmNPCOrigin()" style="width:100%;display:none">Confirm</button>
+    <button class="btn-p" id="nos-confirm" onclick="confirmNPCOrigin()" style="width:100%;visibility:hidden">Confirm</button>
   </div>
 </div>
 
@@ -300,6 +301,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <div class="bottom-nav" id="bottom-nav">
   <button class="bnav-btn active" id="bn-home" onclick="goHome()"><span class="bnav-icon">🏠</span><span id="bn-home-lbl">Home</span></button>
   <button class="bnav-btn" id="bn-phone" onclick="openPhone()"><span class="bnav-icon">📱<span class="bnav-badge" id="phone-badge">0</span></span><span id="bn-phone-lbl">Phone</span></button>
+  <button class="bnav-btn" id="bn-affection" onclick="openAffection()"><span class="bnav-icon">❤️</span><span id="bn-affection-lbl">好感度</span></button>
   <button class="bnav-btn" id="bn-fame" onclick="openFame()"><span class="bnav-icon">⭐</span><span id="bn-fame-lbl">Fame</span></button>
   <button class="bnav-btn" id="bn-gallery" onclick="openGallery()"><span class="bnav-icon">📷</span><span id="bn-gallery-lbl">Gallery</span></button>
   <button class="bnav-btn" id="bn-settings" onclick="openSettings()"><span class="bnav-icon">⚙️</span><span id="bn-settings-lbl">Settings</span></button>
@@ -313,7 +315,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v7.0</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v9.3</p>
   </div>
 </div>
 
@@ -322,18 +324,18 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
   <div class="setup-screen">
     <div class="sec-head"><h2>Choose your language</h2></div>
     <div class="lgrid" id="lang-grid-main">
-      <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span><span class="lmkt">US·UK</span></div>
-      <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span><span class="lmkt">Japan</span></div>
-      <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span><span class="lmkt">Korea</span></div>
-      <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span><span class="lmkt">DE</span></div>
-      <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span><span class="lmkt">FR</span></div>
-      <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span><span class="lmkt">ES</span></div>
-      <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span><span class="lmkt">BR</span></div>
-      <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span><span class="lmkt">TR</span></div>
-      <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span><span class="lmkt">华人</span></div>
-      <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span><span class="lmkt">台灣</span></div>
+      <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span></div>
+      <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span></div>
+      <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span></div>
+      <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span></div>
+      <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span></div>
+      <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span></div>
+      <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span></div>
+      <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span></div>
+      <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span></div>
+      <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span></div>
     </div>
-    <button class="btn-p" id="btn-lang" onclick="go('s-open')" style="display:none">Continue</button>
+    <button class="btn-p" id="btn-lang" onclick="go('s-open')" style="visibility:hidden">Continue</button>
   </div>
 </div>
 
@@ -365,7 +367,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="sec-head"><h2 id="mother-title">My mother</h2><p id="mother-sub">She always said I had her eyes.</p></div>
     <div class="clabel" id="lbl-her-origin">HER ORIGIN</div>
     <div class="cgrid c2" id="g-mom" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-mom" onclick="go('s-father')" style="display:none">Continue</button>
+    <button class="btn-p" id="btn-mom" onclick="go('s-father')" style="visibility:hidden">Continue</button>
   </div>
 </div>
 
@@ -377,7 +379,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="sec-head"><h2 id="father-title">My father</h2><p id="father-sub">He said my skin was just like his.</p></div>
     <div class="clabel" id="lbl-his-origin">HIS ORIGIN</div>
     <div class="cgrid c2" id="g-dad" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-dad" onclick="showHeritage()" style="display:none">Continue</button>
+    <button class="btn-p" id="btn-dad" onclick="showHeritage()" style="visibility:hidden">Continue</button>
   </div>
 </div>
 
@@ -401,7 +403,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="cgrid c2" id="g-hstyle" style="margin-bottom:10px;max-width:400px"></div>
     <div class="clabel" id="lbl-hair-colour">HAIR COLOUR</div>
     <div class="cgrid c3" id="g-hcolor" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="display:none;margin-top:6px">Continue</button>
+    <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="visibility:hidden;margin-top:6px">Continue</button>
   </div>
 </div>
 
@@ -413,7 +415,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="sec-head"><h2 id="city-title">Two months ago</h2><p id="city-sub">I packed two suitcases.</p></div>
     <div class="clabel" id="lbl-city">WHERE DID YOU MOVE TO?</div>
     <div class="cgrid c2" id="g-city" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-city" onclick="go('s-decor')" style="display:none">Continue</button>
+    <button class="btn-p" id="btn-city" onclick="go('s-decor')" style="visibility:hidden">Continue</button>
   </div>
 </div>
 
@@ -425,7 +427,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="sec-head"><h2 id="decor-title">My apartment</h2><p id="decor-sub">I made it mine.</p></div>
     <div class="clabel" id="lbl-decor">INTERIOR STYLE</div>
     <div class="cgrid c1" id="g-decor" style="max-width:380px"></div>
-    <button class="btn-p" id="btn-decor" onclick="genRooms()" style="display:none;margin-top:6px">Generate my apartment</button>
+    <button class="btn-p" id="btn-decor" onclick="genRooms()" style="visibility:hidden;margin-top:6px">Generate my apartment</button>
   </div>
 </div>
 
@@ -438,7 +440,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
       <div class="rcard" id="rb" onclick="selRoom('b')"><div class="rph" id="rb-ph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style B</div><div class="rbadge">✓</div></div>
       <div class="rcard" id="rc" onclick="selRoom('c')"><div class="rph" id="rc-ph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="rlabel">Style C</div><div class="rbadge">✓</div></div>
     </div>
-    <button class="btn-p" id="btn-rooms" onclick="genProto()" style="display:none;margin-top:8px">This is my home</button>
+    <button class="btn-p" id="btn-rooms" onclick="genProto()" style="visibility:hidden;margin-top:8px">This is my home</button>
   </div>
 </div>
 
@@ -446,7 +448,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 <div class="screen" id="s-proto">
   <div class="setup-screen">
     <div class="stamp" id="mirror-stamp">Bathroom mirror · 7:31 AM</div>
-    <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);font-style:italic;color:var(--ink-muted);margin-bottom:10px;line-height:1.7;text-align:center" id="mirror-nar"></p>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);margin-bottom:10px;line-height:1.7;text-align:center" id="mirror-nar"></p>
     <div class="clabel" id="lbl-choose-refl">CHOOSE YOUR REFLECTION</div>
     <div class="trio" style="max-width:380px">
       <div class="trio-item" id="pa" onclick="selProto('a')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge" id="lbl-this-me">✓ This is me</div></div>
@@ -454,7 +456,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
       <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
     </div>
     <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:6px">↺ New options</button>
-    <button class="btn-p" id="btn-proto" onclick="go('s-flash-intro')" style="display:none">That's me</button>
+    <button class="btn-p" id="btn-proto" onclick="go('s-flash-intro')" style="visibility:hidden">That's me</button>
   </div>
 </div>
 
@@ -481,7 +483,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
   <div class="setup-screen">
     <div class="sec-head"><h2 id="agent-origin-title">Where was he from?</h2><p id="agent-origin-sub">Something about the way he carried himself.</p></div>
     <div class="cgrid c2" id="g-aorigin" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="display:none">I remember him</button>
+    <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="visibility:hidden">I remember him</button>
   </div>
 </div>
 
@@ -500,7 +502,22 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
       <p style="font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--cream);margin-bottom:6px" id="agent-name-txt"></p>
       <p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-muted);line-height:1.7" id="agent-line-txt"></p>
     </div>
-    <button class="btn-p" id="btn-agent-ok" onclick="go('s-ch1')" style="display:none">And so it began</button>
+    <button class="btn-p" id="btn-agent-ok" onclick="startSigningScene()" style="visibility:hidden">And so it began</button>
+  </div>
+</div>
+
+
+<!-- ══ AGENT SIGNING (VN scene) ══ -->
+<div class="screen" id="s-agent-signing">
+  <img class="vn-bg" id="signing-bg" src="" alt="" style="object-fit:cover;width:100%;height:100%;position:absolute;inset:0;z-index:0;cursor:pointer" onclick="openLB(this.src)">
+  <div class="vn-bg-ph" id="signing-bg-ph" style="position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:var(--night-glow)"></div>
+  <div class="vn-overlay" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.3) 50%,rgba(0,0,0,0.1) 100%);z-index:1"></div>
+  <div style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom))">
+    <div class="vn-dialog">
+      <div class="vn-speaker" id="signing-speaker"></div>
+      <div class="vn-text" id="signing-text"></div>
+      <div class="vn-opts" id="signing-opts"></div>
+    </div>
   </div>
 </div>
 
@@ -511,7 +528,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
     <div class="divider-thin"></div>
     <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(36px,9vw,52px);font-weight:300;font-style:italic;color:var(--cream);margin-bottom:12px" id="lbl-signed">Signed</h2>
     <div class="divider-thin"></div>
-    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(13px,3.5vw,15px);color:var(--ink-muted);margin-bottom:18px;line-height:1.8" id="ch1-quote"></p>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4.5vw,18px);color:var(--ink-muted);margin-bottom:18px;line-height:1.8" id="ch1-quote"></p>
     <div class="pbox">
       <div class="ptitle" id="lbl-your-world">YOUR WORLD</div>
       <div class="prow"><span class="pk" id="lbl-name-key">Name</span><span class="pv" id="ch-name">—</span></div>
@@ -519,7 +536,7 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
       <div class="prow"><span class="pk" id="lbl-agent-key">Agent</span><span class="pv" id="ch-agent">—</span></div>
       <div class="prow"><span class="pk" id="lbl-fame-key">Fame</span><span class="pv" id="ch-fame">⭐ —</span></div>
     </div>
-    <button class="btn-p" onclick="startDay()" id="btn-wakeup">Wake up · Day 1</button>
+    <button class="btn-p" onclick="startDay()" id="btn-wakeup">Day 1</button>
   </div>
 </div>
 
@@ -541,9 +558,13 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
 
 <!-- ══ SCENE (Visual Novel) ══ -->
 <div class="screen" id="s-scene">
+  <!-- DEV skip button -->
+  <div id="dev-skip-bar" style="display:none;position:absolute;top:10px;right:10px;z-index:100">
+    <button onclick="devSkipToDay()" style="background:rgba(255,100,100,0.8);border:none;border-radius:4px;padding:8px 14px;color:#fff;font-size:11px;cursor:pointer">⏭ Skip to Day 1</button>
+  </div>
   <!-- Loading state -->
   <div class="vn-loading" id="vn-loading">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,17px);font-style:italic;color:var(--cream);text-align:center;line-height:1.8;padding:0 24px;max-width:400px" id="vn-pre-text"></div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.5vw,19px);font-style:italic;color:var(--cream);text-align:center;line-height:1.8;padding:0 24px;max-width:400px" id="vn-pre-text"></div>
     <div class="gt" style="margin-top:16px">Painting the scene<span class="loading-dots"></span></div>
   </div>
   <!-- Scene state -->
@@ -633,6 +654,15 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
   </div>
 </div>
 
+<!-- ══ AFFECTION ══ -->
+<div class="screen" id="s-affection">
+  <button class="back-btn" onclick="closeAffection()">← Back</button>
+  <div style="width:100%;max-width:380px;padding-top:48px">
+    <div style="font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:20px;text-align:center" id="lbl-affection-title">好感度</div>
+    <div id="affection-list"></div>
+  </div>
+</div>
+
 <!-- ══ FAME ══ -->
 <div class="screen" id="s-fame">
   <button class="back-btn" onclick="closeFame()">← Back</button>
@@ -680,12 +710,98 @@ body{background:var(--night);color:var(--cream);font-family:'Jost',sans-serif;fo
         <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
       </div>
     </div>
+    <div>
+      <div class="settings-section-title" id="lbl-sound-setting">SOUND EFFECTS</div>
+      <div class="settings-style">
+        <div class="s-style-card sel" id="sound-on-card" onclick="setSoundOn(true,this)"><span class="s-style-name" id="lbl-sound-on">🔊 On</span><span class="s-style-sub" id="lbl-sound-on-sub">Button feedback sounds</span></div>
+        <div class="s-style-card" id="sound-off-card" onclick="setSoundOn(false,this)"><span class="s-style-name" id="lbl-sound-off">🔇 Off</span><span class="s-style-sub" id="lbl-sound-off-sub">Silent mode</span></div>
+      </div>
+    </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
   </div>
 </div>
 
 <script>
 const WORKER='https://off-the-record-api.liziting2023.workers.dev';
+
+// ── SEASON SYSTEM ──
+// Game starts March 15. Each chapter = 30 days.
+function getSeason(day){
+  // Day 1-75: Spring (Mar 15 - May 29)
+  // Day 76-165: Summer (May 30 - Aug 27)
+  // Day 166-255: Autumn (Aug 28 - Nov 26)
+  // Day 256-345: Winter (Nov 27 - Feb 24)
+  // Day 346-360: Spring again (Feb 25 - Mar 15)
+  if(day<=75) return 'spring';
+  if(day<=165) return 'summer';
+  if(day<=255) return 'autumn';
+  if(day<=345) return 'winter';
+  return 'spring';
+}
+
+function getSeasonPrompt(day, city){
+  const season=getSeason(day);
+  const citySeasons={
+    'New York':{
+      spring:'mild spring weather, cherry blossoms and fresh greenery, soft natural light',
+      summer:'hot humid summer, bright intense sunlight, lush green trees',
+      autumn:'stunning autumn foliage, golden and red leaves, crisp clear light',
+      winter:'cold winter, possible snow, grey sky, bare trees, warm interior lights visible',
+    },
+    'Los Angeles':{
+      spring:'warm dry spring, blooming jacaranda trees, golden California light',
+      summer:'hot sunny summer, hazy golden light, palm trees swaying',
+      autumn:'mild golden autumn, warm tones, dry Santa Ana wind feeling',
+      winter:'cool crisp winter, clear blue sky, occasional rain, green hills',
+    },
+    'London':{
+      spring:'grey cloudy spring, occasional drizzle, fresh green parks, soft light',
+      summer:'rare warm sunny summer, golden hour light, bustling streets',
+      autumn:'misty foggy autumn, wet cobblestones, amber leaves, moody atmosphere',
+      winter:'cold grey winter, early darkness, Christmas lights, bare trees, fog',
+    },
+    'Paris':{
+      spring:'romantic spring, blooming flowers, warm golden light, café terraces open',
+      summer:'warm sunny summer, golden Parisian light, tourists and locals on terraces',
+      autumn:'golden autumn, fallen leaves on boulevards, misty morning light',
+      winter:'grey cold winter, occasional light snow, warm café lights, holiday atmosphere',
+    },
+    'Tokyo':{
+      spring:'cherry blossom season, soft pink petals falling, warm gentle light',
+      summer:'hot humid summer, neon lights reflecting on wet streets, rainy season mood',
+      autumn:'stunning red and orange maple leaves, crisp clear autumn light',
+      winter:'cold dry winter, occasional snow, New Year festive atmosphere, bare ginkgo trees',
+    },
+    'Seoul':{
+      spring:'cherry and azalea blossoms, pastel pink tones, fresh spring breeze',
+      summer:'hot humid monsoon season, lush green, dramatic stormy sky',
+      autumn:'brilliant red and gold foliage, crisp mountain air, clear blue sky',
+      winter:'harsh cold winter, heavy snow, frozen Han River, warm cafe glow against cold',
+    },
+    'Sydney':{
+      // Southern hemisphere - seasons reversed
+      spring:'spring in September, jacaranda blooms, warm sunny days, harbour sparkling',
+      summer:'summer in December, hot bright sunshine, beach atmosphere, long days',
+      autumn:'autumn in March, mild golden light, falling leaves in parks',
+      winter:'mild winter in June, cool crisp air, green parks, occasional rain',
+    },
+    'Nashville':{
+      spring:'warm rainy spring, dogwood blossoms, lush green countryside, country music energy',
+      summer:'hot humid summer, vibrant Broadway honky-tonk neon, outdoor festival atmosphere',
+      autumn:'stunning autumn colors, harvest festivals, crisp air, rich warm tones',
+      winter:'occasional snow, Christmas lights on Broadway, cozy bar atmosphere',
+    },
+  };
+  const cityData=citySeasons[city]||citySeasons['New York'];
+  return cityData[season]||cityData['spring'];
+}
+
+// Outdoor locations that should have seasonal prompts
+const OUTDOOR_LOCS=['brand_event','street_market','cafe','art_gallery','night_bar','award_ceremony','magazine_shoot'];
+
+// ── DEV MODE: set to true to skip all image generation for testing ──
+const DEV_MODE=true;
+
 const IMG_STYLES={illustrated:'digital painting style, illustrated 2D art, painterly brush strokes, not photorealistic, stylized romance novel illustration',semi:'semi-realistic digital art, stylized not photographic, soft artistic rendering, romance game art style',cinematic:'cinematic film photography, film grain texture, dreamy color grading, movie still quality',photo:'photorealistic, lifestyle photography, authentic textures, editorial photography quality'};
 const FAME_DATA=[
   {min:90,emoji:'👑',color:'#f4c840',en:'International Icon','zh-cn':'国际巨星','zh-tw':'國際巨星',ja:'国際的アイコン',ko:'국제적 아이콘'},
@@ -706,6 +822,13 @@ const PUBLIC_LOCS=['recording_studio','magazine_shoot','brand_event','award_cere
 const PRIVATE_LOCS=['agent_office','cafe_meeting'];
 
 const DETECTIVE_SHADOW=`, in the far background barely noticeable, a tall man in a dark trench coat seen only from behind or in silhouette, face completely hidden, standing at the edge of the scene in shadow, mysterious presence that most people wouldn't notice`;
+function getDetShadow(isPublic){
+  if(!isPublic||G.day>=20) return '';
+  G.publicSceneCount++;
+  // Appears every 3rd public scene
+  if(G.publicSceneCount%3===0) return DETECTIVE_SHADOW;
+  return '';
+}
 
 // SCENE COMPOSITIONS by location
 const SCENE_COMPS={
@@ -725,7 +848,7 @@ const SCENE_COMPS={
 };
 
 const HM={'East Asian':{eyes:'Dark brown, almond-shaped',skin:'Light to medium golden'},'Southeast Asian':{eyes:'Warm dark brown',skin:'Warm golden brown'},'South Asian':{eyes:'Deep brown',skin:'Medium to deep brown'},'Northern European':{eyes:'Blue or grey',skin:'Fair, cool-toned'},'Southern European':{eyes:'Warm brown or green',skin:'Warm olive'},'African':{eyes:'Rich dark brown',skin:'Rich deep brown to ebony'},'Latin American':{eyes:'Brown or hazel',skin:'Medium warm brown'},'Middle Eastern':{eyes:'Dark almond',skin:'Medium olive to tan'}};
-const CL={'New York':'Empire State Building and Times Square neon','Los Angeles':'Hollywood Hills and palm trees','London':'Tower Bridge and red double-decker bus','Paris':'Eiffel Tower and Haussmann rooftops','Tokyo':'Tokyo Tower and Shinjuku neon skyline','Seoul':'N Seoul Tower and Han River bridges','Sydney':'Opera House and Harbour Bridge','Toronto':'CN Tower and Lake Ontario waterfront'};
+const CL={'New York':'Empire State Building and Times Square neon','Los Angeles':'Hollywood Hills and palm trees','London':'Tower Bridge and red double-decker bus','Paris':'Eiffel Tower and Haussmann rooftops','Tokyo':'Tokyo Tower and Shinjuku neon skyline','Seoul':'N Seoul Tower and Han River bridges','Sydney':'Opera House and Harbour Bridge','Nashville':'CN Tower and Lake Ontario waterfront'};
 const AS={British:{hair:'dark brown neatly swept back',skin:'fair',suit:'charcoal grey double-breasted suit'},American:{hair:'dark brown side-parted',skin:'medium',suit:'navy blue slim suit, open-collar shirt'},French:{hair:'dark chestnut tousled',skin:'light olive',suit:'black slim-cut suit, silk pocket square'},Italian:{hair:'black swept back',skin:'warm olive',suit:'deep charcoal Italian-cut suit'},Korean:{hair:'black precise side part',skin:'light',suit:'dark grey minimalist suit, black turtleneck'},Japanese:{hair:'black neat side part',skin:'light',suit:'anthracite suit, white shirt'},'African-American':{hair:'close-cropped black fade',skin:'deep brown',suit:'black premium suit, white shirt'},Brazilian:{hair:'dark brown slight wave',skin:'warm tan',suit:'navy suit, open collar'}};
 const LIVING_LAYOUT=`rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, LEFT dining area with wooden dining table and chairs against left wall, two glass pendant lights hanging above dining table, CENTER BACK TV wall unit with built-in shelving, wall-mounted TV with floating cabinet and warm LED underglow, RIGHT large three-seater sofa with cushions, round coffee table on large area rug, curved accent armchair near window, round side table with lamp, FAR END floor-to-ceiling window with white sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, large format tile flooring, warm neutral tones`;
 
@@ -734,7 +857,7 @@ const G={lang:'en',langName:'English',imgStyle:'semi',playerName:'',mother:null,
   agentOrigin:null,agentName:null,agentUrl:null,
   drummerOrigin:null,drummerName:null,drummerUrl:null,
   actorOrigin:null,actorName:null,actorUrl:null,
-  butlerOrigin:null,butlerName:null,butlerUrl:null,
+  butlerOrigin:null,butlerName:null,butlerUrl:null,detectiveOrigin:null,detectiveName:null,
   fame:5,day:1,daysWithoutWork:0,relationships:{agent:0,drummer:0,actor:0,butler:0},
   metNPCs:[],gallery:[],_prevScreen:'s-daily',
   _ru:{a:null,b:null,c:null},_pu:{a:null,b:null,c:null},_au:{a:null,b:null,c:null},
@@ -743,7 +866,7 @@ const G={lang:'en',langName:'English',imgStyle:'semi',playerName:'',mother:null,
   vnDialogRound:0,vnMaxRounds:3,vnCurrentNPC:null,vnSceneImg:null,
 };
 
-const SO=['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-agent-intro','s-agent-origin','s-agent-reveal','s-ch1','s-daily'];
+const SO=['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-agent-intro','s-agent-origin','s-agent-reveal','s-agent-signing','s-ch1','s-daily'];
 
 // NAV
 function go(id){
@@ -771,38 +894,38 @@ function closeLB(){document.getElementById('lb').classList.remove('open');}
 
 // TRANSLATIONS
 const TX={
-  en:{open_nar:`The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.`,name_title:"What's your name?",name_sub:'The name you perform under.',name_hint:'This is how everyone will know you.',mother_title:'My mother',mother_sub:'She always said I had her eyes.',father_title:'My father',father_sub:'He said my skin was just like his.',thats_right:"That's right",hair_title:'Yesterday',hair_sub:"I finally went to that salon.",city_title:'Two months ago',city_sub:'I packed two suitcases.',decor_title:'My apartment',decor_sub:"I made it mine.",rooms_title:'Choose your living room',rooms_sub:'Which one is home?',mirror_nar:`I looked at myself for a long moment.\nSame face. Different city.`,flash_nar:`Every night, I set up in the same spot.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nEvery night, the city walked past without looking.`,agent_intro_nar:`He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don't.`,agent_origin_title:'Where was he from?',agent_origin_sub:'Something about the way he carried himself.',ch1_quote:`"Everything changes the moment\nsomeone finally sees you."`,open_stamp:'Friday · 7:14 AM',mirror_stamp:'Bathroom mirror · 7:31 AM',flashback_stamp:'Every night, for months',your_world:'YOUR WORLD',name_key:'Name',city_key:'City',agent_key:'Agent',fame_key:'Fame',ch1_label:'Chapter One',signed:'Signed',wake_up:'Wake up · Day 1',today:'TODAY',sleep:'Sleep · Next day',home:'Home',phone:'Phone',fame:'Fame',gallery_lbl:'Gallery',settings_lbl:'Settings',lang_setting:'LANGUAGE',style_setting:'IMAGE STYLE',save_return:'Save & Return',her_origin:'HER ORIGIN',his_origin:'HIS ORIGIN',hair_style_lbl:'HAIR STYLE',hair_colour_lbl:'HAIR COLOUR',city_lbl:'WHERE DID YOU MOVE TO?',decor_lbl:'INTERIOR STYLE',close_lbl:'Closer',neutral_lbl:'Neutral',far_lbl:'Distance',choose_portrait:'CHOOSE HIS PORTRAIT',thats_him:"✓ That's him",choose_refl:'CHOOSE YOUR REFLECTION',this_is_me:'✓ This is me',end_day:'End the day',wc_chats:'Chats',wc_moments:'Moments',wc_industry:'Industry',wc_back:'Back',npc_origin_title:'Where is he from?',npc_origin_sub:'His background shapes who he is.',
+  en:{open_nar:`The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.`,name_title:"What's your name?",name_sub:'The name you perform under.',name_hint:'This is how everyone will know you.',mother_title:'My mother',mother_sub:'She always said I had her eyes.',father_title:'My father',father_sub:'He said my skin was just like his.',thats_right:"That's right",hair_title:'Yesterday',hair_sub:"I finally went to that salon.",city_title:'Two months ago',city_sub:'I packed two suitcases.',decor_title:'My apartment',decor_sub:"I made it mine.",rooms_title:'Choose your living room',rooms_sub:'Which one is home?',mirror_nar:`I looked at myself for a long moment.\nSame face. Different city.`,flash_nar:`Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever stayed.`,agent_intro_nar:`He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don't.`,agent_origin_title:'Where was he from?',agent_origin_sub:'Something about the way he carried himself.',ch1_quote:`"Every story has a beginning.\nThis is yours."`,open_stamp:'Friday · 7:14 AM',mirror_stamp:'Bathroom mirror · 7:31 AM',flashback_stamp:'Every night, for months',your_world:'YOUR WORLD',name_key:'Name',city_key:'City',agent_key:'Agent',fame_key:'Fame',ch1_label:'Chapter One',signed:'The Beginning',wake_up:'Day 1',today:'TODAY',sleep:'Sleep · Next day',home:'Home',phone:'Phone',fame:'Fame',gallery_lbl:'Gallery',settings_lbl:'Settings',lang_setting:'LANGUAGE',style_setting:'IMAGE STYLE',save_return:'Save & Return',sound_setting:'SOUND EFFECTS',sound_on:'🔊 On',sound_off:'🔇 Off',sound_on_sub:'Button feedback sounds',sound_off_sub:'Silent mode',her_origin:'HER ORIGIN',his_origin:'HIS ORIGIN',hair_style_lbl:'HAIR STYLE',hair_colour_lbl:'HAIR COLOUR',city_lbl:'WHERE DID YOU MOVE TO?',decor_lbl:'INTERIOR STYLE',close_lbl:'Closer',neutral_lbl:'Neutral',far_lbl:'Distance',choose_portrait:'CHOOSE HIS PORTRAIT',thats_him:"✓ That's him",choose_refl:'CHOOSE YOUR REFLECTION',this_is_me:'✓ This is me',end_day:'End the day',wc_chats:'Chats',wc_moments:'Moments',wc_industry:'Industry',wc_back:'Back',npc_origin_title:'Where is he from?',npc_origin_sub:'His background shapes who he is.',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
     hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
     hair_colors:['Jet black','Dark brown','Chestnut','Honey blonde','Burgundy','Silver lavender'],
     hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
-    cities:['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Toronto'],
-    city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','Japan','South Korea','Australia','Canada'],
+    cities:['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'],
+    city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','Japan','South Korea','Australia','USA · Music City'],
     decors:['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'],
     decor_subs:['Soft voiles · Dreamy pastels','Natural curves · Oak & walnut','Vintage frames · Florals','Deep tones · Gold accents','Warm layers · Plants · Candlelight'],
     agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'],
     agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio'],
   },
-  'zh-cn':{open_nar:`光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。`,name_title:'你叫什么名字？',name_sub:'你用来演出的名字。',name_hint:'所有人都会这样叫你。',mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',thats_right:'就是这样',hair_title:'昨天',hair_sub:'我终于去了那家发廊。',city_title:'两个月前',city_sub:'我拖着两个行李箱。',decor_title:'我的公寓',decor_sub:'我把它变成了我的样子。',rooms_title:'选择你的客厅',rooms_sub:'哪一个更像家？',mirror_nar:`我对着镜子看了很久。\n同一张脸。不同的城市。`,flash_nar:`每天晚上，我都在同一个地方摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n每天晚上，这座城市从我们身边走过，没有人回头看。`,agent_intro_nar:`他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。`,agent_origin_title:'他是哪里人？',agent_origin_sub:'从他的气质就能感觉出来。',ch1_quote:`"一切都在那一刻改变了——\n当有人终于真正看见你。"`,open_stamp:'周五 · 上午 7:14',mirror_stamp:'洗手间镜子 · 上午 7:31',flashback_stamp:'每一个夜晚，几个月来',your_world:'你的世界',name_key:'名字',city_key:'城市',agent_key:'经纪人',fame_key:'知名度',ch1_label:'第一章',signed:'签约',wake_up:'醒来 · 第1天',today:'今天',sleep:'入睡 · 下一天',home:'主页',phone:'手机',fame:'知名度',gallery_lbl:'相册',settings_lbl:'设置',lang_setting:'语言',style_setting:'画面风格',save_return:'保存并返回',her_origin:'母亲来源',his_origin:'父亲来源',hair_style_lbl:'发型',hair_colour_lbl:'发色',city_lbl:'你搬到了哪个城市？',decor_lbl:'室内风格',close_lbl:'亲近',neutral_lbl:'一般',far_lbl:'疏远',choose_portrait:'选择他的形象',thats_him:'✓ 就是他',choose_refl:'选择你的样子',this_is_me:'✓ 就是我',end_day:'结束今天',wc_chats:'消息',wc_moments:'朋友圈',wc_industry:'行业资讯',wc_back:'返回',npc_origin_title:'他是哪里人？',npc_origin_sub:'他的背景造就了他这个人。',
+  'zh-cn':{open_nar:`光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。`,name_title:'你叫什么名字？',name_sub:'你用来演出的名字。',name_hint:'所有人都会这样叫你。',mother_title:'我的母亲',mother_sub:'她总说我有她的眼睛。',father_title:'我的父亲',father_sub:'他说我的肤色和他一模一样。',thats_right:'就是这样',hair_title:'昨天',hair_sub:'我终于去了那家发廊。',city_title:'两个月前',city_sub:'我拖着两个行李箱。',decor_title:'我的公寓',decor_sub:'我把它变成了我的样子。',rooms_title:'选择你的客厅',rooms_sub:'哪一个更像家？',mirror_nar:`我对着镜子看了很久。\n同一张脸。不同的城市。`,flash_nar:`每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。`,agent_intro_nar:`他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。`,agent_origin_title:'他是哪里人？',agent_origin_sub:'从他的气质就能感觉出来。',ch1_quote:`"每一个故事，都有一个起点。\n而你的，从今天开始。"`,open_stamp:'周五 · 上午 7:14',mirror_stamp:'洗手间镜子 · 上午 7:31',flashback_stamp:'每一个夜晚，几个月来',your_world:'你的世界',name_key:'名字',city_key:'城市',agent_key:'经纪人',fame_key:'知名度',ch1_label:'第一章',signed:'起点',wake_up:'第1天',today:'今天',sleep:'入睡 · 下一天',home:'主页',phone:'手机',fame:'知名度',gallery_lbl:'相册',settings_lbl:'设置',lang_setting:'语言',style_setting:'画面风格',save_return:'保存并返回',sound_setting:'音效',sound_on:'🔊 开启',sound_off:'🔇 关闭',sound_on_sub:'按键反馈音效',sound_off_sub:'静音模式',her_origin:'母亲来源',his_origin:'父亲来源',hair_style_lbl:'发型',hair_colour_lbl:'发色',city_lbl:'你搬到了哪个城市？',decor_lbl:'室内风格',close_lbl:'亲近',neutral_lbl:'一般',far_lbl:'疏远',choose_portrait:'选择他的形象',thats_him:'✓ 就是他',choose_refl:'选择你的样子',this_is_me:'✓ 就是我',end_day:'结束今天',wc_chats:'消息',wc_moments:'朋友圈',wc_industry:'行业资讯',wc_back:'返回',npc_origin_title:'他是哪里人？',npc_origin_sub:'他的背景造就了他这个人。',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东'],region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
     hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫'],hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
-    cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','多伦多'],city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','加拿大'],
+    cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','纳什维尔'],city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','美国·音乐之城'],
     decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
     agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人'],agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约'],
   },
 };
 ['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l=>{if(!TX[l])TX[l]=Object.assign({},TX.en);});
-TX['zh-tw']=Object.assign({},TX['zh-cn'],{ch1_quote:`「一切都在那一刻改變了——\n當有人終於真正看見你。」`,cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','多倫多'],decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],wc_moments:'朋友圈',wc_industry:'行業資訊'});
+TX['zh-tw']=Object.assign({},TX['zh-cn'],{ch1_quote:`「每一個故事，都有一個起點。\n而你的，從今天開始。」`,cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','納什維爾'],decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'],wc_moments:'朋友圈',wc_industry:'行業資訊'});
 
 function t(k){return (TX[G.lang]&&TX[G.lang][k]!==undefined)?TX[G.lang][k]:TX.en[k]||k;}
 
 function selLang(code,name,el){
   document.querySelectorAll('#lang-grid-main .lcard').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');G.lang=code;G.langName=name;applyLang();
-  document.getElementById('btn-lang').style.display='inline-block';
+  document.getElementById('btn-lang').style.visibility='visible';
 }
 function selLangSettings(code,name,el){
   document.querySelectorAll('#settings-lang-grid .s-lang-card').forEach(c=>c.classList.remove('sel'));
@@ -828,7 +951,7 @@ function applyLang(){
   s('lbl-your-world',t('your_world'));s('lbl-name-key',t('name_key'));s('lbl-city-key',t('city_key'));s('lbl-agent-key',t('agent_key'));s('lbl-fame-key',t('fame_key'));
   s('lbl-ch1',t('ch1_label'));s('lbl-signed',t('signed'));s('btn-wakeup',t('wake_up'));
   s('bn-home-lbl',t('home'));s('bn-phone-lbl',t('phone'));s('bn-fame-lbl',t('fame'));s('bn-gallery-lbl',t('gallery_lbl'));s('bn-settings-lbl',t('settings_lbl'));
-  s('gallery-title',t('gallery_lbl'));s('lbl-lang-setting',t('lang_setting'));s('lbl-style-setting',t('style_setting'));s('btn-save-settings',t('save_return'));
+  s('gallery-title',t('gallery_lbl'));s('lbl-lang-setting',t('lang_setting'));s('lbl-style-setting',t('style_setting'));s('btn-save-settings',t('save_return'));s('lbl-sound-setting',t('sound_setting'));s('lbl-sound-on',t('sound_on'));s('lbl-sound-off',t('sound_off'));s('lbl-sound-on-sub',t('sound_on_sub'));s('lbl-sound-off-sub',t('sound_off_sub'));
   s('lbl-her-origin',t('her_origin'));s('lbl-his-origin',t('his_origin'));s('lbl-hair-style',t('hair_style_lbl'));s('lbl-hair-colour',t('hair_colour_lbl'));s('lbl-city',t('city_lbl'));s('lbl-decor',t('decor_lbl'));
   s('lbl-choose-portrait',t('choose_portrait'));s('lbl-thats-him',t('thats_him'));s('lbl-choose-refl',t('choose_refl'));s('lbl-this-me',t('this_is_me'));
   s('lbl-wct-chats',t('wc_chats'));s('lbl-wct-moments',t('wc_moments'));s('lbl-wct-industry',t('wc_industry'));s('lbl-wct-back',t('wc_back'));
@@ -838,7 +961,7 @@ function applyLang(){
 
 function buildGrids(){
   const rk=['East Asian','Southeast Asian','South Asian','Northern European','Southern European','African','Latin American','Middle Eastern'];
-  const cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Toronto'];
+  const cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'];
   const dv=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
   const av=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
   const mk=(id,labels,subs,key,vals)=>{const g=document.getElementById(id);if(!g)return;g.innerHTML=labels.map((l,i)=>`<div class="card" onclick="selCard(this,'${key}','${vals?vals[i]:l}')">${l}<span class="sub">${(subs&&subs[i])||''}</span></div>`).join('');};
@@ -851,8 +974,8 @@ function buildGrids(){
 function selCard(el,key,value){
   el.closest('.cgrid')?.querySelectorAll('.card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G[key]=value;
   const bmap={mother:'btn-mom',father:'btn-dad',city:'btn-city',decor:'btn-decor',agentOrigin:'btn-aorigin'};
-  if(bmap[key])document.getElementById(bmap[key]).style.display='inline-block';
-  if(key==='hairStyle'||key==='hairColor')if(G.hairStyle&&G.hairColor)document.getElementById('btn-hair').style.display='inline-block';
+  if(bmap[key])document.getElementById(bmap[key]).style.visibility='visible';
+  if(key==='hairStyle'||key==='hairColor')if(G.hairStyle&&G.hairColor)document.getElementById('btn-hair').style.visibility='visible';
 }
 
 // NPC ORIGIN SHEET
@@ -864,12 +987,12 @@ function showNPCOrigin(npcKey,callback){
   document.getElementById('nos-title').textContent=t('npc_origin_title');
   document.getElementById('nos-sub').textContent=t('npc_origin_sub');
   document.getElementById('nos-grid').innerHTML=origins.map((o,i)=>`<div class="nos-card" onclick="selNPCOrigin('${vals[i]}',this)">${o}<br><span style="font-size:9px;color:var(--ink-muted)">${subs[i]||''}</span></div>`).join('');
-  document.getElementById('nos-confirm').style.display='none';
+  document.getElementById('nos-confirm').style.visibility='hidden';
   document.getElementById('npc-origin-overlay').classList.add('open');
 }
 function selNPCOrigin(val,el){
   document.querySelectorAll('.nos-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');
-  G._selectedNPCOrigin=val;document.getElementById('nos-confirm').style.display='block';
+  G._selectedNPCOrigin=val;document.getElementById('nos-confirm').style.visibility='visible';
 }
 function confirmNPCOrigin(){
   document.getElementById('npc-origin-overlay').classList.remove('open');
@@ -895,12 +1018,81 @@ function showHeritage(){
 // API
 const imgSuffix=()=>`, ${IMG_STYLES[G.imgStyle]||IMG_STYLES.semi}, portrait orientation, high quality`;
 async function claude(prompt,sys=''){
+  if(DEV_MODE){
+    const isZh=G.lang==='zh-cn'||G.lang==='zh-tw';
+    const isJa=G.lang==='ja';
+    const isKo=G.lang==='ko';
+    // Name generation - extract origin from prompt
+    if(prompt.includes('full name')||prompt.includes('first name')){
+      const origins={'Korean':isZh?'金书俊':'김서준','Japanese':isZh?'木村颯太':'木村颯太','French':'Julien','Italian':'Marco','African-American':'Marcus','Brazilian':'Gabriel','British':'James','American':'Ryan'};
+      const firstWord=prompt.split(' ').slice(3,5).join(' ');
+      for(const [orig,name] of Object.entries(origins)){
+        if(firstWord.includes(orig)) return name;
+      }
+      return isZh?'李明':isJa?'田中':isKo?'김민준':'Alex';
+    }
+    // Dialogue options
+    if(prompt.includes('JSON array')){
+      if(isZh) return '["这听起来很有意思。","好的，我明白了。","我需要再想想。"]';
+      if(isJa) return '["それは面白そうですね。","わかりました。","少し考えさせてください。"]';
+      if(isKo) return '["흥미롭네요.","알겠어요.","좀 더 생각해볼게요."]';
+      return '["That sounds interesting.","I understand.","I need to think about it."]';
+    }
+    // NPC dialogue line
+    if(prompt.includes('dialogue')||prompt.includes('opening')||prompt.includes('Write your')||prompt.includes('character')){
+      if(isZh) return '（DEV）今天的安排已经发给你了，记得准时。';
+      if(isJa) return '（DEV）今日のスケジュールは送った。時間通りに。';
+      if(isKo) return '（DEV）오늘 일정 보냈어요. 시간 맞춰요.';
+      return '(DEV) Schedule sent. Be on time.';
+    }
+    // Morning monologue
+    if(prompt.includes('morning')||prompt.includes('monologue')){
+      if(isZh) return '今天感觉不一样。一切都在改变。';
+      if(isJa) return '今日は何かが違う。何かが変わろうとしている。';
+      if(isKo) return '오늘은 뭔가 다르다. 모든 게 바뀌려 하고 있다.';
+      return 'Today feels different. Everything is about to change.';
+    }
+    // Evening monologue
+    if(prompt.includes('evening')||prompt.includes('night')){
+      if(isZh) return '窗外的城市安静下来了。';
+      if(isJa) return '外の街が静かになってきた。';
+      if(isKo) return '창밖의 도시가 조용해졌다.';
+      return 'The city outside is quiet now.';
+    }
+    // Text message
+    if(prompt.includes('text message')||prompt.includes('voice message')||prompt.includes('sends')){
+      if(isZh) return '明天9点，别迟到。';
+      if(isJa) return '明日9時。遅れないで。';
+      if(isKo) return '내일 9시. 늦지 마요.';
+      return "Tomorrow at 9. Don't be late.";
+    }
+    // Social media post
+    if(prompt.includes('social media')||prompt.includes('post')||prompt.includes('moments')){
+      if(isZh) return '今天状态不错。努力终会有回报。';
+      if(isJa) return '今日は調子がいい。努力は報われる。';
+      if(isKo) return '오늘 컨디션 좋다. 노력은 배신하지 않는다.';
+      return 'Good session today. Hard work pays off.';
+    }
+    // Industry news
+    if(prompt.includes('industry')||prompt.includes('news')){
+      if(isZh) return JSON.stringify([{title:'新片选角开始',detail:'某大型制片公司正在寻找新兴演员参与制作。'},{title:'音乐奖项提名开放',detail:'新人艺人类别的提名正式接受申请。'}]);
+      if(isJa) return JSON.stringify([{title:'新映画のオーディション開始',detail:'大手スタジオが新人俳優を募集中。'},{title:'音楽賞のノミネート開始',detail:'新人アーティスト部門の応募受付中。'}]);
+      if(isKo) return JSON.stringify([{title:'신작 캐스팅 시작',detail:'대형 제작사에서 신인 배우를 모집 중입니다.'},{title:'음악 시상식 후보 공개',detail:'신인 아티스트 부문 후보 신청 받는 중.'}]);
+      return JSON.stringify([{title:'New Film Casting Opens',detail:'Major studio seeking fresh talent.'},{title:'Music Awards Nominations Open',detail:'Emerging artists category now accepting entries.'}]);
+    }
+    // Scene description
+    if(isZh) return '这个空间里弥漫着某种可能性。';
+    if(isJa) return 'この場所には何か可能性が満ちている。';
+    if(isKo) return '이 공간에는 뭔가 가능성이 가득하다.';
+    return 'The room feels charged with possibility.';
+  }
   const body={model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]};
   if(sys)body.system=sys;
   const r=await fetch(WORKER+'/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const d=await r.json();return d.content?.[0]?.text||'';
 }
 async function img(prompt,label='',save=false,retries=2){
+  if(DEV_MODE) return null;
   for(let attempt=0;attempt<=retries;attempt++){
     try{
       const r=await fetch(WORKER+'/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt+imgSuffix(),image_size:'portrait_4_3',num_inference_steps:4,num_images:1})});
@@ -929,13 +1121,13 @@ async function genRooms(){go('s-rooms');if(!_roomsDone)await preGenRooms();}
 function setRCard(cid,pid,url,opt){
   const ph=document.getElementById(pid);if(!ph||!url)return;
   const i=document.createElement('img');i.src=url;i.style.cssText='width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer;';
-  i.onclick=()=>openLB(url);i.onload=()=>{ph.replaceWith(i);if(G.livingDayUrl)document.getElementById('btn-rooms').style.display='inline-block';};
+  i.onclick=()=>openLB(url);i.onload=()=>{ph.replaceWith(i);if(G.livingDayUrl)document.getElementById('btn-rooms').style.visibility='visible';};
 }
 function selRoom(opt){
   ['ra','rb','rc'].forEach(id=>document.getElementById(id)?.classList.remove('sel'));
   document.getElementById('r'+opt)?.classList.add('sel');
   G.livingDayUrl=G._ru[opt];G.selectedDecor=opt==='a'?'Romantic Minimalist':opt==='b'?'Contemporary Organic':'Modern Dark';
-  document.getElementById('btn-rooms').style.display='inline-block';
+  document.getElementById('btn-rooms').style.visibility='visible';
   preGenNight();
 }
 async function preGenNight(){
@@ -959,7 +1151,7 @@ async function genProto(){
   const a=await img(base+', '+MIRRORS[0],'Portrait A');setTrio('pa',a);
   const b=await img(base+', '+MIRRORS[1],'Portrait B');setTrio('pb',b);
   const c=await img(base+', '+MIRRORS[2],'Portrait C');setTrio('pc',c);
-  document.getElementById('btn-rp').style.display='inline-block';
+  document.getElementById('btn-rp').style.visibility='visible';
 }
 async function regenProto(){
   ['pa','pb','pc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('this_is_me')}</div>`;});
@@ -973,7 +1165,7 @@ function selProto(opt){
   // Get the actual selected URL
   const el=document.getElementById('p'+opt);const img_el=el?.querySelector('img');
   if(img_el){G.protagonistUrl=img_el.src;G.gallery.push({url:img_el.src,label:'Your Portrait'});}
-  document.getElementById('btn-proto').style.display='inline-block';
+  document.getElementById('btn-proto').style.visibility='visible';
 }
 
 // AGENT
@@ -992,13 +1184,13 @@ async function genAgent(){
   const b=await img(base+', '+angles[1],'Agent B');setTrio('agb',b);
   const c=await img(base+', '+angles[2],'Agent C');setTrio('agc',c);
   // Generate name AFTER portraits so name shows up correctly
-  const nameStr=await claude(`Generate a realistic full name for a 32-year-old ${G.agentOrigin} talent agent. Cold, sophisticated, successful. Return ONLY the full name, nothing else.`);
+  const nameStr=await claude(`Generate a realistic authentic ${G.agentOrigin} full name for a 32-year-old talent agent. The name MUST be a genuine ${G.agentOrigin} name, not a Western name unless the origin is British, American, or Brazilian. For Korean: use Korean name (e.g. Park Jihoon, Kim Seojun). For Japanese: use Japanese name. For French: use French name. For Italian: use Italian name. Cold, sophisticated. Return ONLY the full name, nothing else.`);
   G.agentName=nameStr.trim().replace(/['"]/g,'');
   const firstLine=await claude(`${G.agentName} is a 32-year-old ${G.agentOrigin} talent agent with cold exterior and hidden warmth. He approached a street busker named ${G.playerName} after watching her perform for tips several nights. Write his very first words to her. 1-2 sentences, sophisticated, slightly guarded. No quotation marks. Language: ${G.langName}.`);
   document.getElementById('agent-reveal-box').style.display='block';
   document.getElementById('agent-name-txt').textContent=G.agentName;
   document.getElementById('agent-line-txt').innerHTML=`"${firstLine.trim()}"`;
-  document.getElementById('btn-rag').style.display='inline-block';
+  document.getElementById('btn-rag').style.visibility='visible';
 }
 async function regenAgent(){
   ['aga','agb','agc'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.classList.remove('sel');e.innerHTML=`<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">${t('thats_him')}</div>`;});
@@ -1009,18 +1201,135 @@ function selAgent(opt){
   document.getElementById('ag'+opt)?.classList.add('sel');
   const el=document.getElementById('ag'+opt);const img_el=el?.querySelector('img');
   if(img_el){G.agentUrl=img_el.src;G.gallery.push({url:img_el.src,label:G.agentName||'Agent'});}
-  document.getElementById('btn-agent-ok').style.display='inline-block';
+  document.getElementById('btn-agent-ok').style.visibility='visible';
+}
+
+
+// ══ AGENT SIGNING SCENE ══
+const SIGNING_DIALOGS=[
+  {
+    // Street meeting Round 1: self-introduction, leaves card
+    getText:(lang,name)=>({
+      'zh-cn':`他在你收好吉他时走了过来。<br><br>"我叫<em style='color:var(--gold)'>${name}</em>，是经纪人。"<br><br>他递给你一张名片。<br>"我已经听你唱了三个晚上了。你有很特别的东西。"`,
+      'zh-tw':`他在你收好吉他時走了過來。<br><br>"我叫<em style='color:var(--gold)'>${name}</em>，是經紀人。"<br><br>他遞給你一張名片。<br>"我已經聽你唱了三個晚上了。你有很特別的東西。"`,
+      'ja':`あなたがギターをしまっているとき、彼が近づいてきた。<br><br>"<em style='color:var(--gold)'>${name}</em>です。マネージャーをしています。"<br><br>彼は名刺を差し出した。<br>"三晩、あなたの歌を聴いていました。特別なものを持っている。"`,
+      'ko':`당신이 기타를 챙기는 사이 그가 다가왔다.<br><br>"저는 <em style='color:var(--gold)'>${name}</em>입니다. 에이전트예요."<br><br>그가 명함을 건넸다.<br>"사흘 밤 동안 노래를 들었습니다. 특별한 게 있어요."`,
+      'en':`He walked over as you were packing up your guitar.<br><br>"My name is <em style='color:var(--gold)'>${name}</em>. I'm a talent agent."<br><br>He held out a card.<br>"I've been listening for three nights. You have something."`,
+    }[lang]||`He walked over as you were packing up your guitar.<br><br>"My name is <em style='color:var(--gold)'>${name}</em>. I'm a talent agent."<br><br>He held out a card.<br>"I've been listening for three nights. You have something."`),
+    opts:(lang)=>({
+      'zh-cn':['你有什么打算？','……我在听。','谢谢。但我不确定。'],
+      'zh-tw':['你有什麼打算？','……我在聽。','謝謝。但我不確定。'],
+      'ja':['どういうつもりですか？','……続けて。','ありがとう。でも迷ってます。'],
+      'ko':['어떤 생각이에요?','……계속 말씀하세요.','감사해요. 하지만 모르겠어요.'],
+      'en':["What do you have in mind?","...Go on.","Thank you. But I'm not sure."],
+    }[lang]||["What do you have in mind?","...Go on.","Thank you. But I'm not sure."]),
+    relChanges:[+8,+10,+3],
+  },
+  {
+    // Street meeting Round 2: proposes meeting, gives card
+    getText:(lang,name)=>({
+      'zh-cn':`"我不是随便找人的。"<br><br>他目光直接地看着你。<br><br>"如果你有兴趣，打给我。我们可以坐下来谈谈。"<br><br>他转身要走，然后停顿了一下。<br>"不急。但别等太久。"`,
+      'zh-tw':`"我不是隨便找人的。"<br><br>他目光直接地看著你。<br><br>"如果你有興趣，打給我。我們可以坐下來談談。"<br><br>他轉身要走，然後停頓了一下。<br>"不急。但別等太久。"`,
+      'ja':`"私は誰でも声をかけるわけじゃない。"<br><br>彼は真っ直ぐにあなたを見た。<br><br>"興味があれば、電話して。話し合いましょう。"<br><br>彼が背を向けかけ、少し間を置いた。<br>"急がなくていい。でも、あまり待たせないで。"`,
+      'ko':`"저는 아무한테나 찾아오지 않아요."<br><br>그가 당신을 똑바로 바라봤다.<br><br>"관심 있으면 전화 주세요. 이야기를 나눠봅시다."<br><br>그가 돌아서다 잠시 멈췄다.<br>"서두르지 않아도 돼요. 하지만 너무 오래 기다리게 하지는 마요."`,
+      'en':`"I don't do this for just anyone."<br><br>He looked at you directly.<br><br>"If you're interested, call me. We can sit down and talk."<br><br>He turned to leave, then paused.<br>"No rush. But don't keep me waiting too long."`,
+    }[lang]||`"I don't do this for just anyone."<br><br>He looked at you directly.<br><br>"If you're interested, call me. We can sit down and talk."<br><br>He turned to leave, then paused.<br>"No rush. But don't keep me waiting too long."`),
+    autoText:(lang)=>({
+      'zh-cn':'你在人群中看着他离开。<br><br>名片在手里，还带着一点温度。<br><br>三天后，你拨了那个号码。<br>他的办公室在24楼。<br><br>你坐在他对面，中间隔着一张玻璃桌。<br>他把合同推到你面前——一年，独家代理。<br><br>你签了。',
+      'zh-tw':'你在人群中看著他離開。<br><br>名片在手裡，還帶著一點溫度。<br><br>三天後，你撥了那個號碼。<br>他的辦公室在24樓。<br><br>你坐在他對面，中間隔著一張玻璃桌。<br>他把合約推到你面前——一年，獨家代理。<br><br>你簽了。',
+      'ja':'あなたは人混みの中で彼が去るのを見ていた。<br><br>名刺はまだ少し温かかった。<br><br>三日後、あなたはその番号に電話した。<br>彼のオフィスは24階にあった。<br><br>ガラスのデスクを挟んで向かい合った。<br>彼は契約書をあなたの前に滑らせた——一年間、専属契約。<br><br>あなたはサインした。',
+      'ko':'당신은 인파 속에서 그가 떠나는 걸 바라봤다.<br><br>명함이 아직 온기를 품고 있었다.<br><br>사흘 후, 당신은 그 번호로 전화를 걸었다.<br>그의 사무실은 24층에 있었다.<br><br>유리 책상을 사이에 두고 마주 앉았다.<br>그가 계약서를 밀어왔다——1년, 전속 계약.<br><br>당신은 사인했다.',
+      'en':'You watched him walk away through the crowd.<br><br>The card was still warm from his hand.<br><br>Three days later, you called the number.<br>His office was on the 24th floor.<br><br>You sat across from him at a glass desk.<br>He slid a contract toward you — one year, exclusive representation.<br><br>You signed it.',
+    }[lang]||'You watched him walk away through the crowd.<br><br>The card was still warm from his hand.<br><br>You made the call.<br>His office was on the 24th floor.'),
+    isAuto:true,
+  },
+];
+
+let _signingRound=0;
+
+function startSigningScene(){
+  go('s-agent-signing');
+  _signingRound=0;
+  // Set agent portrait as background
+  const bg=document.getElementById('signing-bg');
+  const ph=document.getElementById('signing-bg-ph');
+  if(G.agentUrl){bg.src=G.agentUrl;bg.style.display='block';if(ph)ph.style.display='none';}
+  else if(ph){ph.style.display='flex';}
+  runSigningDialog(0);
+}
+
+function runSigningDialog(round){
+  const dlg=SIGNING_DIALOGS[round];
+  const lang=G.lang;
+  const speaker=document.getElementById('signing-speaker');
+  const text=document.getElementById('signing-text');
+  const opts=document.getElementById('signing-opts');
+  if(!dlg.isAuto){
+    // Round has player response options
+    speaker.textContent=G.agentName||'Agent';
+    text.innerHTML=dlg.getText(lang,G.agentName);
+    const optTexts=dlg.opts(lang);
+    const relChanges=dlg.relChanges;
+    const relLabels=[t('close_lbl'),t('neutral_lbl'),t('far_lbl')];
+    const relClasses=['rel-close','rel-neutral','rel-far'];
+    opts.innerHTML=optTexts.map((o,i)=>`<div class="vn-opt" onclick="chooseSigningOpt(${round},${relChanges[i]},'${o.replace(/'/g,"\'")}')">
+      ${o}<span class="rel-tag ${relClasses[i]}">${relLabels[i]}</span>
+    </div>`).join('');
+  } else {
+    // Auto round: agent speaks, then show transition text, then auto to ch1
+    speaker.textContent=G.agentName||'Agent';
+    text.innerHTML=dlg.getText(lang,G.agentName);
+    const contLabel=lang==='zh-cn'||lang==='zh-tw'?'……':lang==='ja'?'……':lang==='ko'?'……':'...';
+    opts.innerHTML=`<div class="vn-opt" onclick="showSigningAuto()" style="justify-content:center;font-style:italic;color:var(--ink-muted)">${contLabel}</div>`;
+  }
+}
+
+function chooseSigningOpt(round,relChange,reply){
+  G.relationships.agent=Math.max(0,Math.min(100,(G.relationships.agent||0)+relChange));
+  const speaker=document.getElementById('signing-speaker');
+  const text=document.getElementById('signing-text');
+  const opts=document.getElementById('signing-opts');
+  speaker.textContent=G.playerName;
+  text.textContent=reply;
+  // Player must tap to continue
+  const lang=G.lang;
+  const contLbl=lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+  const btn=document.createElement('button');
+  btn.className='vn-next';
+  btn.textContent=contLbl;
+  btn.onclick=()=>runSigningDialog(round+1);
+  opts.innerHTML='';
+  opts.appendChild(btn);
+}
+
+function showSigningAuto(){
+  const lang=G.lang;
+  const speaker=document.getElementById('signing-speaker');
+  const text=document.getElementById('signing-text');
+  const opts=document.getElementById('signing-opts');
+  speaker.textContent='';
+  // autoText is on index 1 (the last dialog)
+  const lastDlg=SIGNING_DIALOGS[SIGNING_DIALOGS.length-1];
+  text.innerHTML=lastDlg.autoText(lang);
+  // Show Continue button - player must tap to proceed
+  const continueLabel=lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+  const btn=document.createElement('button');
+  btn.className='vn-next';
+  btn.textContent=continueLabel;
+  btn.onclick=()=>{playChapterSound();setTimeout(()=>go('s-ch1'),300);};
+  opts.innerHTML='';
+  opts.appendChild(btn);
 }
 
 // SCRIPTED 5-DAY EVENTS
 const SCRIPTED={
   1:{npc:'agent',loc:'agent_office',isWork:true,isPublic:false,
-    preText:{en:`Your agent's office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — the same city that doesn't know your name yet.\n\nHe's already sitting behind his desk when you walk in.\nHe doesn't look up immediately.`,
-    'zh-cn':`经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——同一座城市，还不知道你的名字。\n\n你走进去时，他已经坐在桌后。\n没有立刻抬头看你。`},
+    preText:{en:`Your agent's office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nHe's already sitting behind his desk when you walk in.\nHe doesn't look up immediately.`,
+    'zh-cn':`经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你走进去时，他已经坐在桌后。\n没有立刻抬头看你。`},
     dialogs:[
-      {speaker_role:'agent',context:'first official meeting after signing contract, evaluating his new artist, cold professional'},
-      {speaker_role:'agent',context:'discussing work plans, revealing he has assembled a band for her, she is the lead singer, the drummer is the band leader, she should go meet him tomorrow at the recording studio. Mentions the drummer is difficult but talented.'},
-      {speaker_role:'agent',context:'end of meeting, slight warmth showing through, something almost personal slipping out before he catches himself'},
+      {speaker_role:'agent',context:`You are ${G.agentName}, a 32-year-old ${G.agentOrigin} talent agent. Cold, precise, in absolute control. This is your first official work meeting with ${G.playerName} after she signed the contract. You are assessing her readiness. You are evaluating her like a product, not a person. Start by giving her a high-pressure directive or critique about her training or preparation. No warmth at all yet. Language: ${G.langName}.`},
+      {speaker_role:'agent',context:`You are ${G.agentName}. Still cold and professional. Now tell ${G.playerName} that you have assembled a band for her — she is the lead singer. The band leader is the drummer. She should go to the recording studio tomorrow to meet him. Warn her that the drummer is difficult and has high standards, but he is the best. Make it sound like an order, not a suggestion. Language: ${G.langName}.`},
+      {speaker_role:'agent',context:`You are ${G.agentName}. The meeting is ending. You are about to dismiss her. But there is one small moment — you do something unexpectedly considerate, like sliding a glass of water toward her without comment, or briefly pausing before she leaves as if you want to say something more, then deciding against it. Reveal nothing. End the scene with controlled distance that barely masks something warmer underneath. Language: ${G.langName}.`},
     ]
   },
   2:{npc:'drummer',loc:'recording_studio',isWork:true,isPublic:false,
@@ -1071,7 +1380,8 @@ async function startDay(){
   const days_zh=['周日','周一','周二','周三','周四','周五','周六'];
   const days_ja=['日','月','火','水','木','金','土'];
   const days_ko=['일','월','화','수','목','금','토'];
-  const idx=(6+G.day-1)%7;
+  // Game starts March 15 = Monday (index 1)
+  const idx=(1+G.day-1)%7;
   const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';const isJa=lang==='ja';const isKo=lang==='ko';
   const dn=isZh?days_zh[idx]:isJa?days_ja[idx]+'曜日':isKo?days_ko[idx]+'요일':days_en[idx];
   document.getElementById('d-clock').textContent='8:07';
@@ -1144,34 +1454,40 @@ async function playScripted(day){
 async function startScriptedScene(day,ev){
   const lang=G.lang;const isZh=lang==='zh-cn'||lang==='zh-tw';
   const preText=(isZh&&ev.preText['zh-cn'])||ev.preText.en;
-  // Show loading with pre-text
   go('s-scene');
-  document.getElementById('vn-loading').style.display='flex';
-  document.getElementById('vn-loading').querySelector('.vn-loading-txt').style.display='block';
+  // Show placeholder + pre-text immediately, don't wait for image
+  document.getElementById('vn-loading').style.display='none';
+  document.getElementById('vn-bg-ph').style.display='flex';
+  document.getElementById('vn-overlay').style.display='block';
+  document.getElementById('vn-content').style.display='flex';
   document.getElementById('vn-pre-text').innerHTML=preText.replace(/\n/g,'<br>');
-  document.getElementById('vn-bg').style.display='none';
-  document.getElementById('vn-bg-ph').style.display='none';
-  document.getElementById('vn-overlay').style.display='none';
-  document.getElementById('vn-content').style.display='none';
+  document.getElementById('vn-speaker').textContent='';
+  document.getElementById('vn-text').innerHTML=preText.replace(/\n/g,'<br>');
+  document.getElementById('vn-opts').innerHTML='';
   if(ev.isWork)G.fame=Math.min(100,G.fame+5);
-  // Generate scene image (NPC portrait only for NPC scenes)
-  let sceneUrl=null;
-  if(ev.npc){
-    sceneUrl=await genNPCPortrait(ev.npc,day,ev.loc,ev.isPublic);
+  // Add NPC to met list after scripted encounter
+  if(ev.npc&&!G.metNPCs.includes(ev.npc))G.metNPCs.push(ev.npc);
+  // Generate image in background - swap in when ready
+  if(ev.npc&&!DEV_MODE){
+    genNPCPortrait(ev.npc,day,ev.loc,ev.isPublic).then(url=>{
+      if(url){document.getElementById('vn-bg').src=url;document.getElementById('vn-bg').style.display='block';document.getElementById('vn-bg-ph').style.display='none';}
+    });
   }
-  // Start dialogue
-  G.vnDialogRound=0;G.vnMaxRounds=ev.dialogs.length;G.vnCurrentNPC=ev.npc;G.vnSceneImg=sceneUrl;
-  showVNScene(sceneUrl,ev.dialogs,ev.npc,day);
+  // Start dialogue immediately - agent intro on day 1
+  G.vnDialogRound=0;G.vnMaxRounds=ev.dialogs.length;G.vnCurrentNPC=ev.npc;
+  // Show Continue button to start dialogue - player must tap
+  const contLbl=G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
+  const startBtn=document.createElement('button');
+  startBtn.className='vn-next';
+  startBtn.textContent=contLbl;
+  startBtn.onclick=()=>runVNDialog(ev.dialogs,ev.npc,G.day,0);
+  document.getElementById('vn-opts').appendChild(startBtn);
 }
 
 async function showVNScene(sceneUrl,dialogs,npcKey,day){
-  // Hide loading, show scene
   document.getElementById('vn-loading').style.display='none';
-  if(sceneUrl){
-    document.getElementById('vn-bg').src=sceneUrl;document.getElementById('vn-bg').style.display='block';
-  } else {
-    document.getElementById('vn-bg-ph').style.display='flex';
-  }
+  if(sceneUrl){document.getElementById('vn-bg').src=sceneUrl;document.getElementById('vn-bg').style.display='block';}
+  else{document.getElementById('vn-bg-ph').style.display='flex';}
   document.getElementById('vn-overlay').style.display='block';
   document.getElementById('vn-content').style.display='flex';
   await runVNDialog(dialogs,npcKey,day,0);
@@ -1179,7 +1495,6 @@ async function showVNScene(sceneUrl,dialogs,npcKey,day){
 
 async function runVNDialog(dialogs,npcKey,day,round){
   if(round>=dialogs.length){
-    // All rounds done
     const endBtn=document.createElement('button');
     endBtn.className='vn-next';
     endBtn.textContent=t('end_day')||'End the day';
@@ -1190,6 +1505,7 @@ async function runVNDialog(dialogs,npcKey,day,round){
     document.getElementById('vn-text').textContent='';
     return;
   }
+
   const dlg=dialogs[round];
   const npcName=getNPCName(npcKey);
   document.getElementById('vn-speaker').textContent=npcName;
@@ -1213,19 +1529,51 @@ async function chooseVNOpt(npcKey,relChange,playerReply,dialogs,day,round){
   // Show player reply briefly then next round
   document.getElementById('vn-speaker').textContent=G.playerName;
   document.getElementById('vn-text').textContent=playerReply;
+  // Show tap-to-continue instead of auto-advance
+  const tapLbl=G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
+  const tapBtn=document.createElement('button');
+  tapBtn.className='vn-next';
+  tapBtn.textContent=tapLbl;
+  tapBtn.onclick=()=>runVNDialog(dialogs,npcKey,day,round+1);
   document.getElementById('vn-opts').innerHTML='';
-  setTimeout(()=>runVNDialog(dialogs,npcKey,day,round+1),1200);
+  document.getElementById('vn-opts').appendChild(tapBtn);
 }
 
 function getNPCName(key){if(key==='agent')return G.agentName||'Agent';if(key==='drummer')return G.drummerName||'Drummer';if(key==='actor')return G.actorName||'Actor';if(key==='butler')return G.butlerName||'Butler';return key;}
 function getNPCPersonality(key){
-  const p={agent:`32-year-old ${G.agentOrigin||'talented'} talent agent. Cold exterior with hidden warmth. Professional but protective. ${G.day===1?'This is the first official meeting. In round 2, mention you assembled a band for her as lead singer, and she should meet the drummer tomorrow at the recording studio.':''}`,drummer:`26-year-old ${G.drummerOrigin||'cool'} rock drummer and band leader. Direct, slightly rough, initially dismissive of her singing but noticing her talent and effort.`,actor:`29-year-old ${G.actorOrigin||'charming'} rising actor. Charismatic, flirtatious with beautiful women, plays games with feelings, may be seeing multiple people.`,butler:`20-year-old ${G.butlerOrigin||'sweet'} building manager. Earnest, caring, slightly shy. Calls her "sister/noona/nee-san". Made her a lemon cake. His admiration is turning into something more.`};
+  const chapter=Math.ceil(G.day/30);
+  const rel=G.relationships[key]||0;
+  const agentCtx=chapter<=2?'You are the absolute authority figure, strict and evaluating. Almost no warmth shown yet.':chapter<=4?'Cracks are forming in your cold exterior. You protect her instinctively but deny it.':chapter<=6?'You are beginning to lose control of your feelings but fight it with professionalism.':'The pretense is crumbling. Your protectiveness has become something you can no longer hide.';
+  const drummerCtx=chapter<=1?'You are openly dismissive of her singing ability.':chapter<=3?'You noticed something in her voice that surprised you, but refuse to admit it.':chapter<=5?'You are clearly falling for her but express it through fierce protectiveness.':'You are deeply attached but terrified of showing it.';
+  const actorCtx=chapter<=2?'You are in full seduction mode — playful, provocative, effortlessly charming.':chapter<=5?'Genuine interest is emerging beneath the performance, but old habits die hard.':chapter<=7?'Your feelings are becoming real and that terrifies you.':'You have dropped most of the act.';
+  const detectiveCtx=chapter<=3?'Your interest is professional — mostly. You are using her as an information source.':chapter<=6?'Your professional detachment is eroding. You find reasons to see her.':'The case is almost closed. What remains feels dangerously personal.';
+  const butlerCtx=chapter<=4?'You are purely devoted and warm. Your darker complicated side is completely hidden.':chapter<=6?'Small cracks appear — an unguarded look when her agent is mentioned.':chapter<=7?'The secret is about to break. Your warmth is real but so is your complicated motivation.':'Everything is in the open. You are trying to be just a good person who genuinely loves her.';
+  const p={
+    agent:`You are ${G.agentName||'the agent'}, a 32-year-old ${G.agentOrigin||'talented'} talent agent. Cold exterior masking deep warmth and protectiveness. Chapter ${chapter}, relationship ${rel}/100. ${agentCtx} Language: ${G.langName}.`,
+    drummer:`You are ${G.drummerName||'the drummer'}, a 26-year-old ${G.drummerOrigin||'passionate'} rock drummer and band leader. Direct, rough, fiercely loyal, terrible at expressing feelings. Chapter ${chapter}, relationship ${rel}/100. ${drummerCtx} Language: ${G.langName}.`,
+    actor:`You are ${G.actorName||'the actor'}, a 29-year-old ${G.actorOrigin||'charming'} rising actor. Charming and flirtatious, possibly seeing multiple women. Chapter ${chapter}, relationship ${rel}/100. ${actorCtx} Language: ${G.langName}.`,
+    detective:`You are ${G.detectiveName||'the detective'}, a 36-year-old ${G.detectiveOrigin||'perceptive'} private detective. Quietly intense, observes everything. Secretly investigating the agent's father. Chapter ${chapter}, relationship ${rel}/100. ${detectiveCtx} Language: ${G.langName}.`,
+    butler:`You are ${G.butlerName||'the butler'}, a 20-year-old ${G.butlerOrigin||'warm-hearted'} building manager. Earnest, caring, calls ${G.playerName} "姐姐/noona/nee-san/sis". HIDDEN: you are the agent's younger brother who discovered ${G.playerName} on the street. Chapter ${chapter}, relationship ${rel}/100. ${butlerCtx} Language: ${G.langName}.`,
+  };
   return p[key]||key;
 }
 
 async function genNPCPortrait(npcKey,day,loc,isPublic){
+  // Generate name for NPC if not yet set
+  if(npcKey==='drummer'&&!G.drummerName&&G.drummerOrigin){
+    const n=await claude(`Generate a realistic authentic ${G.drummerOrigin} first name for a 26-year-old rock drummer. MUST be a genuine ${G.drummerOrigin} name. Return ONLY the first name.`);
+    G.drummerName=n.trim().replace(/['"]/g,'');
+  }
+  if(npcKey==='actor'&&!G.actorName&&G.actorOrigin){
+    const n=await claude(`Generate a realistic authentic ${G.actorOrigin} full name for a 29-year-old actor. MUST be a genuine ${G.actorOrigin} name. Return ONLY the full name.`);
+    G.actorName=n.trim().replace(/['"]/g,'');
+  }
+  if(npcKey==='butler'&&!G.butlerName&&G.butlerOrigin){
+    const n=await claude(`Generate a realistic authentic ${G.butlerOrigin} first name for a 20-year-old young man, sweet and warm. MUST be a genuine ${G.butlerOrigin} name. Return ONLY the first name.`);
+    G.butlerName=n.trim().replace(/['"]/g,'');
+  }
   const st=AS[G.agentOrigin]||{hair:'dark hair',skin:'medium',suit:'dark suit'};
-  const detShadow=isPublic?DETECTIVE_SHADOW:'';
+  const detShadow=getDetShadow(isPublic);
   let prompt='';
   const sceneComp=SCENE_COMPS[loc]||'elegant setting';
   if(npcKey==='agent'){
@@ -1238,10 +1586,10 @@ async function genNPCPortrait(npcKey,day,loc,isPublic){
     const act=AS[G.actorOrigin]||{hair:'perfectly styled hair',skin:'medium',suit:'fashionable stylish outfit'};
     prompt=`Devastatingly handsome 29-year-old ${G.actorOrigin||'American'} man, ${act.hair}, ${act.skin} skin, ${act.suit}, model-perfect features and physique, effortlessly charismatic smirk, flirtatious confident energy, ${sceneComp}`;
   } else if(npcKey==='butler'){
-    const but=AS[G.butlerOrigin]||{hair:'clean neat hair',skin:'light',suit:'neat building manager uniform'};
-    prompt=`Adorable yet handsome 20-year-old ${G.butlerOrigin||'Korean'} young man, ${but.hair}, ${but.skin} skin, neat uniform, clean-cut innocent features, slightly flushed cheeks, earnest expression, holding a lemon cake box, ${sceneComp}`;
+    const but=AS[G.butlerOrigin]||{hair:'clean neat dark hair',skin:'medium light',suit:'neat building manager uniform'};
+    prompt=`Adorable yet handsome 20-year-old ${G.butlerOrigin||'Asian'} young man, ${but.hair}, ${but.skin} skin tone, neat uniform, clean-cut innocent features, slightly flushed cheeks, earnest warm expression, holding a lemon cake box carefully, ${sceneComp}`;
   }
-  return await img(prompt+detShadow,`${npcKey} — Day ${day}`,true,2);
+  const _npcSeason=OUTDOOR_LOCS.includes(loc)?", "+getSeasonPrompt(day,G.city):"";return await img(prompt+_npcSeason+detShadow,`${npcKey} — Day ${day}`,true,2);
 }
 
 // FREE DAY
@@ -1265,28 +1613,30 @@ async function playFree(locKey,locLabel,isWork){
   // Generate scene narrative
   const preText=await claude(`${G.playerName}, 23-year-old singer in ${G.city}, is spending time at: ${locLabel}. ${meetNPC?`She runs into ${getNPCName(meetNPC)}.`:''} Write 1-2 sentences of vivid scene-setting. Language: ${G.langName}. Return only the text.`);
   document.getElementById('vn-pre-text').innerHTML=preText.replace(/\n/g,'<br>');
+  // Show scene immediately without waiting for image
+  document.getElementById('vn-loading').style.display='none';
+  document.getElementById('vn-bg-ph').style.display='flex';
+  document.getElementById('vn-overlay').style.display='block';
+  document.getElementById('vn-content').style.display='flex';
+  document.getElementById('vn-speaker').textContent='';
+  document.getElementById('vn-text').innerHTML=preText.replace(/\n/g,'<br>');
+  document.getElementById('vn-opts').innerHTML='';
   if(meetNPC){
-    // Generate NPC portrait
-    const npcUrl=await genNPCPortrait(meetNPC,G.day,locKey,isPublic);
     if(!G.metNPCs.includes(meetNPC))G.metNPCs.push(meetNPC);
-    document.getElementById('vn-loading').style.display='none';
-    if(npcUrl){document.getElementById('vn-bg').src=npcUrl;document.getElementById('vn-bg').style.display='block';}
-    document.getElementById('vn-overlay').style.display='block';
-    document.getElementById('vn-content').style.display='flex';
-    // Single dialogue round for chance encounters
+    // Load NPC portrait in background
+    genNPCPortrait(meetNPC,G.day,locKey,isPublic).then(url=>{
+      if(url){document.getElementById('vn-bg').src=url;document.getElementById('vn-bg').style.display='block';document.getElementById('vn-bg-ph').style.display='none';}
+    });
     await runFreeDlg(meetNPC,locLabel);
   } else {
-    // Protagonist in scene
-    const protoPrompt=`Beautiful slender 23-year-old woman, ${G.mother} and ${G.father} heritage, ${G.motherEyes} eyes, ${G.fatherSkin} skin, ${G.hairStyle} ${G.hairColor} hair, artist physique, ${sceneComp}${isPublic?DETECTIVE_SHADOW:''}`;
-    const sceneUrl=await img(protoPrompt,locLabel,true);
-    document.getElementById('vn-loading').style.display='none';
-    if(sceneUrl){document.getElementById('vn-bg').src=sceneUrl;document.getElementById('vn-bg').style.display='block';}
-    document.getElementById('vn-overlay').style.display='block';
-    document.getElementById('vn-content').style.display='flex';
-    document.getElementById('vn-speaker').textContent='';
-    document.getElementById('vn-text').textContent=preText.trim();
+    // Load protagonist in background
+    const _seasonDesc=OUTDOOR_LOCS.includes(locKey)?', '+getSeasonPrompt(G.day,G.city):'';
+    const protoPrompt=`Beautiful slender 23-year-old woman, ${G.mother} and ${G.father} heritage ONLY, ${G.motherEyes} eyes, ${G.fatherSkin} skin, ${G.hairStyle} ${G.hairColor} hair, artist physique, ${sceneComp}${_seasonDesc}${getDetShadow(isPublic)}`;
+    img(protoPrompt,locLabel,true).then(url=>{
+      if(url){document.getElementById('vn-bg').src=url;document.getElementById('vn-bg').style.display='block';document.getElementById('vn-bg-ph').style.display='none';}
+    });
     const endBtn=document.createElement('button');endBtn.className='vn-next';endBtn.textContent=t('end_day')||'End the day';endBtn.onclick=goEvening;
-    document.getElementById('vn-opts').innerHTML='';document.getElementById('vn-opts').appendChild(endBtn);
+    document.getElementById('vn-opts').appendChild(endBtn);
   }
 }
 
@@ -1309,12 +1659,12 @@ async function quickResp(npcKey,relChange,reply){
   G.relationships[npcKey]=Math.max(0,Math.min(100,(G.relationships[npcKey]||0)+relChange));
   document.getElementById('vn-speaker').textContent=G.playerName;
   document.getElementById('vn-text').textContent=reply;
+  const endBtn=document.createElement('button');
+  endBtn.className='vn-next';
+  endBtn.textContent=t('end_day')||'End the day';
+  endBtn.onclick=goEvening;
   document.getElementById('vn-opts').innerHTML='';
-  setTimeout(()=>{
-    const endBtn=document.createElement('button');endBtn.className='vn-next';endBtn.textContent=t('end_day')||'End the day';endBtn.onclick=goEvening;
-    document.getElementById('vn-opts').appendChild(endBtn);
-    document.getElementById('vn-speaker').textContent='';document.getElementById('vn-text').textContent='';
-  },900);
+  document.getElementById('vn-opts').appendChild(endBtn);
 }
 
 // EVENING
@@ -1367,7 +1717,6 @@ async function generatePhoneContent(){
   const wcBadge=document.getElementById('wc-unread-badge');if(wcBadge){wcBadge.textContent=total;wcBadge.classList.toggle('show',total>0);}
 }
 
-const NPC_EMOJIS={agent:'👔',drummer:'🥁',actor:'🎬',butler:'🎂'};
 
 function renderPhone(){
   const now=new Date();document.getElementById('wc-time').textContent=`${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
@@ -1423,6 +1772,58 @@ function openWCChat(npc){
 }
 
 // FAME
+// ── AFFECTION SYSTEM ──
+const NPC_ROLES={
+  agent:{emoji:'👔',role_en:'Talent Agent',role_zhcn:'经纪人',role_zhtw:'經紀人',role_ja:'エージェント',role_ko:'에이전트',color:'#C4A882'},
+  drummer:{emoji:'🥁',role_en:'Drummer & Band Leader',role_zhcn:'乐队队长',role_zhtw:'樂隊隊長',role_ja:'ドラマー',role_ko:'드러머',color:'#e8a87c'},
+  actor:{emoji:'🎬',role_en:'Rising Actor',role_zhcn:'男演员',role_zhtw:'男演員',role_ja:'俳優',role_ko:'배우',color:'#9b8ec4'},
+  detective:{emoji:'🕵️',role_en:'Private Detective',role_zhcn:'私家侦探',role_zhtw:'私家偵探',role_ja:'探偵',role_ko:'탐정',color:'#6b8cba'},
+  butler:{emoji:'🎂',role_en:'Building Manager',role_zhcn:'楼管',role_zhtw:'樓管',role_ja:'管理人',role_ko:'관리인',color:'#7ec48a'},
+};
+
+function getNPCRole(key,lang){
+  const r=NPC_ROLES[key];if(!r)return '';
+  if(lang==='zh-cn')return r.role_zhcn;
+  if(lang==='zh-tw')return r.role_zhtw;
+  if(lang==='ja')return r.role_ja;
+  if(lang==='ko')return r.role_ko;
+  return r.role_en;
+}
+
+function openAffection(){
+  setABn('bn-affection');
+  renderAffection();
+  go('s-affection');
+}
+function closeAffection(){go(G._prevScreen||'s-daily');setABn('bn-home');}
+
+function renderAffection(){
+  const lang=G.lang;
+  // Only show met NPCs, sorted by relationship score descending
+  const metAndScored=G.metNPCs
+    .map(key=>({key,score:G.relationships[key]||0,name:getNPCName(key),role:getNPCRole(key,lang),...NPC_ROLES[key]}))
+    .sort((a,b)=>b.score-a.score);
+
+  if(metAndScored.length===0){
+    document.getElementById('affection-list').innerHTML=`<p style="color:var(--ink-muted);font-size:14px;text-align:center;padding:40px 0">${lang==='zh-cn'?'还没有认识任何人':lang==='zh-tw'?'還沒有認識任何人':lang==='ja'?'まだ誰とも出会っていません':lang==='ko'?'아직 만난 사람이 없습니다':'No connections yet'}</p>`;
+    return;
+  }
+
+  document.getElementById('affection-list').innerHTML=metAndScored.map((npc,i)=>{
+    const pct=Math.min(100,npc.score);
+    const heart=pct>=80?'❤️❤️❤️':pct>=50?'❤️❤️':pct>=20?'❤️':'🤍';
+    return `<div class="affection-item">
+      <div class="aff-emoji">${npc.emoji}</div>
+      <div class="aff-info">
+        <div class="aff-name">${npc.name}${i===0?' ✦':''}</div>
+        <div class="aff-role">${npc.role}</div>
+        <div class="aff-bar-bg"><div class="aff-bar-fill" style="width:${pct}%;background:${npc.color}"></div></div>
+        <div class="aff-score">${heart} ${pct} / 100</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderFame(){
   document.getElementById('fame-player-name').textContent=G.playerName||'—';
   const fr=getCurFame(G.fame);
@@ -1442,7 +1843,67 @@ function renderGallery(){
     :G.gallery.map(item=>`<div class="gi" onclick="openLB('${item.url}')"><img src="${item.url}" alt="${item.label}"><div class="gl">${item.label}</div></div>`).join('');
 }
 
-window.addEventListener('load',()=>applyLang());
+// ── SOUND EFFECTS ──
+G.soundOn=true;
+const AudioCtx=window.AudioContext||window.webkitAudioContext;let _actx=null;
+function getACtx(){if(!_actx)try{_actx=new AudioCtx();}catch{}return _actx;}
+function setSoundOn(on,el){G.soundOn=on;document.querySelectorAll('#sound-on-card,#sound-off-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function playSound(type){if(!G.soundOn)return;const ctx=getACtx();if(!ctx)return;if(ctx.state==='suspended')ctx.resume();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);if(type==='click'){o.frequency.setValueAtTime(800,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(600,ctx.currentTime+0.08);g.gain.setValueAtTime(0.08,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);o.type='sine';}else if(type==='select'){o.frequency.setValueAtTime(600,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(900,ctx.currentTime+0.1);g.gain.setValueAtTime(0.07,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.1);o.type='sine';}else if(type==='confirm'){o.frequency.setValueAtTime(500,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.15);g.gain.setValueAtTime(0.06,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);o.type='sine';}o.start(ctx.currentTime);o.stop(ctx.currentTime+0.2);}
+
+function playChapterSound(){
+  if(!G.soundOn)return;
+  const ctx=getACtx();if(!ctx)return;
+  if(ctx.state==='suspended')ctx.resume();
+  // Rising arpeggio: C E G C — four notes, warm and cinematic
+  const notes=[261.6,329.6,392.0,523.2];
+  const times=[0,0.18,0.36,0.55];
+  const durs=[0.3,0.3,0.3,0.6];
+  notes.forEach((freq,i)=>{
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    const t=ctx.currentTime+times[i];
+    o.connect(g);g.connect(ctx.destination);
+    o.type='sine';
+    o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.12,t+0.05);
+    g.gain.exponentialRampToValueAtTime(0.001,t+durs[i]);
+    o.start(t);o.stop(t+durs[i]+0.05);
+  });
+}
+document.addEventListener('click',e=>{const el=e.target.closest('button,.card,.lcard,.rcard,.trio-item,.nos-card,.vn-opt,.daily-opt,.wc-chat-item,.wc-tab,.s-lang-card,.s-style-card');if(!el)return;if(el.matches('.btn-p'))playSound('confirm');else if(el.classList.contains('sel'))playSound('select');else playSound('click');},true);
+// ── DEV HELPERS ──
+function devSkipToDay(){
+  // Fill in minimum required state and go straight to daily
+  if(!G.playerName) G.playerName='Ting';
+  if(!G.mother) G.mother='East Asian';
+  if(!G.father) G.father='East Asian';
+  G.motherEyes='Dark brown';G.fatherSkin='Light golden';
+  if(!G.hairStyle) G.hairStyle='long wavy hair';
+  if(!G.hairColor) G.hairColor='dark brown';
+  if(!G.city) G.city='Los Angeles';
+  if(!G.decor) G.decor='Contemporary Organic';
+  if(!G.agentName) G.agentName='Alex Chen';
+  if(!G.agentOrigin) G.agentOrigin='American';
+  G.livingDayUrl=null;G.livingNightUrl=null;
+  go('s-ch1');
+  document.getElementById('ch-name').textContent=G.playerName;
+  document.getElementById('ch-city').textContent=G.city;
+  document.getElementById('ch-agent').textContent=G.agentName;
+  const fr=getCurFame(G.fame);
+  document.getElementById('ch-fame').textContent=fr.emoji+' '+getFameLabel(G.lang,fr);
+}
+
+window.addEventListener('load',()=>{
+  applyLang();
+  if(DEV_MODE){
+    // Show DEV mode indicator on title screen
+    const v=document.querySelector('#s-title p:last-child');
+    if(v) v.innerHTML='v9.3 · <span style="color:#f66">DEV MODE</span>';
+    // Show skip button everywhere in game
+    document.getElementById('dev-skip-bar').style.display='block';
+  }
+});
 </script>
 </body>
 </html>
