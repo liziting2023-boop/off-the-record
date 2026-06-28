@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.21</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.22</p>
   </div>
 </div>
 
@@ -890,9 +890,9 @@ async function genNPCPortrait(npcKey, day, locKey) {
   // 生成名字（如果还没有）
   if (!G.npcs[npcKey].name) {
     const origin = G.npcs[npcKey].origin || 'American';
-    const role = STORY.characters[npcKey]?.profession || npcKey;
-    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + STORY.characters[npcKey]?.age + '-year-old ' + role + '. MUST be a genuine ' + origin + ' name. Return ONLY the name, nothing else.');
-    G.npcs[npcKey].name = nameStr.trim().replace(/['"]/g, '');
+    const age = STORY.characters[npcKey]?.age || 25;
+    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + age + '-year-old. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. Return ONLY the name.');
+    G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
   }
 
   const loc = STORY.locations[locKey] || {};
@@ -1291,7 +1291,7 @@ async function genAgent() {
   const origin = G.npcs.agent.origin || 'American';
 
   // Generate name first (always, even in DEV mode)
-  const nameStr = await claude('Generate a realistic authentic ' + origin + ' full name for a 32-year-old talent agent. MUST be a genuine ' + origin + ' name. Return ONLY the full name, nothing else.');
+  const nameStr = await claude('Generate a realistic authentic ' + origin + ' full name for a 32-year-old. MUST be a genuinely ' + origin + ' name that a real person from that background would have. Return ONLY the full name, nothing else. No explanation.');
   G.npcs.agent.name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
 
   // Generate first line
@@ -1718,10 +1718,16 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   }
   const npcName2 = getNPCName(npcKey);
   document.getElementById('vn-speaker').textContent = npcName2;
-  // Add contract context to agent dialogues
+  // Add contract context and cultural note
   var _extraCtx = '';
   if (npcKey === 'agent') {
     _extraCtx = ' IMPORTANT: You have already signed ' + (G.player.name||'her') + ' to a 1-year exclusive contract. She is your artist. Do not re-introduce yourself or mention signing — focus on the current work situation.';
+  }
+  // Add cultural note from origin
+  var _origin = G.npcs[npcKey] && G.npcs[npcKey].origin;
+  var _culturalTraits = STATE.memory.culturalTraits && _origin ? STATE.memory.culturalTraits[_origin] : '';
+  if (_culturalTraits) {
+    _extraCtx += ' Cultural background (' + _origin + '): ' + _culturalTraits + ' Let this subtly texture how you speak.';
   }
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx);
   const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. STRICT RULES:\n- Use 你/you for the player (NEVER 她/she/her)\n- For spoken words use 「」in Chinese, or " " in other languages\n- NEVER mention the real name of any other character (drummer, actor, butler, detective) — refer to them only by role: "乐队队长/the band leader", "那个演员/the actor", "楼管/the building manager"\n- Return plain text only, no HTML tags, no class names');
@@ -2179,7 +2185,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.21 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.22 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
