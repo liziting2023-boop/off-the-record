@@ -70,7 +70,7 @@ const STATE = {
         origin: null,
         name: null,
         portraitUrl: null,
-        relationship: 5,     // 初始好感度：傲慢，几乎为零
+        relationship: 35,    // 初始好感度：傲慢外表下已经注意到她了
         met: false,
         memory: [],
         currentMood: 'dismissive',
