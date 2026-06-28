@@ -1607,6 +1607,21 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   });
 }
 
+async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, round) {
+  STATE.relationships.change(npcKey, relChange);
+  const npcText = document.getElementById('vn-text').textContent;
+  STATE.memory.recordDialogue(npcKey, day, npcText, playerReply);
+  document.getElementById('vn-speaker').textContent = G.player.name;
+  document.getElementById('vn-text').textContent = playerReply;
+  document.getElementById('vn-opts').innerHTML = '';
+  const contLabel = G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
+  const btn = document.createElement('button');
+  btn.className = 'vn-next';
+  btn.textContent = contLabel;
+  btn.onclick = () => runVNDialog(dialogRounds, npcKey, day, round + 1);
+  document.getElementById('vn-opts').appendChild(btn);
+}
+
 async function quickResp(npcKey, relChange, reply) {
   STATE.relationships.change(npcKey, relChange);
   const npcText = document.getElementById('vn-text').textContent;
