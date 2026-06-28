@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.16</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.17</p>
   </div>
 </div>
 
@@ -1689,11 +1689,22 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   }
   const npcName2 = getNPCName(npcKey);
   document.getElementById('vn-speaker').textContent = npcName2;
-  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext);
-  const npcLine = await claude(memoryContext + '\n\nWrite this scene. FORMAT RULES:\n1. Actions/descriptions: plain text, no brackets\n2. Spoken words: wrap in 「」for Chinese, or " " for other languages\nExample Chinese: 他抬起头，目光落在你脸上。「你来了。」\nExample English: He looked up, eyes landing on you. "You came."\nIMPORTANT: Use 你/you for the player, NEVER 她/she. Keep to 2-3 sentences total.');
+  // Add contract context to agent dialogues
+  var _extraCtx = '';
+  if (npcKey === 'agent') {
+    _extraCtx = ' IMPORTANT: You have already signed ' + (G.player.name||'her') + ' to a 1-year exclusive contract. She is your artist. Do not re-introduce yourself or mention signing — focus on the current work situation.';
+  }
+  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx);
+  const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. Use 你/you for the player (NEVER 她/she). For spoken dialogue use 「」brackets in Chinese, or quotation marks in other languages. Return plain text only, no HTML tags.');
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
-  var formatted = npcLine.trim()
+  var cleaned = npcLine.trim()
+    .replace(/<[^>]+>/g, '')           // remove any HTML tags
+    .replace(/&quot;/g, '"')           // fix encoded quotes
+    .replace(/"speech">/g, '')         // remove leaked class names
+    .replace(/class="speech">/g, '')   // remove leaked attributes
+    .trim();
+  var formatted = cleaned
     .replace(/「([^」]+)」/g, '<span class="speech">「$1」</span>')
     .replace(/"([^"]+)"/g, '<span class="speech">"$1"</span>');
   document.getElementById('vn-text').innerHTML = formatted;
@@ -1749,9 +1760,13 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
     const char = STORY.characters[npcKey];
     const closingCtx = STATE.memory.buildDialoguePrompt(npcKey, day, G.langName, G.player.name,
       'The player just said: "' + playerReply + '". Give a brief closing reaction to end the scene naturally (1-2 sentences max). Could be dismissive, warm, or ambiguous. Use 你/you for player, never 她/she.');
-    const closingLine = await claude(closingCtx + '\n\nBrief closing. FORMAT: actions in plain text, spoken words in 「」(Chinese) or " " (other). Example: 他收回视线，重新低下头。「明天见。」');
+    const closingLine = await claude(closingCtx + '\n\nOne brief closing line (1-2 sentences). Use 「」for speech in Chinese, quotation marks in other languages. Plain text only, no HTML.');
     document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
-    var fmtClosing = closingLine.trim()
+    var cleanClosing = closingLine.trim()
+      .replace(/<[^>]+>/g, '')
+      .replace(/"speech">/g, '')
+      .replace(/class="speech">/g, '');
+    var fmtClosing = cleanClosing
       .replace(/「([^」]+)」/g, '<span class="speech">「$1」</span>')
       .replace(/"([^"]+)"/g, '<span class="speech">"$1"</span>');
     document.getElementById('vn-text').innerHTML = fmtClosing;
@@ -2043,7 +2058,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.16 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.17 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
