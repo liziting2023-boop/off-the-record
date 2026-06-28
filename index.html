@@ -339,7 +339,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.22</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.23</p>
   </div>
 </div>
 
@@ -757,6 +757,43 @@ const DEV_MODE_TXT = false; // true = 跳过Claude对话（用占位文字）
 
 // ── 快捷访问 STATE ──
 const G = STATE.data;
+
+// ── NPC文字格式化（统一清理 + 对话标注）──
+function formatNPCText(raw) {
+  if (!raw) return '';
+  var text = raw.trim();
+
+  // 1. 移除所有 HTML 标签和泄漏的 class 名
+  text = text
+    .replace(/<span[^>]*>/gi, '')
+    .replace(/<\/span>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/"speech"\s*>/g, '')
+    .replace(/class\s*=\s*["']speech["']\s*>/g, '')
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .trim();
+
+  // 2. 统一引号：把英文 "..." 换成 「...」（中文模式）
+  var isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
+  if (isZh) {
+    // 把 "speech">「...」 这类泄漏全部清掉
+    text = text.replace(/"speech">\s*「/g, '「');
+    text = text.replace(/"speech">/g, '');
+    // 把英文引号换成书名号
+    text = text.replace(/"([^"]{1,100})"/g, '「$1」');
+  }
+
+  // 3. 高亮对话部分
+  if (isZh) {
+    text = text.replace(/「([^」]+)」/g, '<span class="speech">「$1」</span>');
+  } else {
+    text = text.replace(/"([^"]+)"/g, '<span class="speech">"$1"</span>');
+  }
+
+  return text;
+}
 
 // ── FAME DATA ──
 const FAME_DATA = [
@@ -1300,7 +1337,9 @@ async function genAgent() {
   // Show name and line immediately
   document.getElementById('agent-reveal-box').style.display = 'block';
   document.getElementById('agent-name-txt').textContent = G.npcs.agent.name;
-  document.getElementById('agent-line-txt').innerHTML = '"' + firstLine.trim() + '"';
+  // Clean and format the first line - no extra quotes
+  var _firstLine = firstLine.trim().replace(/^["「\s]+|["」\s]+$/g, '');
+  document.getElementById('agent-line-txt').innerHTML = formatNPCText(_firstLine);
   document.getElementById('btn-rag').style.visibility = 'visible';
 
   // Generate portraits after (skip in DEV_MODE_IMG)
@@ -1730,19 +1769,10 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     _extraCtx += ' Cultural background (' + _origin + '): ' + _culturalTraits + ' Let this subtly texture how you speak.';
   }
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx);
-  const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. STRICT RULES:\n- Use 你/you for the player (NEVER 她/she/her)\n- For spoken words use 「」in Chinese, or " " in other languages\n- NEVER mention the real name of any other character (drummer, actor, butler, detective) — refer to them only by role: "乐队队长/the band leader", "那个演员/the actor", "楼管/the building manager"\n- Return plain text only, no HTML tags, no class names');
+  const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
-  var cleaned = npcLine.trim()
-    .replace(/<[^>]+>/g, '')           // remove any HTML tags
-    .replace(/&quot;/g, '"')           // fix encoded quotes
-    .replace(/"speech">/g, '')         // remove leaked class names
-    .replace(/class="speech">/g, '')   // remove leaked attributes
-    .trim();
-  var formatted = cleaned
-    .replace(/「([^」]+)」/g, '<span class="speech">「$1」</span>')
-    .replace(/"([^"]+)"/g, '<span class="speech">"$1"</span>');
-  document.getElementById('vn-text').innerHTML = formatted;
+  document.getElementById('vn-text').innerHTML = formatNPCText(npcLine);
   // Generate options
   const playerLang = G.lang; const isZh = playerLang==='zh-cn'||playerLang==='zh-tw';
   // Use scripted options if available
@@ -1797,14 +1827,7 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
       'The player just said: "' + playerReply + '". Give a brief closing reaction to end the scene naturally (1-2 sentences max). Could be dismissive, warm, or ambiguous. Use 你/you for player, never 她/she.');
     const closingLine = await claude(closingCtx + '\n\nOne brief closing line (1-2 sentences). Use 「」for speech in Chinese, quotation marks in other languages. Plain text only, no HTML.');
     document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
-    var cleanClosing = closingLine.trim()
-      .replace(/<[^>]+>/g, '')
-      .replace(/"speech">/g, '')
-      .replace(/class="speech">/g, '');
-    var fmtClosing = cleanClosing
-      .replace(/「([^」]+)」/g, '<span class="speech">「$1」</span>')
-      .replace(/"([^"]+)"/g, '<span class="speech">"$1"</span>');
-    document.getElementById('vn-text').innerHTML = fmtClosing;
+    document.getElementById('vn-text').innerHTML = formatNPCText(closingLine);
   }
 
   // Show continue button
@@ -2185,7 +2208,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.22 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.23 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
