@@ -625,7 +625,7 @@ const STORY = {
         },
         {
           // Round 3: 微小的温度
-          npcContext: 'The meeting is ending. You are about to dismiss her. But do one small thing that is unexpectedly considerate — perhaps slide a glass of water toward her without comment, or pause before she leaves as if you want to say something more, then decide against it. Reveal nothing. End with controlled professional distance that barely masks something warmer.',
+          npcContext: 'The meeting is ending. Dismiss her efficiently. But leave one small crack: either let the silence run a beat too long before nodding toward the door, or say something terse that could mean two things, or glance at your watch but do not actually check the time. Nothing theatrical. Western professional restraint — the crack shows in what you do NOT say.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],
@@ -717,7 +717,7 @@ const STORY = {
           relChanges: [5, 3, 10],
         },
         {
-          npcContext: 'Before leaving, give her something — your number, an invitation to something, a small gift (like the pair of slippers you noticed she needed). Make it feel significant. You have already decided she is different, even if you will not say so.',
+          npcContext: 'Before leaving, make one move that is harder to dismiss than the rest of the conversation. Could be slipping her your actual personal number (not your publicist), naming a specific place and time, or saying something that drops the performance just for a second. Western style — direct, confident, no gifts. You do not need props. Make it feel like a choice she has to make.',
           playerOptions: {
             'zh-cn': ['……谢谢。', '你对每个人都这样吗？', '我会考虑的。'],
             'en': ['...Thank you.', 'Do you do this for everyone?', 'I will think about it.'],
@@ -744,7 +744,7 @@ const STORY = {
       dialogRounds: [
         {
           // 必须先自我介绍
-          npcContext: 'Introduce yourself first — you are the building manager for this floor. You are nervous and slightly formal. Then present the cake you made (lemon cake). You noticed she likes sweet things. Call her 姐姐/noona/nee-san/sis — it comes naturally, not awkwardly.',
+          npcContext: 'Introduce yourself — you are the building manager for this floor. Slightly nervous, slightly over-prepared. You baked her something (lemon cake) because you noticed she has been skipping meals. Western informality: no honorifics, no formal titles. Maybe call her by her first name or just "hey." The cake is the gesture. Let it be awkward in a genuine way, not in a performative way.',
           playerOptions: {
             'zh-cn': ['你……做的？', '谢谢你，这很贴心。', '你是怎么知道我喜欢甜的？'],
             'en': ['You... made this?', 'Thank you, that is very thoughtful.', 'How did you know I like sweet things?'],
@@ -754,7 +754,7 @@ const STORY = {
           relChanges: [10, 8, 12],
         },
         {
-          npcContext: 'Tell her something small you have noticed about her — when she comes home, what she buys, that she always looks tired but never complains. Be earnest and a little embarrassed that you noticed so much. This is sincere observation, not surveillance.',
+          npcContext: 'Tell her something small you have noticed — the time she usually gets home, what coffee she orders, that she always takes the stairs. Be a little embarrassed about how much you have noticed. Western earnestness: this is not poetic, it is just honest. Do not frame it as admiring her stoicism — just say what you saw.',
           playerOptions: {
             'zh-cn': ['你……观察得很仔细。', '你平时也这么关心其他住户吗？', '谢谢你注意到了。'],
             'en': ['You... notice a lot.', 'Do you do this for all the residents?', 'Thank you for noticing.'],
