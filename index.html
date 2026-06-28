@@ -337,7 +337,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.7</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.8</p>
   </div>
 </div>
 
@@ -1606,10 +1606,17 @@ async function startScriptedScene(day, ev) {
 
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   if (round >= dialogRounds.length) {
-    const endBtn = document.createElement('button'); endBtn.className = 'vn-next';
-    endBtn.textContent = t('end_day') || 'End the day'; endBtn.onclick = goEvening;
-    document.getElementById('vn-opts').innerHTML = ''; document.getElementById('vn-opts').appendChild(endBtn);
-    document.getElementById('vn-speaker').textContent = ''; document.getElementById('vn-text').textContent = '';
+    const isZhEnd = G.lang==='zh-cn'||G.lang==='zh-tw';
+    const endLabel = isZhEnd?'结束今天':G.lang==='ja'?'今日を終える':G.lang==='ko'?'오늘 마치기':'End the day';
+    const endBtn = document.createElement('button');
+    endBtn.className = 'vn-next';
+    endBtn.textContent = endLabel;
+    endBtn.onclick = goEvening;
+    const opts = document.getElementById('vn-opts');
+    opts.innerHTML = '';
+    opts.appendChild(endBtn);
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').textContent = '';
     return;
   }
   const dlg = dialogRounds[round];
@@ -1950,7 +1957,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.7 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.8 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
