@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.34</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.35</p>
   </div>
 </div>
 
@@ -1019,6 +1019,53 @@ function playSound(type) {
   if (!G.soundOn) return;
   const ctx = getACtx(); if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume();
+
+  // ── rel-up: warm rising chime (good choice) ──
+  if (type === 'rel-up') {
+    const notes = [523.2, 659.3, 783.9]; // C5-E5-G5 major chord
+    notes.forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const t = ctx.currentTime + i * 0.07;
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.07, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      o.start(t); o.stop(t + 0.4);
+    });
+    return;
+  }
+
+  // ── rel-down: soft descending tone (distant/cold choice) ──
+  if (type === 'rel-down') {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(440, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.4);
+    g.gain.setValueAtTime(0.06, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.45);
+    return;
+  }
+
+  // ── rel-neutral: single soft ping ──
+  if (type === 'rel-neutral') {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(520, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(480, ctx.currentTime + 0.18);
+    g.gain.setValueAtTime(0.05, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.22);
+    return;
+  }
+
   const o = ctx.createOscillator();
   const g = ctx.createGain();
   o.connect(g); g.connect(ctx.destination);
@@ -2110,8 +2157,11 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   sendBtn.onclick = function(){
     var reply = inp.value.trim();
     if(!reply) return;
-    // AI judges sentiment for relationship change
     var rc = judgeRelChange(npcKey, reply);
+    // Play preview sound before sending (judged from text)
+    if (rc > 8) playSound('rel-up');
+    else if (rc < 0) playSound('rel-down');
+    else playSound('rel-neutral');
     chooseVNOpt(npcKey, rc, reply, dialogRounds, day, round);
   };
   // Send on Enter (not Shift+Enter)
@@ -2142,6 +2192,10 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
 }
 
 async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, round) {
+  // Play relationship feedback sound
+  if (relChange > 8) playSound('rel-up');
+  else if (relChange < 0) playSound('rel-down');
+  else playSound('rel-neutral');
   STATE.relationships.change(npcKey, relChange);
   const npcText = document.getElementById('vn-text').textContent;
   STATE.memory.recordDialogue(npcKey, day, npcText, playerReply);
@@ -2175,6 +2229,9 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
 }
 
 async function quickResp(npcKey, relChange, reply) {
+  if (relChange > 8) playSound('rel-up');
+  else if (relChange < 0) playSound('rel-down');
+  else playSound('rel-neutral');
   STATE.relationships.change(npcKey, relChange);
   const npcText = document.getElementById('vn-text').textContent;
   STATE.memory.recordDialogue(npcKey, G.day, npcText, reply);
@@ -2601,7 +2658,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.34 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.35 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
