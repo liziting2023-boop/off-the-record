@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.35</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.36</p>
   </div>
 </div>
 
@@ -2488,44 +2488,62 @@ function showWCTab(tab) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   if (tab === 'chats') {
     const allMsgs = {};
-    Object.values(G.phone.messages).flat().forEach(m => { allMsgs[m.npc] = m; });
+    try { Object.values(G.phone.messages||{}).flat().filter(Boolean).forEach(m => { if(m&&m.npc) allMsgs[m.npc] = m; }); } catch(e){}
     const threads = Object.values(allMsgs);
-    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)">' + t('wc_chats') + '</div>' +
-  (function(){
-      if (threads.length===0) {
-        content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无消息':'No messages yet') + '</p>';
-      } else {
-        threads.forEach(function(m) {
-          var el = document.createElement('div');
-          el.className = 'wc-chat-item';
-          el.innerHTML = '<div class="wc-avatar" style="background:' + (m.color||'#C4A882') + '33">' + m.emoji + '</div>' +
-            '<div class="wc-chat-info"><div class="wc-chat-name">' + m.name + '</div><div class="wc-chat-preview">' + (m.isVoice?'🎵 '+(isZh?'[语音消息]':'[Voice message]'):m.text) + '</div></div>' +
-            '<div class="wc-chat-meta"><div class="wc-chat-time">' + m.time + '</div><div class="wc-unread">1</div></div>';
-          el.onclick = (function(npc){return function(){openWCChat(npc);};})(m.npc);
-          content.appendChild(el);
-        });
-      }
-    })();
+    content.innerHTML = '';
+    var chatsHeader = document.createElement('div');
+    chatsHeader.style.cssText = 'padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)';
+    chatsHeader.textContent = t('wc_chats');
+    content.appendChild(chatsHeader);
+    if (threads.length===0) {
+      var noMsg = document.createElement('p');
+      noMsg.style.cssText = 'color:var(--text-mid);font-size:13px;padding:20px 14px;text-align:center;font-style:italic';
+      noMsg.textContent = isZh?'暂无消息':'No messages yet';
+      content.appendChild(noMsg);
+    } else {
+      threads.forEach(function(m) {
+        var el = document.createElement('div');
+        el.className = 'wc-chat-item';
+        el.innerHTML = '<div class="wc-avatar" style="background:' + (m.color||'#C4A882') + '33">' + (m.emoji||'💬') + '</div>' +
+          '<div class="wc-chat-info"><div class="wc-chat-name">' + (m.name||'') + '</div><div class="wc-chat-preview">' + (m.isVoice?'🎵 '+(isZh?'[语音消息]':'[Voice message]'):(m.text||'').slice(0,40)) + '</div></div>' +
+          '<div class="wc-chat-meta"><div class="wc-chat-time">' + (m.time||'') + '</div><div class="wc-unread">1</div></div>';
+        if(m.npc) el.onclick = (function(npc){return function(){openWCChat(npc);};})(m.npc);
+        content.appendChild(el);
+      });
+    }
+    (function(){})(/*dummy*/);
   } else if (tab === 'moments') {
-    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)">' + t('wc_moments') + '</div>' +
-      (function(){
-      if (G.phone.moments.length===0) {
-        content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无动态':'No moments yet') + '</p>';
-      } else {
-        G.phone.moments.forEach(function(m) {
-          var el = document.createElement('div');
-          el.className = 'wc-moment';
-          el.innerHTML = '<div class="wc-moment-header"><div class="wc-moment-avatar">' + m.emoji + '</div><div><div class="wc-moment-name">' + m.name + '</div><div class="wc-moment-time">' + m.time + '</div></div></div><div class="wc-moment-text">' + m.text + '</div><div class="wc-moment-actions"><span class="wc-moment-like">👍</span><span class="wc-moment-like">💬</span></div>';
-          content.appendChild(el);
-        });
-      }
-    })();
+    content.innerHTML = '';
+    var momHeader = document.createElement('div');
+    momHeader.style.cssText = 'padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)';
+    momHeader.textContent = t('wc_moments');
+    content.appendChild(momHeader);
+    if (!G.phone.moments || G.phone.moments.length===0) {
+      var noMom = document.createElement('p');
+      noMom.style.cssText = 'color:var(--text-mid);font-size:13px;padding:20px 14px;text-align:center;font-style:italic';
+      noMom.textContent = isZh?'暂无动态':'No updates yet';
+      content.appendChild(noMom);
+    } else {
+      G.phone.moments.forEach(function(m) {
+        var el = document.createElement('div');
+        el.className = 'wc-moment';
+        el.innerHTML = '<div class="wc-moment-header"><div class="wc-moment-avatar">' + (m.emoji||'') + '</div><div><div class="wc-moment-name">' + (m.name||'') + '</div><div class="wc-moment-time">' + (m.time||'') + '</div></div></div><div class="wc-moment-text">' + (m.text||'') + '</div><div class="wc-moment-actions"><span class="wc-moment-like">👍</span><span class="wc-moment-like">💬</span></div>';
+        content.appendChild(el);
+      });
+    }
+    (function(){})(/*dummy*/);
   } else if (tab === 'industry') {
-    content.innerHTML = '<div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)">' + t('wc_industry') + '</div>' +
-      (function(){
-      if (G.phone.industryNews.length===0) {
-        content.innerHTML += '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:20px 14px">' + (isZh?'暂无资讯':'No news yet') + '</p>';
-      } else {
+    content.innerHTML = '';
+    var indHeader = document.createElement('div');
+    indHeader.style.cssText = 'padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)';
+    indHeader.textContent = t('wc_industry');
+    content.appendChild(indHeader);
+    if (!G.phone.industryNews || G.phone.industryNews.length===0) {
+      var noInd = document.createElement('p');
+      noInd.style.cssText = 'color:var(--text-mid);font-size:13px;padding:20px 14px;text-align:center;font-style:italic';
+      noInd.textContent = isZh?'暂无资讯':'No news yet';
+      content.appendChild(noInd);
+    } else {
         G.phone.industryNews.forEach(function(n) {
           var el = document.createElement('div');
           el.className = 'wc-discover-item';
@@ -2658,7 +2676,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.35 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.36 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
