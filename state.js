@@ -462,7 +462,7 @@ Stay completely in character. Let your cultural background subtly influence how 
   // 存档（localStorage）
   // ══════════════════════════════════════════════════════
   save: {
-    KEY: 'otr_save_v1',
+    KEY: 'otr_save_v2', // v2: gallery only saves selected images
 
     saveGame() {
       try {
