@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.32</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.34</p>
   </div>
 </div>
 
@@ -948,7 +948,7 @@ async function img(prompt, label = '', save = false, retries = 2) {
       const url = d.images?.[0]?.url;
       if (url) {
         const ok = await new Promise(res => { const i = new Image(); i.onload = () => res(true); i.onerror = () => res(false); i.src = url; setTimeout(() => res(false), 9000); });
-        if (ok) { if (save && label) G.gallery.push({ url, label }); return url; }
+        if (ok) { return url; } // Gallery only saves player-selected images
       }
     } catch {}
     if (attempt < retries) await new Promise(r => setTimeout(r, 1500));
@@ -2014,7 +2014,20 @@ async function startScriptedScene(day, ev) {
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   if (round >= dialogRounds.length) {
     const isZhEnd = G.lang==='zh-cn'||G.lang==='zh-tw';
-    const endLabel = isZhEnd?'结束今天':G.lang==='ja'?'今日を終える':G.lang==='ko'?'오늘 마치기':'End the day';
+    const endLabel = isZhEnd?'离开':G.lang==='ja'?'立ち去る':G.lang==='ko'?'자리를 뜨다':'Leave';
+    const isZhEnd2 = G.lang==='zh-cn'||G.lang==='zh-tw';
+    // Add a brief transition narration before leaving
+    const ev2 = STORY.utils.getScriptedEvent(day);
+    const locKey2 = ev2 ? ev2.location : '';
+    const transitionNar = {
+      agent_office: isZhEnd2?'你拿起包，走向门口。':'You pick up your bag and head for the door.',
+      recording_studio: isZhEnd2?'你推开录音室的门，走进走廊。':'You push open the studio door and step into the corridor.',
+      magazine_shoot: isZhEnd2?'拍摄结束。你收拾好自己的东西。':'The shoot wraps. You gather your things.',
+      cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
+      apartment_lobby: isZhEnd2?'你回到了自己的公寓。':'You head back up to your apartment.',
+    }[locKey2] || (isZhEnd2?'你离开了。':'You leave.');
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').textContent = transitionNar;
     const endBtn = document.createElement('button');
     endBtn.className = 'vn-next';
     endBtn.textContent = endLabel;
@@ -2022,8 +2035,6 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     const opts = document.getElementById('vn-opts');
     opts.innerHTML = '';
     opts.appendChild(endBtn);
-    document.getElementById('vn-speaker').textContent = '';
-    document.getElementById('vn-text').textContent = '';
     return;
   }
   const dlg = dialogRounds[round];
@@ -2590,7 +2601,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.32 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.34 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
