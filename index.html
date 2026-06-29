@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.38</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.39</p>
   </div>
 </div>
 
@@ -1169,7 +1169,7 @@ function calAddEvent(dateStr, event) {
 }
 
 function getCalDateStr(gameDay) {
-  var start = new Date(2024, 2, 15);
+  var start = new Date(2024, 2, 1);
   var d = new Date(start);
   d.setDate(start.getDate() + gameDay - 1);
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1178,7 +1178,7 @@ function getCalDateStr(gameDay) {
 function renderCalendar() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   // Current game date
-  var start = new Date(2024, 2, 15);
+  var start = new Date(2024, 2, 1);
   var cur = new Date(start);
   cur.setDate(start.getDate() + G.day - 1);
   var year = cur.getFullYear();
@@ -1906,7 +1906,7 @@ async function startDay() {
   // Build full background context to prevent wrong assumptions
   const _bgCtx = [
     G.player.name + ' is a 23-year-old singer-songwriter.',
-    'She has been living in ' + (G.player.city||'the city') + ' for about 2 months already — she moved here to pursue her music career.',
+    'She has been living in ' + (G.player.city||'the city') + ' for about 2 months already. Today (Day 1) is the first day after signing her contract.',
     'She was busking on the streets for tips before being signed by a talent agent.',
     'Today is Day ' + G.day + ' of her contract (not Day ' + G.day + ' in the city).',
     'Game date: ' + getGameDate(G.day) + '.',
@@ -2705,7 +2705,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.38 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.39 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
