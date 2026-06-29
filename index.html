@@ -125,8 +125,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(255,235,242,0.95) 0%,rgba(255,220,235,0.4) 50%,rgba(255,200,220,0.1) 100%);z-index:1;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;}
-.vn-speaker{font-size:10px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
-.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4vw,18px);font-style:italic;color:#FFF0F3;line-height:1.75;margin-bottom:10px;}
+.vn-speaker{font-size:12px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
+.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,5vw,22px);font-style:italic;color:#FFF0F3;line-height:1.75;margin-bottom:10px;}
 .vn-text .speech{color:#FFB8C8;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
@@ -136,7 +136,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-input::placeholder{color:rgba(255,200,210,0.5);font-style:italic;}
 .vn-send{background:linear-gradient(135deg,#C4847A,#B5536A);border:none;border-radius:10px;width:40px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;flex-shrink:0;}
 .vn-quick-label{font-size:9px;letter-spacing:2px;color:rgba(255,200,210,0.5);text-transform:uppercase;margin-bottom:4px;}
-.vn-opt{background:rgba(255,255,255,0.08);border:1px solid rgba(255,200,210,0.2);border-radius:10px;padding:8px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,15px);color:#FFF0F3;display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
+.vn-opt{background:rgba(255,255,255,0.08);border:1px solid rgba(255,200,210,0.2);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:#FFF0F3;display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
 .vn-opt:active{border-color:rgba(255,180,200,0.5);background:rgba(255,200,210,0.15);}
 .rel-tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:8px;font-family:'Jost',sans-serif;flex-shrink:0;margin-left:8px;}
 .rel-close{background:rgba(74,222,128,0.15);color:#4ade80;}
@@ -151,14 +151,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-daily{padding:0;}
 .daily-wrap{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
 .daily-top{flex:0 0 auto;padding:12px 16px 8px;}
-.daily-clock{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;opacity:1;}
+.daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.9;text-transform:uppercase;margin-top:2px;}
 .daily-room{flex:0 0 auto;position:relative;overflow:hidden;}
 .daily-room img{width:100%;height:32vw;max-height:140px;object-fit:cover;display:block;}
 .daily-room-ph{width:100%;height:32vw;max-height:140px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
 .daily-nar{flex:0 0 auto;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
 .daily-opts{flex:1;padding:6px 12px 0;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
-.daily-opt{background:rgba(255,255,255,0.7);border:1.5px solid rgba(196,96,122,0.12);border-radius:10px;padding:8px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(12px,3.5vw,14px);color:var(--text-dark);display:flex;justify-content:space-between;align-items:center;flex:1;transition:all 0.15s;}
+.daily-opt{background:rgba(255,255,255,0.7);border:1.5px solid rgba(196,96,122,0.12);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:var(--text-dark);display:flex;justify-content:space-between;align-items:center;flex:1;transition:all 0.15s;}
 .daily-opt:active{border-color:var(--rose);background:rgba(196,96,122,0.1);}
 .daily-opt.work{border-left:2px solid rgba(196,168,130,0.5);}
 .daily-opt.phone-btn{border-left:2px solid rgba(74,222,128,0.4);}
@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.37</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.38</p>
   </div>
 </div>
 
@@ -993,7 +993,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
 
   if (detShadow) prompt += detShadow;
 
-  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, true, 2);
+  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2);
 }
 
 async function genProtagonistScene(locKey, day) {
@@ -1005,7 +1005,7 @@ async function genProtagonistScene(locKey, day) {
   G.publicSceneCount++;
   const detShadow = isPublic ? STATE.imagePrompts.getDetectiveShadow(day, G.publicSceneCount) : '';
   const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : '')) + (detShadow || '');
-  return await img(prompt, locKey, true, 2);
+  return await img(prompt, locKey, false, 2);
 }
 
 // ══════════════════════════════════════════════════════
@@ -2257,21 +2257,42 @@ async function goEvening() {
   const defaultMsg = isZh ? '明天九点，准时。' : 'Tomorrow at 9. Don\'t be late.';
   document.getElementById('eve-stamp').textContent = (22 + Math.floor(Math.random()*2)) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0');
   document.getElementById('eve-nar').textContent = defaultNar;
-  document.getElementById('eve-msgs').innerHTML = '<div class="eve-msg"><div class="eve-msg-from">' + (G.npcs.agent.name||'经纪人') + '</div><div class="eve-msg-txt">' + defaultMsg + '</div></div>';
-  // Try to get real Claude responses (non-blocking)
-  try {
-    const [eveTxt, msgTxt] = await Promise.all([
-      claude('Write 1 sentence evening inner monologue for ' + (G.player.name||'her') + ', Day ' + G.day + ' in ' + (G.player.city||'the city') + '. Reflective. Second person "You...". Language: ' + G.langName + '. No quotes. Return only the sentence.'),
-      claude('You are ' + (G.npcs.agent.name||'the agent') + ', a ' + (G.npcs.agent.origin||'talented') + ' talent agent. Send a brief late-night text after Day ' + G.day + '. ' + (G.npcs.agent.relationship>30?'Slightly warmer than usual.':'Cold and professional.') + ' 1-2 sentences. No quotes. Language: ' + G.langName + '.')
-    ]);
+  // Show notification tap to open phone
+  var eveAgentName = G.npcs.agent.name || (isZh?'经纪人':'Agent');
+  document.getElementById('eve-msgs').innerHTML =
+    '<div class="eve-msg" style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openPhone()">' +
+    '<div style="width:36px;height:36px;background:rgba(196,96,122,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">💬</div>' +
+    '<div><div class="eve-msg-from">' + eveAgentName + '</div>' +
+    '<div class="eve-msg-txt" style="font-style:normal;font-size:12px;color:var(--text-mid)">' + (isZh?'收到新消息':'New message') + '</div></div>' +
+    '<div style="margin-left:auto;color:var(--rose);font-size:18px">›</div></div>';
+
+  // Ensure sleep button is visible
+  var sleepBtn = document.getElementById('btn-sleep');
+  if (sleepBtn) {
+    sleepBtn.style.display = 'block';
+    sleepBtn.textContent = isZh?'入睡 · 下一天':G.lang==='ja'?'眠る · 次の日':G.lang==='ko'?'잠들기 · 다음 날':'Sleep · Next day';
+  }
+
+  // Generate Claude content in background
+  Promise.all([
+    claude('Write 1 poetic evening sentence for ' + (G.player.name||'her') + ' Day ' + G.day + ' in ' + (G.player.city||'the city') + '. Second person "You". Language: ' + G.langName + '. No quotes.'),
+    claude('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. Send a terse 1-sentence text. NO contract talk. Language: ' + G.langName + '.')
+  ]).then(function(results) {
+    var eveTxt = results[0], msgTxt = results[1];
     if (eveTxt && eveTxt.trim()) document.getElementById('eve-nar').textContent = eveTxt.trim();
     if (msgTxt && msgTxt.trim()) {
-      document.getElementById('eve-msgs').innerHTML = '<div class="eve-msg"><div class="eve-msg-from">' + (G.npcs.agent.name||'经纪人') + '</div><div class="eve-msg-txt">' + msgTxt.trim() + '</div></div>';
-      STATE.memory.addEvent('agent', 'Evening text: "' + msgTxt.trim().slice(0,60) + '"', G.day);
+      if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+      G.phone.messages[G.day].push({
+        npc:'agent', name:eveAgentName, text:msgTxt.trim(),
+        isVoice:false, emoji:'👔', color:'#C4A882',
+        time:(22+Math.floor(Math.random()*2))+':'+Math.floor(Math.random()*59).toString().padStart(2,'0')
+      });
+      G.phone.unreadCount = (G.phone.unreadCount||0)+1;
+      var badge = document.getElementById('phone-badge');
+      if(badge){badge.textContent=G.phone.unreadCount;badge.classList.add('show');}
+      STATE.memory.addEvent('agent','Evening: "'+msgTxt.trim().slice(0,50)+'"',G.day);
     }
-  } catch(e) {
-    console.log('Evening Claude failed, using defaults:', e);
-  }
+  }).catch(function(){});
   STATE.save.saveGame();
 }
 
@@ -2684,7 +2705,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.37 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.38 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
