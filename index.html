@@ -332,6 +332,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <button class="bnav-btn active" id="bn-home" onclick="goHome()"><span class="bnav-icon">🏠</span><span id="bn-home-lbl">Home</span></button>
   <button class="bnav-btn" id="bn-phone" onclick="openPhone()"><span class="bnav-icon">📱<span class="bnav-badge" id="phone-badge">0</span></span><span id="bn-phone-lbl">Phone</span></button>
   <button class="bnav-btn" id="bn-affection" onclick="openAffection()"><span class="bnav-icon">❤️</span><span id="bn-affection-lbl">Affection</span></button>
+  <button class="bnav-btn" id="bn-calendar" onclick="openCalendar()" style="position:relative"><span class="bnav-icon">📅</span><span id="bn-calendar-lbl">日历</span><span id="cal-badge" style="display:none;position:absolute;top:2px;right:8px;background:var(--rose);color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:600"></span></button>
   <button class="bnav-btn" id="bn-fame" onclick="openFame()"><span class="bnav-icon">⭐</span><span id="bn-fame-lbl">Fame</span></button>
   <!-- gallery moved to top right -->
   <button class="bnav-btn" id="bn-settings" onclick="openSettings()"><span class="bnav-icon">⚙️</span><span id="bn-settings-lbl">Settings</span></button>
@@ -345,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.30</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.31</p>
   </div>
 </div>
 
@@ -552,6 +553,25 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 </div>
 
 <!-- ══ CHAPTER ONE ══ -->
+<!-- ══ CALENDAR SCREEN ══ -->
+<div class="screen" id="s-calendar">
+  <button class="back-btn" onclick="closeCalendar()">← Back</button>
+  <div style="width:100%;max-width:380px;padding-top:48px;padding-bottom:80px;overflow-y:auto;height:100vh">
+    <div style="font-size:10px;letter-spacing:4px;color:var(--rose);text-transform:uppercase;margin-bottom:4px;text-align:center" id="cal-title">日历</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text-mid);text-align:center;margin-bottom:20px" id="cal-month"></div>
+
+    <!-- Month grid -->
+    <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px;padding:0 8px">
+      <!-- Days filled by JS -->
+    </div>
+
+    <!-- Event list for selected day -->
+    <div id="cal-day-events" style="padding:0 16px">
+      <!-- Events filled by JS -->
+    </div>
+  </div>
+</div>
+
 <!-- ══ MEMORIES BUTTON (top right, shown during game) ══ -->
 <div id="memories-btn" style="display:none;position:fixed;top:12px;right:14px;z-index:200">
   <button onclick="openGallery()" style="background:rgba(196,96,122,0.15);border:1.5px solid rgba(196,96,122,0.3);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;backdrop-filter:blur(8px)">
@@ -1041,8 +1061,8 @@ document.addEventListener('click', e => {
 // NAVIGATION
 // ══════════════════════════════════════════════════════
 const SETUP_SCREENS = ['s-title','s-lang','s-open','s-name','s-mother','s-father','s-heritage','s-hair','s-city','s-decor','s-rooms','s-proto','s-flash-intro','s-agent-intro','s-agent-origin','s-agent-reveal','s-agent-signing','s-ch1','s-daily'];
-const GAME_SCREENS  = ['s-daily','s-scene','s-evening','s-phone','s-chat','s-fame','s-gallery','s-settings','s-affection','s-ch1'];
-const OVERLAY_SCREENS = ['s-fame','s-gallery','s-settings','s-phone','s-chat','s-affection'];
+const GAME_SCREENS  = ['s-daily','s-scene','s-evening','s-phone','s-chat','s-fame','s-gallery','s-settings','s-affection','s-calendar','s-ch1'];
+const OVERLAY_SCREENS = ['s-fame','s-gallery','s-settings','s-phone','s-chat','s-affection','s-calendar'];
 
 function go(id) {
   if (id === 's-ch1') updateChapterScreen();
@@ -1067,6 +1087,251 @@ function openSettings() { setABn('bn-settings');                     go('s-setti
 function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 function openPhone()    { setABn('bn-phone');     renderPhone();     go('s-phone');     }
 function closePhone()   { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+// ══════════════════════════════════════════════════════
+// CALENDAR SYSTEM
+// ══════════════════════════════════════════════════════
+
+var _calSelectedDay = null;
+
+function openCalendar() {
+  setABn('bn-calendar');
+  renderCalendar();
+  go('s-calendar');
+}
+
+function closeCalendar() {
+  go(G._prevScreen || 's-daily');
+  setABn('bn-home');
+}
+
+// Add event to calendar
+function calAddEvent(dateStr, event) {
+  if (!G.calendar.events[dateStr]) G.calendar.events[dateStr] = [];
+  // Check for conflicts (two NPC invites on same day)
+  var existing = G.calendar.events[dateStr].filter(e => e.type === 'npc_invite' && e.status === 'accepted');
+  if (existing.length > 0 && event.type === 'npc_invite') {
+    event.status = 'conflict';
+    existing[0].status = 'conflict';
+  }
+  G.calendar.events[dateStr].push(event);
+  STATE.save.saveGame();
+  // Update badge
+  var pending = Object.values(G.calendar.events).flat().filter(e => e.status === 'pending').length;
+  var calBadge = document.getElementById('cal-badge');
+  if (calBadge) { calBadge.textContent = pending; calBadge.style.display = pending > 0 ? 'block' : 'none'; }
+}
+
+function getCalDateStr(gameDay) {
+  var start = new Date(2024, 2, 15);
+  var d = new Date(start);
+  d.setDate(start.getDate() + gameDay - 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function renderCalendar() {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // Current game date
+  var start = new Date(2024, 2, 15);
+  var cur = new Date(start);
+  cur.setDate(start.getDate() + G.day - 1);
+  var year = cur.getFullYear();
+  var month = cur.getMonth();
+
+  var monthNames = isZh
+    ? ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+    : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month').textContent = monthNames[month] + ' ' + year;
+  document.getElementById('cal-title').textContent = isZh ? '日历' : 'Calendar';
+  document.getElementById('bn-calendar-lbl').textContent = isZh ? '日历' : 'Calendar';
+
+  var dayHeaders = isZh
+    ? ['日','一','二','三','四','五','六']
+    : ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+  var grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  // Day headers
+  dayHeaders.forEach(function(d) {
+    var h = document.createElement('div');
+    h.className = 'cal-day-header';
+    h.textContent = d;
+    grid.appendChild(h);
+  });
+
+  // First day of month
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month+1, 0).getDate();
+  var daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  // Prev month days
+  for (var i = firstDay - 1; i >= 0; i--) {
+    var d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    d.textContent = daysInPrevMonth - i;
+    grid.appendChild(d);
+  }
+
+  // Current month days
+  var todayStr = getCalDateStr(G.day);
+  for (var day = 1; day <= daysInMonth; day++) {
+    var dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+    var d = document.createElement('div');
+    d.className = 'cal-day';
+    d.textContent = day;
+    if (dateStr === todayStr) d.classList.add('today');
+    if (G.calendar.events[dateStr] && G.calendar.events[dateStr].length > 0) d.classList.add('has-event');
+    if (dateStr === _calSelectedDay) d.classList.add('selected');
+    d.onclick = (function(ds) { return function() { _calSelectedDay = ds; renderCalendar(); renderCalDayEvents(ds); }; })(dateStr);
+    grid.appendChild(d);
+  }
+
+  // Show today's events by default
+  if (!_calSelectedDay) _calSelectedDay = todayStr;
+  renderCalDayEvents(_calSelectedDay);
+}
+
+function renderCalDayEvents(dateStr) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var container = document.getElementById('cal-day-events');
+  container.innerHTML = '';
+  var events = G.calendar.events[dateStr] || [];
+
+  if (events.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-mid);font-size:13px;text-align:center;padding:20px 0;font-style:italic">' + (isZh?'这天没有安排':'Nothing scheduled') + '</p>';
+    return;
+  }
+
+  // Check conflicts
+  var acceptedInvites = events.filter(e => e.type==='npc_invite' && e.status==='accepted');
+  var hasConflict = acceptedInvites.length > 1;
+
+  if (hasConflict) {
+    var warn = document.createElement('div');
+    warn.style.cssText = 'background:rgba(220,100,60,0.1);border:1px solid rgba(220,100,60,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#c04020;text-align:center;';
+    warn.textContent = isZh ? '⚠️ 时间冲突！你答应了两个约会' : '⚠️ Conflict! You accepted two invitations';
+    container.appendChild(warn);
+  }
+
+  events.forEach(function(ev, idx) {
+    var card = document.createElement('div');
+    card.className = 'cal-event-card' + (hasConflict && ev.type==='npc_invite' ? ' conflict' : '') + (ev.status==='accepted' && !hasConflict ? ' accepted' : '') + (ev.status==='declined' ? ' declined' : '');
+
+    var statusLabel = {
+      pending: isZh?'待确认':'Pending',
+      accepted: isZh?'✓ 已确认':'✓ Accepted',
+      declined: isZh?'✗ 已拒绝':'✗ Declined',
+      conflict: isZh?'⚠️ 冲突':'⚠️ Conflict',
+    }[ev.status] || '';
+
+    var typeEmoji = {work:'💼',npc_invite:'💌',player_birthday:'🎂',npc_birthday:'🎂',holiday:'🎉'}[ev.type] || '📌';
+
+    card.innerHTML = '<div class="cal-event-title">' + typeEmoji + ' ' + ev.title + '</div>' +
+      '<div class="cal-event-meta">' + (ev.time||'') + (ev.time?' · ':'') + statusLabel + '</div>' +
+      '<div class="cal-event-desc">' + (ev.description||'') + '</div>';
+
+    var actions = document.createElement('div');
+    actions.className = 'cal-event-actions';
+
+    if (ev.status === 'pending' && ev.type === 'npc_invite') {
+      var acceptBtn = document.createElement('button');
+      acceptBtn.className = 'cal-btn-accept';
+      acceptBtn.textContent = isZh?'接受':'Accept';
+      acceptBtn.onclick = (function(e, ds) { return function() { e.status='accepted'; STATE.save.saveGame(); renderCalendar(); renderCalDayEvents(ds); }; })(ev, dateStr);
+      var declineBtn = document.createElement('button');
+      declineBtn.className = 'cal-btn-decline';
+      declineBtn.textContent = isZh?'拒绝':'Decline';
+      declineBtn.onclick = (function(e, ds) { return function() { e.status='declined'; STATE.save.saveGame(); renderCalendar(); renderCalDayEvents(ds); }; })(ev, dateStr);
+      actions.appendChild(acceptBtn);
+      actions.appendChild(declineBtn);
+    }
+
+    if (ev.status === 'declined' || (hasConflict && ev.type === 'npc_invite')) {
+      var msgBtn = document.createElement('button');
+      msgBtn.className = 'cal-btn-msg';
+      msgBtn.textContent = isZh?'发消息说明':'Send message';
+      msgBtn.onclick = (function(e) { return function() { openPhone(); setABn('bn-phone'); }; })(ev);
+      actions.appendChild(msgBtn);
+    }
+
+    if (actions.children.length > 0) card.appendChild(actions);
+    container.appendChild(card);
+  });
+}
+
+// Auto-add work events and NPC invites to calendar
+function autoAddCalendarEvents(day) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var dateStr = getCalDateStr(day);
+  var ev = STORY.utils.getScriptedEvent(day);
+
+  // Add scripted work events
+  if (ev && ev.isWork) {
+    var workTitles = {
+      agent_office: isZh?'与经纪人会面':'Meeting with Agent',
+      recording_studio: isZh?'录音室排练':'Recording Studio',
+      magazine_shoot: isZh?'杂志拍摄':'Magazine Shoot',
+      brand_event: isZh?'品牌活动':'Brand Event',
+    };
+    calAddEvent(dateStr, {
+      id: 'work_'+day,
+      type: 'work',
+      title: workTitles[ev.location] || (isZh?'工作安排':'Work'),
+      npcKey: ev.npc,
+      npcName: getNPCName(ev.npc),
+      status: 'accepted',
+      description: isZh?'今日工作安排':'Scheduled work event',
+      time: '09:00',
+    });
+  }
+
+  // Add NPC birthdays
+  var bd = STORY.specialDates.getNPCBirthday(day);
+  if (bd) {
+    calAddEvent(dateStr, {
+      id: 'birthday_'+bd.npc,
+      type: 'npc_birthday',
+      title: (isZh ? getNPCRole(bd.npc, G.lang)+'的生日' : getNPCName(bd.npc)+"'s Birthday"),
+      npcKey: bd.npc,
+      status: 'accepted',
+      description: isZh?'记得送上祝福！':'Remember to wish him well!',
+      time: '',
+    });
+  }
+
+  // Add holidays
+  var holiday = STORY.specialDates.getHoliday(day);
+  if (holiday) {
+    calAddEvent(dateStr, {
+      id: 'holiday_'+holiday.key,
+      type: 'holiday',
+      title: holiday.label[G.lang] || holiday.label.en,
+      status: 'accepted',
+      description: isZh?'今天是节日，看看有没有人联系你。':"It's a holiday. See who reaches out.",
+      time: '',
+    });
+  }
+}
+
+// Called when NPC sends an invitation (from affinity system or story)
+function addNPCInvite(npcKey, gameDay, title, description, time) {
+  var dateStr = getCalDateStr(gameDay);
+  calAddEvent(dateStr, {
+    id: 'invite_'+npcKey+'_'+gameDay,
+    type: 'npc_invite',
+    title: title,
+    npcKey: npcKey,
+    npcName: getNPCName(npcKey),
+    status: 'pending',
+    description: description,
+    time: time || '19:00',
+  });
+  // Show notification
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var badge = document.getElementById('cal-badge');
+  if (badge) { badge.style.display='block'; badge.textContent=(parseInt(badge.textContent)||0)+1; }
+}
+
 function openAffection(){ setABn('bn-affection'); renderAffection(); go('s-affection'); }
 function closeAffection(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 function openLB(src)    { document.getElementById('lb-img').src = src; document.getElementById('lb').classList.add('open'); }
@@ -1570,6 +1835,8 @@ function confirmNPCOrigin() {
 // DAILY SCREEN
 // ══════════════════════════════════════════════════════
 async function startDay() {
+  // Auto-populate calendar for today
+  autoAddCalendarEvents(G.day);
   go('s-daily'); setABn('bn-home');
   const days_en = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const days_zh = ['周日','周一','周二','周三','周四','周五','周六'];
@@ -2050,6 +2317,20 @@ async function generateAffinityMessages(day) {
       );
 
       if (msg && msg.trim().length > 3) {
+        // Check if message contains an invitation
+        var lowerMsg = msg.toLowerCase();
+        var hasInvite = ['dinner','lunch','coffee','meet','come','join','tonight','tomorrow','weekend','dinner','concert','movie','show','celebrate'].some(w => lowerMsg.includes(w)) ||
+          ['晚餐','午餐','咖啡','见面','来','一起','今晚','明天','周末','庆祝','演出','电影'].some(w => msg.includes(w));
+        if (hasInvite && tier === 'high' || (hasInvite && occasion)) {
+          // Add as calendar invite for 3-7 days from now
+          var inviteDay = day + Math.floor(Math.random()*5)+3;
+          var isZhInv = G.lang==='zh-cn'||G.lang==='zh-tw';
+          addNPCInvite(npcKey, inviteDay,
+            (G.npcs[npcKey].name||getNPCName(npcKey)) + (isZhInv?' 的邀约':' Invitation'),
+            msg.trim(),
+            tier==='high'?'19:30':'20:00'
+          );
+        }
         if (!G.phone.messages[day]) G.phone.messages[day] = [];
         G.phone.messages[day].push({
           npc: npcKey,
@@ -2307,7 +2588,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.30 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.31 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
