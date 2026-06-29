@@ -130,6 +130,12 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-text .speech{color:var(--pink-deep);font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
+.vn-input-wrap{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
+.vn-input{flex:1;background:rgba(255,255,255,0.9);border:2px solid rgba(196,96,122,0.2);border-radius:12px;padding:8px 12px;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:var(--text-dark);resize:none;outline:none;min-height:42px;max-height:90px;line-height:1.4;}
+.vn-input:focus{border-color:var(--rose);}
+.vn-input::placeholder{color:var(--ink-muted);font-style:italic;}
+.vn-send{background:linear-gradient(135deg,#C4847A,#B5536A);border:none;border-radius:10px;width:40px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;flex-shrink:0;}
+.vn-quick-label{font-size:9px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:4px;opacity:0.7;}
 .vn-opt{background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.15);border-radius:12px;padding:9px 12px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:var(--text-dark);display:flex;align-items:center;justify-content:space-between;min-height:40px;transition:all 0.15s;}
 .vn-opt:active{border-color:var(--rose);background:rgba(196,96,122,0.1);}
 .rel-tag{font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:8px;font-family:'Jost',sans-serif;flex-shrink:0;margin-left:8px;}
@@ -327,7 +333,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <button class="bnav-btn" id="bn-phone" onclick="openPhone()"><span class="bnav-icon">📱<span class="bnav-badge" id="phone-badge">0</span></span><span id="bn-phone-lbl">Phone</span></button>
   <button class="bnav-btn" id="bn-affection" onclick="openAffection()"><span class="bnav-icon">❤️</span><span id="bn-affection-lbl">Affection</span></button>
   <button class="bnav-btn" id="bn-fame" onclick="openFame()"><span class="bnav-icon">⭐</span><span id="bn-fame-lbl">Fame</span></button>
-  <button class="bnav-btn" id="bn-gallery" onclick="openGallery()"><span class="bnav-icon">📷</span><span id="bn-gallery-lbl">Gallery</span></button>
+  <!-- gallery moved to top right -->
   <button class="bnav-btn" id="bn-settings" onclick="openSettings()"><span class="bnav-icon">⚙️</span><span id="bn-settings-lbl">Settings</span></button>
 </div>
 
@@ -339,7 +345,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.29</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.30</p>
   </div>
 </div>
 
@@ -546,6 +552,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 </div>
 
 <!-- ══ CHAPTER ONE ══ -->
+<!-- ══ MEMORIES BUTTON (top right, shown during game) ══ -->
+<div id="memories-btn" style="display:none;position:fixed;top:12px;right:14px;z-index:200">
+  <button onclick="openGallery()" style="background:rgba(196,96,122,0.15);border:1.5px solid rgba(196,96,122,0.3);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;backdrop-filter:blur(8px)">
+    <span style="font-size:14px">📖</span>
+    <span id="memories-label" style="font-size:10px;letter-spacing:2px;color:var(--rose);text-transform:uppercase;font-family:'Jost',sans-serif">回忆</span>
+  </button>
+</div>
+
 <div class="screen" id="s-ch1">
   <div class="wrap">
     <div class="stamp" style="margin-bottom:14px" id="lbl-ch1">Chapter One</div>
@@ -1037,6 +1051,8 @@ function go(id) {
   const idx = SETUP_SCREENS.indexOf(id);
   document.getElementById('prog').style.width = (idx < 0 ? 0 : Math.round(idx / (SETUP_SCREENS.length-1) * 100)) + '%';
   document.getElementById('bottom-nav').classList.toggle('show', GAME_SCREENS.includes(id));
+  var memBtn = document.getElementById('memories-btn');
+  if(memBtn) memBtn.style.display = GAME_SCREENS.includes(id) && !['s-gallery','s-fame','s-settings','s-phone','s-chat','s-affection'].includes(id) ? 'block' : 'none';
   if (!OVERLAY_SCREENS.includes(id)) G._prevScreen = id;
   window.scrollTo(0, 0);
 }
@@ -1138,7 +1154,7 @@ function applyLang() {
   s('lbl-your-world', t('your_world')); s('lbl-name-key', t('name_key')); s('lbl-city-key', t('city_key')); s('lbl-agent-key', t('agent_key')); s('lbl-fame-key', t('fame_key'));
   s('lbl-ch1', t('ch1_label')); s('lbl-signed', t('signed')); s('btn-wakeup', t('wake_up'));
   s('bn-home-lbl', t('home')); s('bn-phone-lbl', t('phone')); s('bn-affection-lbl', t('affection_title')); s('bn-fame-lbl', t('fame')); s('bn-gallery-lbl', t('gallery_lbl')); s('bn-settings-lbl', t('settings_lbl'));
-  s('gallery-title', t('gallery_lbl')); s('lbl-lang-setting', t('lang_setting')); s('lbl-style-setting', t('style_setting')); s('btn-save-settings', t('save_return'));
+  s('gallery-title', t('gallery_lbl')); var ml=document.getElementById('memories-label'); if(ml) ml.textContent=G.lang==='zh-cn'||G.lang==='zh-tw'?'回忆':G.lang==='ja'?'思い出':G.lang==='ko'?'추억':'Memories'; s('lbl-lang-setting', t('lang_setting')); s('lbl-style-setting', t('style_setting')); s('btn-save-settings', t('save_return'));
   s('lbl-her-origin', t('her_origin')); s('lbl-his-origin', t('his_origin')); s('lbl-hair-style', t('hair_style_lbl')); s('lbl-hair-colour', t('hair_colour_lbl')); s('lbl-city', t('city_lbl')); s('lbl-decor', t('decor_lbl'));
   s('lbl-choose-portrait', t('choose_portrait')); s('lbl-thats-him', t('thats_him')); s('lbl-choose-refl', t('choose_refl')); s('lbl-this-me', t('this_is_me'));
   s('lbl-wct-chats', t('wc_chats')); s('lbl-wct-moments', t('wc_moments')); s('lbl-wct-industry', t('wc_industry')); s('lbl-wct-back', t('wc_back'));
@@ -1798,11 +1814,49 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   const relChanges = npcPersonalityBonus[npcKey] || [+10, +5, +3];
   var vopts2 = document.getElementById('vn-opts');
   vopts2.innerHTML = '';
+  var isZhOpt = G.lang==='zh-cn'||G.lang==='zh-tw';
+
+  // Free input
+  var inputWrap = document.createElement('div');
+  inputWrap.className = 'vn-input-wrap';
+  var inp = document.createElement('textarea');
+  inp.className = 'vn-input';
+  inp.placeholder = isZhOpt?'输入你想说的话...':G.lang==='ja'?'何か言いたいことを入力...':G.lang==='ko'?'하고 싶은 말을 입력...':'Type your response...';
+  inp.rows = 1;
+  inp.oninput = function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; };
+  var sendBtn = document.createElement('button');
+  sendBtn.className = 'vn-send';
+  sendBtn.innerHTML = '➤';
+  sendBtn.onclick = function(){
+    var reply = inp.value.trim();
+    if(!reply) return;
+    // AI judges sentiment for relationship change
+    var rc = judgeRelChange(npcKey, reply);
+    chooseVNOpt(npcKey, rc, reply, dialogRounds, day, round);
+  };
+  // Send on Enter (not Shift+Enter)
+  inp.onkeydown = function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.onclick();} };
+  inputWrap.appendChild(inp);
+  inputWrap.appendChild(sendBtn);
+  vopts2.appendChild(inputWrap);
+
+  // Quick options label
+  var qlabel = document.createElement('div');
+  qlabel.className = 'vn-quick-label';
+  qlabel.textContent = isZhOpt?'快捷回复':G.lang==='ja'?'クイック返信':G.lang==='ko'?'빠른 답장':'Quick replies';
+  vopts2.appendChild(qlabel);
+
+  // Quick option chips
   opts.forEach(function(o, i) {
     var el = document.createElement('div');
     el.className = 'vn-opt';
     el.textContent = o;
-    el.onclick = (function(key, rc, reply, dlgs, d, r){return function(){chooseVNOpt(key, rc, reply, dlgs, d, r);};})(npcKey, relChanges[i], o, dialogRounds, day, round);
+    el.onclick = (function(key, rc, reply, dlgs, d, r){
+      return function(){
+        inp.value = reply; // Fill input box
+        chooseVNOpt(key, rc, reply, dlgs, d, r);
+      };
+    })(npcKey, relChanges[i], o, dialogRounds, day, round);
     vopts2.appendChild(el);
   });
 }
@@ -1882,6 +1936,51 @@ async function goEvening() {
     console.log('Evening Claude failed, using defaults:', e);
   }
   STATE.save.saveGame();
+}
+
+// ── AI judges relationship change from free text ──
+function judgeRelChange(npcKey, reply) {
+  // Base change per NPC personality
+  var base = {
+    agent: 8, drummer: 8, actor: 8, detective: 8, butler: 8
+  }[npcKey] || 8;
+
+  var lower = reply.toLowerCase();
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+
+  // Simple sentiment analysis
+  var positiveWords = isZh
+    ? ['好','谢','喜欢','想','开心','期待','明白','在意','感谢','愿意','当然','真的','棒']
+    : ['yes','sure','love','like','thank','happy','excited','understand','care','wonderful','great','agree'];
+  var negativeWords = isZh
+    ? ['不','算了','无所谓','随便','走','没兴趣','烦','拒绝','不想','冷']
+    : ['no','leave','whatever','boring','not','refuse','cold','stop','hate','go away'];
+  var challengeWords = isZh
+    ? ['证明','让你','改变','看好','不信','真的吗','试试','敢','凭什么']
+    : ['prove','show me','really','dare','why should','make me','doubt','challenge','bet'];
+
+  var posScore = positiveWords.filter(w => lower.includes(w)).length;
+  var negScore = negativeWords.filter(w => lower.includes(w)).length;
+  var chalScore = challengeWords.filter(w => lower.includes(w)).length;
+
+  // Personality-aware scoring
+  var change = base;
+  if (npcKey === 'drummer' || npcKey === 'agent') {
+    // These guys like challenge and pushback
+    change = base + (chalScore * 8) + (negScore * 3) - (posScore * 2);
+  } else if (npcKey === 'actor') {
+    // Actor likes indifference
+    change = base + (negScore * 6) + (chalScore * 5) - (posScore * 1);
+  } else if (npcKey === 'butler') {
+    // Butler likes warmth
+    change = base + (posScore * 8) - (negScore * 5);
+  } else if (npcKey === 'detective') {
+    // Detective likes measured, calm responses
+    change = base + (chalScore * 3) + (posScore * 3) - (negScore * 3);
+  }
+
+  // Cap between -10 and +20
+  return Math.max(-10, Math.min(20, change));
 }
 
 function nextDay() {
@@ -2208,7 +2307,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.29 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.30 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
