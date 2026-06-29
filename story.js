@@ -12,7 +12,7 @@ const STORY = {
   // 游戏基本设定
   // ══════════════════════════════════════════════════════
   meta: {
-    startDate: { year: null, month: 3, day: 15, weekday: 1 }, // 3月15日 周一
+    startDate: { year: null, month: 3, day: 1, weekday: 1 }, // 3月1日 周一
     totalDays: 360,
     totalChapters: 12,
     daysPerChapter: 30,
@@ -45,7 +45,7 @@ const STORY = {
 
     // 根据游戏天数获取当前日期（从3月15日开始）
     getGameDate(day) {
-      const start = new Date(2024, 2, 15); // March 15
+      const start = new Date(2024, 2, 1); // March 1
       const current = new Date(start);
       current.setDate(start.getDate() + day - 1);
       return { month: current.getMonth() + 1, day: current.getDate() };
