@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.42** |
+| 当前版本 | **v10.43** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -38,9 +38,10 @@ git push https://<TOKEN>@github.com/liziting2023-boop/off-the-record.git main
 ### 自动部署
 push 到 main → GitHub Actions → 约 30 秒生效。
 
-### 每次 commit 必须同步更新版本号（两处）
+### 每次 commit 必须同步更新版本号（三处）
 - `index.html` 约第 349 行：`<p ...>v10.XX</p>`
 - `index.html` 约第 2709 行：`v.innerHTML = 'v10.XX · ...'`
+- `index.html` 第 8-9 行：`<script src="story.js?v=10.XX">` / `<script src="state.js?v=10.XX">` —— **必须更新**，否则用户浏览器可能继续用缓存的旧版 story.js/state.js，导致明明已经修复的 bug 在用户端"复现"（v10.43 才加上这个版本号参数，之前一直没有缓存保护）
 
 ---
 
@@ -172,6 +173,9 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **[v10.42]** 发色新增"鲜紫色 Vivid purple"选项，并强化生图提示词对发色的约束权重
 - **[v10.42]** 修复同一批候选图（女主/经纪人三选一）风格与发色不一致的问题：改为共用同一个生成 seed，风格描述前置到提示词最前
 - **[v10.42]** 默认美术风格改为 Illustrated（Painterly Stylized），并修复设置页风格卡片默认选中状态与实际值不同步的问题
+- **[v10.43]** **重要**：`story.js`/`state.js` 的 `<script>` 标签加上 `?v=10.XX` 版本号参数，防止浏览器缓存旧脚本导致已修复的 bug 在用户端"复现"（此前 v10.41 修的 Day1 卡死/日历打不开，用户仍能复现，根因就是浏览器缓存了旧 state.js）
+- **[v10.43]** 修复签约初见场景（`s-agent-signing`）的对话框遮罩：该场景用内联 style 硬编码了旧版深色渐变，完全绕过了 v10.40 在 CSS class 里做的遮罩修复，导致挡脸问题在这个场景一直没修好。现已删除内联覆盖，统一走 `.vn-overlay` class
+- **[v10.43]** 客厅三选一图片改为 3 套不同房间布局（此前只是同一布局换皮）：图1保留原布局，图2/图3新写了"小户型出租公寓、客厅餐厅一体、家具简单但软装温馨"的提示词（`LIVING_LAYOUT_B` / `LIVING_LAYOUT_C`），符合女主刚出道经济不宽裕的设定
 
 ---
 

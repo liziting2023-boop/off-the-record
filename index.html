@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js"></script>
-<script src="state.js"></script>
+<script src="story.js?v=10.43"></script>
+<script src="state.js?v=10.43"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.42</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.43</p>
   </div>
 </div>
 
@@ -542,7 +542,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 <div class="screen" id="s-agent-signing">
   <img class="vn-bg" id="signing-bg" src="" alt="" style="object-fit:cover;width:100%;height:100%;position:absolute;inset:0;z-index:0;cursor:pointer" onclick="openLB(this.src)">
   <div class="vn-bg-ph" id="signing-bg-ph" style="position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FFE8F0,#FFF0F5)"></div>
-  <div class="vn-overlay" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.3) 50%,rgba(0,0,0,0.1) 100%);z-index:1"></div>
+  <div class="vn-overlay"></div>
   <div style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom))">
     <div class="vn-dialog">
       <div class="vn-speaker" id="signing-speaker"></div>
@@ -1588,6 +1588,10 @@ function showHeritage() {
 // ROOMS
 // ══════════════════════════════════════════════════════
 const LIVING_LAYOUT = 'rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, LEFT dining area with wooden dining table and chairs, two glass pendant lights, CENTER BACK TV wall unit with LED underglow, RIGHT large three-seater sofa, round coffee table on area rug, curved accent armchair, FAR END floor-to-ceiling window with sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, large format tile flooring, warm neutral tones';
+// 图2：小户型出租公寓，客厅餐厅一体，家具简单但软装温馨（非豪华，符合女主刚出道、经济并不宽裕的设定）
+const LIVING_LAYOUT_B = 'compact open-plan living-dining room in a modest rented apartment, shot from the doorway looking toward the window, LEFT a small round wooden dining table with two mismatched chairs tucked near a kitchen pass-through, CENTER a simple two-seater loveseat sofa in soft fabric with a knitted throw blanket and patterned cushions, layered rugs over worn wood-look flooring, small vintage coffee table with candles and a stack of books, RIGHT a low bookshelf and a floor lamp with a warm fabric shade, string lights and a gallery of small framed photos and postcards on the walls, sheer curtains softly diffusing daylight, potted plants on the windowsill, lived-in cozy budget-friendly apartment feeling, warm inviting textures, simple affordable furniture with charming personal touches, NOT luxurious, NOT high-end';
+// 图3：二手/复古混搭出租屋，客厅餐厅一体，同样走温馨不奢华路线
+const LIVING_LAYOUT_C = 'small open-plan living and dining area in a rented walk-up apartment, view from the hallway entrance toward the far wall, LEFT a narrow dining nook with a drop-leaf wooden table against the wall and two mismatched vintage chairs, CENTER a well-worn two-seater sofa draped with a woven blanket and floor cushions on a faded area rug, small round side table with a fabric-shade lamp, RIGHT open shelving with books, plants and a small record player, walls decorated with framed art prints, dried flowers and a woven wall hanging, warm light from a paper lantern pendant, tall window with simple linen curtains, cozy eclectic thrifted-furniture charm, modest secondhand furniture full of warmth and character, NOT luxurious, NOT high-end';
 let _roomsDone = false;
 let _roomUrls = { a: null, b: null, c: null };
 
@@ -1595,11 +1599,11 @@ async function preGenRooms() {
   if (_roomsDone || !G.player.city) return;
   const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Tokyo':'Tokyo Tower and Shinjuku neon skyline', 'Seoul':'N Seoul Tower and Han River bridges', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
   const lm = cityLandmarks[G.player.city] || 'city skyline';
-  const styles = ['Romantic Minimalist','Contemporary Organic','Modern Dark'];
-  const base = s => s + ' interior design style, ' + LIVING_LAYOUT + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' visible through floor-to-ceiling windows';
-  const a = await img(base(styles[0]), 'Room A'); setRCard('ra','ra-ph',a,'a'); _roomUrls.a = a;
-  const b = await img(base(styles[1]), 'Room B'); setRCard('rb','rb-ph',b,'b'); _roomUrls.b = b;
-  const c = await img(base(styles[2]), 'Room C'); setRCard('rc','rc-ph',c,'c'); _roomUrls.c = c;
+  const layouts = [LIVING_LAYOUT, LIVING_LAYOUT_B, LIVING_LAYOUT_C];
+  const base = layout => layout + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance';
+  const a = await img(base(layouts[0]), 'Room A'); setRCard('ra','ra-ph',a,'a'); _roomUrls.a = a;
+  const b = await img(base(layouts[1]), 'Room B'); setRCard('rb','rb-ph',b,'b'); _roomUrls.b = b;
+  const c = await img(base(layouts[2]), 'Room C'); setRCard('rc','rc-ph',c,'c'); _roomUrls.c = c;
   _roomsDone = true;
 }
 
@@ -1617,7 +1621,7 @@ function selRoom(opt) {
   ['ra','rb','rc'].forEach(id => document.getElementById(id)?.classList.remove('sel'));
   document.getElementById('r'+opt)?.classList.add('sel');
   G.apartment.livingDayUrl = _roomUrls[opt];
-  G.apartment.selectedStyle = opt==='a'?'Romantic Minimalist':opt==='b'?'Contemporary Organic':'Modern Dark';
+  G.apartment.selectedStyle = opt==='a'?'Romantic Minimalist, cozy modest apartment':opt==='b'?'warm budget-friendly rental apartment':'eclectic thrifted rental apartment';
   document.getElementById('btn-rooms').style.visibility = 'visible';
   preGenNight();
 }
@@ -2737,7 +2741,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.42 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.43 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
