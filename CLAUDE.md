@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.45** |
+| 当前版本 | **v10.46** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -188,6 +188,7 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **[v10.45]** 管家在公寓场景不该背背包，加 `NO backpack, NO bag, hands empty` 负面提示词
 - **[v10.45]** 经纪人咖啡厅约会场景 `cafe_meeting` composition 原文写了"两人同桌"（two people at small table），导致AI画出多余的陌生女性，改为明确单人独坐 + `NO other people in frame`
 - **[v10.45]** 日历"今天"标识改为清晰的玫瑰色边框圈（原来只是很淡的 0.14 透明度背景色，几乎看不出来）
+- **[v10.46]** 女主形象一致性：确认头像时把该批候选图的生图 seed 存入 `G.player.portraitSeed`，之后所有场景（`genProtagonistScene`）都复用同一个 seed，减少每次生图长相不一样的漂移。注意：这不是真正的人脸锁定（没有接入图片参考模型），场景描述差异较大时脸部仍可能有一定漂移，只是比完全随机 seed 好很多
 
 ---
 

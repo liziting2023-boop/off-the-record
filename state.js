@@ -44,6 +44,7 @@ const STATE = {
       city: null,
       decor: null,
       portraitUrl: null,
+      portraitSeed: null,   // 生图种子，后续所有场景复用以保持形象一致
     },
 
     // 公寓
