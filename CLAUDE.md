@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.44** |
+| 当前版本 | **v10.45** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -185,6 +185,9 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **[v10.44]** "相册"统一改名"回忆"（`gallery_lbl`，中英文都改：Gallery→Memories）
 - **[v10.44]** 修复手机模块系统性的白字配色 bug：`.wc-*` 一系列 class（状态栏、聊天列表姓名/预览/时间、朋友圈、行业资讯）都是为深色背景设计的白色文字，但 `.wc-phone` 实际背景是浅粉色 `#FFF5F7`，导致大量文字几乎不可见。统一改为深色文案
 - **[v10.44]** 手机消息加上日期显示：消息对象加 `day` 字段，非当天消息在列表和聊天气泡里会显示具体日期（如"3月1日 19:30"），当天消息只显示时间
+- **[v10.45]** 管家在公寓场景不该背背包，加 `NO backpack, NO bag, hands empty` 负面提示词
+- **[v10.45]** 经纪人咖啡厅约会场景 `cafe_meeting` composition 原文写了"两人同桌"（two people at small table），导致AI画出多余的陌生女性，改为明确单人独坐 + `NO other people in frame`
+- **[v10.45]** 日历"今天"标识改为清晰的玫瑰色边框圈（原来只是很淡的 0.14 透明度背景色，几乎看不出来）
 
 ---
 

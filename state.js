@@ -334,6 +334,7 @@ const STATE = {
         `casual everyday clothes, neat and unassuming`,
         `clean-cut innocent features, slightly flushed cheeks`,
         `earnest warm expression`,
+        `NO backpack, NO bag, hands empty`,
         glassesNote,
         scene,
       ].filter(Boolean).join(', ');

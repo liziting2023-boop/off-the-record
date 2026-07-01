@@ -241,7 +241,7 @@ const STORY = {
     cafe_meeting: {
       isOutdoor: false,
       isPublic: true,
-      composition: 'intimate café, two people at small table, coffee cups between them, soft warm lighting',
+      composition: 'intimate café, sitting alone at a small table with a coffee cup, soft warm lighting, solo portrait, NO other people in frame, NO other customers visible',
     },
     art_gallery: {
       isOutdoor: false,
