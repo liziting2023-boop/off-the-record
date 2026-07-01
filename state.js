@@ -151,14 +151,14 @@ const STATE = {
 
     // NPC外形数据（按族裔）
     npcAppearance: {
-      'British':         { hair: 'dark brown neatly swept back',      skin: 'fair',        suit: 'charcoal grey double-breasted suit, open collar' },
-      'American':        { hair: 'dark brown side-parted',            skin: 'medium',      suit: 'navy blue slim suit, white open-collar shirt' },
-      'French':          { hair: 'dark chestnut slightly tousled',    skin: 'light olive', suit: 'black slim-cut suit, silk pocket square' },
-      'Italian':         { hair: 'black swept back',                  skin: 'warm olive',  suit: 'deep charcoal Italian-cut suit' },
-      'Korean':          { hair: 'black precise side part',           skin: 'light',       suit: 'dark grey minimalist suit, black turtleneck' },
-      'Japanese':        { hair: 'black neat side part',              skin: 'light',       suit: 'anthracite suit, white shirt' },
-      'African-American':{ hair: 'close-cropped black fade',          skin: 'deep brown',  suit: 'black premium suit, white shirt' },
-      'Brazilian':       { hair: 'dark brown slight wave',            skin: 'warm tan',    suit: 'navy suit, open collar white shirt' },
+      'British':         { features: 'caucasian British male, defined Anglo-Saxon bone structure, sharp cheekbones',             hair: 'dark brown neatly swept back',      skin: 'fair',        suit: 'charcoal grey double-breasted suit, open collar' },
+      'American':        { features: 'caucasian American male, strong defined jaw, open confident face',                         hair: 'dark brown side-parted',            skin: 'medium',      suit: 'navy blue slim suit, white open-collar shirt' },
+      'French':          { features: 'caucasian French male, refined Gallic bone structure, high cheekbones',                    hair: 'dark chestnut slightly tousled',    skin: 'light olive', suit: 'black slim-cut suit, silk pocket square' },
+      'Italian':         { features: 'caucasian Italian male, Mediterranean bone structure, strong aquiline features',           hair: 'black swept back',                  skin: 'warm olive',  suit: 'deep charcoal Italian-cut suit' },
+      'Korean':          { features: 'Korean male, East Asian facial features, smooth defined jawline, clear monolid eyes',      hair: 'black precise side part',           skin: 'light',       suit: 'dark grey minimalist suit, black turtleneck' },
+      'Japanese':        { features: 'Japanese male, East Asian facial features, refined delicate bone structure, elegant face', hair: 'black neat side part',              skin: 'light',       suit: 'anthracite suit, white shirt' },
+      'African-American':{ features: 'Black American male, strong defined facial structure, broad forehead, confident features', hair: 'close-cropped black fade',          skin: 'deep brown',  suit: 'black premium suit, white shirt' },
+      'Brazilian':       { features: 'Brazilian male, mixed Latin heritage facial features, warm expressive face',               hair: 'dark brown slight wave',            skin: 'warm tan',    suit: 'navy suit, open collar white shirt' },
     },
 
     // 族裔外形特征（用于女主）
@@ -216,13 +216,13 @@ const STATE = {
 
       return [
         `Strikingly handsome 32-year-old ${origin} man`,
+        app.features,
+        `tall 178cm lean athletic build`,
         `talent agent`,
         app.hair,
         `${app.skin} skin tone`,
         app.suit,
-        `sharp distinguished features with depth`,
         `cold composed expression with hidden intensity`,
-        `strong jawline, perfect masculine proportions`,
         `NO glasses`,
         scene,
         style,
@@ -238,13 +238,15 @@ const STATE = {
       const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
 
       return [
-        `Handsome athletic 26-year-old ${origin} man`,
+        `Handsome 26-year-old ${origin} man`,
+        app.features,
+        `tall 180cm athletic muscular build`,
         `rock drummer and band leader`,
         `${app.hair} tousled`,
         `${app.skin} skin`,
         `casual dark clothing, band tee or leather jacket`,
         `strong capable hands, slightly edgy style`,
-        `evaluating expression, smoldering attractive`,
+        `evaluating smoldering expression`,
         `NO glasses`,
         scene,
         style,
@@ -262,12 +264,13 @@ const STATE = {
 
       return [
         `Devastatingly handsome 29-year-old ${origin} man`,
+        app.features,
+        `tall 180cm model physique, lean and well-proportioned`,
         `rising actor`,
         `${app.hair} perfectly styled`,
         `${app.skin} skin`,
         `fashionable stylish outfit`,
-        `model-perfect features and physique`,
-        `effortlessly charismatic smirk`,
+        `effortlessly charismatic expression`,
         glassesNote,
         scene,
         style,
@@ -295,12 +298,13 @@ const STATE = {
 
       return [
         `Intensely attractive 36-year-old ${origin} man`,
+        app.features,
+        `tall imposing build, broad shoulders`,
         `private detective`,
         app.hair,
         `${app.skin} skin`,
         `dark trench coat, tailored and imposing`,
         `quietly intense expression, misses nothing`,
-        `commanding presence`,
         glassesNote,
         scene,
         style,
@@ -322,10 +326,12 @@ const STATE = {
 
       return [
         `Adorable yet handsome 20-year-old ${origin} young man`,
+        app.features,
+        `172cm slim youthful build`,
         `building manager`,
         `${app.hair} clean and neat`,
         `${app.skin} skin`,
-        `neat building manager uniform`,
+        `casual everyday clothes, neat and unassuming`,
         `clean-cut innocent features, slightly flushed cheeks`,
         `earnest warm expression`,
         glassesNote,

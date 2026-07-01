@@ -122,14 +122,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-scene{position:relative;padding:0;}
 .vn-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .vn-bg-ph{position:absolute;inset:0;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);z-index:0;display:flex;align-items:center;justify-content:center;}
-.vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(255,235,242,0.95) 0%,rgba(255,220,235,0.4) 50%,rgba(255,200,220,0.1) 100%);z-index:1;}
+.vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;}
 .vn-speaker{font-size:12px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,5vw,22px);font-style:italic;color:#FFF0F3;line-height:1.75;margin-bottom:10px;}
 .vn-text .speech{color:#FFB8C8;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
-.vn-opts{display:grid;gap:6px;}
+.vn-opts{display:grid;gap:6px;max-height:38vh;overflow-y:auto;}
 .vn-input-wrap{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
 .vn-input{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,200,210,0.25);border-radius:12px;padding:8px 12px;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:#FFF0F3;resize:none;outline:none;min-height:42px;max-height:90px;line-height:1.4;}
 .vn-input:focus{border-color:rgba(255,180,200,0.5);background:rgba(255,255,255,0.15);}
@@ -487,7 +487,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
     </div>
     <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:6px">↺ New options</button>
-    <button class="btn-p" id="btn-proto" onclick="go('s-flash-intro')" style="visibility:hidden">That's me</button>
+    <button class="btn-p" id="btn-proto" onclick="if(G.player.portraitUrl){G.gallery.push({url:G.player.portraitUrl,label:t('this_is_me')})}go('s-flash-intro')" style="visibility:hidden">That's me</button>
   </div>
 </div>
 
@@ -1644,7 +1644,7 @@ function selProto(opt) {
   document.getElementById('p'+opt)?.classList.add('sel');
   const el = document.getElementById('p'+opt);
   const imgEl = el?.querySelector('img');
-  if (imgEl) { G.player.portraitUrl = imgEl.src; G.gallery.push({ url: imgEl.src, label: t('this_is_me') }); }
+  if (imgEl) { G.player.portraitUrl = imgEl.src; }
   document.getElementById('btn-proto').style.visibility = 'visible';
 }
 
@@ -1703,7 +1703,7 @@ function selAgent(opt) {
   document.getElementById('ag'+opt)?.classList.add('sel');
   const el = document.getElementById('ag'+opt);
   const imgEl = el?.querySelector('img');
-  if (imgEl) { G.npcs.agent.portraitUrl = imgEl.src; G.gallery.push({ url: imgEl.src, label: G.npcs.agent.name || 'Agent' }); }
+  if (imgEl) { G.npcs.agent.portraitUrl = imgEl.src; }
   document.getElementById('btn-agent-ok').style.visibility = 'visible';
 }
 
@@ -1713,6 +1713,7 @@ function selAgent(opt) {
 let _signingRound = 0;
 
 function startSigningScene() {
+  if (G.npcs.agent.portraitUrl) { G.gallery.push({ url: G.npcs.agent.portraitUrl, label: G.npcs.agent.name || 'Agent' }); }
   go('s-agent-signing');
   _signingRound = 0;
   const bg = document.getElementById('signing-bg');
