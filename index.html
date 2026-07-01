@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.47"></script>
-<script src="state.js?v=10.47"></script>
+<script src="story.js?v=10.48"></script>
+<script src="state.js?v=10.48"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -358,7 +358,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.47</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.48</p>
   </div>
 </div>
 
@@ -2334,7 +2334,7 @@ async function goEvening() {
   // Show notification tap to open phone
   var eveAgentName = G.npcs.agent.name || (isZh?'经纪人':'Agent');
   document.getElementById('eve-msgs').innerHTML =
-    '<div class="eve-msg" style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openPhone()">' +
+    '<div class="eve-msg" style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openWCChat(\'agent\')">' +
     '<div style="width:36px;height:36px;background:rgba(196,96,122,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">💬</div>' +
     '<div><div class="eve-msg-from">' + eveAgentName + '</div>' +
     '<div class="eve-msg-txt" style="font-style:normal;font-size:12px;color:var(--text-mid)">' + (isZh?'收到新消息':'New message') + '</div></div>' +
@@ -2546,9 +2546,10 @@ async function generatePhoneContent() {
   const msgs = [];
   for (const npc of Object.keys(G.npcs).filter(k => G.npcs[k].met).slice(0,3)) {
     const isVoice = Math.random() > 0.65;
-    const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name, 'Send a ' + (isVoice?'voice message transcript':'text message') + ' today.');
+    const msgTime = Math.floor(Math.random()*10+9) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0');
+    const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name, 'Send a ' + (isVoice?'voice message transcript':'text message') + ' today at ' + msgTime + '. IMPORTANT: do NOT invent or reference a specific new appointment/schedule time (e.g. "changed from 9 to 8") — that could contradict the actual game schedule. Keep it to mood, opinions, casual remarks, or things that already happened.');
     const txt = await claude(memCtx + '\n\n1-2 sentences, natural. No quotes.');
-    msgs.push({ npc, name: getNPCName(npc), text: txt.trim(), isVoice, emoji: NPC_UI[npc]?.emoji||'💬', color: NPC_UI[npc]?.color||'#C4A882', rel: G.npcs[npc].relationship, day: G.day, time: Math.floor(Math.random()*10+9) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0') });
+    msgs.push({ npc, name: getNPCName(npc), text: txt.trim(), isVoice, emoji: NPC_UI[npc]?.emoji||'💬', color: NPC_UI[npc]?.color||'#C4A882', rel: G.npcs[npc].relationship, day: G.day, time: msgTime });
     // Record in memory
     STATE.memory.addEvent(npc, 'Sent phone message: "' + txt.trim().slice(0,50) + '"', G.day);
   }
@@ -2803,7 +2804,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.47 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.48 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
