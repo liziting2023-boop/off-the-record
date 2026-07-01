@@ -346,7 +346,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.41</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.42</p>
   </div>
 </div>
 
@@ -762,8 +762,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div>
       <div class="settings-section-title" id="lbl-style-setting">IMAGE STYLE</div>
       <div class="settings-style">
-        <div class="s-style-card" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
-        <div class="s-style-card sel" onclick="selStyle('semi-realistic',this)"><span class="s-style-name">Semi-Realistic</span><span class="s-style-sub">Soft · Stylized art</span></div>
+        <div class="s-style-card sel" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
+        <div class="s-style-card" onclick="selStyle('semi-realistic',this)"><span class="s-style-name">Semi-Realistic</span><span class="s-style-sub">Soft · Stylized art</span></div>
         <div class="s-style-card" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
         <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
       </div>
@@ -791,6 +791,20 @@ const DEV_MODE_TXT = false; // true = 跳过Claude对话（用占位文字）
 
 // ── 快捷访问 STATE ──
 const G = STATE.data;
+
+// 男性 NPC 族裔候选池（与 state.js 的 npcAppearance / culturalTraits 键名一一对应）
+const AGENT_ORIGIN_VALS = ['British','American','French','Italian','Korean','Japanese','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'];
+
+// 从候选池里随机抽取 n 个（不重复），用于每个男NPC的族裔选择界面，避免每次都是同一批选项
+function pickRandomOrigins(labels, subs, vals, n) {
+  const idx = vals.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  const picked = idx.slice(0, n);
+  return { labels: picked.map(i => labels[i]), subs: picked.map(i => subs[i]), vals: picked.map(i => vals[i]) };
+}
 
 // ── NPC文字格式化（统一清理 + 对话标注）──
 function formatNPCText(raw) {
@@ -937,13 +951,16 @@ async function claude(prompt, sys = '') {
   return d.content?.[0]?.text || '';
 }
 
-async function img(prompt, label = '', save = false, retries = 2) {
+async function img(prompt, label = '', save = false, retries = 2, seed = null) {
   if (DEV_MODE_IMG) return null;
-  const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
-  const fullPrompt = prompt + ', ' + style + ', portrait orientation, high quality';
+  // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
+  const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['illustrated'];
+  const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const r = await fetch(WORKER + '/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: fullPrompt, image_size: 'portrait_4_3', num_inference_steps: 4, num_images: 1 }) });
+      const body = { prompt: fullPrompt, image_size: 'portrait_4_3', num_inference_steps: 4, num_images: 1 };
+      if (seed !== null) body.seed = seed;
+      const r = await fetch(WORKER + '/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const d = await r.json();
       const url = d.images?.[0]?.url;
       if (url) {
@@ -1130,7 +1147,13 @@ function openFame()     { setABn('bn-fame');      renderFame();      go('s-fame'
 function closeFame()    { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 function openGallery()  { setABn('bn-gallery');   renderGallery();   go('s-gallery');   }
 function closeGallery() { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
-function openSettings() { setABn('bn-settings');                     go('s-settings');  }
+function openSettings() {
+  setABn('bn-settings');
+  document.querySelectorAll('.s-style-card[onclick^="selStyle"]').forEach(c => {
+    c.classList.toggle('sel', c.getAttribute('onclick') === "selStyle('" + G.imgStyle + "',this)");
+  });
+  go('s-settings');
+}
 function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 function openPhone()    { setABn('bn-phone');     renderPhone();     go('s-phone');     }
 function closePhone()   { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
@@ -1389,32 +1412,32 @@ function closeLB()      { document.getElementById('lb').classList.remove('open')
 // ══════════════════════════════════════════════════════
 const TX = {
   en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Friday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Gallery', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
-    regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East'],
-    region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran'],
+    regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East','North America'],
+    region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran','USA · Canada'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
     hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
-    hair_colors:['Jet black','Dark brown','Chestnut','Honey blonde','Burgundy','Silver lavender'],
-    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
+    hair_colors:['Jet black','Dark brown','Chestnut','Honey blonde','Burgundy','Silver lavender','Vivid purple'],
+    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender','vivid purple'],
     cities:['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'],
     city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','Japan','South Korea','Australia','USA · Music City'],
     decors:['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'],
     decor_subs:['Soft voiles · Dreamy pastels','Natural curves · Oak & walnut','Vintage frames · Florals','Deep tones · Gold accents','Warm layers · Plants · Candlelight'],
-    agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'],
-    agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio'],
+    agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'],
+    agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara'],
   },
   'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周五 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'相册', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
-    regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东'],
-    region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗'],
+    regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
+    region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗','美国·加拿大'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
     hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
-    hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫'],
-    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender'],
+    hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫','鲜紫色'],
+    hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender','vivid purple'],
     cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','纳什维尔'],
     city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','美国·音乐之城'],
     decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],
     decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
-    agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人'],
-    agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约'],
+    agent_origins:['英国人','美国人','法国人','意大利人','韩国人','日本人','非裔美国人','巴西人','德国人','西班牙人','印度人','俄罗斯人','澳大利亚人','墨西哥人'],
+    agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','首尔·釜山','东京·大阪','纽约·亚特兰大','圣保罗·里约','柏林·慕尼黑','马德里·巴塞罗那','孟买·新德里','莫斯科·圣彼得堡','悉尼·墨尔本','墨西哥城·瓜达拉哈拉'],
   },
 };
 ['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l => { if (!TX[l]) TX[l] = Object.assign({}, TX.en); });
@@ -1439,7 +1462,7 @@ function selLangSettings(code, name, el) {
   applyLang();
 }
 function selStyle(style, el) {
-  document.querySelectorAll('.s-style-card').forEach(c => c.classList.remove('sel'));
+  document.querySelectorAll('.s-style-card[onclick^="selStyle"]').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
   G.imgStyle = style;
 }
@@ -1477,10 +1500,9 @@ function applyLang() {
 }
 
 function buildGrids() {
-  var rk=['East Asian','Southeast Asian','South Asian','Northern European','Southern European','African','Latin American','Middle Eastern'];
+  var rk=['East Asian','Southeast Asian','South Asian','Northern European','Southern European','African','Latin American','Middle Eastern','North American'];
   var cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'];
   var dv=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
-  var av=['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
   function mk(id, labels, subs, key, vals) {
     var g=document.getElementById(id); if(!g)return;
     var items=labels.map(function(l,i){
@@ -1507,7 +1529,8 @@ function buildGrids() {
   if(ghc){ghc.innerHTML='';hc.forEach(function(l,i){var el=document.createElement('div');el.className='card';el.dataset.key='hairColor';el.dataset.val=hcv[i];el.textContent=l;el.onclick=function(){selCard(this,'hairColor',this.dataset.val);};ghc.appendChild(el);});}
   mk('g-city',t('cities'),t('city_subs'),'city',cv);
   mk('g-decor',t('decors'),t('decor_subs'),'decor',dv);
-  mk('g-aorigin',t('agent_origins'),t('agent_origin_subs'),'agentOrigin',av);
+  var aPick = pickRandomOrigins(t('agent_origins'), t('agent_origin_subs'), AGENT_ORIGIN_VALS, 8);
+  mk('g-aorigin', aPick.labels, aPick.subs, 'agentOrigin', aPick.vals);
 }
 function selCard(el, key, value) {
   el.closest('.cgrid')?.querySelectorAll('.card').forEach(c => c.classList.remove('sel'));
@@ -1618,10 +1641,11 @@ const MIRRORS = [
 async function genProto() {
   go('s-proto');
   const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
-  // Generate sequentially
-  const a = await img(base + ', ' + MIRRORS[0], 'Portrait A'); setTrio('pa', a);
-  const b = await img(base + ', ' + MIRRORS[1], 'Portrait B'); setTrio('pb', b);
-  const c = await img(base + ', ' + MIRRORS[2], 'Portrait C'); setTrio('pc', c);
+  // 同一批候选图共用一个 seed，保证发色/风格一致，只有姿势不同
+  const seed = Math.floor(Math.random() * 1000000);
+  const a = await img(base + ', ' + MIRRORS[0], 'Portrait A', false, 2, seed); setTrio('pa', a);
+  const b = await img(base + ', ' + MIRRORS[1], 'Portrait B', false, 2, seed); setTrio('pb', b);
+  const c = await img(base + ', ' + MIRRORS[2], 'Portrait C', false, 2, seed); setTrio('pc', c);
   document.getElementById('btn-rp').style.visibility = 'visible';
 }
 
@@ -1677,9 +1701,11 @@ async function genAgent() {
       'close-up portrait, office setting, serious expression with hidden depth',
       'side profile turning toward camera, city night through window, cinematic',
     ];
-    const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A'); setTrio('aga', a);
-    const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B'); setTrio('agb', b);
-    const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C'); setTrio('agc', c);
+    // 同一批候选图共用一个 seed，保证美术风格一致，只有角度/姿势不同
+    const seed = Math.floor(Math.random() * 1000000);
+    const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A', false, 2, seed); setTrio('aga', a);
+    const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B', false, 2, seed); setTrio('agb', b);
+    const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C', false, 2, seed); setTrio('agc', c);
   } else {
     // DEV: replace CREATING with name initial
     ['aga','agb','agc'].forEach(id => {
@@ -1805,8 +1831,8 @@ let _selectedNPCOrigin = null;
 
 function showNPCOrigin(npcKey, callback) {
   _pendingNPCKey = npcKey; _pendingNPCCallback = callback; _selectedNPCOrigin = null;
-  const origins = t('agent_origins'); const subs = t('agent_origin_subs');
-  const vals = ['British','American','French','Italian','Korean','Japanese','African-American','Brazilian'];
+  const _oPick = pickRandomOrigins(t('agent_origins'), t('agent_origin_subs'), AGENT_ORIGIN_VALS, 8);
+  const origins = _oPick.labels; const subs = _oPick.subs; const vals = _oPick.vals;
   const isZhNos = G.lang==='zh-cn'||G.lang==='zh-tw';
   const isJaNos = G.lang==='ja';
   const isKoNos = G.lang==='ko';
@@ -2711,7 +2737,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.41 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.42 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

@@ -21,7 +21,7 @@ const STATE = {
     langName: 'English',
 
     // 图片风格
-    imgStyle: 'semi-realistic',
+    imgStyle: 'illustrated',
 
     // 音效
     soundOn: true,
@@ -164,6 +164,12 @@ const STATE = {
       'Japanese':        { features: 'Japanese male, East Asian facial features, refined delicate bone structure, elegant face', hair: 'black neat side part',              skin: 'light',       suit: 'anthracite suit, white shirt' },
       'African-American':{ features: 'Black American male, strong defined facial structure, broad forehead, confident features', hair: 'close-cropped black fade',          skin: 'deep brown',  suit: 'black premium suit, white shirt' },
       'Brazilian':       { features: 'Brazilian male, mixed Latin heritage facial features, warm expressive face',               hair: 'dark brown slight wave',            skin: 'warm tan',    suit: 'navy suit, open collar white shirt' },
+      'German':          { features: 'caucasian German male, angular strong bone structure, sharp clear eyes',                   hair: 'ash blonde neatly combed',          skin: 'fair',        suit: 'slate grey tailored suit, minimalist styling' },
+      'Spanish':         { features: 'caucasian Spanish male, warm Mediterranean bone structure, expressive dark eyes',          hair: 'dark brown wavy',                   skin: 'olive',       suit: 'black fitted suit, open collar shirt' },
+      'Indian':          { features: 'South Asian Indian male, refined sharp features, strong jawline, expressive dark eyes',    hair: 'black neatly styled',               skin: 'warm brown',  suit: 'deep navy tailored suit' },
+      'Russian':         { features: 'Slavic Russian male, high cheekbones, pale striking eyes, angular face',                   hair: 'ash blonde short',                  skin: 'fair',        suit: 'black structured suit, no tie' },
+      'Australian':      { features: 'caucasian Australian male, sun-weathered rugged features, easy confident face',            hair: 'sandy brown tousled',                skin: 'sun-tanned',  suit: 'light grey relaxed-fit suit, open collar' },
+      'Mexican':         { features: 'Mexican male, warm Latin American features, strong jaw, expressive brown eyes',            hair: 'black short textured',               skin: 'warm tan',    suit: 'charcoal suit, open collar white shirt' },
     },
 
     // 族裔外形特征（用于女主）
@@ -176,6 +182,7 @@ const STATE = {
       'African':          { eyes: 'Rich dark brown',             skin: 'Rich deep brown to ebony' },
       'Latin American':   { eyes: 'Brown or hazel',              skin: 'Medium warm brown' },
       'Middle Eastern':   { eyes: 'Dark almond',                 skin: 'Medium olive to tan' },
+      'North American':   { eyes: 'Bright blue',                 skin: 'Fair with a warm golden tan' },
     },
 
     // 图片风格
@@ -189,26 +196,26 @@ const STATE = {
     // ── 女主生图（只用女主族裔，绝不混入NPC信息）──
     buildProtagonistPrompt(G, scene, additionalContext = '') {
       const player = G.player || STATE.data.player;
-      const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
 
       // 严格只用女主的族裔
       const motherOrigin = player.motherOrigin || 'East Asian';
       const fatherOrigin = player.fatherOrigin || 'East Asian';
       const motherTraits = STATE.imagePrompts.heritageTraits[motherOrigin] || { eyes: 'dark brown', skin: 'medium' };
       const fatherTraits = STATE.imagePrompts.heritageTraits[fatherOrigin] || { eyes: 'dark brown', skin: 'medium' };
+      const hairColor = player.hairColor || 'dark brown';
 
       const base = [
         `Naturally beautiful 23-year-old young woman`,
+        `striking unmistakable ${hairColor} colored hair (hair color must be exactly ${hairColor}, this is important and non-negotiable), ${player.hairStyle || 'long wavy hair'} hairstyle`,
         `slender and well-proportioned artist figure`,
         `mixed ${motherOrigin} and ${fatherOrigin} heritage ONLY`,
         `${motherTraits.eyes} eyes`,
         `${fatherTraits.skin} skin tone`,
-        `${player.hairStyle || 'long wavy hair'} ${player.hairColor || 'dark brown'}`,
         `editorial beauty with real character and warmth`,
         `NO glasses`,
       ].join(', ');
 
-      return [base, scene, additionalContext, style, 'portrait orientation, high quality'].filter(Boolean).join(', ');
+      return [base, scene, additionalContext].filter(Boolean).join(', ');
     },
 
     // ── 经纪人生图（只用经纪人族裔）──
@@ -216,7 +223,6 @@ const STATE = {
       const npc = G.npcs?.agent || STATE.data.npcs.agent;
       const origin = npc.origin || 'American';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
-      const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
       const emotionalState = STORY.utils.getCharacterEmotionalState('agent', day);
 
       return [
@@ -230,8 +236,6 @@ const STATE = {
         `cold composed expression with hidden intensity`,
         `NO glasses`,
         scene,
-        style,
-        'portrait orientation, high quality',
       ].filter(Boolean).join(', ');
     },
 
@@ -240,7 +244,6 @@ const STATE = {
       const npc = G.npcs?.drummer || STATE.data.npcs.drummer;
       const origin = npc.origin || 'American';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
-      const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
 
       return [
         `Handsome 26-year-old ${origin} man`,
@@ -254,8 +257,6 @@ const STATE = {
         `evaluating smoldering expression`,
         `NO glasses`,
         scene,
-        style,
-        'portrait orientation, high quality',
       ].filter(Boolean).join(', ');
     },
 
@@ -264,7 +265,6 @@ const STATE = {
       const npc = G.npcs?.actor || STATE.data.npcs.actor;
       const origin = npc.origin || 'American';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
-      const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
       const glassesNote = wearingDisguiseGlasses ? 'wearing fashionable disguise glasses' : 'NO glasses';
 
       return [
@@ -278,8 +278,6 @@ const STATE = {
         `effortlessly charismatic expression`,
         glassesNote,
         scene,
-        style,
-        'portrait orientation, high quality',
       ].filter(Boolean).join(', ');
     },
 
@@ -290,11 +288,10 @@ const STATE = {
       const npc = G.npcs?.detective || STATE.data.npcs.detective;
       const origin = npc.origin || 'American';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
-      const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
 
       if (isBackground || day < 40) {
         // 背影模式——用于公共场合背景
-        return `tall mysterious man in dark trench coat, seen from behind or in silhouette only, face completely hidden, standing at edge of scene in shadow, NO face visible, ${scene}, ${style}`;
+        return `tall mysterious man in dark trench coat, seen from behind or in silhouette only, face completely hidden, standing at edge of scene in shadow, NO face visible, ${scene}`;
       }
 
       // 正面出现（Day 40+）
@@ -312,8 +309,6 @@ const STATE = {
         `quietly intense expression, misses nothing`,
         glassesNote,
         scene,
-        style,
-        'portrait orientation, high quality',
       ].filter(Boolean).join(', ');
     },
 
@@ -322,7 +317,6 @@ const STATE = {
       const npc = G.npcs?.butler || STATE.data.npcs.butler;
       const origin = npc.origin || 'Korean';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['Korean'];
-      const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['semi-realistic'];
       // Day < 210: 可能戴眼镜隐藏眼神
       // Day >= 210: 秘密揭露后摘掉眼镜
       const glassesNote = (!secretRevealed && day < 210 && Math.random() > 0.6)
@@ -341,8 +335,6 @@ const STATE = {
         `earnest warm expression`,
         glassesNote,
         scene,
-        style,
-        'portrait orientation, high quality',
       ].filter(Boolean).join(', ');
     },
 
@@ -387,6 +379,12 @@ const STATE = {
       'Japanese':         'Precise, considerate, reads the room carefully. Would never cause embarrassment. Restraint is a form of respect.',
       'African-American': 'Direct, culturally fluent, rhythm in his speech. Has navigated being underestimated — resilient and sharp.',
       'Brazilian':        'Warm, physically expressive, food and music are love languages. Enthusiastic but not superficial. Lives in the present.',
+      'German':           'Precise, punctual, values directness over diplomacy. Says exactly what he means, expects the same in return. Structure and competence matter deeply.',
+      'Spanish':          'Passionate, socially warm, night-owl energy. Physically expressive, values long conversations and shared meals. Pride and honor run deep.',
+      'Indian':           'Warm but formal, deeply respectful of family and hierarchy while independently ambitious. Balances tradition with modern drive. Articulate and thoughtful.',
+      'Russian':          'Guarded at first, fiercely loyal once trust is earned. Dry dark humor, stoic exterior hides intense feeling. Distrusts easy sentimentality.',
+      'Australian':       'Laid-back, self-deprecating humor, allergic to pretension. Direct but easygoing. Loyalty shown through actions, not words.',
+      'Mexican':          'Warm, family-centered, physically affectionate. Pride and machismo coexist with deep tenderness. Music and food are emotional language.',
     },
 
     // 构建完整的对话提示词（包含性格+记忆+当前状态+族裔文化）
