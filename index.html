@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.43"></script>
-<script src="state.js?v=10.43"></script>
+<script src="story.js?v=10.44"></script>
+<script src="state.js?v=10.44"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -124,12 +124,12 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-bg-ph{position:absolute;inset:0;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);z-index:0;display:flex;align-items:center;justify-content:center;}
 .vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
-.vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;}
+.vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:50vh;overflow-y:auto;}
 .vn-speaker{font-size:12px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
-.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,5vw,22px);font-style:italic;color:#FFF0F3;line-height:1.75;margin-bottom:10px;}
+.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.2vw,20px);font-style:italic;color:#FFF0F3;line-height:1.5;margin-bottom:10px;}
 .vn-text .speech{color:#FFB8C8;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
-.vn-opts{display:grid;gap:6px;max-height:38vh;overflow-y:auto;}
+.vn-opts{display:grid;gap:6px;}
 .vn-input-wrap{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
 .vn-input{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,200,210,0.25);border-radius:12px;padding:8px 12px;font-family:'Cormorant Garamond',serif;font-size:clamp(14px,4vw,16px);color:#FFF0F3;resize:none;outline:none;min-height:42px;max-height:90px;line-height:1.4;}
 .vn-input:focus{border-color:rgba(255,180,200,0.5);background:rgba(255,255,255,0.15);}
@@ -154,11 +154,13 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.9;text-transform:uppercase;margin-top:2px;}
 .daily-room{flex:0 0 auto;position:relative;overflow:hidden;}
-.daily-room img{width:100%;height:32vw;max-height:140px;object-fit:cover;display:block;}
-.daily-room-ph{width:100%;height:32vw;max-height:140px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
+.daily-room img{width:100%;height:46vw;max-height:220px;object-fit:cover;display:block;}
+.daily-room-ph{width:100%;height:46vw;max-height:220px;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
 .daily-nar{flex:0 0 auto;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
 .daily-opts{flex:1;padding:6px 12px 0;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
 .daily-opt{background:rgba(255,255,255,0.7);border:1.5px solid rgba(196,96,122,0.12);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:var(--text-dark);display:flex;justify-content:space-between;align-items:center;flex:1;transition:all 0.15s;}
+.daily-opt.locked{cursor:default;pointer-events:none;background:rgba(196,96,122,0.05);border:1.5px dashed rgba(196,96,122,0.2);color:rgba(92,31,53,0.3);}
+.daily-opt.locked .opt-arrow{display:none;}
 .daily-opt:active{border-color:var(--rose);background:rgba(196,96,122,0.1);}
 .daily-opt.work{border-left:2px solid rgba(196,168,130,0.5);}
 .daily-opt.phone-btn{border-left:2px solid rgba(74,222,128,0.4);}
@@ -182,10 +184,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-phone{background:#000;padding:0;}
 .wc-phone{width:100%;height:100%;display:flex;flex-direction:column;background:#FFF5F7;}
 .wc-status{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 4px;flex-shrink:0;}
-.wc-time{font-size:13px;font-weight:600;color:#fff;}
-.wc-icons{font-size:11px;color:#fff;opacity:0.9;}
+.wc-time{font-size:13px;font-weight:600;color:var(--text-dark);}
+.wc-icons{font-size:11px;color:var(--text-dark);opacity:0.85;}
 .wc-navbar{display:flex;align-items:center;padding:8px 12px;flex-shrink:0;}
-.wc-title{font-size:16px;font-weight:600;color:#fff;flex:1;text-align:center;}
+.wc-title{font-size:16px;font-weight:600;color:var(--text-dark);flex:1;text-align:center;}
 .wc-back{font-size:14px;color:var(--wechat-green);cursor:pointer;padding:4px 8px;min-height:36px;display:flex;align-items:center;}
 .wc-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 /* WeChat tabs */
@@ -197,14 +199,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .wc-tab-badge{position:absolute;top:4px;right:20%;background:#f00;color:#fff;font-size:8px;border-radius:50%;width:14px;height:14px;display:none;align-items:center;justify-content:center;}
 .wc-tab-badge.show{display:flex;}
 /* Chat list */
-.wc-chat-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.1s;}
-.wc-chat-item:active{background:rgba(255,255,255,0.05);}
+.wc-chat-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(92,31,53,0.08);cursor:pointer;transition:background 0.1s;}
+.wc-chat-item:active{background:rgba(92,31,53,0.05);}
 .wc-avatar{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .wc-chat-info{flex:1;min-width:0;}
-.wc-chat-name{font-size:13px;color:#fff;margin-bottom:2px;}
-.wc-chat-preview{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wc-chat-name{font-size:13px;color:var(--text-dark);font-weight:600;margin-bottom:2px;}
+.wc-chat-preview{font-size:11px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wc-chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
-.wc-chat-time{font-size:10px;color:rgba(255,255,255,0.3);}
+.wc-chat-time{font-size:10px;color:var(--ink-muted);}
 .wc-unread{background:#f00;color:#fff;font-size:9px;border-radius:50%;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
 /* Chat bubbles */
 .wc-msg-area{padding:10px 12px;display:flex;flex-direction:column;gap:10px;}
@@ -212,6 +214,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .wc-bubble-wrap.mine{flex-direction:row-reverse;}
 .wc-bubble-avatar{width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .wc-bubble{max-width:68%;padding:9px 12px;border-radius:4px;font-size:13px;line-height:1.5;color:#000;background:#fff;position:relative;}
+.wc-bubble-time{font-size:9px;color:var(--ink-muted);margin-top:3px;}
 .wc-bubble.mine{background:var(--wechat-green);color:#fff;}
 .wc-bubble::before{content:'';position:absolute;top:10px;width:0;height:0;}
 .wc-bubble:not(.mine)::before{left:-5px;border:5px solid transparent;border-right-color:#fff;}
@@ -224,19 +227,19 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .wc-voice-dur{font-size:11px;color:#666;}
 .wc-voice-transcript{display:none;font-size:12px;color:#333;padding:6px 0;line-height:1.5;border-top:1px solid rgba(0,0,0,0.08);margin-top:6px;}
 /* Moments (朋友圈) */
-.wc-moment{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.wc-moment{padding:12px 14px;border-bottom:1px solid rgba(92,31,53,0.08);}
 .wc-moment-header{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px;}
 .wc-moment-avatar{width:38px;height:38px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.wc-moment-name{font-size:13px;color:#5b9bd5;font-weight:500;}
-.wc-moment-time{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px;}
-.wc-moment-text{font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:6px;margin-left:48px;}
+.wc-moment-name{font-size:13px;color:#2a6bb5;font-weight:500;}
+.wc-moment-time{font-size:10px;color:var(--ink-muted);margin-top:2px;}
+.wc-moment-text{font-size:13px;color:var(--text-dark);line-height:1.5;margin-bottom:6px;margin-left:48px;}
 .wc-moment-img{width:80px;height:80px;border-radius:4px;object-fit:cover;margin-left:48px;margin-bottom:4px;cursor:pointer;}
 .wc-moment-actions{display:flex;gap:12px;margin-left:48px;}
-.wc-moment-like{font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;}
+.wc-moment-like{font-size:11px;color:var(--ink-muted);cursor:pointer;}
 /* Industry page */
-.wc-discover-item{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer;}
-.wc-discover-title{font-size:13px;color:#fff;margin-bottom:3px;}
-.wc-discover-sub{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;}
+.wc-discover-item{padding:12px 14px;border-bottom:1px solid rgba(92,31,53,0.08);cursor:pointer;}
+.wc-discover-title{font-size:13px;color:var(--text-dark);font-weight:600;margin-bottom:3px;}
+.wc-discover-sub{font-size:11px;color:var(--ink-muted);line-height:1.4;}
 
 /* ── FAME SCREEN ── */
 #s-fame{padding:60px 20px max(70px,env(safe-area-inset-bottom));}
@@ -260,6 +263,15 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .gi{border-radius:2px;overflow:hidden;cursor:pointer;}
 .gi img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
 .gi .gl{background:var(--night-warm);padding:3px 5px;font-size:8px;color:var(--ink-muted);}
+
+/* ── CALENDAR ── */
+.cal-day-header{text-align:center;font-size:10px;letter-spacing:1px;color:var(--ink-muted);padding:4px 0;font-weight:500;}
+.cal-day{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;font-size:13px;color:var(--text-dark);border-radius:8px;cursor:pointer;transition:background 0.15s;}
+.cal-day.other-month{color:rgba(92,31,53,0.22);cursor:default;}
+.cal-day.today{background:rgba(196,96,122,0.14);font-weight:600;color:var(--rose);}
+.cal-day.selected{background:var(--rose);color:#fff;}
+.cal-day.has-event::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--gold);}
+.cal-day.selected.has-event::after{background:#fff;}
 
 /* ── SETTINGS (one screen) ── */
 #s-settings{padding:0;}
@@ -346,7 +358,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.43</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.44</p>
   </div>
 </div>
 
@@ -667,7 +679,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="wc-content" id="wc-content">
       <!-- Chats tab (default) -->
       <div id="wc-chats-tab">
-        <div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:#fff" id="lbl-wc-chats">Chats</div>
+        <div style="padding:10px 14px 4px;font-size:16px;font-weight:600;color:var(--text-dark)" id="lbl-wc-chats">Chats</div>
         <div id="wc-chat-list"></div>
       </div>
     </div>
@@ -1411,7 +1423,7 @@ function closeLB()      { document.getElementById('lb').classList.remove('open')
 // TRANSLATIONS
 // ══════════════════════════════════════════════════════
 const TX = {
-  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Friday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Gallery', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
+  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Friday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East','North America'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran','USA · Canada'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -1425,7 +1437,7 @@ const TX = {
     agent_origins:['British','American','French','Italian','Korean','Japanese','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'],
     agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','Seoul · Busan','Tokyo · Osaka','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara'],
   },
-  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周五 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'相册', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
+  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周五 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
     region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗','美国·加拿大'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
@@ -1621,14 +1633,18 @@ function selRoom(opt) {
   ['ra','rb','rc'].forEach(id => document.getElementById(id)?.classList.remove('sel'));
   document.getElementById('r'+opt)?.classList.add('sel');
   G.apartment.livingDayUrl = _roomUrls[opt];
+  const layouts = { a: LIVING_LAYOUT, b: LIVING_LAYOUT_B, c: LIVING_LAYOUT_C };
+  G.apartment.selectedLayout = layouts[opt];
   G.apartment.selectedStyle = opt==='a'?'Romantic Minimalist, cozy modest apartment':opt==='b'?'warm budget-friendly rental apartment':'eclectic thrifted rental apartment';
   document.getElementById('btn-rooms').style.visibility = 'visible';
   preGenNight();
 }
 
 async function preGenNight() {
+  // 夜景复用和白天完全相同的房间布局描述，只切换成夜间灯光，避免家具布局对不上
+  const layout = G.apartment.selectedLayout || LIVING_LAYOUT;
   const url = await img(
-    (G.apartment.selectedStyle||'Contemporary Organic') + ' interior design style, apartment living room at night, camera angle from window wall looking toward sofa area, large sofa as focal point, warm interior lighting, city lights softly visible, warm lamp glow'
+    layout + ', the exact same room shown at night, warm interior lamp lighting, city lights softly visible through the window, cozy evening atmosphere, NO daylight'
   , 'Room — Night');
   G.apartment.livingNightUrl = url;
 }
@@ -1984,6 +2000,12 @@ function buildDayOpts() {
     const actLabel = getScriptedLabel(ev, G.day, lang);
     const actSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
     opts.appendChild(makeOpt(actLabel, actSub, 'work', () => playScripted(G.day)));
+    // 今日行程已固定，用灰色空占位保持3个选项的视觉高度，不再让唯一按钮撑满整屏
+    for (let i = 0; i < 2; i++) {
+      const lockedBtn = makeOpt('—', '', 'locked', null);
+      lockedBtn.disabled = true;
+      opts.appendChild(lockedBtn);
+    }
   } else {
     const workOps = getWorkOps(lang); const socOps = getSocOps(lang);
     const shuffle = a => [...a].sort(() => Math.random()-0.5);
@@ -2085,7 +2107,12 @@ async function startScriptedScene(day, ev) {
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   // Load image in background
   genNPCPortrait(ev.npc, day, ev.location).then(url => {
-    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+    if (url) {
+      document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+      // 剧情场景没有像经纪人/女主那样的三选一确认步骤，图片一生成就直接存入回忆
+      G.gallery.push({ url, label: getNPCName(ev.npc) });
+      STATE.save.saveGame();
+    }
   });
   // Show Continue button to start dialogue
   const contLabel = lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
@@ -2320,7 +2347,7 @@ async function goEvening() {
       if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
       G.phone.messages[G.day].push({
         npc:'agent', name:eveAgentName, text:msgTxt.trim(),
-        isVoice:false, emoji:'👔', color:'#C4A882',
+        isVoice:false, emoji:'👔', color:'#C4A882', day: G.day,
         time:(22+Math.floor(Math.random()*2))+':'+Math.floor(Math.random()*59).toString().padStart(2,'0')
       });
       G.phone.unreadCount = (G.phone.unreadCount||0)+1;
@@ -2467,6 +2494,7 @@ async function generateAffinityMessages(day) {
           emoji: NPC_UI[npcKey]?.emoji || '💬',
           color: NPC_UI[npcKey]?.color || '#C4A882',
           time: Math.floor(Math.random()*4+18) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0'),
+          day: day,
           isProactive: true,
           tier,
           occasion: occasion?.key || (isBirthday?'birthday':null),
@@ -2509,7 +2537,7 @@ async function generatePhoneContent() {
     const isVoice = Math.random() > 0.65;
     const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name, 'Send a ' + (isVoice?'voice message transcript':'text message') + ' today.');
     const txt = await claude(memCtx + '\n\n1-2 sentences, natural. No quotes.');
-    msgs.push({ npc, name: getNPCName(npc), text: txt.trim(), isVoice, emoji: NPC_UI[npc]?.emoji||'💬', color: NPC_UI[npc]?.color||'#C4A882', rel: G.npcs[npc].relationship, time: (8+G.day) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0') });
+    msgs.push({ npc, name: getNPCName(npc), text: txt.trim(), isVoice, emoji: NPC_UI[npc]?.emoji||'💬', color: NPC_UI[npc]?.color||'#C4A882', rel: G.npcs[npc].relationship, day: G.day, time: Math.floor(Math.random()*10+9) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0') });
     // Record in memory
     STATE.memory.addEvent(npc, 'Sent phone message: "' + txt.trim().slice(0,50) + '"', G.day);
   }
@@ -2563,7 +2591,7 @@ function showWCTab(tab) {
         el.className = 'wc-chat-item';
         el.innerHTML = '<div class="wc-avatar" style="background:' + (m.color||'#C4A882') + '33">' + (m.emoji||'💬') + '</div>' +
           '<div class="wc-chat-info"><div class="wc-chat-name">' + (m.name||'') + '</div><div class="wc-chat-preview">' + (m.isVoice?'🎵 '+(isZh?'[语音消息]':'[Voice message]'):(m.text||'').slice(0,40)) + '</div></div>' +
-          '<div class="wc-chat-meta"><div class="wc-chat-time">' + (m.time||'') + '</div><div class="wc-unread">1</div></div>';
+          '<div class="wc-chat-meta"><div class="wc-chat-time">' + formatMsgTimestamp(m) + '</div>' + (m.read?'':'<div class="wc-unread">1</div>') + '</div>';
         if(m.npc) el.onclick = (function(npc){return function(){openWCChat(npc);};})(m.npc);
         content.appendChild(el);
       });
@@ -2609,7 +2637,26 @@ function showWCTab(tab) {
   }
 }
 
+function updatePhoneBadge() {
+  const allMsgs = {};
+  try { Object.values(G.phone.messages||{}).flat().filter(Boolean).forEach(m => { if(m&&m.npc) allMsgs[m.npc] = m; }); } catch(e){}
+  const unreadThreads = Object.values(allMsgs).filter(m => !m.read).length;
+  G.phone.unreadCount = unreadThreads;
+  const badge = document.getElementById('phone-badge');
+  if (badge) { badge.textContent = unreadThreads; badge.classList.toggle('show', unreadThreads > 0); }
+}
+
+function formatMsgTimestamp(m) {
+  if (!m) return '';
+  if (m.day == null || m.day === G.day) return m.time || '';
+  return getGameDate(m.day) + ' ' + (m.time || '');
+}
+
 function openWCChat(npc) {
+  // 标记该NPC全部消息为已读，更新未读徽章
+  Object.values(G.phone.messages||{}).flat().forEach(m => { if (m && m.npc === npc) m.read = true; });
+  updatePhoneBadge();
+  STATE.save.saveGame();
   const npcName = getNPCName(npc);
   document.getElementById('chat-name').textContent = npcName;
   const chatTime = new Date();
@@ -2632,8 +2679,12 @@ function openWCChat(npc) {
       };
       wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div>';
       wrap.appendChild(voiceEl);
+      var voiceTimeEl = document.createElement('div');
+      voiceTimeEl.className = 'wc-bubble-time';
+      voiceTimeEl.textContent = formatMsgTimestamp(m);
+      wrap.appendChild(voiceTimeEl);
     } else {
-      wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div><div class="wc-bubble">' + m.text + '</div>';
+      wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div><div><div class="wc-bubble">' + m.text + '</div><div class="wc-bubble-time">' + formatMsgTimestamp(m) + '</div></div>';
     }
     chatMsgs.appendChild(wrap);
   });
@@ -2741,7 +2792,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.43 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.44 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

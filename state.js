@@ -51,6 +51,7 @@ const STATE = {
       livingDayUrl: null,
       livingNightUrl: null,
       selectedStyle: null,
+      selectedLayout: null,
     },
 
     // 日历（日期字符串 'YYYY-MM-DD' -> 当天事件数组）
