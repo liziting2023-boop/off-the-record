@@ -53,6 +53,11 @@ const STATE = {
       selectedStyle: null,
     },
 
+    // 日历（日期字符串 'YYYY-MM-DD' -> 当天事件数组）
+    calendar: {
+      events: {},
+    },
+
     // 每个NPC独立存储（互不干扰）
     npcs: {
       agent: {

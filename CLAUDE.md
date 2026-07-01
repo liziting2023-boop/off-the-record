@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.40** |
+| 当前版本 | **v10.41** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -159,6 +159,9 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **[v10.40]** 修复相册自动存图 Bug（改为确认时才存）
 - **[v10.40]** 修复对话框遮挡 NPC（调整遮罩渐变 + 选项高度上限）
 - **[v10.40]** NPC 外形更新（身高、管家改便服）
+- **[v10.41]** 修复 Day 1 卡住无法开始游戏的严重 Bug（`G.calendar.events` 从未初始化，导致 `startDay()` 在切换画面前就报错崩溃）
+- **[v10.41]** 加固 `startDay()`：AI 文案请求失败时不再卡死，正常显示当日选项
+- **[v10.41]** 修复日期显示（Mar 15）与日历内部日期（Mar 1）不一致的问题，统一为 3 月 1 日开局
 
 ---
 
