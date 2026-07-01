@@ -66,6 +66,7 @@ const STATE = {
         origin: null,        // 玩家选择的族裔
         name: null,          // AI生成的名字
         portraitUrl: null,   // 玩家选择的肖像
+        portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
         relationship: 30,    // 初始好感度：合约关系，有基础但有距离
         met: false,          // 是否已相遇
         // 记忆系统：记录发生过的事
@@ -77,6 +78,7 @@ const STATE = {
         origin: null,
         name: null,
         portraitUrl: null,
+        portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
         relationship: 35,    // 初始好感度：傲慢外表下已经注意到她了
         met: false,
         memory: [],
@@ -86,6 +88,7 @@ const STATE = {
         origin: null,
         name: null,
         portraitUrl: null,
+        portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
         relationship: 15,    // 初始好感度：魅力攻势，一见就撩
         met: false,
         memory: [],
@@ -95,6 +98,7 @@ const STATE = {
         origin: null,
         name: null,
         portraitUrl: null,
+        portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
         relationship: 0,     // 初始好感度：完全陌生，背景出现
         met: false,
         memory: [],
@@ -104,6 +108,7 @@ const STATE = {
         origin: null,
         name: null,
         portraitUrl: null,
+        portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
         relationship: 20,    // 初始好感度：温暖亲切，一见如故
         met: false,
         memory: [],

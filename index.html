@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.46"></script>
-<script src="state.js?v=10.46"></script>
+<script src="story.js?v=10.47"></script>
+<script src="state.js?v=10.47"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -358,7 +358,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.46</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.47</p>
   </div>
 </div>
 
@@ -1022,7 +1022,9 @@ async function genNPCPortrait(npcKey, day, locKey) {
 
   if (detShadow) prompt += detShadow;
 
-  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2);
+  // 每个NPC固定一个 seed（首次生成时随机分配，之后一直复用），减少不同天生成时长相不一致
+  if (!G.npcs[npcKey].portraitSeed) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
+  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed);
 }
 
 async function genProtagonistScene(locKey, day) {
@@ -1700,6 +1702,8 @@ function selProto(opt) {
 // ══════════════════════════════════════════════════════
 // AGENT REVEAL
 // ══════════════════════════════════════════════════════
+let _agentSeed = null;
+
 async function genAgent() {
   go('s-agent-reveal');
   const origin = G.npcs.agent.origin || 'American';
@@ -1727,10 +1731,10 @@ async function genAgent() {
       'side profile turning toward camera, city night through window, cinematic',
     ];
     // 同一批候选图共用一个 seed，保证美术风格一致，只有角度/姿势不同
-    const seed = Math.floor(Math.random() * 1000000);
-    const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A', false, 2, seed); setTrio('aga', a);
-    const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B', false, 2, seed); setTrio('agb', b);
-    const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C', false, 2, seed); setTrio('agc', c);
+    _agentSeed = Math.floor(Math.random() * 1000000);
+    const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A', false, 2, _agentSeed); setTrio('aga', a);
+    const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B', false, 2, _agentSeed); setTrio('agb', b);
+    const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C', false, 2, _agentSeed); setTrio('agc', c);
   } else {
     // DEV: replace CREATING with name initial
     ['aga','agb','agc'].forEach(id => {
@@ -1755,6 +1759,8 @@ function selAgent(opt) {
   const el = document.getElementById('ag'+opt);
   const imgEl = el?.querySelector('img');
   if (imgEl) { G.npcs.agent.portraitUrl = imgEl.src; }
+  // 记住这批候选图的 seed，之后所有场景生图都复用，保持形象一致
+  G.npcs.agent.portraitSeed = _agentSeed;
   document.getElementById('btn-agent-ok').style.visibility = 'visible';
 }
 
@@ -2797,7 +2803,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.46 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.47 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
