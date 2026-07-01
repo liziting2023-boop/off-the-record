@@ -31,6 +31,7 @@ const STATE = {
     fame: 5,
     daysWithoutWork: 0,
     publicSceneCount: 0, // 侦探出现计数
+    today: null, // 今天做了什么（{label, isWork, npc}），供晚间消息等引用，每天开始时重置
 
     // 玩家设定（与NPC完全独立）
     player: {

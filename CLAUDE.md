@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.48** |
+| 当前版本 | **v10.49** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -192,6 +192,14 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **[v10.47]** 男性 NPC 形象一致性（同 v10.46 思路）：经纪人在三选一确认头像时存 `G.npcs.agent.portraitSeed`；鼓手/男演员/管家/侦探没有确认步骤，改为在 `genNPCPortrait()` 里首次生成时随机分配一个 seed 并存下来，之后每次出场（不同 Day）都复用同一 seed
 - **[v10.48]** 修复晚间"收到新消息"卡片点击后未读红点不清除：该卡片 onclick 之前是 `openPhone()`（只跳到消息首页），没有像正常聊天列表项一样调用 `openWCChat(npc)`，而只有后者才会标记已读、更新 `phone-badge`。改为直接 `openWCChat('agent')`
 - **[v10.48]** 修复手机消息内容和时间戳逻辑矛盾：`generatePhoneContent()` 里消息文案（AI生成）和发送时间（随机数）此前完全独立生成，AI不知道自己"几点发的"，可能写出"9点改8点"这种时间性内容，却被随机分配到 9:45 这种早已过期的时间戳。现在先生成时间再喂给AI，并明确要求不要编造可能对不上的日程/时间变更内容
+- **[v10.49] 严重bug修复**：`playFree()` 函数此前在全代码库里完全没有定义，但 `buildDayOpts()` 里所有非剧情固定天（Day6之后绝大部分日子）的每日选项点击后都会调用它——也就是说游戏进入自由日后点任何选项都会直接报错卡死。现已补全实现
+- **[v10.49]** 修复首页/日历星期计算不一致：`startDay()` 之前用硬编码公式"Day1=周一"算星期，日历用真实 `Date` 对象算星期，两者对不上（如日历里3月3日是周日，首页却显示周三）。统一改用真实 `Date` 对象计算（新增 `getGameWeekday()`/`isGameWeekend()`），顺带让游戏内星期和现实2024年3月的日历完全对齐
+- **[v10.49]** 工作日/周末自由日选项差异化：`buildDayOpts()` 非剧情天现在周末（周六/周日）只显示3个休闲/社交选项，不出现工作选项；周一至周五保持"1工作+2社交"
+- **[v10.49]** 每日/晚间界面改为客厅照片全屏背景：`.daily-room`/`.eve-room` 改为 `position:absolute` 铺满整个屏幕，叠加渐变遮罩保证文字可读，选项/消息卡片改为固定高度紧凑排列（不再用 `flex:1` 撑满剩余空间）
+- **[v10.49]** 鼓手（以及男演员、管家）登场统一改为"先展示过渡独白介绍这个NPC，再问族裔"，不再像之前那样一上来就弹出"你觉得他是哪里人"的选择框。原本这个处理只对男演员做了（`startScriptedSceneWithLateOrigin`），现在对所有 `needsOriginBefore` 的NPC统一生效
+- **[v10.49]** 晚间AI消息内容会引用当天实际发生的剧情（新增 `G.today = {label, isWork, npc}`，在 `startScriptedScene`/`playFree`/`playScheduledEvent` 里统一记录），避免出现"当天明明去了录音室，晚上却收到消息说试镜表现很好"这种前后矛盾
+- **[v10.49]** 手机未读徽章健壮性修复：之前有3处独立用 `G.phone.unreadCount += 1` 这种手动累加的方式维护未读数，和 `updatePhoneBadge()` 按"未读会话数"重新计算的方式是两套不同逻辑，容易产生偏差导致徽章清不干净。统一改为都调用 `updatePhoneBadge()` 重新计算真实状态；晚间"收到新消息"卡片也改为确认真的有新消息才显示
+- **[v10.49] 新功能**：NPC消息可以提前安排未来1-5天的工作活动（如"3天后彩排"），AI用结构化JSON返回 `{text, event:{daysFromNow, title}}`，自动写入日历（`source:'npc_message'`），到了那天会在当日选项里优先显示为"今日剧情"（新增 `playScheduledEvent()`），点击后带出对应NPC的场景
 
 ---
 
