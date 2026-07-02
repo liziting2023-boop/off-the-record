@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.57** |
+| 当前版本 | **v10.58** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -269,6 +269,10 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **新地点**：菜场/超市/美容院/美发店/商场；**美发店可改发型发色**→原seed重生成头像并更新形象+存回忆
 - Day1 preText改热情迎接（4语言）；"男演员"→"演员"；对话结束旁白时双头像隐藏；new-day音效改柔和琶音（原来像口哨）
 - 待开发新增：官宣假新闻页UI（点开消息里的链接卡看全文）、家具店购买家具重新装修
+
+**v10.58**：
+- 卧室三选一的 B 张改为 `BEDROOM_LAYOUT_B`（用户指定：长方形卧室、中央双人床、两侧对称床头柜+窗户、床上吊灯、右侧梳妆台竖镜、床尾脚凳、左下角单人椅、大地毯）；A/C 仍为小户型书房一体，B 的灯光mood同步改为双床头灯而非书桌灯
+- 美术风格一致性核查结论（无代码问题）：`img()` 对所有图统一在最前面加 `STATE.imagePrompts.styles[G.imgStyle]`（默认illustrated）前缀，各 `build*Prompt` 均不自带画风词，所以**不改设置时全部NPC含管家画风完全一致**。管家看起来偏卡通是**内容描述词**导致（年龄20最小、slim youthful build、"innocent features, slightly flushed cheeks"、默认Korean族裔）把同一画风带偏，非风格设置不一致。若仍要弱化：删管家prompt里的"slightly flushed cheeks / innocent features"、把年龄措辞再成熟化
 
 ## 9. 待开发（优先顺序）
 

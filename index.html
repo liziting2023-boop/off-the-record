@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.57"></script>
-<script src="state.js?v=10.57"></script>
+<script src="story.js?v=10.58"></script>
+<script src="state.js?v=10.58"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -426,7 +426,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.57</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.58</p>
   </div>
 </div>
 
@@ -2000,16 +2000,18 @@ let _bedroomDone = false;
 async function genBedrooms() {
   go('s-bedroom');
   if (_bedroomDone) return;
+  // A/C = 小户型书房一体（不同灯光氛围），B = 长方形双人床卧室（用户指定布局）
+  const layouts = [BEDROOM_LAYOUT, BEDROOM_LAYOUT_B, BEDROOM_LAYOUT];
   const moods = [
     'warm amber bedside lamp glow, soft and intimate',
-    'cool moonlight through the window mixed with a small warm desk lamp',
+    'symmetrical warm table lamps on both nightstands plus the pendant light above the bed, soft ambient home glow',
     'string fairy lights along the bookshelf, dreamy cozy glow',
   ];
   const seed = Math.floor(Math.random() * 1000000);
   const ids = { a:'bra-ph', b:'brb-ph', c:'brc-ph' };
   const keys = ['a','b','c'];
   for (let i = 0; i < 3; i++) {
-    const url = await img(BEDROOM_LAYOUT + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + moods[i] + ', NO sunset, NO orange sky, NO daylight, no people', 'Bedroom ' + keys[i], false, 2, seed);
+    const url = await img(layouts[i] + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + moods[i] + ', NO sunset, NO orange sky, NO daylight, no people', 'Bedroom ' + keys[i], false, 2, seed);
     if (url) { _bedroomUrls[keys[i]] = url; setRCard('br'+keys[i], ids[keys[i]], url, keys[i]); }
   }
   _bedroomDone = true;
@@ -2025,6 +2027,8 @@ function selBedroom(opt) {
 
 // 晚间卧室固定布局（用户指定）：小户型卧室书房一体，左墙衣柜+书桌+一体单人床+窗户
 const BEDROOM_LAYOUT = 'compact bedroom-study combo room, rectangular layout, full-height floor-to-ceiling wardrobe covering the entire left wall, a desk against the wall to the right of the wardrobe with a three-drawer mobile cabinet under its right side and a study chair in front, the desk connects to the single bed forming an integrated layout, single bed along the right wall with storage drawers underneath, bed directly below the window, two-tier open wall-mounted bookshelf above the desk filled with books folders and storage boxes, photo board on the wall behind the desk, large framed window with curtains in the middle of the right wall, green plants visible outside the window, wooden floor, compact space with ample storage, combined study and rest area';
+// 卧室布局B（用户指定）：长方形卧室，中央双人床，两侧对称床头柜+窗户，床上吊灯，右侧梳妆台竖镜，床尾脚凳，左下角单人椅，大地毯
+const BEDROOM_LAYOUT_B = 'rectangular bedroom, a double bed centered against the back wall with its headboard against the wall, a symmetrical matching nightstand on each side of the bed, two windows with sheer curtains flanking the bed on both sides, a pendant chandelier hanging directly above the bed, on the right side a dressing table with a large tall standing floor mirror and a stool, a round upholstered ottoman footstool at the foot of the bed on the right side, a single lounge accent armchair in the lower-left corner, a large area rug covering the floor, richly layered multi-piece furniture arrangement, warm cozy home interior lighting';
 
 async function preGenNight() {
   // 晚间界面用卧室而不是客厅夜景：客厅夜景每次生成摆设都和白天对不上，卧室用固定布局提示词
@@ -4253,7 +4257,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.57 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.58 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
