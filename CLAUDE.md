@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.61** |
+| 当前版本 | **v10.62** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -298,6 +298,11 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **Worker 端需配合改**（Cloudflare Dashboard → off-the-record-api → /image 路由）：
   `const ALLOWED=['fal-ai/flux/schnell','fal-ai/flux/dev']; const model=ALLOWED.includes(body.model)?body.model:'fal-ai/flux/schnell';` 然后用 `https://fal.run/${model}` 转发（原来是写死 schnell 的URL）。Worker未更新时游戏发的 model 字段被忽略，不影响现网
 - 交接文档确认：无 Cloudflare 凭证（只有 GitHub token），Worker 只能用户手动在 Dashboard 改
+
+**v10.62：官宣新闻页 + 家具店装修（清掉两项待开发）**：
+- **官宣新闻页**：早晨消息JSON新增`news`字段（极少用，仅官方公告/报道）→聊天里显示"📰 DAILY ENCORE"报道卡片→点开全屏假新闻页（报头/标题/日期/配图/正文，`#news-overlay`+`openNewsPage()`），配图复用消息的image字段生成
+- **家具店装修**：休息类新增"逛家具店"（`furniture_store`地点）→到店后可选三种客厅风格（现代简约/温馨软装/复古混搭=LIVING_LAYOUT A/B/C）→重新生成客厅白天图并更新`livingDayUrl/selectedLayout/selectedStyle`+存回忆，或"只是逛逛"
+- Cloudflare Worker 仍需用户手动改（凭证获取方式已告知用户：API Token "Edit Cloudflare Workers" 模板 + Account ID）
 
 ## 9. 待开发（优先顺序）
 

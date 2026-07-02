@@ -318,6 +318,11 @@ const STORY = {
       isPublic: true,
       composition: 'peaceful city park, tree-lined walking path, benches and a small pond, dappled sunlight through leaves',
     },
+    furniture_store: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'cozy furniture showroom, staged living room displays with sofas lamps and rugs, warm inviting retail lighting',
+    },
   },
 
   // ══════════════════════════════════════════════════════

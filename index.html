@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.61"></script>
-<script src="state.js?v=10.61"></script>
+<script src="story.js?v=10.62"></script>
+<script src="state.js?v=10.62"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -346,7 +346,15 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#C4847A,#E8A0A8);transition:width 0.5s ease;z-index:200;opacity:0.4;}
 .back-btn{position:fixed;top:12px;left:14px;font-size:10px;letter-spacing:2px;color:var(--text-mid);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:6px;min-height:40px;}
 .sind{position:fixed;top:14px;right:14px;font-size:9px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;z-index:200;}
-/* 来电界面 */
+/* 官宣新闻页 */
+#news-overlay{position:fixed;inset:0;z-index:410;background:#faf7f2;overflow-y:auto;}
+.news-page{max-width:520px;margin:0 auto;padding:0 18px 40px;}
+.news-masthead{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:3px double #2a2320;font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:4px;font-size:15px;color:#2a2320;}
+.news-close{border:none;background:none;font-size:18px;cursor:pointer;color:#2a2320;}
+.news-headline{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;line-height:1.4;color:#1d1815;margin:18px 0 6px;}
+.news-meta{font-size:11px;letter-spacing:1px;color:#8a8078;margin-bottom:14px;}
+#news-img{width:100%;border-radius:6px;display:block;margin-bottom:14px;cursor:pointer;}
+.news-body{font-size:14px;line-height:1.9;color:#2f2a26;white-space:pre-wrap;}
 #call-overlay{position:fixed;inset:0;z-index:420;background:linear-gradient(180deg,#1a1228 0%,#33203f 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
 .call-card{width:min(88vw,380px);text-align:center;color:rgba(255,240,245,0.95);}
 #call-avatar{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.4);margin-bottom:14px;background:#241a28;}
@@ -426,7 +434,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.61</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.62</p>
   </div>
 </div>
 
@@ -767,6 +775,17 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
       <button class="btn-p" onclick="nextDay()" id="btn-sleep" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);min-width:200px;z-index:10;box-shadow:0 4px 20px rgba(180,80,100,0.3)">入睡 · 下一天</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ 官宣新闻页（点开消息里的报道卡片阅读全文） ══ -->
+<div id="news-overlay" style="display:none">
+  <div class="news-page">
+    <div class="news-masthead"><span>DAILY ENCORE</span><button class="news-close" onclick="document.getElementById('news-overlay').style.display='none'">✕</button></div>
+    <div class="news-headline" id="news-headline"></div>
+    <div class="news-meta" id="news-meta"></div>
+    <img id="news-img" src="" alt="" style="display:none" onclick="openLB(this.src)">
+    <div class="news-body" id="news-body"></div>
   </div>
 </div>
 
@@ -2687,6 +2706,7 @@ function getLeisureOps(lang) {
     { key:'beauty_salon',  label:isZh?'美容院':lang==='ja'?'エステサロン':lang==='ko'?'피부관리실':'Beauty Salon' },
     { key:'hair_salon',    label:isZh?'美发店':lang==='ja'?'ヘアサロン':lang==='ko'?'미용실':'Hair Salon' },
     { key:'bookshop',      label:isZh?'书店':lang==='ja'?'書店':lang==='ko'?'서점':'Bookshop' },
+    { key:'furniture_store',label:isZh?'逛家具店':lang==='ja'?'家具店':lang==='ko'?'가구점':'Furniture Store' },
   ];
 }
 
@@ -2741,6 +2761,9 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   // 美发店：可以改发型/发色，改完用原seed重新生成头像并更新形象
   if (key === 'hair_salon' && !thenScripted) {
     renderHairSalonOpts();
+  } else if (key === 'furniture_store' && !thenScripted) {
+    // 家具店：可以给客厅换新布置（重新生成客厅图）
+    renderFurnitureOpts();
   } else {
     const btn = document.createElement('button');
     btn.className = 'vn-next';
@@ -2751,6 +2774,47 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   }
 
   STATE.save.saveGame();
+}
+
+// ── 家具店：选新客厅风格 → 重新生成客厅图并替换（白天图；夜晚卧室不受影响）──
+function renderFurnitureOpts() {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const vopts = document.getElementById('vn-opts');
+  vopts.innerHTML = '';
+  const head = document.createElement('div');
+  head.className = 'vn-quick-label';
+  head.textContent = isZh?'看中了几套搭配……要给客厅换个新布置吗？':'Fancy a new look for your living room?';
+  vopts.appendChild(head);
+  const styles = [
+    [LIVING_LAYOUT,   isZh?'现代简约':'Modern minimal',  'Romantic Minimalist, cozy modest apartment'],
+    [LIVING_LAYOUT_B, isZh?'温馨软装':'Cozy & warm',     'warm budget-friendly rental apartment'],
+    [LIVING_LAYOUT_C, isZh?'复古混搭':'Eclectic vintage','eclectic thrifted rental apartment'],
+  ];
+  const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Tokyo':'Tokyo Tower and Shinjuku neon skyline', 'Seoul':'N Seoul Tower and Han River bridges', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
+  const lm = cityLandmarks[G.player.city] || 'city skyline';
+  styles.forEach(function(st) {
+    const el = document.createElement('div');
+    el.className = 'vn-opt';
+    el.textContent = '🛋️ ' + st[1];
+    el.onclick = async function() {
+      vopts.innerHTML = '<div class="gt" style="margin:6px auto">Redecorating<span class="loading-dots"></span></div>';
+      const url = await img(st[0] + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance', 'Room redecorated');
+      if (url) {
+        G.apartment.livingDayUrl = url;
+        G.apartment.selectedLayout = st[0];
+        G.apartment.selectedStyle = st[2];
+        G.gallery.push({ url, label: (isZh?'新客厅 · 第'+G.day+'天':'New living room · Day '+G.day) });
+        STATE.save.saveGame();
+      }
+      goEvening();
+    };
+    vopts.appendChild(el);
+  });
+  const skip = document.createElement('div');
+  skip.className = 'vn-opt';
+  skip.textContent = isZh?'只是逛逛，什么都不买':'Just browsing';
+  skip.onclick = () => goEvening();
+  vopts.appendChild(skip);
 }
 
 // ── 美发店：选新发型/发色 → 用原seed重生成女主头像 ──
@@ -3834,15 +3898,16 @@ async function generatePhoneContent() {
       'Most days, keep it to mood, opinions, casual remarks, or things that already happened — do NOT invent a schedule. ' +
       'ONLY if it fits naturally, you may mention ONE upcoming work plan (e.g. rehearsal, session, meeting) happening 1-5 days from now, but if you do, you MUST also fill in the "event" field below so it can be tracked consistently — never mention a new time/plan in the text without also filling "event". ' +
       'Work NEVER happens on weekends (Saturday/Sunday): today is ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][getGameWeekday(G.day)] + ', so choose daysFromNow that lands on a weekday and word the message to match that exact day.\n\n' +
-      'Respond with ONLY valid JSON, no markdown fences: {"text": "the message, 1-2 sentences", "event": null or {"daysFromNow": <integer 1-5>, "title": "short event title", "locationKey": one of "recording_studio"|"music_training"|"cafe_meeting"|"art_gallery"|"night_bar", pick whichever best fits the event}, "image": null or "short ENGLISH photo description, RARE — only when you would naturally attach a photo (e.g. a news announcement screenshot about her, a scene you saw)"}'
+      'Respond with ONLY valid JSON, no markdown fences: {"text": "the message, 1-2 sentences", "event": null or {"daysFromNow": <integer 1-5>, "title": "short event title", "locationKey": one of "recording_studio"|"music_training"|"cafe_meeting"|"art_gallery"|"night_bar", pick whichever best fits the event}, "image": null or "short ENGLISH photo description, RARE — only when you would naturally attach a photo (e.g. a news announcement screenshot about her, a scene you saw)", "news": null or {"headline":"press headline about her", "body":"2-3 short paragraphs of the article, in ' + G.langName + '"} — VERY RARE, only when sharing an official announcement/press piece about her career (then also fill image with a fitting cover photo description)}'
     );
     const raw = await claude(memCtx);
-    let txt = '', scheduledEvent = null, imageDesc = null;
+    let txt = '', scheduledEvent = null, imageDesc = null, newsInfo = null;
     try {
       const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
       txt = (parsed.text || '').trim();
       scheduledEvent = parsed.event || null;
       imageDesc = parsed.image || null;
+      newsInfo = (parsed.news && parsed.news.headline) ? parsed.news : null;
     } catch (e) {
       txt = raw.trim(); // JSON 解析失败就当纯文本兜底，不阻断消息生成
     }
@@ -3851,6 +3916,11 @@ async function generatePhoneContent() {
     // NPC附带照片（官宣截图/看到的场景等）：生成图片挂到消息上
     if (imageDesc && typeof imageDesc === 'string') {
       try { const iu = await img(imageDesc.slice(0,180) + ', casual phone photo style', 'msg-photo'); if (iu) msgObj.imgUrl = iu; } catch(e) {}
+    }
+    // 官宣/报道：聊天里显示报道卡片，点开进假新闻页阅读全文（配图复用上面生成的图）
+    if (newsInfo) {
+      msgObj.news = { headline: String(newsInfo.headline).slice(0,80), body: String(newsInfo.body||'').slice(0,1200), imgUrl: msgObj.imgUrl || null, day: G.day };
+      delete msgObj.imgUrl; // 图片放进新闻页里，聊天里只显示卡片
     }
     msgs.push(msgObj);
     // Record in memory
@@ -4033,6 +4103,16 @@ function formatMsgTimestamp(m) {
 // 当前打开的聊天会话（用于：新消息到达时若正在看这个会话就直接标记已读）
 var _openChatNpc = null;
 
+// 打开官宣新闻全文页
+function openNewsPage(news) {
+  document.getElementById('news-headline').textContent = news.headline || '';
+  document.getElementById('news-meta').textContent = getGameDate(news.day || G.day) + ' · Entertainment';
+  var ni = document.getElementById('news-img');
+  if (news.imgUrl) { ni.src = news.imgUrl; ni.style.display = 'block'; } else { ni.style.display = 'none'; }
+  document.getElementById('news-body').textContent = news.body || '';
+  document.getElementById('news-overlay').style.display = 'block';
+}
+
 function scrollChatBottom() {
   var content = document.getElementById('chat-msgs').parentElement;
   if (!content) return;
@@ -4080,6 +4160,16 @@ function renderChatMsgs(npc, dividerIdx) {
       };
       col.appendChild(voiceEl);
       col.appendChild(tr);
+    } else if (m.news) {
+      // 官宣/报道卡片：点开阅读全文（假新闻页）
+      var ncard = document.createElement('div');
+      ncard.className = 'wc-bubble';
+      ncard.style.cssText = 'cursor:pointer;border-left:3px solid var(--rose)';
+      ncard.innerHTML = '<div style="font-size:10px;letter-spacing:2px;color:var(--text-mid);margin-bottom:4px">📰 DAILY ENCORE</div>' +
+        '<div style="font-weight:600">' + (m.news.headline || '') + '</div>' +
+        '<div style="font-size:11px;color:var(--text-mid);margin-top:4px">' + ((G.lang==='zh-cn'||G.lang==='zh-tw')?'点击阅读全文 ›':'Tap to read ›') + '</div>';
+      ncard.onclick = (function(nn){ return function(){ openNewsPage(nn); }; })(m.news);
+      col.appendChild(ncard);
     } else if (m.imgUrl) {
       // 图片消息（官宣截图/照片等）：文字+图
       var ibubble = document.createElement('div');
@@ -4485,7 +4575,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.61 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.62 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
