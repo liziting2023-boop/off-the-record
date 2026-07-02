@@ -45,7 +45,7 @@ const STORY = {
 
     // 根据游戏天数获取当前日期（从3月15日开始）
     getGameDate(day) {
-      const start = new Date(2024, 2, 1); // March 1
+      const start = new Date(2027, 2, 1); // March 1, 2027 = Monday（与 index.html 的起始日期保持一致）
       const current = new Date(start);
       current.setDate(start.getDate() + day - 1);
       return { month: current.getMonth() + 1, day: current.getDate() };

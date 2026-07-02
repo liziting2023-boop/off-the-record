@@ -147,11 +147,11 @@ const requiredFunctions = [
   'function openPhone(', 'function renderFame(', 'function renderGallery(',
   'function playScripted(', 'function playFree(', 'function runVNDialog(',
   'function startSigningScene(', 'function showWCTab(',
-  'function openWCChat(', 'function getDetShadow('
+  'function openWCChat(', 'getDetectiveShadow(' // 侦探背影函数已移入 state.js 的 STATE.imagePrompts
 ];
 requiredFunctions.forEach(fn => {
   check(`函数存在: ${fn.replace('function ', '').replace('(', '')}`,
-    html.includes(fn));
+    allCode.includes(fn));
 });
 
 // ══ 11. 城市和NPC设定 ══

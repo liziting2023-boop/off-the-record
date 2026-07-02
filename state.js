@@ -61,6 +61,9 @@ const STATE = {
       events: {},
     },
 
+    // 场景背景图缓存（'locKey|风格' -> url）：NPC立绘固定后，场景只换背景，背景可复用
+    bgCache: {},
+
     // 每个NPC独立存储（互不干扰）
     npcs: {
       agent: {
@@ -497,8 +500,14 @@ Stay completely in character. Let your cultural background subtly influence how 
         const saved = localStorage.getItem(this.KEY);
         if (!saved) return false;
         const parsed = JSON.parse(saved);
-        // 深合并，保留新字段的默认值
-        STATE.data = this._deepMerge(STATE.data, parsed);
+        // 深合并，保留新字段的默认值。
+        // ⚠️ 必须原地合并（不能 STATE.data = merged 替换引用）：index.html 里
+        // `const G = STATE.data` 在脚本解析时就捕获了引用，替换引用会导致 G 和
+        // STATE.data 指向两个不同对象——游戏主逻辑(G)永远是新档，而好感度/记忆
+        // (STATE.data)却载入了旧档，进度既救不回来也存不进去（v10.51 修复）
+        const merged = this._deepMerge(STATE.data, parsed);
+        Object.keys(STATE.data).forEach(k => delete STATE.data[k]);
+        Object.assign(STATE.data, merged);
         return true;
       } catch (e) {
         console.warn('Load failed:', e);
@@ -527,9 +536,21 @@ Stay completely in character. Let your cultural background subtly influence how 
   // 初始化
   // ══════════════════════════════════════════════════════
   init() {
+    // 先快照一份纯净默认值（loadGame 之前），供"新的开始"重置用
+    this._defaults = JSON.parse(JSON.stringify(this.data));
     // 尝试加载存档
     this.save.loadGame();
     return this;
+  },
+
+  // 重置为全新游戏状态（清除存档 + 原地恢复默认值）
+  // 注意：index.html 里 `const G = STATE.data` 是直接引用，
+  // 所以必须原地清空再填充，不能整体替换 this.data
+  reset() {
+    const fresh = JSON.parse(JSON.stringify(this._defaults || this.data));
+    Object.keys(this.data).forEach(k => delete this.data[k]);
+    Object.assign(this.data, fresh);
+    this.save.clearSave();
   },
 };
 

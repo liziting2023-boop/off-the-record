@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.50"></script>
-<script src="state.js?v=10.50"></script>
+<script src="story.js?v=10.51"></script>
+<script src="state.js?v=10.51"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -123,6 +123,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .vn-bg-ph{position:absolute;inset:0;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);z-index:0;display:flex;align-items:center;justify-content:center;}
 .vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;}
+/* NPC固定立绘卡片：玩家确认过的形象，压在场景背景之上、对话框之下（保证同一NPC每次长一样） */
+.vn-npc-card{position:absolute;top:7%;left:50%;transform:translateX(-50%);z-index:1;width:min(60vw,290px);border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(15,8,12,0.4);border:3px solid rgba(255,255,255,0.85);cursor:pointer;}
+.vn-npc-card img{width:100%;display:block;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:50vh;overflow-y:auto;}
 .vn-speaker{font-size:12px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
@@ -152,12 +155,12 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .daily-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .daily-room-ph{position:absolute;inset:0;width:100%;height:100%;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
-.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.1) 0%, rgba(255,232,240,0.45) 38%, rgba(255,232,240,0.88) 62%, rgba(255,232,240,0.97) 100%);}
+.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.03) 0%, rgba(255,232,240,0.12) 45%, rgba(255,232,240,0.55) 68%, rgba(255,232,240,0.85) 100%);}
 .daily-wrap{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;pointer-events:none;}
 .daily-wrap > *{pointer-events:auto;}
 .daily-top{flex:0 0 auto;padding:16px 16px 8px;}
-.daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;text-shadow:0 1px 12px rgba(255,255,255,0.6);}
-.daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.9;text-transform:uppercase;margin-top:2px;text-shadow:0 1px 8px rgba(255,255,255,0.6);}
+.daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;text-shadow:0 1px 6px rgba(255,255,255,0.95), 0 2px 18px rgba(255,255,255,0.8);}
+.daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.95;text-transform:uppercase;margin-top:2px;text-shadow:0 1px 5px rgba(255,255,255,0.95), 0 2px 12px rgba(255,255,255,0.8);}
 .daily-nar{flex:0 0 auto;padding:12px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
 .daily-opts{flex:0 0 auto;padding:6px 12px max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;margin-top:auto;margin-bottom:64px;}
 .daily-opt{background:rgba(255,255,255,0.85);border:1.5px solid rgba(196,96,122,0.12);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:var(--text-dark);display:flex;justify-content:space-between;align-items:center;min-height:52px;flex:0 0 auto;transition:all 0.15s;}
@@ -175,7 +178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .eve-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .eve-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .eve-room-ph{position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(160deg,#FFD8E8,#FFE8F0);display:flex;align-items:center;justify-content:center;}
-.eve-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.1) 0%, rgba(255,232,240,0.45) 38%, rgba(255,232,240,0.88) 62%, rgba(255,232,240,0.97) 100%);}
+.eve-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.03) 0%, rgba(255,232,240,0.12) 45%, rgba(255,232,240,0.55) 68%, rgba(255,232,240,0.85) 100%);}
 .eve-content{position:relative;z-index:2;width:100%;height:100%;padding:16px 16px 24px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;overflow-y:auto;pointer-events:none;}
 .eve-content > *{pointer-events:auto;}
 .eve-nar{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--text-dark);line-height:1.7;margin-bottom:8px;}
@@ -224,12 +227,21 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .wc-bubble:not(.mine)::before{left:-5px;border:5px solid transparent;border-right-color:#fff;}
 .wc-bubble.mine::before{right:-5px;border:5px solid transparent;border-left-color:var(--wechat-green);}
 /* Voice bubble */
-.wc-voice{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:4px;cursor:pointer;max-width:160px;}
+.wc-voice{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:4px;cursor:pointer;width:160px;max-width:100%;}
 .wc-voice-icon{font-size:14px;color:#333;}
 .wc-voice-bar{flex:1;height:18px;display:flex;align-items:center;gap:2px;}
 .wc-voice-bar span{display:block;width:3px;border-radius:1px;background:rgba(0,0,0,0.25);}
 .wc-voice-dur{font-size:11px;color:#666;}
-.wc-voice-transcript{display:none;font-size:12px;color:#333;padding:6px 0;line-height:1.5;border-top:1px solid rgba(0,0,0,0.08);margin-top:6px;}
+/* 语音转写文字：独立块显示在播放条下方（放在.wc-voice内部会被flex行挤成一列一字） */
+.wc-voice-transcript{display:none;font-size:13px;color:#333;background:#fff;border-radius:4px;padding:8px 12px;line-height:1.6;margin-top:6px;}
+/* 气泡列容器：语音条+转写+时间纵向排列，宽度和普通气泡一致 */
+.wc-bubble-col{display:flex;flex-direction:column;align-items:flex-start;max-width:68%;}
+.wc-bubble-col .wc-bubble{max-width:100%;}
+/* 聊天输入栏 */
+.wc-input-bar{display:flex;gap:8px;padding:8px 10px;margin-bottom:58px;background:#FFF0F5;border-top:1px solid rgba(196,96,122,0.15);flex-shrink:0;}
+.wc-input-bar input{flex:1;border:1px solid rgba(196,96,122,0.25);border-radius:18px;padding:8px 14px;font-size:13px;font-family:'Jost',sans-serif;background:#fff;color:var(--text-dark);outline:none;}
+.wc-input-bar button{border:none;border-radius:18px;padding:8px 18px;font-size:13px;font-family:'Jost',sans-serif;background:var(--rose);color:#fff;cursor:pointer;flex-shrink:0;}
+.wc-input-bar button:disabled{opacity:0.5;cursor:default;}
 /* Moments (朋友圈) */
 .wc-moment{padding:12px 14px;border-bottom:1px solid rgba(92,31,53,0.08);}
 .wc-moment-header{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px;}
@@ -303,6 +315,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#C4847A,#E8A0A8);transition:width 0.5s ease;z-index:200;opacity:0.4;}
 .back-btn{position:fixed;top:12px;left:14px;font-size:10px;letter-spacing:2px;color:var(--text-mid);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:6px;min-height:40px;}
 .sind{position:fixed;top:14px;right:14px;font-size:9px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;z-index:200;}
+/* 过夜转场：全屏夜幕，压在所有界面（含底部导航）之上 */
+#night-transition{position:fixed;inset:0;z-index:400;background:linear-gradient(180deg,#161228 0%,#251d40 55%,#3d2c52 100%);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .6s ease;pointer-events:none;}
+#night-transition.show{opacity:1;pointer-events:auto;}
+.nt-inner{display:flex;flex-direction:column;align-items:center;}
+.nt-moon{font-size:42px;margin-bottom:20px;filter:drop-shadow(0 0 18px rgba(255,240,200,0.35));animation:ntFloat 3s ease-in-out infinite;}
+@keyframes ntFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.nt-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4.5vw,19px);color:rgba(255,240,245,0.92);line-height:1.9;text-align:center;padding:0 32px;max-width:420px;min-height:1.9em;opacity:0;transition:opacity .8s ease;}
+.nt-text.show{opacity:1;}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,240,245,0.97);border-top:1px solid rgba(196,96,122,0.15);backdrop-filter:blur(10px);display:none;justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:150;}
 .bottom-nav.show{display:flex;}
 .bnav-btn{background:none;border:none;color:var(--text-mid);font-family:'Jost',sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;min-height:40px;}
@@ -361,8 +381,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <h1 class="title-main">Off the<br>Record</h1>
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
-    <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.50</p>
+    <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
+    <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.51</p>
   </div>
 </div>
 
@@ -646,6 +667,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <img class="vn-bg" id="vn-bg" src="" alt="" style="display:none" onclick="openLB(this.src)">
   <div class="vn-bg-ph" id="vn-bg-ph" style="display:none"></div>
   <div class="vn-overlay" id="vn-overlay" style="display:none"></div>
+  <div class="vn-npc-card" id="vn-npc-card" style="display:none" onclick="openLB(document.getElementById('vn-npc-img').src)"><img id="vn-npc-img" src="" alt=""></div>
   <div class="vn-content" id="vn-content" style="display:none">
     <div class="vn-dialog">
       <div class="vn-speaker" id="vn-speaker"></div>
@@ -671,6 +693,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
       <button class="btn-p" onclick="nextDay()" id="btn-sleep" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);min-width:200px;z-index:10;box-shadow:0 4px 20px rgba(180,80,100,0.3)">入睡 · 下一天</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ 过夜转场（入睡→第二天早晨之间的夜幕画面，独白显示在这里） ══ -->
+<div id="night-transition" style="display:none">
+  <div class="nt-inner">
+    <div class="nt-moon">🌙</div>
+    <div class="nt-text" id="nt-text"></div>
   </div>
 </div>
 
@@ -720,12 +750,16 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span class="wc-icons">●●● 📶 🔋</span>
     </div>
     <div class="wc-navbar">
-      <span class="wc-back" onclick="go('s-phone');setABn('bn-phone')">‹ Back</span>
+      <span class="wc-back" onclick="backToPhoneList()">‹ Back</span>
       <span class="wc-title" id="chat-name">—</span>
       <span style="width:52px"></span>
     </div>
     <div class="wc-content">
       <div class="wc-msg-area" id="chat-msgs"></div>
+    </div>
+    <div class="wc-input-bar">
+      <input id="chat-input" type="text" maxlength="300" placeholder="输入消息…" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendChatReply()">
+      <button id="chat-send-btn" onclick="sendChatReply()">发送</button>
     </div>
   </div>
 </div>
@@ -1034,6 +1068,45 @@ async function genNPCPortrait(npcKey, day, locKey) {
   return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed);
 }
 
+// ── 纯背景图（无人物）：NPC立绘固定后场景只换背景。按"地点|风格"缓存，省生图费用 ──
+async function genLocationBg(locKey, day) {
+  const cacheKey = locKey + '|' + G.imgStyle;
+  if (G.bgCache && G.bgCache[cacheKey]) return G.bgCache[cacheKey];
+  const loc = STORY.locations[locKey] || {};
+  const sceneComp = loc.composition || 'elegant interior setting';
+  const seasonDesc = loc.isOutdoor ? STORY.seasons.getAtmosphere(G.player.city, day) : '';
+  const prompt = sceneComp + (seasonDesc ? ', ' + seasonDesc : '') + ', empty scene, no people, no humans visible, atmospheric environment shot, cinematic wide angle';
+  const url = await img(prompt, 'bg-' + locKey);
+  if (url) { if (!G.bgCache) G.bgCache = {}; G.bgCache[cacheKey] = url; STATE.save.saveGame(); }
+  return url;
+}
+
+// ── NPC场景展示：已有确认立绘 → 固定立绘卡片 + 单独生成的地点背景（形象100%一致）；
+//    还没有立绘（初次见面）→ 生成完整场景图，并把它锁定为该NPC今后的固定立绘 ──
+function showNPCScene(npcKey, day, locKey, pushGallery) {
+  const card = document.getElementById('vn-npc-card');
+  const npc = G.npcs[npcKey];
+  if (npc && npc.portraitUrl) {
+    // 固定立绘立即显示（不用等生图），背景后台加载
+    document.getElementById('vn-npc-img').src = npc.portraitUrl;
+    card.style.display = 'block';
+    genLocationBg(locKey, day).then(url => {
+      if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+      else { document.getElementById('vn-bg-ph').style.display = 'none'; }
+    });
+    return;
+  }
+  // 初次见面：完整场景图，生成成功后锁定为固定立绘
+  genNPCPortrait(npcKey, day, locKey).then(url => {
+    if (url) {
+      document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+      if (npc && !npc.portraitUrl) npc.portraitUrl = url; // 第一次生成的形象即成为固定形象
+      if (pushGallery) G.gallery.push({ url, label: getNPCName(npcKey) });
+      STATE.save.saveGame();
+    }
+  });
+}
+
 async function genProtagonistScene(locKey, day) {
   const loc = STORY.locations[locKey] || {};
   const sceneComp = loc.composition || 'elegant setting';
@@ -1074,6 +1147,36 @@ function playSound(type) {
       g.gain.linearRampToValueAtTime(0.07, t + 0.03);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
       o.start(t); o.stop(t + 0.4);
+    });
+    return;
+  }
+
+  // ── new-day: 清晨鸟鸣式双啼 + 柔和上行琶音（过夜转场结束时播放）──
+  if (type === 'new-day') {
+    const chirp = (t0, f0, f1) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f0, t0);
+      o.frequency.exponentialRampToValueAtTime(f1, t0 + 0.11);
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(0.045, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.16);
+      o.start(t0); o.stop(t0 + 0.2);
+    };
+    const now = ctx.currentTime;
+    chirp(now, 1500, 1950);
+    chirp(now + 0.22, 1700, 2100);
+    [523.2, 659.3, 784.0].forEach((freq, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      const t = now + 0.5 + i * 0.09;
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.05, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      o.start(t); o.stop(t + 0.55);
     });
     return;
   }
@@ -1158,6 +1261,8 @@ function go(id) {
   const idx = SETUP_SCREENS.indexOf(id);
   document.getElementById('prog').style.width = (idx < 0 ? 0 : Math.round(idx / (SETUP_SCREENS.length-1) * 100)) + '%';
   document.getElementById('bottom-nav').classList.toggle('show', GAME_SCREENS.includes(id));
+  // 回到主要界面时重算未读徽章，避免异步生成的消息把徽章状态搞乱
+  if (id === 's-daily' || id === 's-evening') { try { updatePhoneBadge(); } catch(e){} }
   var memBtn = document.getElementById('memories-btn');
   if(memBtn) memBtn.style.display = GAME_SCREENS.includes(id) && !['s-gallery','s-fame','s-settings','s-phone','s-chat','s-affection'].includes(id) ? 'block' : 'none';
   if (!OVERLAY_SCREENS.includes(id)) G._prevScreen = id;
@@ -1215,7 +1320,7 @@ function calAddEvent(dateStr, event) {
 }
 
 function getCalDateStr(gameDay) {
-  var start = new Date(2024, 2, 1);
+  var start = new Date(2027, 2, 1); // 2027年3月1日=周一，符合"开始日期3月1日周一"的设定（Day1-5剧情日=工作日）
   var d = new Date(start);
   d.setDate(start.getDate() + gameDay - 1);
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1224,7 +1329,7 @@ function getCalDateStr(gameDay) {
 function renderCalendar() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   // Current game date
-  var start = new Date(2024, 2, 1);
+  var start = new Date(2027, 2, 1); // 2027年3月1日=周一，符合"开始日期3月1日周一"的设定（Day1-5剧情日=工作日）
   var cur = new Date(start);
   cur.setDate(start.getDate() + G.day - 1);
   var year = cur.getFullYear();
@@ -1985,7 +2090,13 @@ async function startDay() {
   } catch (e) {
     console.error('startDay morning thought failed:', e);
   }
-  document.getElementById('d-txt').textContent = txt.trim();
+  if (_ntActive) {
+    // 独白显示在过夜转场画面上（读完后淡出、播放新一天音效），首页不再重复显示
+    document.getElementById('d-txt').textContent = '';
+    endNightTransition(txt.trim());
+  } else {
+    document.getElementById('d-txt').textContent = txt.trim();
+  }
   buildDayOpts();
   generatePhoneContent();
   if (!G.apartment.livingNightUrl) preGenNight();
@@ -1993,7 +2104,7 @@ async function startDay() {
 
 function getGameDate(day) {
   // Start: March 1
-  const start = new Date(2024, 2, 1); // month is 0-indexed
+  const start = new Date(2027, 2, 1); // month is 0-indexed; 2027年3月1日=周一（符合设定）
   const current = new Date(start);
   current.setDate(start.getDate() + day - 1);
   const months_en = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -2005,7 +2116,7 @@ function getGameDate(day) {
 
 // 星期几（0=周日...6=周六），和 getGameDate/日历用同一个起始日期，保证两处显示一致
 function getGameWeekday(day) {
-  const start = new Date(2024, 2, 1);
+  const start = new Date(2027, 2, 1); // 2027年3月1日=周一（符合设定）
   const current = new Date(start);
   current.setDate(start.getDate() + day - 1);
   return current.getDay();
@@ -2111,6 +2222,8 @@ async function playFree(key, label, isWork) {
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
+  document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2130,7 +2243,7 @@ async function playFree(key, label, isWork) {
   const narration = await claude(
     'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' spending part of Day ' + G.day + ' ' +
     (isWork ? 'working at' : 'spending time at') + ' "' + label + '" in ' + (G.player.city||'the city') + '. ' +
-    'Grounded, evocative, not melodramatic. Start with "You" / "你". Language: ' + G.langName + '.'
+    'Grounded, evocative, not melodramatic. Focus on atmosphere, senses and her inner feelings — do NOT describe specific physical actions, poses or gestures in visual detail (the illustration is generated separately and may not match). Start with "You" / "你". Language: ' + G.langName + '.'
   );
   document.getElementById('vn-text').textContent = (narration || '').trim();
 
@@ -2150,6 +2263,8 @@ async function playScheduledEvent(dateStr, event) {
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
+  document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2162,12 +2277,8 @@ async function playScheduledEvent(dateStr, event) {
   const locKey = event.locKey || 'music_training';
   if (event.npcKey && G.npcs[event.npcKey]) {
     if (!G.npcs[event.npcKey].met) G.npcs[event.npcKey].met = true;
-    genNPCPortrait(event.npcKey, G.day, locKey).then(url => {
-      if (url) {
-        document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
-        G.gallery.push({ url, label: getNPCName(event.npcKey) });
-      }
-    });
+    // 已确认立绘→固定立绘+地点背景；初次见面→完整场景图并锁定形象
+    showNPCScene(event.npcKey, G.day, locKey, true);
   } else {
     genProtagonistScene(locKey, G.day).then(url => {
       if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
@@ -2176,7 +2287,7 @@ async function playScheduledEvent(dateStr, event) {
 
   const narration = await claude(
     'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' on Day ' + G.day + ', attending "' + event.title + '"' +
-    (event.npcName ? ' with ' + event.npcName : '') + ' in ' + (G.player.city||'the city') + '. Grounded, evocative, not melodramatic. Start with "You" / "你". Language: ' + G.langName + '.'
+    (event.npcName ? ' with ' + event.npcName : '') + ' in ' + (G.player.city||'the city') + '. Grounded, evocative, not melodramatic. Focus on atmosphere, senses and her inner feelings — do NOT describe specific physical actions, poses or gestures in visual detail (the illustration is generated separately and may not match). Start with "You" / "你". Language: ' + G.langName + '.'
   );
   document.getElementById('vn-text').textContent = (narration || '').trim();
 
@@ -2213,6 +2324,8 @@ async function startScriptedSceneWithLateOrigin(day, ev) {
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
+  document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2236,6 +2349,8 @@ async function startScriptedScene(day, ev) {
   // Show immediately without waiting for image
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
+  document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2245,15 +2360,8 @@ async function startScriptedScene(day, ev) {
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   // 记录今天做了什么，供晚间消息等引用，避免AI生成的内容和当天剧情对不上
   G.today = { label: getScriptedLabel(ev, day, lang), isWork: ev.isWork, npc: ev.npc };
-  // Load image in background
-  genNPCPortrait(ev.npc, day, ev.location).then(url => {
-    if (url) {
-      document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
-      // 剧情场景没有像经纪人/女主那样的三选一确认步骤，图片一生成就直接存入回忆
-      G.gallery.push({ url, label: getNPCName(ev.npc) });
-      STATE.save.saveGame();
-    }
-  });
+  // Load image in background：已确认立绘→固定立绘+地点背景；初次见面→完整场景图并锁定形象
+  showNPCScene(ev.npc, day, ev.location, true);
   // Show Continue button to start dialogue
   const contLabel = lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   const startBtn = document.createElement('button'); startBtn.className = 'vn-next'; startBtn.textContent = contLabel;
@@ -2482,7 +2590,7 @@ async function goEvening() {
   // Generate Claude content in background
   Promise.all([
     claude('Write 1 poetic evening sentence for ' + (G.player.name||'her') + ' Day ' + G.day + ' in ' + (G.player.city||'the city') + '. ' + todayContext + ' Second person "You". Language: ' + G.langName + '. No quotes.'),
-    claude('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. ' + todayContext + ' Send a terse 1-sentence text. NO contract talk. Language: ' + G.langName + '.')
+    claude('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. It is late evening of Day ' + G.day + ' of her contract. ' + todayContext + ' STRICT: do NOT invent events that did not happen — no auditions, directors, callbacks, streaming platforms (e.g. Netflix), or industry people asking about her unless mentioned in the context above. Send a terse 1-sentence text. NO contract talk. Language: ' + G.langName + '.')
   ]).then(function(results) {
     var eveTxt = results[0], msgTxt = results[1];
     if (eveTxt && eveTxt.trim()) document.getElementById('eve-nar').textContent = eveTxt.trim();
@@ -2493,10 +2601,11 @@ async function goEvening() {
         isVoice:false, emoji:'👔', color:'#C4A882', day: G.day,
         time:(22+Math.floor(Math.random()*2))+':'+Math.floor(Math.random()*59).toString().padStart(2,'0')
       });
-      updatePhoneBadge();
-      // 有新消息了，刷新一下卡片显示状态（因为新消息一定是未读的）
+      notifyNewMessage('agent');
+      // 有新消息了，刷新一下卡片显示状态（若玩家正开着经纪人会话则已被标为已读，不再显示）
+      var stillUnread = Object.values(G.phone.messages||{}).flat().some(m => m && m.npc==='agent' && !m.read && !m.mine);
       var eveMsgCard = document.querySelector('.eve-msg');
-      if (eveMsgCard) eveMsgCard.style.display = 'flex';
+      if (eveMsgCard && stillUnread) eveMsgCard.style.display = 'flex';
       STATE.memory.addEvent('agent','Evening: "'+msgTxt.trim().slice(0,50)+'"',G.day);
     }
   }).catch(function(){});
@@ -2548,7 +2657,38 @@ function judgeRelChange(npcKey, reply) {
   return Math.max(-10, Math.min(20, change));
 }
 
+// ── 过夜转场 ──
+let _ntActive = false;
+function showNightTransition() {
+  _ntActive = true;
+  const nt = document.getElementById('night-transition');
+  const tEl = document.getElementById('nt-text');
+  tEl.classList.remove('show'); tEl.textContent = '';
+  nt.style.display = 'flex';
+  requestAnimationFrame(() => nt.classList.add('show'));
+}
+// 显示独白 → 停留让玩家读完 → 淡出 + 新一天音效
+async function endNightTransition(txt) {
+  if (!_ntActive) return;
+  const nt = document.getElementById('night-transition');
+  const tEl = document.getElementById('nt-text');
+  if (txt) {
+    tEl.textContent = txt;
+    tEl.classList.add('show');
+    await new Promise(r => setTimeout(r, 2600));
+  } else {
+    await new Promise(r => setTimeout(r, 1100));
+  }
+  nt.classList.remove('show');
+  playSound('new-day');
+  await new Promise(r => setTimeout(r, 650));
+  nt.style.display = 'none';
+  _ntActive = false;
+}
+
 function nextDay() {
+  // 先拉上夜幕，给"过了一夜"的感觉；早晨独白会显示在这个转场画面上
+  showNightTransition();
   G.day++;
   // Generate affinity-based messages for next day
   generateAffinityMessages(G.day - 1);
@@ -2604,6 +2744,8 @@ async function generateAffinityMessages(day) {
       const msg = await claude(
         'You are ' + (npc.name||npcKey) + ', ' + (char?.age||30) + '-year-old ' + (char?.profession||npcKey) + '. ' +
         personality + '. ' + ctx +
+        '\nIt is evening of Day ' + day + ' of her contract. Shared history so far: ' + (STATE.memory.getSummary(npcKey) || '(almost none yet)') + '. ' +
+        'STRICT: only reference events from that shared history — do NOT invent auditions, directors, industry contacts, or past conversations that are not listed.' +
         '\nSend a text message to ' + (G.player.name||'her') + '. ' +
         (tier === 'high' ? 'You can suggest meeting up, dinner, or a specific activity.' : '') +
         (tier === 'mid' ? 'Keep it casual but warm.' : '') +
@@ -2668,12 +2810,20 @@ function setImg(imgId, phId, url) {
 // ══════════════════════════════════════════════════════
 async function generatePhoneContent() {
   const isZhPhone = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // 今天的NPC消息已经生成过就不再重复生成（"继续游戏"恢复到同一天、或startDay重复调用时）
+  if ((G.phone.messages[G.day]||[]).some(m => m && !m.mine)) { updatePhoneBadge(); return; }
   const msgs = [];
+  // Day 1 时NPC和女主几乎没有共同经历，明确告诉AI不要编造"昨天""导演""Netflix"之类不存在的事
+  const progressGuard =
+    'STRICT TIMELINE RULES: It is EARLY MORNING (before 8am) of Day ' + G.day + ' of her contract. She has not done anything today yet — do NOT reference anything happening "today" as if it already happened. ' +
+    'Only reference past events that are explicitly listed in "Previous interactions" above. Do NOT invent auditions, callbacks, directors, streaming platforms (e.g. Netflix), industry contacts asking about her, or studio sessions that are not in that list. ' +
+    (G.day === 1 ? 'This is the FIRST morning after she signed her contract — you barely know her, there is no shared history yet. Do NOT reference "yesterday" beyond the signing itself. ' : '');
   for (const npc of Object.keys(G.npcs).filter(k => G.npcs[k].met).slice(0,3)) {
     const isVoice = Math.random() > 0.65;
-    const msgTime = Math.floor(Math.random()*10+9) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0');
+    // 早晨消息时间必须早于首页时钟8:07，避免"早上8点收到下午2点的消息"
+    const msgTime = '7:' + Math.floor(Math.random()*50+10).toString().padStart(2,'0');
     const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
-      'Send a ' + (isVoice?'voice message transcript':'text message') + ' today at ' + msgTime + '. ' +
+      'Send a ' + (isVoice?'voice message transcript':'text message') + ' at ' + msgTime + ' in the early morning. ' + progressGuard +
       'Most days, keep it to mood, opinions, casual remarks, or things that already happened — do NOT invent a schedule. ' +
       'ONLY if it fits naturally, you may mention ONE upcoming work plan (e.g. rehearsal, session, meeting) happening 1-5 days from now, but if you do, you MUST also fill in the "event" field below so it can be tracked consistently — never mention a new time/plan in the text without also filling "event".\n\n' +
       'Respond with ONLY valid JSON, no markdown fences: {"text": "the message, 1-2 sentences", "event": null or {"daysFromNow": <integer 1-5>, "title": "short event title", "locationKey": one of "recording_studio"|"music_training"|"cafe_meeting"|"art_gallery"|"night_bar", pick whichever best fits the event}}'
@@ -2694,7 +2844,9 @@ async function generatePhoneContent() {
 
     // 消息里提到了具体工作安排 → 自动加入日历，并会在对应那天的行程里优先显示为"今日剧情"
     if (scheduledEvent && Number.isInteger(scheduledEvent.daysFromNow) && scheduledEvent.daysFromNow >= 1 && scheduledEvent.daysFromNow <= 5 && scheduledEvent.title) {
-      const targetDay = G.day + scheduledEvent.daysFromNow;
+      let targetDay = G.day + scheduledEvent.daysFromNow;
+      // 工作类安排不落在周末：顺延到下一个工作日（周末不安排工作的约定）
+      while (isGameWeekend(targetDay)) targetDay++;
       const dateStr = getCalDateStr(targetDay);
       // 剧情固定日、或当天已经有其它NPC安排的活动了 → 不写入日历，避免产生一个永远无法被处理的冲突
       const hasStoryDay = !!STORY.utils.getScriptedEvent(targetDay);
@@ -2716,7 +2868,10 @@ async function generatePhoneContent() {
       }
     }
   }
-  G.phone.messages[G.day] = msgs;
+  // 保留同一天里已有的消息（如玩家回复、晚间经纪人消息），只追加新生成的
+  if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+  G.phone.messages[G.day].push(...msgs);
+  msgs.forEach(m => notifyNewMessage(m.npc));
   // Moments
   const moments = [];
   for (const npc of Object.keys(G.npcs).filter(k => G.npcs[k].met).slice(0,2)) {
@@ -2762,8 +2917,12 @@ function showWCTab(tab) {
       threads.forEach(function(m) {
         var el = document.createElement('div');
         el.className = 'wc-chat-item';
-        el.innerHTML = '<div class="wc-avatar" style="background:' + (m.color||'#C4A882') + '33">' + (m.emoji||'💬') + '</div>' +
-          '<div class="wc-chat-info"><div class="wc-chat-name">' + (m.name||'') + '</div><div class="wc-chat-preview">' + (m.isVoice?'🎵 '+(isZh?'[语音消息]':'[Voice message]'):(m.text||'').slice(0,40)) + '</div></div>' +
+        // 最后一条可能是玩家自己发的（mine）：会话名固定显示NPC名字，预览加"我:"前缀
+        var threadName = getNPCName(m.npc) || m.name || '';
+        var ui = NPC_UI[m.npc] || {};
+        var preview = m.isVoice ? ('🎵 '+(isZh?'[语音消息]':'[Voice message]')) : ((m.mine?(isZh?'我: ':'Me: '):'') + (m.text||'').slice(0,40));
+        el.innerHTML = '<div class="wc-avatar" style="background:' + (ui.color||m.color||'#C4A882') + '33">' + (ui.emoji||m.emoji||'💬') + '</div>' +
+          '<div class="wc-chat-info"><div class="wc-chat-name">' + threadName + '</div><div class="wc-chat-preview">' + preview + '</div></div>' +
           '<div class="wc-chat-meta"><div class="wc-chat-time">' + formatMsgTimestamp(m) + '</div>' + (m.read?'':'<div class="wc-unread">1</div>') + '</div>';
         if(m.npc) el.onclick = (function(npc){return function(){openWCChat(npc);};})(m.npc);
         content.appendChild(el);
@@ -2810,6 +2969,28 @@ function showWCTab(tab) {
   }
 }
 
+// 从聊天返回会话列表：重新渲染列表（否则已读状态是打开前的旧快照）
+function backToPhoneList() {
+  _openChatNpc = null;
+  go('s-phone'); setABn('bn-phone');
+  showWCTab('chats');
+}
+
+// 新消息到达时调用：若玩家正开着这个NPC的会话就直接标为已读并刷新，
+// 避免"人在聊天界面里，红点却亮着/看完了红点还在"的错位
+function notifyNewMessage(npc) {
+  var chatActive = document.getElementById('s-chat').classList.contains('active');
+  if (chatActive && _openChatNpc === npc) {
+    Object.values(G.phone.messages||{}).flat().forEach(m => { if (m && m.npc === npc) m.read = true; });
+    renderChatMsgs(npc);
+  }
+  // 会话列表如果正显示着，也刷新一下
+  var phoneActive = document.getElementById('s-phone').classList.contains('active');
+  var chatsTabActive = document.getElementById('wct-chats') && document.getElementById('wct-chats').classList.contains('active');
+  if (phoneActive && chatsTabActive) showWCTab('chats');
+  updatePhoneBadge();
+}
+
 function updatePhoneBadge() {
   const allMsgs = {};
   try { Object.values(G.phone.messages||{}).flat().filter(Boolean).forEach(m => { if(m&&m.npc) allMsgs[m.npc] = m; }); } catch(e){}
@@ -2825,43 +3006,124 @@ function formatMsgTimestamp(m) {
   return getGameDate(m.day) + ' ' + (m.time || '');
 }
 
-function openWCChat(npc) {
-  // 标记该NPC全部消息为已读，更新未读徽章
-  Object.values(G.phone.messages||{}).flat().forEach(m => { if (m && m.npc === npc) m.read = true; });
-  updatePhoneBadge();
-  STATE.save.saveGame();
-  const npcName = getNPCName(npc);
-  document.getElementById('chat-name').textContent = npcName;
-  const chatTime = new Date();
-  document.getElementById('chat-wc-time').textContent = chatTime.getHours() + ':' + chatTime.getMinutes().toString().padStart(2,'0');
-  const msgs = Object.values(G.phone.messages).flat().filter(m => m.npc===npc);
-  const bars = Array(8).fill('').map((_,i) => '<span style="height:' + (4+Math.random()*12) + 'px"></span>').join('');
+// 当前打开的聊天会话（用于：新消息到达时若正在看这个会话就直接标记已读）
+var _openChatNpc = null;
+
+function renderChatMsgs(npc) {
+  const msgs = Object.values(G.phone.messages||{}).flat().filter(m => m && m.npc===npc);
   var chatMsgs = document.getElementById('chat-msgs');
   chatMsgs.innerHTML = '';
   var npcEmoji = (NPC_UI[npc] && NPC_UI[npc].emoji) ? NPC_UI[npc].emoji : '💬';
   msgs.forEach(function(m) {
     var wrap = document.createElement('div');
-    wrap.className = 'wc-bubble-wrap';
+    wrap.className = 'wc-bubble-wrap' + (m.mine ? ' mine' : '');
+    var avatar = document.createElement('div');
+    avatar.className = 'wc-bubble-avatar';
+    avatar.textContent = m.mine ? '🎤' : npcEmoji;
+    wrap.appendChild(avatar);
+    var col = document.createElement('div');
+    col.className = 'wc-bubble-col';
+    if (m.mine) col.style.alignItems = 'flex-end';
     if (m.isVoice) {
+      var bars = Array(8).fill('').map(function(){ return '<span style="height:' + (4+Math.random()*12) + 'px"></span>'; }).join('');
       var voiceEl = document.createElement('div');
       voiceEl.className = 'wc-voice';
-      voiceEl.innerHTML = '<div class="wc-voice-icon">▶</div><div class="wc-voice-bar">' + bars + '</div><span class="wc-voice-dur">0:' + Math.floor(Math.random()*40+10) + '</span><div class="wc-voice-transcript" style="display:none">' + m.text + '</div>';
+      voiceEl.innerHTML = '<div class="wc-voice-icon">▶</div><div class="wc-voice-bar">' + bars + '</div><span class="wc-voice-dur">0:' + Math.floor(Math.random()*40+10) + '</span>';
+      // 转写文字块放在语音条下方（独立块，不放进flex行里，避免被挤成一列一字）
+      var tr = document.createElement('div');
+      tr.className = 'wc-voice-transcript';
+      tr.textContent = m.text;
       voiceEl.onclick = function() {
-        var tr = this.querySelector('.wc-voice-transcript');
         tr.style.display = tr.style.display==='block' ? 'none' : 'block';
       };
-      wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div>';
-      wrap.appendChild(voiceEl);
-      var voiceTimeEl = document.createElement('div');
-      voiceTimeEl.className = 'wc-bubble-time';
-      voiceTimeEl.textContent = formatMsgTimestamp(m);
-      wrap.appendChild(voiceTimeEl);
+      col.appendChild(voiceEl);
+      col.appendChild(tr);
     } else {
-      wrap.innerHTML = '<div class="wc-bubble-avatar">' + npcEmoji + '</div><div><div class="wc-bubble">' + m.text + '</div><div class="wc-bubble-time">' + formatMsgTimestamp(m) + '</div></div>';
+      var bubble = document.createElement('div');
+      bubble.className = 'wc-bubble' + (m.mine ? ' mine' : '');
+      bubble.textContent = m.text;
+      col.appendChild(bubble);
     }
+    var timeEl = document.createElement('div');
+    timeEl.className = 'wc-bubble-time';
+    timeEl.textContent = formatMsgTimestamp(m);
+    col.appendChild(timeEl);
+    wrap.appendChild(col);
     chatMsgs.appendChild(wrap);
   });
+  // 滚动到最新一条
+  var content = chatMsgs.parentElement;
+  if (content) content.scrollTop = content.scrollHeight;
+}
+
+function openWCChat(npc) {
+  // 标记该NPC全部消息为已读，更新未读徽章
+  Object.values(G.phone.messages||{}).flat().forEach(m => { if (m && m.npc === npc) m.read = true; });
+  updatePhoneBadge();
+  STATE.save.saveGame();
+  _openChatNpc = npc;
+  const npcName = getNPCName(npc);
+  document.getElementById('chat-name').textContent = npcName;
+  const chatTime = new Date();
+  document.getElementById('chat-wc-time').textContent = chatTime.getHours() + ':' + chatTime.getMinutes().toString().padStart(2,'0');
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var input = document.getElementById('chat-input');
+  input.value = '';
+  input.placeholder = isZh?'输入消息…':G.lang==='ja'?'メッセージを入力…':G.lang==='ko'?'메시지 입력…':'Type a message…';
+  document.getElementById('chat-send-btn').textContent = isZh?'发送':G.lang==='ja'?'送信':G.lang==='ko'?'전송':'Send';
+  renderChatMsgs(npc);
   go('s-chat');
+}
+
+// ── 玩家在聊天里回复NPC ──
+async function sendChatReply() {
+  const npc = _openChatNpc;
+  if (!npc || !G.npcs[npc]) return;
+  const input = document.getElementById('chat-input');
+  const text = (input.value || '').trim();
+  if (!text) return;
+  const btn = document.getElementById('chat-send-btn');
+  input.value = '';
+  btn.disabled = true;
+  // 玩家消息即时上屏
+  if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+  G.phone.messages[G.day].push({ npc, name: G.player.name||'Me', text, mine: true, isVoice: false, day: G.day, time: getPhoneClockTime(), read: true });
+  renderChatMsgs(npc);
+  STATE.memory.addEvent(npc, 'She texted: "' + text.slice(0,60) + '"', G.day);
+  try {
+    // 回复内容带人设/好感度/共同经历上下文，且不允许编造未发生的事
+    const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
+      'She just texted you: "' + text + '". Reply as a text message (1-2 sentences, casual texting style, no quotes around the message). ' +
+      'STRICT: only reference events from "Previous interactions" above — do NOT invent auditions, directors, industry contacts, or past events that are not listed.');
+    const reply = await claude(prompt);
+    if (reply && reply.trim()) {
+      G.phone.messages[G.day].push({
+        npc, name: getNPCName(npc), text: reply.trim(), isVoice: false,
+        emoji: NPC_UI[npc]?.emoji||'💬', color: NPC_UI[npc]?.color||'#C4A882',
+        day: G.day, time: getPhoneClockTime(), read: (_openChatNpc === npc),
+      });
+      STATE.memory.addEvent(npc, 'Replied: "' + reply.trim().slice(0,60) + '"', G.day);
+      // 文字聊天对好感度有小幅影响（比见面对话弱，减半并限制在±5内）
+      var delta = Math.max(-5, Math.min(5, Math.round(judgeRelChange(npc, text) / 2)));
+      if (delta !== 0) STATE.relationships.change(npc, delta);
+      if (_openChatNpc === npc) renderChatMsgs(npc);
+    }
+  } catch (e) {
+    console.error('chat reply failed:', e);
+  }
+  btn.disabled = false;
+  updatePhoneBadge();
+  STATE.save.saveGame();
+}
+
+// 游戏内当前时段的手机时间（早晨≈8点、晚间≈22点），保证消息时间戳不出现未来时间
+function getPhoneClockTime() {
+  var eveScreen = document.getElementById('s-evening');
+  var isEvening = eveScreen && eveScreen.classList.contains('active');
+  // 白天统一按 8:07 之后的上午时段推进
+  var h = isEvening ? 22 : 8;
+  var mn = isEvening ? Math.floor(Math.random()*40+10) : Math.floor(Math.random()*40+8);
+  return h + ':' + String(mn).padStart(2,'0');
 }
 
 // ══════════════════════════════════════════════════════
@@ -2928,6 +3190,43 @@ function renderGallery() {
 // ══════════════════════════════════════════════════════
 // DEV HELPERS
 // ══════════════════════════════════════════════════════
+// ── 标题页：继续游戏 / 新的开始 ──
+// 有存档且已完成开局设定（签约后进入日常）才显示"继续"
+function hasResumableSave() {
+  return !!(G.player.name && G.npcs.agent.met);
+}
+
+function setupTitleButtons() {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var btnCont = document.getElementById('btn-continue');
+  var btnBegin = document.getElementById('btn-begin');
+  if (hasResumableSave()) {
+    btnCont.style.display = 'block';
+    btnCont.textContent = isZh ? '继续游戏 · 第' + G.day + '天' : 'Continue · Day ' + G.day;
+    btnBegin.textContent = isZh ? '新的开始' : 'New Game';
+  } else {
+    btnCont.style.display = 'none';
+    btnBegin.textContent = 'Begin';
+  }
+}
+
+function continueGame() {
+  startDay();
+}
+
+function startNewGame() {
+  if (hasResumableSave()) {
+    var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+    var msg = isZh ? '开始新游戏会清除当前进度（第' + G.day + '天）和所有NPC好感度，确定吗？'
+                   : 'Starting a new game will erase your current progress (Day ' + G.day + ') and all relationships. Continue?';
+    if (!confirm(msg)) return;
+  }
+  // 清空旧存档 + 原地重置状态，避免旧的好感度/名字/记忆漏进新游戏
+  STATE.reset();
+  applyLang();
+  go('s-lang');
+}
+
 function clearSaveData() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var msg = isZh ? '确定要清除所有存档吗？游戏将重新开始。' : 'Clear all save data? The game will restart.';
@@ -2962,10 +3261,32 @@ function devSkipToDay() {
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', () => {
   STATE.init();
+  // 旧存档日历键迁移：起始年份从2024改成2027后，旧存档里 '2024-xx-xx' 的日历事件键
+  // 不迁移的话会变成永远无法处理的孤儿事件（待处理邀约的角标永远清不掉）
+  (function migrateCalendarDates() {
+    var evs = G.calendar && G.calendar.events;
+    if (!evs) return;
+    var oldKeys = Object.keys(evs).filter(function(k){ return k < '2027-'; });
+    if (!oldKeys.length) return;
+    var oldStart = new Date(2024, 2, 1);
+    oldKeys.forEach(function(k) {
+      var p = k.split('-').map(Number);
+      var d = new Date(p[0], p[1]-1, p[2]);
+      var gameDay = Math.round((d - oldStart) / 86400000) + 1;
+      if (gameDay >= 1) {
+        var nk = getCalDateStr(gameDay);
+        evs[nk] = (evs[nk] || []).concat(evs[k]);
+      }
+      delete evs[k];
+    });
+    STATE.save.saveGame();
+  })();
   applyLang();
+  setupTitleButtons();
+  updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.50 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.51 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
