@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.60** |
+| 当前版本 | **v10.61** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -70,7 +70,7 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 
 ### API
 - Claude 对话：`claude-sonnet-4-6`（**不换模型**）
-- 图片生成：`fal-ai/flux/schnell`（**不换模型**）
+- 图片生成：默认 `fal-ai/flux/schnell`；v10.61 起设置页有"人物图质量"开关，开=人物立绘走 `fal-ai/flux/dev`(28步,提示词服从度高)、背景仍 schnell。**需要 Worker 支持 `model` 字段白名单**（Worker 未更新时字段被忽略、静默回落 schnell，向后兼容）。Worker 改法见 v10.61 changelog
 - 代理：Cloudflare Worker `off-the-record-api.liziting2023.workers.dev`
   - `/claude` → Anthropic API
   - `/image` → fal.ai
@@ -291,6 +291,13 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **UI**：首页日期下压力芯片（🙂/😮‍💨/😰+数值，≥80红色加粗）；知名度页压力条（<50绿/50-79橙/≥80红）+状态提示文案
 - 新地点：dance_studio/gym/park；数值用户尚无概念，之后按体验反馈调
 - 修复：buildDayOpts病倒分支曾放在makeOpt定义前导致TDZ报错（冒烟测试抓到），已移到定义后
+
+**v10.61：人物图质量开关（flux/dev 试验）**：
+- `img()` 加第6参 `hq`：`hq && G.hqPortraits` 时 body 带 `model:'fal-ai/flux/dev'`+28步，否则 schnell+4步；人物生图点（NPC三选一/genNPCPortrait/女主三选一/经纪人三选一/美发店重生成）传 hq=true，背景/场景仍 schnell 省钱
+- 设置页新增"PORTRAIT QUALITY 人物图质量"开关（标准/高质量，默认标准，存档持久化）
+- **Worker 端需配合改**（Cloudflare Dashboard → off-the-record-api → /image 路由）：
+  `const ALLOWED=['fal-ai/flux/schnell','fal-ai/flux/dev']; const model=ALLOWED.includes(body.model)?body.model:'fal-ai/flux/schnell';` 然后用 `https://fal.run/${model}` 转发（原来是写死 schnell 的URL）。Worker未更新时游戏发的 model 字段被忽略，不影响现网
+- 交接文档确认：无 Cloudflare 凭证（只有 GitHub token），Worker 只能用户手动在 Dashboard 改
 
 ## 9. 待开发（优先顺序）
 

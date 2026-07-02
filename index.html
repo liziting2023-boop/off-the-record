@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.60"></script>
-<script src="state.js?v=10.60"></script>
+<script src="story.js?v=10.61"></script>
+<script src="state.js?v=10.61"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -426,7 +426,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.60</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.61</p>
   </div>
 </div>
 
@@ -919,6 +919,13 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
     </div>
     <div>
+      <div class="settings-section-title" id="lbl-quality-setting">PORTRAIT QUALITY 人物图质量</div>
+      <div class="settings-style">
+        <div class="s-style-card sel" id="hq-off-card" onclick="setHQPortraits(false,this)"><span class="s-style-name">标准 Fast</span><span class="s-style-sub">flux/schnell · 快速省钱</span></div>
+        <div class="s-style-card" id="hq-on-card" onclick="setHQPortraits(true,this)"><span class="s-style-name">高质量 HQ</span><span class="s-style-sub">flux/dev · 更听话更精细（需Worker支持）</span></div>
+      </div>
+    </div>
+    <div>
       <div class="settings-section-title" id="lbl-sound-setting">SOUND EFFECTS</div>
       <div class="settings-style">
         <div class="s-style-card sel" id="sound-on-card" onclick="setSoundOn(true,this)"><span class="s-style-name" id="lbl-sound-on">🔊 On</span><span class="s-style-sub" id="lbl-sound-on-sub">Button feedback sounds</span></div>
@@ -1101,14 +1108,21 @@ async function claude(prompt, sys = '') {
   return d.content?.[0]?.text || '';
 }
 
-async function img(prompt, label = '', save = false, retries = 2, seed = null) {
+async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false) {
   if (DEV_MODE_IMG) return null;
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
   const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['illustrated'];
   const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
+  // 人物图高质量模式：立绘走 flux/dev（提示词服从度高），背景仍走 schnell 省钱。
+  // Worker 未更新时 model 字段会被忽略（仍走 schnell），安全向后兼容
+  const useDev = hq && G.hqPortraits;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const body = { prompt: fullPrompt, image_size: 'portrait_4_3', num_inference_steps: 4, num_images: 1 };
+      const body = {
+        prompt: fullPrompt, image_size: 'portrait_4_3',
+        num_inference_steps: useDev ? 28 : 4, num_images: 1,
+        model: useDev ? 'fal-ai/flux/dev' : 'fal-ai/flux/schnell',
+      };
       if (seed !== null) body.seed = seed;
       const r = await fetch(WORKER + '/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const d = await r.json();
@@ -1163,7 +1177,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   // 每个NPC固定一个 seed（首次生成时随机分配，之后一直复用），减少不同天生成时长相不一致
   // 用 == null 而不是 !seed 判断，避免种子恰好随机到 0 时被误判成"未设置"而重新生成
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
-  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed);
+  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed, true);
 }
 
 // ── 纯背景图（无人物）：NPC立绘固定后场景只换背景。按"地点|风格"缓存，省生图费用 ──
@@ -1223,7 +1237,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
-  return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed);
+  return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
 
 // ── NPC初次登场三选一：三张共用seed不同姿势的头像，玩家选中的锁定为固定立绘 ──
@@ -1448,7 +1462,18 @@ function openSettings() {
   document.querySelectorAll('.s-style-card[onclick^="selStyle"]').forEach(c => {
     c.classList.toggle('sel', c.getAttribute('onclick') === "selStyle('" + G.imgStyle + "',this)");
   });
+  // 人物图质量开关选中态
+  document.getElementById('hq-off-card').classList.toggle('sel', !G.hqPortraits);
+  document.getElementById('hq-on-card').classList.toggle('sel', !!G.hqPortraits);
   go('s-settings');
+}
+
+// 人物图质量：true=人物立绘用 flux/dev（Worker需支持model字段，未支持时静默回落schnell）
+function setHQPortraits(on, el) {
+  G.hqPortraits = !!on;
+  document.getElementById('hq-off-card').classList.toggle('sel', !on);
+  document.getElementById('hq-on-card').classList.toggle('sel', on);
+  STATE.save.saveGame();
 }
 function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 function openPhone()    { setABn('bn-phone');     renderPhone();     go('s-phone');     }
@@ -2065,9 +2090,9 @@ async function genProto() {
   // 同一批候选图共用一个 seed，保证发色/风格一致，只有姿势不同
   // 三张用不同seed（base+i*7919）差异更明显；发色/风格由prompt锁定
   _protoSeed = Math.floor(Math.random() * 1000000);
-  const a = await img(base + ', ' + MIRRORS[0], 'Portrait A', false, 2, _protoSeed); setTrio('pa', a);
-  const b = await img(base + ', ' + MIRRORS[1], 'Portrait B', false, 2, _protoSeed + 7919); setTrio('pb', b);
-  const c = await img(base + ', ' + MIRRORS[2], 'Portrait C', false, 2, _protoSeed + 15838); setTrio('pc', c);
+  const a = await img(base + ', ' + MIRRORS[0], 'Portrait A', false, 2, _protoSeed, true); setTrio('pa', a);
+  const b = await img(base + ', ' + MIRRORS[1], 'Portrait B', false, 2, _protoSeed + 7919, true); setTrio('pb', b);
+  const c = await img(base + ', ' + MIRRORS[2], 'Portrait C', false, 2, _protoSeed + 15838, true); setTrio('pc', c);
   document.getElementById('btn-rp').style.visibility = 'visible';
 }
 
@@ -2131,9 +2156,9 @@ async function genAgent() {
     // 同一批候选图共用一个 seed，保证美术风格一致，只有角度/姿势不同
     // 三张用不同seed（base+i*7919），差异更明显；发色/风格由prompt锁定，不靠seed
     _agentSeed = Math.floor(Math.random() * 1000000);
-    const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A', false, 2, _agentSeed); setTrio('aga', a);
-    const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B', false, 2, _agentSeed + 7919); setTrio('agb', b);
-    const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C', false, 2, _agentSeed + 15838); setTrio('agc', c);
+    const a = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[0], 1), 'Agent A', false, 2, _agentSeed, true); setTrio('aga', a);
+    const b = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[1], 1), 'Agent B', false, 2, _agentSeed + 7919, true); setTrio('agb', b);
+    const c = await img(STATE.imagePrompts.buildAgentPrompt(G, angles[2], 1), 'Agent C', false, 2, _agentSeed + 15838, true); setTrio('agc', c);
   } else {
     // DEV: replace CREATING with name initial
     ['aga','agb','agc'].forEach(id => {
@@ -2770,7 +2795,7 @@ function renderHairSalonOpts() {
     if (changed) {
       vopts.innerHTML = '<div class="gt" style="margin:6px auto">Styling<span class="loading-dots"></span></div>';
       const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
-      const url = await img(base + ', ' + MIRRORS[0], 'New look', false, 2, G.player.portraitSeed);
+      const url = await img(base + ', ' + MIRRORS[0], 'New look', false, 2, G.player.portraitSeed, true);
       if (url) { G.player.portraitUrl = url; G.gallery.push({ url, label: (G.lang==='zh-cn'||G.lang==='zh-tw')?('新造型 · 第'+G.day+'天'):('New look · Day '+G.day) }); }
       STATE.save.saveGame();
     }
@@ -4460,7 +4485,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.60 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.61 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
