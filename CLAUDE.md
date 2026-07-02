@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.49** |
+| 当前版本 | **v10.50** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -200,6 +200,10 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **[v10.49]** 晚间AI消息内容会引用当天实际发生的剧情（新增 `G.today = {label, isWork, npc}`，在 `startScriptedScene`/`playFree`/`playScheduledEvent` 里统一记录），避免出现"当天明明去了录音室，晚上却收到消息说试镜表现很好"这种前后矛盾
 - **[v10.49]** 手机未读徽章健壮性修复：之前有3处独立用 `G.phone.unreadCount += 1` 这种手动累加的方式维护未读数，和 `updatePhoneBadge()` 按"未读会话数"重新计算的方式是两套不同逻辑，容易产生偏差导致徽章清不干净。统一改为都调用 `updatePhoneBadge()` 重新计算真实状态；晚间"收到新消息"卡片也改为确认真的有新消息才显示
 - **[v10.49] 新功能**：NPC消息可以提前安排未来1-5天的工作活动（如"3天后彩排"），AI用结构化JSON返回 `{text, event:{daysFromNow, title}}`，自动写入日历（`source:'npc_message'`），到了那天会在当日选项里优先显示为"今日剧情"（新增 `playScheduledEvent()`），点击后带出对应NPC的场景
+- **[v10.50] 严重bug修复**：`nextDay()` 里有硬编码 `if (G.day > 5) { alert(...); return; }`——玩家玩到第5天结束睡觉进入第6天时会弹窗"更多内容即将到来"然后彻底卡死，不会调用 `startDay()`。这是早期只写到 Day5 时的占位逻辑，现在自由日系统已经补全能用，这个硬停止变成了挡住所有玩家的阻断性 bug，已移除
+- **[v10.50] `/code-review` 发现并修复的4个正确性问题**（NPC日程安排功能，v10.49引入）：1）安排的活动如果落在剧情固定日会被永久卡住未处理，现在生成时会检查 `STORY.utils.getScriptedEvent()` 跳过剧情日；2）同一天两个NPC都安排活动时后一个会被静默丢弃，现在生成时检查当天是否已有安排；3）活动场景背景图之前写死"音乐训练室"，现在AI会在结构化JSON里一起给出合适的地点（`locationKey`）；4）安排的活动如果和当天待处理的邀约（pending invite）撞车会把邀约挤出每日选项，现在改为优先显示待处理邀约
+- **[v10.50]** 修复客厅/晚间全屏背景改造（v10.49）引入的点击穿透问题：`.daily-bg-overlay`/`.eve-bg-overlay`/`.daily-wrap`/`.eve-content` 没设置 `pointer-events`，导致点击房间照片放大看图的功能被挡住。补上 `pointer-events:none`（遮罩层）+ `pointer-events:auto`（内容层直接子元素）
+- **[v10.50]** 修复 `portraitSeed` 一致性功能里的 falsy-zero bug：用 `!seed` 和 `seed||null` 判断"是否已设置"，当随机生成的种子恰好是 `0`（约百万分之一概率）时会被误判为未设置，导致这次形象一致性保护失效。改用 `== null` 精确判断
 
 ---
 

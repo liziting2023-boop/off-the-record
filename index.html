@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.49"></script>
-<script src="state.js?v=10.49"></script>
+<script src="story.js?v=10.50"></script>
+<script src="state.js?v=10.50"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -152,8 +152,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .daily-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .daily-room-ph{position:absolute;inset:0;width:100%;height:100%;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
-.daily-bg-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom, rgba(255,232,240,0.1) 0%, rgba(255,232,240,0.45) 38%, rgba(255,232,240,0.88) 62%, rgba(255,232,240,0.97) 100%);}
-.daily-wrap{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.1) 0%, rgba(255,232,240,0.45) 38%, rgba(255,232,240,0.88) 62%, rgba(255,232,240,0.97) 100%);}
+.daily-wrap{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;pointer-events:none;}
+.daily-wrap > *{pointer-events:auto;}
 .daily-top{flex:0 0 auto;padding:16px 16px 8px;}
 .daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;text-shadow:0 1px 12px rgba(255,255,255,0.6);}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.9;text-transform:uppercase;margin-top:2px;text-shadow:0 1px 8px rgba(255,255,255,0.6);}
@@ -174,8 +175,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .eve-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .eve-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .eve-room-ph{position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(160deg,#FFD8E8,#FFE8F0);display:flex;align-items:center;justify-content:center;}
-.eve-bg-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom, rgba(255,232,240,0.1) 0%, rgba(255,232,240,0.45) 38%, rgba(255,232,240,0.88) 62%, rgba(255,232,240,0.97) 100%);}
-.eve-content{position:relative;z-index:2;width:100%;height:100%;padding:16px 16px 24px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;overflow-y:auto;}
+.eve-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.1) 0%, rgba(255,232,240,0.45) 38%, rgba(255,232,240,0.88) 62%, rgba(255,232,240,0.97) 100%);}
+.eve-content{position:relative;z-index:2;width:100%;height:100%;padding:16px 16px 24px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;overflow-y:auto;pointer-events:none;}
+.eve-content > *{pointer-events:auto;}
 .eve-nar{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--text-dark);line-height:1.7;margin-bottom:8px;}
 .eve-msgs{display:flex;flex-direction:column;gap:6px;overflow:hidden;margin-bottom:150px;}
 .eve-msg{background:rgba(255,255,255,0.8);border:1px solid rgba(196,96,122,0.2);border-radius:12px;padding:10px 12px;}
@@ -360,7 +362,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="divider-h"></div>
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" onclick="go('s-lang')">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.49</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.50</p>
   </div>
 </div>
 
@@ -1027,7 +1029,8 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (detShadow) prompt += detShadow;
 
   // 每个NPC固定一个 seed（首次生成时随机分配，之后一直复用），减少不同天生成时长相不一致
-  if (!G.npcs[npcKey].portraitSeed) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
+  // 用 == null 而不是 !seed 判断，避免种子恰好随机到 0 时被误判成"未设置"而重新生成
+  if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed);
 }
 
@@ -1041,7 +1044,8 @@ async function genProtagonistScene(locKey, day) {
   const detShadow = isPublic ? STATE.imagePrompts.getDetectiveShadow(day, G.publicSceneCount) : '';
   const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : '')) + (detShadow || '');
   // 复用玩家确认头像时的 seed，让女主在不同场景里的形象尽量保持一致
-  return await img(prompt, locKey, false, 2, G.player.portraitSeed || null);
+  // 注意：不能用 || null，seed 恰好是 0 时会被误判成没设置，默认值本身就是 null 所以直接传即可
+  return await img(prompt, locKey, false, 2, G.player.portraitSeed);
 }
 
 // ══════════════════════════════════════════════════════
@@ -2039,7 +2043,10 @@ function buildDayOpts() {
   } else {
     // NPC消息里提前安排好、今天到点的活动（如"鼓手说哪天彩排"）优先显示为"今日剧情"
     const todayDateStr = getCalDateStr(G.day);
-    const scheduled = (G.calendar.events[todayDateStr] || []).find(e => e.source === 'npc_message' && e.status === 'accepted');
+    const todayCalEvents = G.calendar.events[todayDateStr] || [];
+    // 如果今天还有等玩家处理的邀约（pending），先别用自动安排的活动把它挤掉，避免玩家漏掉需要决定的事项
+    const hasPendingInvite = todayCalEvents.some(e => e.type === 'npc_invite' && e.status === 'pending');
+    const scheduled = !hasPendingInvite && todayCalEvents.find(e => e.source === 'npc_message' && e.status === 'accepted');
     if (scheduled) {
       const schedSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
       opts.appendChild(makeOpt(scheduled.title, schedSub, 'work', () => playScheduledEvent(todayDateStr, scheduled)));
@@ -2152,7 +2159,7 @@ async function playScheduledEvent(dateStr, event) {
   G.fame = Math.min(100, G.fame + 5); G.daysWithoutWork = 0;
   G.today = { label: event.title, isWork: true, npc: event.npcKey || null };
 
-  const locKey = 'music_training';
+  const locKey = event.locKey || 'music_training';
   if (event.npcKey && G.npcs[event.npcKey]) {
     if (!G.npcs[event.npcKey].met) G.npcs[event.npcKey].met = true;
     genNPCPortrait(event.npcKey, G.day, locKey).then(url => {
@@ -2545,11 +2552,7 @@ function nextDay() {
   G.day++;
   // Generate affinity-based messages for next day
   generateAffinityMessages(G.day - 1);
-  if (G.day > 5) {
-    const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-    alert(isZh ? '5天结束！\n知名度：' + G.fame + '/100\n\n更多内容即将到来。' : '5 days complete!\nFame: ' + G.fame + '/100\n\nMore coming soon.');
-    return;
-  }
+  // Day 1-5 是剧情固定天，之后进入自由日（playFree/工作日周末选项/NPC日程），可以正常继续玩下去
   startDay();
 }
 
@@ -2673,7 +2676,7 @@ async function generatePhoneContent() {
       'Send a ' + (isVoice?'voice message transcript':'text message') + ' today at ' + msgTime + '. ' +
       'Most days, keep it to mood, opinions, casual remarks, or things that already happened — do NOT invent a schedule. ' +
       'ONLY if it fits naturally, you may mention ONE upcoming work plan (e.g. rehearsal, session, meeting) happening 1-5 days from now, but if you do, you MUST also fill in the "event" field below so it can be tracked consistently — never mention a new time/plan in the text without also filling "event".\n\n' +
-      'Respond with ONLY valid JSON, no markdown fences: {"text": "the message, 1-2 sentences", "event": null or {"daysFromNow": <integer 1-5>, "title": "short event title"}}'
+      'Respond with ONLY valid JSON, no markdown fences: {"text": "the message, 1-2 sentences", "event": null or {"daysFromNow": <integer 1-5>, "title": "short event title", "locationKey": one of "recording_studio"|"music_training"|"cafe_meeting"|"art_gallery"|"night_bar", pick whichever best fits the event}}'
     );
     const raw = await claude(memCtx);
     let txt = '', scheduledEvent = null;
@@ -2693,16 +2696,24 @@ async function generatePhoneContent() {
     if (scheduledEvent && Number.isInteger(scheduledEvent.daysFromNow) && scheduledEvent.daysFromNow >= 1 && scheduledEvent.daysFromNow <= 5 && scheduledEvent.title) {
       const targetDay = G.day + scheduledEvent.daysFromNow;
       const dateStr = getCalDateStr(targetDay);
-      calAddEvent(dateStr, {
-        id: 'npc_sched_' + npc + '_' + targetDay,
-        type: 'work',
-        source: 'npc_message',
-        npcKey: npc,
-        title: scheduledEvent.title,
-        npcName: getNPCName(npc),
-        status: 'accepted',
-        description: isZhPhone?'来自消息的安排':'Scheduled via message',
-      });
+      // 剧情固定日、或当天已经有其它NPC安排的活动了 → 不写入日历，避免产生一个永远无法被处理的冲突
+      const hasStoryDay = !!STORY.utils.getScriptedEvent(targetDay);
+      const hasSchedConflict = (G.calendar.events[dateStr] || []).some(e => e.source === 'npc_message' && e.status === 'accepted');
+      if (!hasStoryDay && !hasSchedConflict) {
+        const VALID_SCHED_LOCS = ['recording_studio','music_training','cafe_meeting','art_gallery','night_bar'];
+        const locKey = VALID_SCHED_LOCS.includes(scheduledEvent.locationKey) ? scheduledEvent.locationKey : 'music_training';
+        calAddEvent(dateStr, {
+          id: 'npc_sched_' + npc + '_' + targetDay,
+          type: 'work',
+          source: 'npc_message',
+          npcKey: npc,
+          title: scheduledEvent.title,
+          npcName: getNPCName(npc),
+          locKey,
+          status: 'accepted',
+          description: isZhPhone?'来自消息的安排':'Scheduled via message',
+        });
+      }
     }
   }
   G.phone.messages[G.day] = msgs;
@@ -2954,7 +2965,7 @@ window.addEventListener('load', () => {
   applyLang();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.49 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.50 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
