@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.65** |
+| 当前版本 | **v10.66** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -327,6 +327,11 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 **v10.65**：
 - 女主独自行程图（genProtagonistScene 主+降级路径）接入HQ开关（开=flux/dev 28步）
 - 过夜"留下"改造：生成一张沙发依偎暧昧图（相拥、盖毯、着装完整、暖光+窗外夜景，含蓄尺度，走HQ开关，seed用该NPC的portraitSeed）作为场景图并存入回忆，按钮"相拥而眠"→夜幕转场进第二天；生成失败自动跳过直接转场
+
+**v10.66**：
+- **初见立绘全屏展示**：NPC三选一确认后先全屏展示选中的立绘（`#portrait-full`，点击继续），之后才进入对话
+- **对话中点背景图隐藏/显示对话框**（`toggleVNDialog`，vn-bg 的点击从 openLB 改为切换；场景入口复位显隐状态）
+- 用户报"过夜没生成沙发图"= v10.64 缓存旧版行为（沙发图是 v10.65 加的），代码复查无问题，强刷验证
 
 ## 9. 待开发（优先顺序）
 

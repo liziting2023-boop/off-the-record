@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.65"></script>
-<script src="state.js?v=10.65"></script>
+<script src="story.js?v=10.66"></script>
+<script src="state.js?v=10.66"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -134,6 +134,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .affection-card .aff-bar-bg{height:6px;background:rgba(196,96,122,0.12);border-radius:3px;overflow:hidden;}
 .affection-card .aff-bar-fill{height:100%;border-radius:3px;}
 .affection-card .aff-score{font-size:11px;color:var(--text-mid);margin-top:4px;}
+/* 初见立绘全屏展示 */
+#portrait-full{position:absolute;inset:0;z-index:6;background:#0f080c;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;}
+#portrait-full-img{max-width:100%;max-height:88%;object-fit:contain;}
+.pf-hint{position:absolute;bottom:calc(70px + env(safe-area-inset-bottom));font-size:11px;letter-spacing:3px;color:rgba(255,240,245,0.65);animation:callPulse 1.6s ease-in-out infinite;}
 /* NPC初次登场三选一 */
 #npc-trio{position:absolute;inset:0;z-index:5;background:rgba(15,8,12,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 14px calc(70px + env(safe-area-inset-bottom));}
 .npct-head{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4.5vw,18px);color:rgba(255,240,245,0.95);text-align:center;line-height:1.6;}
@@ -438,7 +442,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.65</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.66</p>
   </div>
 </div>
 
@@ -734,10 +738,15 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="gt" style="margin-top:16px">Painting the scene<span class="loading-dots"></span></div>
   </div>
   <!-- Scene state -->
-  <img class="vn-bg" id="vn-bg" src="" alt="" style="display:none" onclick="openLB(this.src)">
+  <img class="vn-bg" id="vn-bg" src="" alt="" style="display:none" onclick="toggleVNDialog()">
   <div class="vn-bg-ph" id="vn-bg-ph" style="display:none"></div>
   <div class="vn-overlay" id="vn-overlay" style="display:none"></div>
   <div class="vn-npc-card" id="vn-npc-card" style="display:none" onclick="openLB(document.getElementById('vn-npc-img').src)"><img id="vn-npc-img" src="" alt=""></div>
+  <!-- 初见立绘全屏展示（三选一确认后先看大图，点击进入对话） -->
+  <div id="portrait-full" style="display:none" onclick="closePortraitFull()">
+    <img id="portrait-full-img" src="" alt="">
+    <div class="pf-hint" id="pf-hint">点击继续</div>
+  </div>
   <!-- NPC初次登场：三选一确认形象（选中的锁定为该NPC固定立绘） -->
   <div id="npc-trio" style="display:none">
     <div class="npct-head" id="npct-head">选择他的样子</div>
@@ -1261,6 +1270,30 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
+}
+
+// ── 初见立绘全屏展示：三选一确认后先看大图，点击后进入对话 ──
+let _pfCallback = null;
+function showPortraitFull(url, isZhHint, cb) {
+  if (!url) { if (cb) cb(); return; }
+  _pfCallback = cb;
+  document.getElementById('portrait-full-img').src = url;
+  document.getElementById('pf-hint').textContent = isZhHint ? '点击继续' : 'Tap to continue';
+  document.getElementById('portrait-full').style.display = 'flex';
+}
+function closePortraitFull() {
+  document.getElementById('portrait-full').style.display = 'none';
+  const cb = _pfCallback; _pfCallback = null;
+  if (cb) cb();
+}
+
+// ── 对话中点背景图：隐藏/显示对话框（欣赏画面用） ──
+function toggleVNDialog() {
+  const c = document.getElementById('vn-content');
+  const a = document.getElementById('vn-avatars');
+  const hidden = c.style.visibility === 'hidden';
+  c.style.visibility = hidden ? 'visible' : 'hidden';
+  a.style.visibility = hidden ? '' : 'hidden'; // 恢复时交还给子元素自己的显隐规则
 }
 
 // ── NPC初次登场三选一：三张共用seed不同姿势的头像，玩家选中的锁定为固定立绘 ──
@@ -2767,6 +2800,9 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
   document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
+  document.getElementById('portrait-full').style.display = 'none'; // 全屏立绘复位
+  document.getElementById('vn-content').style.visibility = ''; // 对话框显隐复位（上一场景可能点图隐藏过）
+  document.getElementById('vn-avatars').style.visibility = '';
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -3135,6 +3171,9 @@ async function playScheduledEvent(dateStr, event) {
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
   document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
+  document.getElementById('portrait-full').style.display = 'none'; // 全屏立绘复位
+  document.getElementById('vn-content').style.visibility = ''; // 对话框显隐复位（上一场景可能点图隐藏过）
+  document.getElementById('vn-avatars').style.visibility = '';
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -3208,6 +3247,9 @@ async function startScriptedSceneWithLateOrigin(day, ev) {
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
   document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
+  document.getElementById('portrait-full').style.display = 'none'; // 全屏立绘复位
+  document.getElementById('vn-content').style.visibility = ''; // 对话框显隐复位（上一场景可能点图隐藏过）
+  document.getElementById('vn-avatars').style.visibility = '';
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -3239,6 +3281,9 @@ async function startScriptedScene(day, ev) {
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
   document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
   document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
+  document.getElementById('portrait-full').style.display = 'none'; // 全屏立绘复位
+  document.getElementById('vn-content').style.visibility = ''; // 对话框显隐复位（上一场景可能点图隐藏过）
+  document.getElementById('vn-avatars').style.visibility = '';
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -3263,9 +3308,11 @@ async function startScriptedScene(day, ev) {
   const startBtn = document.createElement('button'); startBtn.className = 'vn-next'; startBtn.textContent = contLabel;
   startBtn.onclick = () => {
     if (!G.npcs[ev.npc].portraitUrl) {
-      // 初次见面：先三选一确认形象，之后由对话双头像框展示（不再用大立绘卡）
+      // 初次见面：三选一确认 → 先全屏欣赏选中的立绘 → 点击后进入对话
       showNPCTrioChooser(ev.npc, day, () => {
-        runVNDialog(ev.dialogRounds, ev.npc, day, 0);
+        showPortraitFull(G.npcs[ev.npc].portraitUrl, lang==='zh-cn'||lang==='zh-tw', () => {
+          runVNDialog(ev.dialogRounds, ev.npc, day, 0);
+        });
       });
     } else {
       runVNDialog(ev.dialogRounds, ev.npc, day, 0);
@@ -4837,7 +4884,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.65 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.66 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
