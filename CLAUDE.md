@@ -70,7 +70,7 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 
 ### API
 - Claude 对话：`claude-sonnet-4-6`（**不换模型**）
-- 图片生成：默认 `fal-ai/flux/schnell`；v10.61 起设置页有"人物图质量"开关，开=人物立绘走 `fal-ai/flux/dev`(28步,提示词服从度高)、背景仍 schnell。**需要 Worker 支持 `model` 字段白名单**（Worker 未更新时字段被忽略、静默回落 schnell，向后兼容）。Worker 改法见 v10.61 changelog
+- 图片生成：默认 `fal-ai/flux/schnell`；设置页"人物图质量"开关：开=人物立绘走 `fal-ai/flux/dev`(28步)、背景仍 schnell。**Worker 已于 2026-07-02 通过 API 部署支持 `model` 字段白名单**（schnell/dev，未知值回落 schnell），三路径已实测（schnell默认/dev/claude绑定变量均正常）。注意：Worker 的两个 API key 是**明文变量绑定**（非加密secret），用 API 重新部署时必须在 metadata.bindings 里原样带上，否则会丢失
 - 代理：Cloudflare Worker `off-the-record-api.liziting2023.workers.dev`
   - `/claude` → Anthropic API
   - `/image` → fal.ai
