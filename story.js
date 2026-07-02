@@ -303,6 +303,21 @@ const STORY = {
       isPublic: true,
       composition: 'upscale shopping mall interior, boutique storefronts, glass railings and escalators, bright airy atrium',
     },
+    dance_studio: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'bright dance studio, full-wall mirrors and ballet barre, polished wooden floor, large windows with daylight',
+    },
+    gym: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'modern fitness gym, weight machines and treadmills, large windows, energetic clean space',
+    },
+    park: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'peaceful city park, tree-lined walking path, benches and a small pond, dappled sunlight through leaves',
+    },
   },
 
   // ══════════════════════════════════════════════════════

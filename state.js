@@ -29,6 +29,8 @@ const STATE = {
     // 游戏进度
     day: 1,
     fame: 5,
+    stress: 0,     // 压力值0-100：工作+12/职业投资+8/剧情日+5，休息-15（周末-20），满100次日病倒
+    sick: null,    // 生病状态 { start: 病倒那天的day }，持续3天强制休养，知名度-8，NPC轮流探望
     daysWithoutWork: 0,
     publicSceneCount: 0, // 侦探出现计数
     today: null, // 今天做了什么（{label, isWork, npc}），供晚间消息等引用，每天开始时重置
