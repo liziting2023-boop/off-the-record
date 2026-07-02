@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.54"></script>
-<script src="state.js?v=10.54"></script>
+<script src="story.js?v=10.55"></script>
+<script src="state.js?v=10.55"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -403,7 +403,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.54</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.55</p>
   </div>
 </div>
 
@@ -2304,6 +2304,7 @@ function confirmNPCOrigin() {
 async function startDay() {
   G.today = null; // 重置今天做了什么的记录
   G.phase = 'morning'; // 游戏时段：手机时钟/消息时间戳都以此为准
+  G.clockMin = 8 * 60 + 7; // 统一游戏时钟：新的一天从8:07开始
   refreshCalBadge();
   // Auto-populate calendar for today
   autoAddCalendarEvents(G.day);
@@ -2316,7 +2317,7 @@ async function startDay() {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   const dn = isZh?days_zh[idx]:lang==='ja'?days_ja[idx]+'曜日':lang==='ko'?days_ko[idx]+'요일':days_en[idx];
   const monthDay = getGameDate(G.day);
-  document.getElementById('d-clock').textContent = '8:07';
+  document.getElementById('d-clock').textContent = gameClockStr();
   document.getElementById('d-date').textContent = isZh ? dn + ' · ' + monthDay + ' · 第' + G.day + '天' : lang==='ko' ? dn + ' · ' + monthDay + ' · ' + G.day + '일차' : dn + ' · ' + monthDay + ' · Day ' + G.day;
   if (G.apartment.livingDayUrl) {
     document.getElementById('daily-room-img').src = G.apartment.livingDayUrl;
@@ -2692,9 +2693,13 @@ function setVNAvatars(npcKey) {
   wrap.style.display = (nUrl || pUrl) ? 'flex' : 'none';
 }
 
-function vnSpeak(who) { // 'npc' | 'player' | null
-  document.getElementById('vn-av-npc').classList.toggle('active', who === 'npc');
-  document.getElementById('vn-av-player').classList.toggle('active', who === 'player');
+function vnSpeak(who) { // 'npc' | 'player' | null —— 轮流出现：谁说话只显示谁的头像
+  var nEl = document.getElementById('vn-av-npc');
+  var pEl = document.getElementById('vn-av-player');
+  nEl.classList.toggle('active', who === 'npc');
+  pEl.classList.toggle('active', who === 'player');
+  nEl.style.visibility = (who === 'player' || !nEl.classList.contains('has-img')) ? 'hidden' : 'visible';
+  pEl.style.visibility = (who === 'npc' || !pEl.classList.contains('has-img')) ? 'hidden' : 'visible';
 }
 
 async function runVNDialog(dialogRounds, npcKey, day, round) {
@@ -2894,6 +2899,7 @@ async function quickResp(npcKey, relChange, reply) {
 // ══════════════════════════════════════════════════════
 async function goEvening() {
   G.phase = 'evening'; // 游戏时段：手机时钟/消息时间戳都以此为准
+  G.clockMin = Math.max(G.clockMin || 0, 22 * 60 + Math.floor(Math.random() * 12)); // 统一游戏时钟：入夜
   go('s-evening');
   // 晚间也显示今天是哪一天（和早晨首页同一套格式）
   (function(){
@@ -2914,7 +2920,7 @@ async function goEvening() {
   // Default fallback texts in case Claude fails
   const defaultNar = isZh ? '今天结束了。明天又是新的开始。' : 'The day is over. Tomorrow is a new beginning.';
   const defaultMsg = isZh ? '明天九点，准时。' : 'Tomorrow at 9. Don\'t be late.';
-  document.getElementById('eve-stamp').textContent = (22 + Math.floor(Math.random()*2)) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0');
+  document.getElementById('eve-stamp').textContent = gameClockStr();
   document.getElementById('eve-nar').textContent = defaultNar;
   // Show notification tap to open phone (先隐藏，等确认真的有新消息生成成功再显示)
   var eveAgentName = G.npcs.agent.name || (isZh?'经纪人':'Agent');
@@ -2939,7 +2945,7 @@ async function goEvening() {
   const missedMandate = (G.calendar.events[getCalDateStr(G.day)] || []).find(e => e.source === 'agent_mandate' && e.status === 'missed');
   const agentMsgPrompt = missedMandate
     ? ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'Her') + ' is your signed artist. She SKIPPED the mandatory scheduled work "' + missedMandate.title + '" today' + (G.today ? ' and went to "' + G.today.label + '" instead' : '') + '. Send a stern, controlled, questioning text (1-2 sentences) — cold displeasure, demand an explanation, no yelling. Language: ' + G.langName + '.')
-    : ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. It is late evening of Day ' + G.day + ' of her contract. ' + todayContext + ' STRICT: do NOT invent events that did not happen — no auditions, directors, callbacks, streaming platforms (e.g. Netflix), or industry people asking about her unless mentioned in the context above. Send a brief warm 1-sentence text — supportive, caring, like a mentor who genuinely wants her to rest well. NO contract talk. Language: ' + G.langName + '.');
+    : ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. It is late evening of Day ' + G.day + ' of her contract. ' + todayContext + ' ' + buildScheduleContext(2) + ' STRICT: do NOT invent events that did not happen — no auditions, directors, callbacks, streaming platforms (e.g. Netflix), or industry people asking about her unless mentioned in the context above. Send a brief warm 1-sentence text — supportive, caring, like a mentor who genuinely wants her to rest well. NO contract talk. Language: ' + G.langName + '.');
   if (missedMandate) {
     STATE.relationships.change('agent', -5);
     missedMandate.status = 'missed_handled'; // 避免第二天晚上重复质问
@@ -3135,7 +3141,7 @@ async function generateAffinityMessages(day) {
           isVoice: false,
           emoji: NPC_UI[npcKey]?.emoji || '💬',
           color: NPC_UI[npcKey]?.color || '#C4A882',
-          time: nextMsgTime(day, 21 * 60 + 15), // 睡前时段，接着当天最后一条往后排，不会出现比前面消息更早的时间
+          time: nextMsgTime(day, 21 * 60 + 15, true), // 补记前一天晚间：回溯模式，接着那天最后一条排，不动主时钟
           day: day,
           isProactive: true,
           tier,
@@ -3174,12 +3180,15 @@ function buildScheduleContext(days) {
   for (var d = G.day; d <= G.day + (days || 5); d++) {
     var evs = (G.calendar.events[getCalDateStr(d)] || []).filter(e => e.status === 'accepted' && (e.type === 'work'));
     var sev = STORY.utils.getScriptedEvent(d);
-    var titles = evs.map(e => e.title);
+    // 标注出席人，防止NPC说"明天录音室见"却根本不出席（如经纪人说见，实际是鼓手的排练）
+    var roleNames = { agent:'her agent', drummer:'the band leader (drummer)', actor:'the actor', butler:'the building manager', detective:'the detective' };
+    var titles = evs.map(e => e.title + (e.npcKey ? ' [with ' + (roleNames[e.npcKey]||e.npcKey) + ']' : ' [she goes alone]'));
     if (titles.length) lines.push('Day ' + d + ' (' + getGameDate(d) + (d === G.day ? ', TODAY' : '') + '): ' + titles.join(' + '));
     else if (!sev) lines.push('Day ' + d + ' (' + getGameDate(d) + (d === G.day ? ', TODAY' : '') + '): free, nothing scheduled');
   }
   return 'Her REAL schedule (from her calendar): ' + (lines.join('; ') || 'nothing scheduled') +
-    '. STRICT: never mention, imply or invent any rehearsal, class, session or plan that is not in this list. If asked about a date, answer EXACTLY from this list.';
+    '. STRICT: never mention, imply or invent any rehearsal, class, session or plan that is not in this list. If asked about a date, answer EXACTLY from this list. ' +
+    'Only the person noted in [with ...] attends — NEVER say "see you there" or imply you will be present at an event unless YOU are that noted person.';
 }
 
 async function generatePhoneContent() {
@@ -3202,8 +3211,8 @@ async function generatePhoneContent() {
   }).slice(0, 3);
   for (const npc of senders) {
     const isVoice = Math.random() > 0.65;
-    // 早晨消息时间：7:05起单调递增，必须早于首页时钟8:07且不乱序
-    const msgTime = nextMsgTime(G.day, 7 * 60 + 5);
+    // 早晨消息（睡醒前收到）：回溯模式，7:05起递增，不推动主时钟
+    const msgTime = nextMsgTime(G.day, 7 * 60 + 5, true);
     const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
       'Send a ' + (isVoice?'voice message transcript':'text message') + ' at ' + msgTime + ' in the early morning. ' + progressGuard + ' ' + schedCtx +
       ' NEVER claim she sent you a message unless that exact message appears in "Previous interactions" above. ' +
@@ -3540,28 +3549,37 @@ async function sendChatReply() {
   STATE.save.saveGame();
 }
 
-// ── 游戏内消息时钟：同一天内单调递增 ──
-// 每条新消息的时间 = max(当天上一条时间, 时段基准) + 1~6分钟，
-// 彻底避免"23:52 之后又收到 19:24"这类乱序（之前每条独立随机导致）
-function nextMsgTime(day, baseMinutes) {
+// ══ 统一游戏时钟（单一时间源）══
+// G.clockMin = 当前游戏内时间（分钟）。主页时钟、手机状态栏、消息时间戳全部从这里读，
+// 三处从机制上不可能再互相对不上。发/收消息会把时钟往前推几分钟。
+// 例外（"回溯模式"backdated）：睡醒前收到的7点消息、补记前一天晚间的好感消息——
+// 这类消息只保证自己内部递增，不推动主时钟。
+function fmtClock(min) { return Math.floor(min / 60) + ':' + String(min % 60).padStart(2, '0'); }
+function gameClockStr() { return fmtClock(G.clockMin || (8 * 60 + 7)); }
+
+function nextMsgTime(day, baseMinutes, backdated) {
   if (!G.phone.lastMsgMin) G.phone.lastMsgMin = {};
-  var cur = Math.max(G.phone.lastMsgMin[day] || 0, baseMinutes || 0);
-  cur = Math.min(cur + 1 + Math.floor(Math.random() * 6), 23 * 60 + 59);
-  G.phone.lastMsgMin[day] = cur;
-  return Math.floor(cur / 60) + ':' + String(cur % 60).padStart(2, '0');
+  var last = G.phone.lastMsgMin[day] || 0;
+  var cur;
+  if (backdated) {
+    cur = Math.max(last, baseMinutes || 0);
+  } else {
+    cur = Math.max(G.clockMin || 0, last, baseMinutes || 0);
+  }
+  cur = Math.min(cur + 1 + Math.floor(Math.random() * 5), 23 * 60 + 59);
+  G.phone.lastMsgMin[day] = Math.max(last, cur);
+  if (!backdated) G.clockMin = cur; // 实时消息推动主时钟
+  return fmtClock(cur);
 }
 
-// 当前时段的消息时间（早晨从8:08起、晚间从22:00起，接着当天最后一条往后走）
+// 实时消息时间戳（聊天收发等）：从当前主时钟继续往后走
 function getPhoneClockTime() {
   return nextMsgTime(G.day, G.phase === 'evening' ? 22 * 60 : 8 * 60 + 8);
 }
 
-// 手机状态栏时钟：不早于当天最后一条消息的时间（修"消息23:34但状态栏22:30"）
+// 手机状态栏时钟 = 主时钟（和主页、消息时间同源）
 function getPhoneStatusClock() {
-  var base = G.phase === 'evening' ? 22 * 60 + 30 : 8 * 60 + 15;
-  var last = (G.phone.lastMsgMin && G.phone.lastMsgMin[G.day]) || 0;
-  var cur = Math.min(Math.max(base, last + 1), 23 * 60 + 59);
-  return Math.floor(cur / 60) + ':' + String(cur % 60).padStart(2, '0');
+  return gameClockStr();
 }
 
 // 日历角标：过期的待处理邀约自动作废，只数今天及以后的待处理数
@@ -3742,7 +3760,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.54 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.55 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

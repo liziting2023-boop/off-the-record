@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.54** |
+| 当前版本 | **v10.55** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -236,6 +236,12 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - Day1 离开办公室改热情送客：离场旁白改"送到门口按电梯目送"，Round3 npcContext 改 warm send-off（不再"眼睛落回文件/头也没回"）
 - 首页早晨独白加毛玻璃底卡（压在照片上可读），"今天要做什么？"加粗加白光晕
 - 鼓手生图 NO glasses 加强为 "NO eyewear of any kind, bare face"
+
+**v10.55（用户第五轮反馈：统一游戏时钟）**：
+- **统一游戏时钟 `G.clockMin`（单一时间源，根本性方案）**：主页时钟、手机状态栏、消息时间戳全部读 `gameClockStr()`；实时消息推动主时钟前进1-5分钟，状态栏=主时钟，机制上不可能再互相对不上。startDay 置 8:07、goEvening 置 22:0x。"回溯模式"（backdated）：睡醒前的7点消息、补记前一天晚间的好感消息只保证内部递增、不动主时钟
+- **日程上下文标注出席人** `[with the band leader]`/`[she goes alone]`，并禁止NPC对自己不出席的活动说"到时见"（修经纪人说"明天录音室见"但明天只有鼓手）
+- **对话头像轮流出现**：NPC说话只显示NPC头像，玩家台词只显示女主头像（vnSpeak 控制 visibility）
+- **管家生图**：彻底取消"40%概率戴眼镜"设定（一律 NO eyewear bare face），便服改楼管工作服（polo/工装马甲），加强禁背包措辞
 
 ## 9. 待开发（优先顺序）
 

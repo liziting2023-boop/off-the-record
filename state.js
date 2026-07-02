@@ -329,11 +329,8 @@ const STATE = {
       const npc = G.npcs?.butler || STATE.data.npcs.butler;
       const origin = npc.origin || 'Korean';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['Korean'];
-      // Day < 210: 可能戴眼镜隐藏眼神
-      // Day >= 210: 秘密揭露后摘掉眼镜
-      const glassesNote = (!secretRevealed && day < 210 && Math.random() > 0.6)
-        ? 'wearing plain glasses to hide resemblance to his brother'
-        : 'NO glasses, earnest warm eyes';
+      // 用户要求：管家一律不戴眼镜（原"40%概率戴镜隐藏眼神"的设定取消）
+      const glassesNote = 'NO glasses, NO eyewear of any kind, bare face, earnest warm eyes';
 
       return [
         `Adorable yet handsome 20-year-old ${origin} young man`,
@@ -343,10 +340,10 @@ const STATE = {
         `building manager`,
         `${app.hair} clean and neat`,
         `${app.skin} skin`,
-        `casual everyday clothes, neat and unassuming`,
+        `building manager work uniform, neat polo shirt or work vest, unassuming`,
         `clean-cut innocent features, slightly flushed cheeks`,
         `earnest warm expression`,
-        `NO backpack, NO bag, hands empty`,
+        `NO backpack, NO bag, NO shoulder strap, nothing carried on his back, hands empty`,
         glassesNote,
         scene,
       ].filter(Boolean).join(', ');
