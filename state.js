@@ -245,7 +245,7 @@ const STATE = {
         app.hair,
         `${app.skin} skin tone`,
         app.suit,
-        `cold composed expression with hidden intensity`,
+        `warm approachable expression, relaxed confident smile, composed friendly presence`,
         `NO glasses`,
         scene,
       ].filter(Boolean).join(', ');
@@ -287,7 +287,7 @@ const STATE = {
         `${app.hair} perfectly styled`,
         `${app.skin} skin`,
         `fashionable stylish outfit`,
-        `effortlessly charismatic expression`,
+        `playful flirtatious smirk, teasing charming gaze, effortlessly charismatic`,
         glassesNote,
         scene,
       ].filter(Boolean).join(', ');
@@ -338,6 +338,7 @@ const STATE = {
       return [
         `Adorable yet handsome 20-year-old ${origin} young man`,
         app.features,
+        `unmistakably authentic ${origin} facial structure and ethnicity`,
         `172cm slim youthful build`,
         `building manager`,
         `${app.hair} clean and neat`,
