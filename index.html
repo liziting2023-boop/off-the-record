@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.55"></script>
-<script src="state.js?v=10.55"></script>
+<script src="story.js?v=10.56"></script>
+<script src="state.js?v=10.56"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -123,6 +123,17 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .vn-bg-ph{position:absolute;inset:0;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);z-index:0;display:flex;align-items:center;justify-content:center;}
 .vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;}
+/* 好感度页卡片 */
+.affection-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.65);border:1px solid rgba(196,96,122,0.15);border-radius:14px;padding:10px 12px;margin-bottom:10px;}
+.aff-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(196,96,122,0.35);cursor:pointer;}
+.aff-avatar-emoji{display:flex;align-items:center;justify-content:center;font-size:26px;background:rgba(196,96,122,0.12);}
+.affection-card .aff-info{flex:1;min-width:0;}
+.aff-topline{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px;}
+.affection-card .aff-name{font-size:14px;font-weight:600;color:var(--text-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.affection-card .aff-role{font-size:11px;color:var(--text-mid);flex-shrink:0;}
+.affection-card .aff-bar-bg{height:6px;background:rgba(196,96,122,0.12);border-radius:3px;overflow:hidden;}
+.affection-card .aff-bar-fill{height:100%;border-radius:3px;}
+.affection-card .aff-score{font-size:11px;color:var(--text-mid);margin-top:4px;}
 /* NPC初次登场三选一 */
 #npc-trio{position:absolute;inset:0;z-index:5;background:rgba(15,8,12,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 14px calc(70px + env(safe-area-inset-bottom));}
 .npct-head{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4.5vw,18px);color:rgba(255,240,245,0.95);text-align:center;line-height:1.6;}
@@ -335,6 +346,18 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,#C4847A,#E8A0A8);transition:width 0.5s ease;z-index:200;opacity:0.4;}
 .back-btn{position:fixed;top:12px;left:14px;font-size:10px;letter-spacing:2px;color:var(--text-mid);text-transform:uppercase;cursor:pointer;background:none;border:none;z-index:200;font-family:'Jost',sans-serif;padding:6px;min-height:40px;}
 .sind{position:fixed;top:14px;right:14px;font-size:9px;letter-spacing:2px;color:var(--ink-muted);text-transform:uppercase;z-index:200;}
+/* 来电界面 */
+#call-overlay{position:fixed;inset:0;z-index:420;background:linear-gradient(180deg,#1a1228 0%,#33203f 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
+.call-card{width:min(88vw,380px);text-align:center;color:rgba(255,240,245,0.95);}
+#call-avatar{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.4);margin-bottom:14px;background:#241a28;}
+#call-name{font-size:20px;font-weight:600;margin-bottom:4px;}
+#call-status{font-size:12px;letter-spacing:2px;opacity:0.7;margin-bottom:18px;animation:callPulse 1.4s ease-in-out infinite;}
+@keyframes callPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+#call-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;line-height:1.8;background:rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:left;max-height:34vh;overflow-y:auto;}
+.call-btns{display:flex;gap:14px;justify-content:center;margin-top:20px;}
+.call-btns button{border:none;border-radius:24px;padding:12px 26px;font-size:14px;font-family:'Jost',sans-serif;cursor:pointer;}
+#call-answer{background:#3cb371;color:#fff;}
+#call-hang{background:#c4607a;color:#fff;}
 /* 过夜转场：全屏夜幕，压在所有界面（含底部导航）之上 */
 #night-transition{position:fixed;inset:0;z-index:400;background:linear-gradient(180deg,#161228 0%,#251d40 55%,#3d2c52 100%);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .6s ease;pointer-events:none;}
 #night-transition.show{opacity:1;pointer-events:auto;}
@@ -403,7 +426,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.55</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.56</p>
   </div>
 </div>
 
@@ -742,6 +765,26 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <div class="eve-msgs" id="eve-msgs"></div>
       </div>
       <button class="btn-p" onclick="nextDay()" id="btn-sleep" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);min-width:200px;z-index:10;box-shadow:0 4px 20px rgba(180,80,100,0.3)">入睡 · 下一天</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 来电界面 ══ -->
+<div id="call-overlay" style="display:none">
+  <div class="call-card">
+    <img id="call-avatar" src="" alt="">
+    <div id="call-name">—</div>
+    <div id="call-status">来电中…</div>
+    <div id="call-body" style="display:none">
+      <div id="call-text"></div>
+      <div class="wc-input-bar" style="margin:12px 0 0;background:transparent;border:none;padding:0">
+        <input id="call-input" type="text" maxlength="200" placeholder="说点什么…" onkeydown="if(event.key==='Enter'&&!event.isComposing)callSay()">
+        <button onclick="callSay()">说</button>
+      </div>
+    </div>
+    <div class="call-btns">
+      <button id="call-answer" onclick="answerCall()">📞 接听</button>
+      <button id="call-hang" onclick="endCall()">✕ 挂断</button>
     </div>
   </div>
 </div>
@@ -1234,7 +1277,9 @@ async function genProtagonistScene(locKey, day) {
   const seasonDesc = isOutdoor ? STORY.seasons.getAtmosphere(G.player.city, day) : '';
   G.publicSceneCount++;
   const detShadow = isPublic ? STATE.imagePrompts.getDetectiveShadow(day, G.publicSceneCount) : '';
-  const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : '')) + (detShadow || '');
+  // 普通行程用中远景抓拍感：人物在环境中自然做事、不看镜头（不再是半身近景对视）
+  const candid = ', medium-wide candid shot, she is naturally engaged in the activity of this place, NOT looking at the camera, environmental storytelling, cinematic composition';
+  const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : '') + candid) + (detShadow || '');
   // 复用玩家确认头像时的 seed，让女主在不同场景里的形象尽量保持一致
   // 注意：不能用 || null，seed 恰好是 0 时会被误判成没设置，默认值本身就是 null 所以直接传即可
   return await img(prompt, locKey, false, 2, G.player.portraitSeed);
@@ -1413,6 +1458,8 @@ var _calSelectedDay = null;
 function openCalendar() {
   setABn('bn-calendar');
   renderCalendar();
+  // 默认选中今天并显示当天事件
+  renderCalDayEvents(getCalDateStr(G.day));
   go('s-calendar');
 }
 
@@ -2512,9 +2559,13 @@ async function playFree(key, label, isWork, thenScripted) {
     if (e.source === 'agent_mandate' && e.status === 'accepted') { e.status = 'missed'; G.today.skippedMandate = e.title; }
   });
 
-  // 场景图片后台加载
+  // 场景图片后台加载（生成成功的普通行程图也存入回忆）
   genProtagonistScene(key, G.day).then(url => {
-    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+    if (url) {
+      document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+      G.gallery.push({ url, label: label + ' · Day ' + G.day });
+      STATE.save.saveGame();
+    }
   });
 
   // 生成一小段今日活动独白
@@ -2534,6 +2585,123 @@ async function playFree(key, label, isWork, thenScripted) {
   document.getElementById('vn-opts').appendChild(btn);
 
   STATE.save.saveGame();
+}
+
+// ── 来电系统：NPC在聊天里决定打电话（聊天回复JSON的 call 字段触发）──
+let _call = null; // {npc, line, answered}
+function startIncomingCall(npc, line) {
+  _call = { npc, line, answered: false };
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  const pUrl = G.npcs[npc] && G.npcs[npc].portraitUrl;
+  document.getElementById('call-avatar').src = pUrl || '';
+  document.getElementById('call-avatar').style.display = pUrl ? 'inline-block' : 'none';
+  document.getElementById('call-name').textContent = getNPCName(npc);
+  document.getElementById('call-status').textContent = isZh?'来电中…':'Incoming call…';
+  document.getElementById('call-body').style.display = 'none';
+  document.getElementById('call-answer').style.display = 'inline-block';
+  document.getElementById('call-hang').textContent = isZh?'✕ 挂断':'✕ Decline';
+  document.getElementById('call-answer').textContent = isZh?'📞 接听':'📞 Answer';
+  document.getElementById('call-input').placeholder = isZh?'说点什么…':'Say something…';
+  document.getElementById('call-overlay').style.display = 'flex';
+  playSound('rel-neutral');
+}
+
+function answerCall() {
+  if (!_call) return;
+  _call.answered = true;
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  document.getElementById('call-status').textContent = isZh?'通话中':'On call';
+  document.getElementById('call-answer').style.display = 'none';
+  document.getElementById('call-hang').textContent = isZh?'✕ 挂断':'✕ Hang up';
+  document.getElementById('call-body').style.display = 'block';
+  document.getElementById('call-text').textContent = _call.line;
+  STATE.memory.addEvent(_call.npc, 'Called her; she answered. You said: "' + _call.line.slice(0,60) + '"', G.day);
+  STATE.save.saveGame();
+}
+
+async function callSay() {
+  if (!_call || !_call.answered) return;
+  const inp = document.getElementById('call-input');
+  const text = (inp.value || '').trim();
+  if (!text) return;
+  inp.value = '';
+  const tEl = document.getElementById('call-text');
+  tEl.textContent = _call.line + '\n\n— ' + text + '\n\n…';
+  try {
+    const reply = await claude(STATE.memory.buildDialoguePrompt(_call.npc, G.day, G.langName, G.player.name,
+      'You are ON THE PHONE with her right now. You just said: "' + _call.line + '". She replies: "' + text + '". Respond naturally as spoken phone dialogue (1-2 sentences, no narration). ' + buildScheduleContext(3)));
+    if (reply && reply.trim()) {
+      _call.line = reply.trim();
+      tEl.textContent = reply.trim();
+      var d2 = Math.max(-3, Math.min(3, Math.round(judgeRelChange(_call.npc, text) / 3)));
+      if (d2 !== 0) STATE.relationships.change(_call.npc, d2);
+      STATE.memory.addEvent(_call.npc, 'Phone call: she said "' + text.slice(0,50) + '", you said "' + reply.trim().slice(0,50) + '"', G.day);
+    }
+  } catch(e) {}
+}
+
+function endCall() {
+  if (_call && !_call.answered) {
+    // 拒接：小扣好感
+    STATE.relationships.change(_call.npc, -2);
+    STATE.memory.addEvent(_call.npc, 'You called her; she declined the call.', G.day);
+  }
+  document.getElementById('call-overlay').style.display = 'none';
+  _call = null;
+  STATE.save.saveGame();
+}
+
+// ── 行程中遇到NPC的轻量对话（一轮：NPC开场→玩家回复→NPC收尾）──
+async function runQuickNPCChat(npcKey, ctx, onDone) {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const locDesc = (STORY.locations[ctx.locKey]||{}).composition || '';
+  setVNAvatars(npcKey);
+  vnSpeak('npc');
+  document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
+  document.getElementById('vn-text').textContent = '...';
+  const vopts = document.getElementById('vn-opts');
+  vopts.innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
+  let line = '';
+  try {
+    line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
+      'You run into her during "' + ctx.title + '". CURRENT SCENE LOCATION: ' + locDesc + '. Greet or react to her in character (1-2 sentences). ' + buildScheduleContext(3) +
+      ' Any non-spoken action of yourself must be in THIRD person. Spoken words in 「」 for Chinese or quotes otherwise. Plain text only.'));
+  } catch(e) {}
+  if (!line || !line.trim()) { if (onDone) onDone(); return; }
+  document.getElementById('vn-text').innerHTML = formatNPCText(line);
+  vopts.innerHTML = '';
+  const finish = async (reply, rc) => {
+    STATE.relationships.change(npcKey, rc);
+    playSound(rc > 4 ? 'rel-up' : rc < 0 ? 'rel-down' : 'rel-neutral');
+    STATE.memory.recordDialogue(npcKey, G.day, line, reply);
+    vnSpeak('player');
+    document.getElementById('vn-speaker').textContent = G.player.name || (isZh?'你':'You');
+    document.getElementById('vn-text').textContent = reply;
+    vopts.innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
+    let closing = '';
+    try {
+      closing = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
+        'She just said: "' + reply + '" during "' + ctx.title + '" at this location: ' + locDesc + '. Give a brief in-character closing line (1-2 sentences), then you both get back to what you were doing. Third person for actions outside quotes. Plain text only.'));
+    } catch(e) {}
+    vnSpeak('npc');
+    document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
+    if (closing && closing.trim()) document.getElementById('vn-text').innerHTML = formatNPCText(closing);
+    vopts.innerHTML = '';
+    const b = document.createElement('button'); b.className = 'vn-next';
+    b.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+    b.onclick = onDone;
+    vopts.appendChild(b);
+  };
+  var inputWrap = document.createElement('div'); inputWrap.className = 'vn-input-wrap';
+  var inp = document.createElement('textarea'); inp.className = 'vn-input'; inp.rows = 1;
+  inp.placeholder = isZh?'输入你想说的话...':lang==='ja'?'何か言いたいことを入力...':lang==='ko'?'하고 싶은 말을 입력...':'Type your response...';
+  inp.oninput = function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; };
+  var sendBtn = document.createElement('button'); sendBtn.className = 'vn-send'; sendBtn.innerHTML = '➤';
+  sendBtn.onclick = function(){ var r = inp.value.trim(); if (r) finish(r, Math.max(-5, Math.min(8, judgeRelChange(npcKey, r)))); };
+  inp.onkeydown = function(e){ if (e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); sendBtn.onclick(); } };
+  inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn); vopts.appendChild(inputWrap);
+  var quicks = isZh?[['很高兴在这遇到你',5],['……你也在。',3],['我先忙了，回头聊。',0]]:[['Good to see you here',5],['...You are here too.',3],['I should get back to it.',0]];
+  quicks.forEach(function(q){ var el=document.createElement('div'); el.className='vn-opt'; el.textContent=q[0]; el.onclick=function(){finish(q[0],q[1]);}; vopts.appendChild(el); });
 }
 
 // ── NPC 消息里提前安排好的活动（今天到点了）──
@@ -2562,9 +2730,17 @@ async function playScheduledEvent(dateStr, event) {
     showNPCScene(event.npcKey, G.day, locKey, true);
   } else {
     genProtagonistScene(locKey, G.day).then(url => {
-      if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+      if (url) {
+        document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+        G.gallery.push({ url, label: event.title + ' · Day ' + G.day });
+        STATE.save.saveGame();
+      }
     });
   }
+
+  // 行程中遇到NPC → 轻量对话一轮（NPC开场→玩家自由输入/快捷回复→NPC收尾）
+  window._schedChatNpc = (event.npcKey && G.npcs[event.npcKey] && G.npcs[event.npcKey].met) ? event.npcKey : null;
+  window._schedChatCtx = { title: event.title, locKey };
 
   const narration = await claude(
     'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' on Day ' + G.day + ', attending "' + event.title + '"' +
@@ -2576,7 +2752,8 @@ async function playScheduledEvent(dateStr, event) {
   const btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.textContent = contLabel;
-  btn.onclick = () => goEvening();
+  // 遇到NPC必触发对话：先聊一轮再入夜
+  btn.onclick = () => window._schedChatNpc ? runQuickNPCChat(window._schedChatNpc, window._schedChatCtx, goEvening) : goEvening();
   document.getElementById('vn-opts').appendChild(btn);
 
   // 标记这个安排已完成，避免重复触发
@@ -2760,7 +2937,11 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   }
   // 场景对话也接入真实日程，防止台词里许诺日历上不存在的"明天排练/明早九点"
   const _schedCtx = ' ' + buildScheduleContext(3) + ' Do NOT propose or mention specific work times/days that contradict this schedule.';
-  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx + _schedCtx);
+  // 注入当前场景地点，防止"约在咖啡馆却聊得像在办公室"（所有NPC通用）
+  const _sceneEv = STORY.utils.getScriptedEvent(day);
+  const _locDesc = _sceneEv && STORY.locations[_sceneEv.location] ? STORY.locations[_sceneEv.location].composition : '';
+  const _locCtx = _locDesc ? ' CURRENT SCENE LOCATION: ' + _locDesc + '. Your dialogue and any described actions MUST fit this exact place — do not talk as if you were somewhere else (e.g. your office).' : '';
+  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
   const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
@@ -2895,10 +3076,86 @@ async function quickResp(npcKey, relChange, reply) {
 }
 
 // ══════════════════════════════════════════════════════
+// EVENING INVITES（晚间赴约：同一天多个约时让玩家选，或都不去）
+// ══════════════════════════════════════════════════════
+function showEveningInviteChoice(invites) {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  go('s-scene');
+  document.getElementById('vn-loading').style.display = 'none';
+  document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none';
+  document.getElementById('vn-npc-card').style.display = 'none';
+  document.getElementById('vn-avatars').style.display = 'none';
+  document.getElementById('npc-trio').style.display = 'none';
+  document.getElementById('vn-overlay').style.display = 'block';
+  document.getElementById('vn-content').style.display = 'flex';
+  document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = invites.length > 1
+    ? (isZh?'今晚你有'+invites.length+'个约会——时间撞上了，只能去一个。':'You have '+invites.length+' invitations tonight — they overlap. Pick one.')
+    : (isZh?'今晚你有一个约会。':'You have an invitation tonight.');
+  const vopts = document.getElementById('vn-opts');
+  vopts.innerHTML = '';
+  invites.forEach(inv => {
+    const el = document.createElement('div');
+    el.className = 'vn-opt';
+    el.textContent = '💌 ' + (inv.npcName || getNPCName(inv.npcKey)) + ' · ' + (inv.time || '19:30');
+    el.onclick = () => {
+      // 其余的约标记爽约：小扣好感 + 记入记忆
+      invites.forEach(other => {
+        if (other === inv) return;
+        other.status = 'missed';
+        if (other.npcKey && G.npcs[other.npcKey]) {
+          STATE.relationships.change(other.npcKey, -4);
+          STATE.memory.addEvent(other.npcKey, 'She stood you up on day ' + G.day + ' (had accepted your invitation).', G.day);
+        }
+      });
+      G._invHandledDay = G.day;
+      playInviteScene(inv);
+    };
+    vopts.appendChild(el);
+  });
+  const none = document.createElement('div');
+  none.className = 'vn-opt';
+  none.textContent = isZh?'今晚哪都不去，直接回家':'Skip them all, go home';
+  none.onclick = () => {
+    invites.forEach(inv => {
+      inv.status = 'missed';
+      if (inv.npcKey && G.npcs[inv.npcKey]) {
+        STATE.relationships.change(inv.npcKey, -4);
+        STATE.memory.addEvent(inv.npcKey, 'She stood you up on day ' + G.day + ' (had accepted your invitation).', G.day);
+      }
+    });
+    G._invHandledDay = G.day;
+    STATE.save.saveGame();
+    goEvening();
+  };
+  vopts.appendChild(none);
+}
+
+async function playInviteScene(inv) {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const npcKey = inv.npcKey;
+  const locKey = 'night_bar';
+  document.getElementById('vn-text').textContent = '';
+  genLocationBg(locKey, G.day).then(url => {
+    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+  });
+  STATE.relationships.change(npcKey, 5); // 赴约加好感
+  STATE.memory.addEvent(npcKey, 'She came to your evening invitation on day ' + G.day + '.', G.day);
+  inv.status = 'completed';
+  G.today = { label: (isZh?'和':'Evening with ') + getNPCName(npcKey) + (isZh?'的晚间约会':''), isWork: false, npc: npcKey };
+  STATE.save.saveGame();
+  runQuickNPCChat(npcKey, { title: inv.title || 'evening date', locKey }, goEvening);
+}
+
+// ══════════════════════════════════════════════════════
 // EVENING
 // ══════════════════════════════════════════════════════
 async function goEvening() {
   G.phase = 'evening'; // 游戏时段：手机时钟/消息时间戳都以此为准
+  // 今天有已接受的NPC邀约（如19:30晚餐）→ 入夜前先让玩家选择赴哪个约/都不去
+  const _todayInv = (G.calendar.events[getCalDateStr(G.day)] || []).filter(e => e.type === 'npc_invite' && e.status === 'accepted');
+  if (_todayInv.length && G._invHandledDay !== G.day) { showEveningInviteChoice(_todayInv); return; }
   G.clockMin = Math.max(G.clockMin || 0, 22 * 60 + Math.floor(Math.random() * 12)); // 统一游戏时钟：入夜
   go('s-evening');
   // 晚间也显示今天是哪一天（和早晨首页同一套格式）
@@ -2971,6 +3228,8 @@ async function goEvening() {
       STATE.memory.addEvent('agent','Evening: "'+msgTxt.trim().slice(0,50)+'"',G.day);
     }
   }).catch(function(){});
+  // 好感NPC的晚间消息也当晚生成（睡前收齐当天所有消息，不再第二天早上补看昨晚的）
+  generateAffinityMessages(G.day);
   STATE.save.saveGame();
 }
 
@@ -3052,15 +3311,17 @@ function nextDay() {
   // 先拉上夜幕，给"过了一夜"的感觉；早晨独白会显示在这个转场画面上
   showNightTransition();
   G.day++;
-  // Generate affinity-based messages for next day
-  generateAffinityMessages(G.day - 1);
   // Day 1-5 是剧情固定天，之后进入自由日（playFree/工作日周末选项/NPC日程），可以正常继续玩下去
   startDay();
 }
 
 // ══ AFFINITY MESSAGE SYSTEM ══
+// 当晚实时生成（goEvening 调用），玩家睡前就能收到当天所有消息，不再第二天早上补看
 async function generateAffinityMessages(day) {
   const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // 每天只生成一次（playFree/剧情都会进goEvening，防重复）
+  if (G.phone._affinityDay === day) return;
+  G.phone._affinityDay = day;
 
   // Check special dates
   const birthday = STORY.specialDates.getNPCBirthday(day);
@@ -3141,7 +3402,7 @@ async function generateAffinityMessages(day) {
           isVoice: false,
           emoji: NPC_UI[npcKey]?.emoji || '💬',
           color: NPC_UI[npcKey]?.color || '#C4A882',
-          time: nextMsgTime(day, 21 * 60 + 15, true), // 补记前一天晚间：回溯模式，接着那天最后一条排，不动主时钟
+          time: nextMsgTime(day, 22 * 60), // 当晚实时到达，推动主时钟
           day: day,
           isProactive: true,
           tier,
@@ -3217,7 +3478,8 @@ async function generatePhoneContent() {
       'Send a ' + (isVoice?'voice message transcript':'text message') + ' at ' + msgTime + ' in the early morning. ' + progressGuard + ' ' + schedCtx +
       ' NEVER claim she sent you a message unless that exact message appears in "Previous interactions" above. ' +
       'Most days, keep it to mood, opinions, casual remarks, or things that already happened — do NOT invent a schedule. ' +
-      'ONLY if it fits naturally, you may mention ONE upcoming work plan (e.g. rehearsal, session, meeting) happening 1-5 days from now, but if you do, you MUST also fill in the "event" field below so it can be tracked consistently — never mention a new time/plan in the text without also filling "event".\n\n' +
+      'ONLY if it fits naturally, you may mention ONE upcoming work plan (e.g. rehearsal, session, meeting) happening 1-5 days from now, but if you do, you MUST also fill in the "event" field below so it can be tracked consistently — never mention a new time/plan in the text without also filling "event". ' +
+      'Work NEVER happens on weekends (Saturday/Sunday): today is ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][getGameWeekday(G.day)] + ', so choose daysFromNow that lands on a weekday and word the message to match that exact day.\n\n' +
       'Respond with ONLY valid JSON, no markdown fences: {"text": "the message, 1-2 sentences", "event": null or {"daysFromNow": <integer 1-5>, "title": "short event title", "locationKey": one of "recording_studio"|"music_training"|"cafe_meeting"|"art_gallery"|"night_bar", pick whichever best fits the event}}'
     );
     const raw = await claude(memCtx);
@@ -3407,12 +3669,27 @@ function formatMsgTimestamp(m) {
 // 当前打开的聊天会话（用于：新消息到达时若正在看这个会话就直接标记已读）
 var _openChatNpc = null;
 
-function renderChatMsgs(npc) {
+function scrollChatBottom() {
+  var content = document.getElementById('chat-msgs').parentElement;
+  if (!content) return;
+  content.scrollTop = content.scrollHeight;
+  // 图片/延迟渲染撑高后再补滚一次，确保真的到底
+  setTimeout(function(){ content.scrollTop = content.scrollHeight; }, 180);
+}
+
+function renderChatMsgs(npc, dividerIdx) {
   const msgs = Object.values(G.phone.messages||{}).flat().filter(m => m && m.npc===npc);
   var chatMsgs = document.getElementById('chat-msgs');
   chatMsgs.innerHTML = '';
   var npcEmoji = (NPC_UI[npc] && NPC_UI[npc].emoji) ? NPC_UI[npc].emoji : '💬';
-  msgs.forEach(function(m) {
+  msgs.forEach(function(m, mi) {
+    // 未读分隔线：本次打开时第一条新消息之前显示，看完后（下次打开）自然消失
+    if (dividerIdx != null && mi === dividerIdx) {
+      var divd = document.createElement('div');
+      divd.style.cssText = 'text-align:center;font-size:10px;color:var(--rose);letter-spacing:2px;padding:4px 0;';
+      divd.textContent = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '— 以下是新消息 —' : '— new messages —';
+      chatMsgs.appendChild(divd);
+    }
     var wrap = document.createElement('div');
     wrap.className = 'wc-bubble-wrap' + (m.mine ? ' mine' : '');
     var avatar = document.createElement('div');
@@ -3450,11 +3727,13 @@ function renderChatMsgs(npc) {
     chatMsgs.appendChild(wrap);
   });
   // 滚动到最新一条
-  var content = chatMsgs.parentElement;
-  if (content) content.scrollTop = content.scrollHeight;
+  scrollChatBottom();
 }
 
 function openWCChat(npc) {
+  // 先记下第一条未读的位置（用于"以下是新消息"分隔线），再标记已读
+  var thread = Object.values(G.phone.messages||{}).flat().filter(m => m && m.npc === npc);
+  var firstUnread = thread.findIndex(m => !m.read && !m.mine);
   // 标记该NPC全部消息为已读，更新未读徽章
   Object.values(G.phone.messages||{}).flat().forEach(m => { if (m && m.npc === npc) m.read = true; });
   updatePhoneBadge();
@@ -3468,8 +3747,9 @@ function openWCChat(npc) {
   input.value = '';
   input.placeholder = isZh?'输入消息…':G.lang==='ja'?'メッセージを入力…':G.lang==='ko'?'메시지 입력…':'Type a message…';
   document.getElementById('chat-send-btn').textContent = isZh?'发送':G.lang==='ja'?'送信':G.lang==='ko'?'전송':'Send';
-  renderChatMsgs(npc);
+  renderChatMsgs(npc, firstUnread >= 0 ? firstUnread : null);
   go('s-chat');
+  scrollChatBottom();
 }
 
 // ── 玩家在聊天里回复NPC ──
@@ -3501,24 +3781,39 @@ async function sendChatReply() {
   // 本次会话NPC刚好在看手机（30%）→ 都秒回
   if (G.phone._activeChat === undefined || G.phone._activeChatNpc !== npc) { G.phone._activeChat = Math.random() < 0.3; G.phone._activeChatNpc = npc; }
   const h = habits[npc] || {day:1,night:1};
-  let range = tier==='high' ? [2000,6000] : tier==='mid' ? [4000,11000] : [6000,16000];
+  let range = tier==='high' ? [1500,4200] : tier==='mid' ? [2800,7500] : [4200,11000];
   let mult = (isEve ? h.night : h.day) * (G.phone._activeChat ? 0.25 : 1);
   // 管家晚上早睡：好感不高时晚上大概率不回
   if (isEve && npc==='butler' && tier!=='high' && Math.random()<0.6) { updatePhoneBadge(); STATE.save.saveGame(); return; }
   const delay = Math.round((range[0] + Math.random()*(range[1]-range[0])) * mult);
 
   try {
+    // 最近聊天原文（双方各标注），否则NPC会忘记自己上一条问了什么（"不告诉你"→"不告诉我什么？"）
+    const recentMsgs = Object.values(G.phone.messages||{}).flat()
+      .filter(m => m && m.npc === npc).slice(-10)
+      .map(m => (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0, 80)).join('\n');
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
     const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
-      'She just texted you: "' + text + '". It is ' + (isEve?'late evening':'daytime') + '. ' + buildScheduleContext(4) +
+      'RECENT CHAT (oldest→newest, YOU=you, HER=her):\n' + recentMsgs + '\n' +
+      'Her newest text (already included above as the last HER line) directly continues this conversation — your reply MUST follow from what YOU said before (e.g. if she answers your question, do not ask what she means). ' +
+      'It is ' + (isEve?'late evening':'daytime') + '. ' + buildScheduleContext(4) +
       ' NEVER claim she sent messages not listed in "Previous interactions". Reply as a text message (1-2 sentences, casual texting style). ' +
       'Judge her message against your personality: rel is -3 to +3 (inappropriate/rude/needy = negative; what YOU like = positive; neutral = 0). ' +
+      'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ' +
       'If it is late evening and you would naturally sign off (going to sleep, busy), say so in the reply and set "endChat": true — you will not reply again tonight.' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>}');
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>}');
     const [raw] = await Promise.all([claude(prompt), new Promise(r => setTimeout(r, delay * 0.35))]);
-    let reply = '', rel = 0, endChat = false;
-    try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; }
+    let reply = '', rel = 0, endChat = false, wantsCall = false;
+    try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; }
     catch (e) { reply = (raw||'').trim(); }
+    if (reply && wantsCall) {
+      // NPC决定打电话：弹来电界面，不走文字气泡
+      var t1c = document.getElementById('chat-typing'); if (t1c) t1c.remove();
+      if (rel !== 0) STATE.relationships.change(npc, rel);
+      startIncomingCall(npc, reply);
+      updatePhoneBadge(); STATE.save.saveGame();
+      return;
+    }
     if (reply) {
       // "正在输入…"提示，再等剩余延迟时间才显示回复
       if (_openChatNpc === npc) {
@@ -3625,13 +3920,16 @@ function renderAffection() {
     const pct = Math.min(100, npc.relationship);
     const heart = pct>=80?'❤️❤️❤️':pct>=50?'❤️❤️':pct>=20?'❤️':'🤍';
     const color = NPC_UI[npc.key]?.color || '#C4A882';
-    return '<div class="affection-item">' +
-      '<div class="aff-emoji">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>' +
+    // 头像用玩家确认的生成立绘，还没有立绘的NPC回退emoji
+    const pUrl = G.npcs[npc.key] && G.npcs[npc.key].portraitUrl;
+    const avatar = pUrl
+      ? '<img class="aff-avatar" src="' + pUrl + '" onclick="openLB(this.src)">'
+      : '<div class="aff-avatar aff-avatar-emoji">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
+    return '<div class="affection-card">' + avatar +
       '<div class="aff-info">' +
-        '<div class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + '</div>' +
-        '<div class="aff-role">' + getNPCRole(npc.key, lang) + '</div>' +
+        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
         '<div class="aff-bar-bg"><div class="aff-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
-        '<div class="aff-score">' + heart + ' ' + pct + ' / 100</div>' +
+        '<div class="aff-score">' + heart + ' <b>' + pct + '</b> / 100</div>' +
       '</div></div>';
   }).join('');
 }
@@ -3760,7 +4058,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.55 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.56 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

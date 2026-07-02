@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.55** |
+| 当前版本 | **v10.56** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -242,6 +242,18 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **日程上下文标注出席人** `[with the band leader]`/`[she goes alone]`，并禁止NPC对自己不出席的活动说"到时见"（修经纪人说"明天录音室见"但明天只有鼓手）
 - **对话头像轮流出现**：NPC说话只显示NPC头像，玩家台词只显示女主头像（vnSpeak 控制 visibility）
 - **管家生图**：彻底取消"40%概率戴眼镜"设定（一律 NO eyewear bare face），便服改楼管工作服（polo/工装马甲），加强禁背包措辞
+
+**v10.56（用户第六轮反馈）**：
+- **聊天带上下文**：sendChatReply注入该NPC最近10条聊天原文（YOU/HER标注），修"不告诉你→不告诉我什么？"失忆bug
+- **场景对话注入地点**：runVNDialog prompt带CURRENT SCENE LOCATION（修约咖啡馆聊得像办公室，所有NPC通用）
+- **好感晚间消息改当晚生成**（goEvening调用，每天一次守卫），睡前收齐当天全部消息；时间戳实时推进主时钟
+- **普通行程图**：中远景抓拍、人物在环境中做事不看镜头；playFree/playScheduledEvent的图存入回忆（带活动名+天数标签）
+- **聊天体验**：未读起始处显示"以下是新消息"分隔线（看完后下次打开消失）；打开会话稳定滚动到底（180ms补滚）；回复延迟整体加快约30%
+- **晚间赴约系统**：goEvening入口检查当天accepted邀约→弹选择场景（多个撞时间只能去一个/都不去）；赴约=夜bar场景+轻量对话+5好感；爽约方-4好感并记入记忆（修3月9日两行程只触发一个 + 撞时间无处理）
+- **行程遇NPC必触发对话**：新增runQuickNPCChat（NPC开场→自由输入/快捷回复→NPC收尾），playScheduledEvent带npcKey时自动进入（修录Demo遇鼓手没对话）
+- **接电话功能**：聊天回复JSON新增call字段，NPC偶尔改打电话→全屏来电UI（接听进入通话界面可多轮对话/拒接-2好感）
+- **好感度页重排版**：卡片式布局+生成立绘圆头像（点击放大，无立绘回退emoji）
+- 日历打开默认选中今天；聊天prompt禁止口头新增工作安排+周末规则；NPC消息安排事件的prompt注明"落周末会顺延，措辞要与实际日期一致"
 
 ## 9. 待开发（优先顺序）
 
