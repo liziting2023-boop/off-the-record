@@ -624,8 +624,8 @@ const STORY = {
           relChanges: [5, 8, 10],
         },
         {
-          // Round 3: 微小的温度
-          npcContext: 'The meeting is ending. Dismiss her efficiently — "Nine o\'clock tomorrow" — but then do one thing that contradicts the coldness. NOT theatrical. Something small and almost deniable: you say something quietly under your breath that could be a compliment or just an observation, then immediately open a file like you said nothing. Or you use her name for the first time in the whole meeting, just once, right at the end. The player should feel: wait, did he just—? Leave it ambiguous. Western restraint: the hook is in what barely happened.',
+          // Round 3: 热情送客
+          npcContext: 'The meeting is ending. Wrap up warmly: stand up, walk her to the door yourself, remind her gently "Nine o\'clock tomorrow", and send her off with genuine encouragement — you believe in her and you let her feel it. Maybe a small personal touch: use her name warmly, or tell her to get a good dinner tonight. NO cold dismissals, NO looking away, NO acting like nothing happened — you see her out like a gracious host.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],

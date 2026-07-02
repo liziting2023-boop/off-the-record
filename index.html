@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.53"></script>
-<script src="state.js?v=10.53"></script>
+<script src="story.js?v=10.54"></script>
+<script src="state.js?v=10.54"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -138,12 +138,12 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-npc-card img{width:100%;display:block;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:50vh;overflow-y:auto;}
-/* 对话双头像框：左NPC右女主，谁"说话"谁高亮 */
-.vn-avatars{display:flex;justify-content:space-between;padding:0 16px;margin-bottom:6px;position:relative;z-index:3;}
-.vn-av{width:60px;height:60px;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,0.4);opacity:0.35;transition:opacity .3s,border-color .3s,box-shadow .3s;background:#241a28;}
-.vn-av.active{opacity:1;border-color:var(--rose);box-shadow:0 0 12px rgba(196,96,122,0.55);}
+/* 对话双头像框：左NPC右女主（大框），谁"说话"谁高亮 */
+.vn-avatars{display:flex;justify-content:space-between;gap:10px;padding:0 12px;margin-bottom:8px;position:relative;z-index:3;}
+.vn-av{flex:1;max-width:46%;aspect-ratio:3/4;max-height:32vh;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,0.45);opacity:0.4;transition:opacity .3s,border-color .3s,box-shadow .3s;background:#241a28;cursor:pointer;}
+.vn-av.active{opacity:1;border-color:var(--rose);box-shadow:0 0 16px rgba(196,96,122,0.6);}
 .vn-av img{width:100%;height:100%;object-fit:cover;display:block;}
-.vn-av:not(.has-img){display:none;}
+.vn-av:not(.has-img){visibility:hidden;}
 .vn-speaker{font-size:12px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.2vw,20px);font-style:italic;color:#FFF0F3;line-height:1.5;margin-bottom:10px;}
 .vn-text .speech{color:#FFB8C8;font-style:italic;}
@@ -177,8 +177,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-top{flex:0 0 auto;padding:16px 16px 8px;}
 .daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;text-shadow:0 1px 6px rgba(255,255,255,0.95), 0 2px 18px rgba(255,255,255,0.8);}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.95;text-transform:uppercase;margin-top:2px;text-shadow:0 1px 5px rgba(255,255,255,0.95), 0 2px 12px rgba(255,255,255,0.8);}
-.daily-nar{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:12px 20px;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.8vw,19px);font-style:italic;color:var(--pink-deep);line-height:1.8;text-align:center;text-shadow:0 1px 6px rgba(255,255,255,0.95), 0 2px 14px rgba(255,255,255,0.8);}
-.daily-opts-head{flex:0 0 auto;padding:0 20px 4px;font-size:15px;font-weight:600;color:var(--pink-deep);text-shadow:0 1px 6px rgba(255,255,255,0.95);}
+.daily-nar{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:12px 20px;}
+/* 独白文字带毛玻璃底卡，压在任何照片上都能读清 */
+.daily-nar:not(:empty){font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.8vw,19px);font-style:italic;color:#5C1F35;line-height:1.8;text-align:center;}
+.daily-nar>span, .daily-nar.has-text{background:rgba(255,245,248,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:14px;padding:14px 18px;box-shadow:0 4px 18px rgba(92,31,53,0.08);}
+.daily-opts-head{flex:0 0 auto;padding:0 20px 5px;font-size:15px;font-weight:700;color:#7A2442;text-shadow:0 0 6px rgba(255,255,255,0.95),0 0 14px rgba(255,255,255,0.9);}
 .daily-opts{flex:0 0 auto;padding:6px 12px max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;margin-top:auto;margin-bottom:64px;}
 .daily-opt{background:rgba(255,255,255,0.85);border:1.5px solid rgba(196,96,122,0.12);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:var(--text-dark);display:flex;justify-content:space-between;align-items:center;min-height:52px;flex:0 0 auto;transition:all 0.15s;}
 .daily-opt.locked{cursor:default;pointer-events:none;background:rgba(196,96,122,0.08);border:1.5px dashed rgba(196,96,122,0.2);color:rgba(92,31,53,0.3);}
@@ -400,7 +403,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.53</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.54</p>
   </div>
 </div>
 
@@ -712,8 +715,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   </div>
   <div class="vn-content" id="vn-content" style="display:none">
     <div class="vn-avatars" id="vn-avatars" style="display:none">
-      <div class="vn-av" id="vn-av-npc"><img id="vn-av-npc-img" src="" alt=""></div>
-      <div class="vn-av" id="vn-av-player"><img id="vn-av-player-img" src="" alt=""></div>
+      <div class="vn-av" id="vn-av-npc" onclick="var s=document.getElementById('vn-av-npc-img').src; if(s)openLB(s)"><img id="vn-av-npc-img" src="" alt=""></div>
+      <div class="vn-av" id="vn-av-player" onclick="var s=document.getElementById('vn-av-player-img').src; if(s)openLB(s)"><img id="vn-av-player-img" src="" alt=""></div>
     </div>
     <div class="vn-dialog">
       <div class="vn-speaker" id="vn-speaker"></div>
@@ -2134,9 +2137,31 @@ function runSigningDialog(round) {
     autoEl.onclick = (function(r){return function(){showSigningAuto(r);};})(round);
     opts.appendChild(autoEl);
   } else {
+    // 自由输入（和正式对话一致）
+    var isZhSign = lang==='zh-cn'||lang==='zh-tw';
+    var inputWrap = document.createElement('div');
+    inputWrap.className = 'vn-input-wrap';
+    var inp = document.createElement('textarea');
+    inp.className = 'vn-input';
+    inp.placeholder = isZhSign?'输入你想说的话...':lang==='ja'?'何か言いたいことを入力...':lang==='ko'?'하고 싶은 말을 입력...':'Type your response...';
+    inp.rows = 1;
+    inp.oninput = function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; };
+    var sendBtn = document.createElement('button');
+    sendBtn.className = 'vn-send';
+    sendBtn.innerHTML = '➤';
+    sendBtn.onclick = (function(rnd){ return function(){
+      var reply = inp.value.trim();
+      if (!reply) return;
+      chooseSigningOpt(rnd, judgeRelChange('agent', reply), reply);
+    };})(round);
+    inp.onkeydown = function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendBtn.onclick();} };
+    inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn);
+    opts.appendChild(inputWrap);
+    var qlabel = document.createElement('div');
+    qlabel.className = 'vn-quick-label';
+    qlabel.textContent = isZhSign?'快捷回复':lang==='ja'?'クイック返信':lang==='ko'?'빠른 답장':'Quick replies';
+    opts.appendChild(qlabel);
     var optTexts = dlg.options[lang] || dlg.options['en'];
-    var relLabels = [t('close_lbl'), t('neutral_lbl'), t('far_lbl')];
-    var relClasses = ['rel-close','rel-neutral','rel-far'];
     optTexts.forEach(function(o, i) {
       var el = document.createElement('div');
       el.className = 'vn-opt';
@@ -2319,7 +2344,9 @@ async function startDay() {
     document.getElementById('d-txt').textContent = '';
     endNightTransition(txt.trim());
   } else {
-    document.getElementById('d-txt').textContent = txt.trim();
+    // 包一层span做毛玻璃底卡，保证压在照片上可读
+    var safeTxt = txt.trim().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    document.getElementById('d-txt').innerHTML = safeTxt ? '<span>' + safeTxt + '</span>' : '';
   }
   buildDayOpts();
   generatePhoneContent();
@@ -2632,13 +2659,11 @@ async function startScriptedScene(day, ev) {
   const startBtn = document.createElement('button'); startBtn.className = 'vn-next'; startBtn.textContent = contLabel;
   startBtn.onclick = () => {
     if (!G.npcs[ev.npc].portraitUrl) {
-      // 初次见面：先三选一确认形象，选完展示固定立绘再开始对话
+      // 初次见面：先三选一确认形象，之后由对话双头像框展示（不再用大立绘卡）
       showNPCTrioChooser(ev.npc, day, () => {
-        showNPCPortraitCard(ev.npc);
         runVNDialog(ev.dialogRounds, ev.npc, day, 0);
       });
     } else {
-      showNPCPortraitCard(ev.npc);
       runVNDialog(ev.dialogRounds, ev.npc, day, 0);
     }
   };
@@ -2682,7 +2707,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     const ev2 = STORY.utils.getScriptedEvent(day);
     const locKey2 = ev2 ? ev2.location : '';
     const transitionNar = {
-      agent_office: isZhEnd2?'你拿起包，走向门口。':'You pick up your bag and head for the door.',
+      agent_office: isZhEnd2?'他起身送你到门口，替你按住电梯，笑着说了句"明天见"。你走进电梯时，他还站在原地目送你。':'He walks you to the door himself, holds the elevator for you, and says "See you tomorrow" with a smile. He is still standing there watching as the doors close.',
       recording_studio: isZhEnd2?'你推开录音室的门，走进走廊。':'You push open the studio door and step into the corridor.',
       magazine_shoot: isZhEnd2?'拍摄结束。你收拾好自己的东西。':'The shoot wraps. You gather your things.',
       cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
@@ -2728,7 +2753,9 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   if (_culturalTraits) {
     _extraCtx += ' Cultural background (' + _origin + '): ' + _culturalTraits + ' Let this subtly texture how you speak.';
   }
-  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx);
+  // 场景对话也接入真实日程，防止台词里许诺日历上不存在的"明天排练/明早九点"
+  const _schedCtx = ' ' + buildScheduleContext(3) + ' Do NOT propose or mention specific work times/days that contradict this schedule.';
+  const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx + _schedCtx);
   const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
@@ -2831,7 +2858,7 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
   if (isLastRound) {
     const char = STORY.characters[npcKey];
     const closingCtx = STATE.memory.buildDialoguePrompt(npcKey, day, G.langName, G.player.name,
-      'The player just said: "' + playerReply + '". Give a brief closing reaction to end the scene naturally (1-2 sentences max). Could be dismissive, warm, or ambiguous. Use 你/you for player, never 她/she.');
+      'The player just said: "' + playerReply + '". Give a brief closing reaction to end the scene naturally (1-2 sentences max). Could be dismissive, warm, or ambiguous. Use 你/you for player, never 她/she. ' + buildScheduleContext(3) + ' Do NOT propose or mention specific work times/days that contradict this schedule.');
     const closingLine = await claude(closingCtx + '\n\nOne brief closing line (1-2 sentences). Use 「」for speech in Chinese, quotation marks in other languages. Any non-spoken action of yourself must be in THIRD person (他/he), never first person 我/I outside quotes. Plain text only, no HTML.');
     vnSpeak('npc');
     document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
@@ -2931,7 +2958,7 @@ async function goEvening() {
       G.phone.messages[G.day].push({
         npc:'agent', name:eveAgentName, text:msgTxt.trim(),
         isVoice:false, emoji:'👔', color:'#C4A882', day: G.day,
-        time:(22+Math.floor(Math.random()*2))+':'+Math.floor(Math.random()*59).toString().padStart(2,'0')
+        time: nextMsgTime(G.day, 22 * 60)
       });
       // 卡片显隐由 updatePhoneBadge（notifyNewMessage 内部会调用）统一按真实未读状态维护
       notifyNewMessage('agent');
@@ -3108,7 +3135,7 @@ async function generateAffinityMessages(day) {
           isVoice: false,
           emoji: NPC_UI[npcKey]?.emoji || '💬',
           color: NPC_UI[npcKey]?.color || '#C4A882',
-          time: Math.floor(Math.random()*4+18) + ':' + Math.floor(Math.random()*59).toString().padStart(2,'0'),
+          time: nextMsgTime(day, 21 * 60 + 15), // 睡前时段，接着当天最后一条往后排，不会出现比前面消息更早的时间
           day: day,
           isProactive: true,
           tier,
@@ -3175,8 +3202,8 @@ async function generatePhoneContent() {
   }).slice(0, 3);
   for (const npc of senders) {
     const isVoice = Math.random() > 0.65;
-    // 早晨消息时间必须早于首页时钟8:07，避免"早上8点收到下午2点的消息"
-    const msgTime = '7:' + Math.floor(Math.random()*50+10).toString().padStart(2,'0');
+    // 早晨消息时间：7:05起单调递增，必须早于首页时钟8:07且不乱序
+    const msgTime = nextMsgTime(G.day, 7 * 60 + 5);
     const memCtx = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
       'Send a ' + (isVoice?'voice message transcript':'text message') + ' at ' + msgTime + ' in the early morning. ' + progressGuard + ' ' + schedCtx +
       ' NEVER claim she sent you a message unless that exact message appears in "Previous interactions" above. ' +
@@ -3513,19 +3540,28 @@ async function sendChatReply() {
   STATE.save.saveGame();
 }
 
-// 游戏内当前时段的手机时间（早晨≈8点、晚间≈22-23点），保证消息时间戳不出现未来时间。
-// 用 G.phase 而不是"晚间界面是否可见"判断——玩家从晚间进聊天后 s-evening 已经不是 active，
-// 之前会误判成早晨（23:44聊天回复显示成8:38的bug）
-function getPhoneClockTime() {
-  var isEvening = G.phase === 'evening';
-  var h = isEvening ? (22 + Math.floor(Math.random()*2)) : 8;
-  var mn = Math.floor(Math.random()*45+10);
-  return h + ':' + String(mn).padStart(2,'0');
+// ── 游戏内消息时钟：同一天内单调递增 ──
+// 每条新消息的时间 = max(当天上一条时间, 时段基准) + 1~6分钟，
+// 彻底避免"23:52 之后又收到 19:24"这类乱序（之前每条独立随机导致）
+function nextMsgTime(day, baseMinutes) {
+  if (!G.phone.lastMsgMin) G.phone.lastMsgMin = {};
+  var cur = Math.max(G.phone.lastMsgMin[day] || 0, baseMinutes || 0);
+  cur = Math.min(cur + 1 + Math.floor(Math.random() * 6), 23 * 60 + 59);
+  G.phone.lastMsgMin[day] = cur;
+  return Math.floor(cur / 60) + ':' + String(cur % 60).padStart(2, '0');
 }
 
-// 手机状态栏显示的游戏内时钟（与主页时间一致，不再用现实时间）
+// 当前时段的消息时间（早晨从8:08起、晚间从22:00起，接着当天最后一条往后走）
+function getPhoneClockTime() {
+  return nextMsgTime(G.day, G.phase === 'evening' ? 22 * 60 : 8 * 60 + 8);
+}
+
+// 手机状态栏时钟：不早于当天最后一条消息的时间（修"消息23:34但状态栏22:30"）
 function getPhoneStatusClock() {
-  return G.phase === 'evening' ? '22:30' : '8:15';
+  var base = G.phase === 'evening' ? 22 * 60 + 30 : 8 * 60 + 15;
+  var last = (G.phone.lastMsgMin && G.phone.lastMsgMin[G.day]) || 0;
+  var cur = Math.min(Math.max(base, last + 1), 23 * 60 + 59);
+  return Math.floor(cur / 60) + ':' + String(cur % 60).padStart(2, '0');
 }
 
 // 日历角标：过期的待处理邀约自动作废，只数今天及以后的待处理数
@@ -3706,7 +3742,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.53 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.54 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

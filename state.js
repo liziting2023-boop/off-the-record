@@ -267,7 +267,7 @@ const STATE = {
         `casual dark clothing, band tee or leather jacket`,
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
-        `NO glasses`,
+        `NO glasses, NO eyewear of any kind, bare face`,
         scene,
       ].filter(Boolean).join(', ');
     },

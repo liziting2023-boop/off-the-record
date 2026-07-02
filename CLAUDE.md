@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.53** |
+| 当前版本 | **v10.54** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -227,6 +227,15 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **立绘展示**：独白幕只显示地点背景，进入对话才出现立绘卡片，卡片放大至92vw/430px；早晨诗意独白居中显示在画面中部；"今天要做什么？"加大加粗紧贴选项
 - **新增项目skill `/story-check`**（.claude/skills/story-check）：剧情时间线/人称/grounding/人设一致性/泄密检查清单
 - 待开发新增：Worker加抠图端点（fal rembg）实现立绘去背景
+
+**v10.54（用户第四轮实测反馈）**：
+- **消息单调时钟 `nextMsgTime(day, base)`**：同一天所有消息时间戳 = max(上一条, 时段基准)+1~6分钟，接入早晨批次/晚间经纪人/好感消息/聊天回复全部生成点（修"23:52后收到19:24"乱序）；手机状态栏时钟不早于当天最后一条消息（修"消息23:34状态栏22:30"）
+- **对话布局重做**：取消对话中的大立绘卡片（`vn-npc-card` 仅剩 playScheduledEvent 无对话场景在用），改为对话框上方两个大头像框（各46%宽、3:4、谁说话谁高亮、点击放大）
+- **场景对话 grounding**：`runVNDialog` 台词和收尾反应 prompt 注入 `buildScheduleContext(3)`（修鼓手说"明天九点再唱一遍"但明天是杂志拍摄）
+- 街头签约对话加自由输入框（和正式对话一致，`judgeRelChange` 判好感）
+- Day1 离开办公室改热情送客：离场旁白改"送到门口按电梯目送"，Round3 npcContext 改 warm send-off（不再"眼睛落回文件/头也没回"）
+- 首页早晨独白加毛玻璃底卡（压在照片上可读），"今天要做什么？"加粗加白光晕
+- 鼓手生图 NO glasses 加强为 "NO eyewear of any kind, bare face"
 
 ## 9. 待开发（优先顺序）
 
