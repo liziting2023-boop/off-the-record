@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.62** |
+| 当前版本 | **v10.63** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -303,6 +303,16 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **官宣新闻页**：早晨消息JSON新增`news`字段（极少用，仅官方公告/报道）→聊天里显示"📰 DAILY ENCORE"报道卡片→点开全屏假新闻页（报头/标题/日期/配图/正文，`#news-overlay`+`openNewsPage()`），配图复用消息的image字段生成
 - **家具店装修**：休息类新增"逛家具店"（`furniture_store`地点）→到店后可选三种客厅风格（现代简约/温馨软装/复古混搭=LIVING_LAYOUT A/B/C）→重新生成客厅白天图并更新`livingDayUrl/selectedLayout/selectedStyle`+存回忆，或"只是逛逛"
 - Cloudflare Worker 仍需用户手动改（凭证获取方式已告知用户：API Token "Edit Cloudflare Workers" 模板 + Account ID）
+
+**v10.63（用户第九轮反馈，13项）**：
+- **聊天未来邀约（修2个bug）**：聊天JSON新增futureInvite字段——约未来日期（"6号晚上""明天"）直接写日历（status accepted，到当晚触发赴约）；meet字段严格限定"今天"，不再把约明天误弹成马上见面按钮
+- **约会系统丰富化**：新地点山顶夜景/海边(仅LA、悉尼、纽约、东京)/电影院/音乐厅/歌剧院；DATE_SPOTS按NPC性格挑约会地点（经纪人=音乐厅歌剧院、鼓手=livehouse山顶、演员=电影院天台、管家=公园咖啡、侦探=书店山顶）；playInviteScene从单轮固定寒暄改为3轮对话+8个随机话题种子+按好感度分寸的暧昧张力（修约会重复无聊）；runMeetupScene同样注入种子
+- **删除Day5经纪人咖啡剧情**（story.js事件+全部特判，Day5正常排班）；日程上下文加入accepted私人约会（修"经纪人说今天没行程但下午有咖啡约"）
+- **长对白分页**：NPC台词>110字且问句收尾→第一页读前文点"继续"，第二页问出问题+回复UI
+- **空发送=无言划过**：场景对话/偶遇对话输入框空按➤=沉默回应"……"（0好感变化）
+- **每周一 DAILY ENCORE 新人热度周榜**：rank≈200-fame*1.8±3，经纪人转发新闻卡（含涨跌对比、burnout警示文案），事业紧迫感
+- 睡觉-6压力；名气增速放缓（工作+5→+3，职业投资+2→+1）；管家表情改惊喜开心（delighted joyful, eyes lighting up）；日历邀约拒绝后"发消息说明"直接打开该NPC对话框；底部日历图标改为显示游戏内当天日号（📅emoji在部分系统固定显示17）
+- 待讨论（方案已给用户）：约会后过夜暗示剧情、经纪人稀有机会事件（制作人/蒙面歌手/广告/电影，一年数次不可错过）
 
 ## 9. 待开发（优先顺序）
 

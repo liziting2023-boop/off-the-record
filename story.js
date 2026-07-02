@@ -323,6 +323,31 @@ const STORY = {
       isPublic: true,
       composition: 'cozy furniture showroom, staged living room displays with sofas lamps and rugs, warm inviting retail lighting',
     },
+    mountain_viewpoint: {
+      isOutdoor: true,
+      isPublic: false,
+      composition: 'hilltop viewpoint at night overlooking the glittering city lights below, low stone wall, vast starry night sky, intimate quiet atmosphere',
+    },
+    beach: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'quiet beach in the evening, gentle waves, soft sand, distant pier lights, afterglow fading into night sky',
+    },
+    cinema: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'cozy movie theater, rows of plush seats, soft screen glow in the dark, popcorn and drinks in cup holders',
+    },
+    concert_hall: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'elegant concert hall interior, warm stage lights on an orchestra, ornate balconies, hushed grandeur',
+    },
+    opera_house: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'opulent opera house, red velvet seats, gilded balconies, grand chandelier, dramatic stage lighting',
+    },
   },
 
   // ══════════════════════════════════════════════════════
@@ -821,51 +846,7 @@ const STORY = {
       ],
     },
 
-    5: {
-      npc: 'agent',
-      location: 'cafe_meeting',
-      isWork: false,
-      chapter: 1,
-      preText: {
-        'zh-cn': '他早上九点发消息："有空吗？我请你喝咖啡。"\n\n没说原因。你还是去了。\n\n你到的时候他已经在了。双手捧着杯子，眼神在别处。\n他没有道歉让你出门。他从不道歉。',
-        'en': 'He texts at 9am: "Are you free? I will buy you coffee."\n\nNo reason given. You go anyway.\n\nHe is already there when you arrive. Hands wrapped around a cup, eyes somewhere else.\nHe does not apologize for making you come out. He never does.',
-        'ja': '彼は午前9時にメッセージを送ってきた：「時間ある？コーヒーおごるよ。」\n\n理由は書いてなかった。それでも行った。\n\n着くと彼はすでにそこにいて、両手でカップを包み、視線はどこか遠くにあった。\nわざわざ来させたことを謝らなかった。彼は謝らない。',
-        'ko': '그는 오전 9시에 문자를 보냈다: "시간 돼? 커피 살게."\n\n이유는 없었다. 그래도 갔다.\n\n도착했을 때 그는 이미 거기 있었다. 두 손으로 컵을 감싸 쥐고 시선은 어딘가 먼 곳에 있었다.\n나오게 해서 미안하다는 말은 없었다. 그는 절대 사과하지 않는다.',
       },
-      dialogRounds: [
-        {
-          npcContext: 'This meeting has no official agenda. You are slightly less guarded than usual — this is a personal initiative. Start with something about her work, but your tone is different today. Almost like you are checking in rather than managing. You do not explain why you asked her here.',
-          playerOptions: {
-            'zh-cn': ['你为什么叫我来？', '……还不错，谢谢你问。', '有什么事你直接说吧。'],
-            'en': ['Why did you ask me here?', '...Not bad. Thank you for asking.', 'Just say what you need to say.'],
-            'ja': ['なぜ呼んだんですか？', '……まあまあです。聞いてくれてありがとう。', '用があるなら直接言ってください。'],
-            'ko': ['왜 부른 거예요?', '……나쁘지 않아요. 물어봐줘서 감사해요.', '할 말 있으면 직접 하세요.'],
-          },
-          relChanges: [8, 10, 5],
-        },
-        {
-          npcContext: 'Talk about what is coming next — upcoming schedules, the direction you see for her career. But there is something underneath it. You are actually describing what you believe she is capable of, which is different from any brief you have given before. It feels almost like trust.',
-          playerOptions: {
-            'zh-cn': ['你……真的觉得我能做到？', '谢谢你相信我。', '这就是你叫我来的原因？'],
-            'en': ['You... really think I can do this?', 'Thank you for believing in me.', 'Is that why you called me here?'],
-            'ja': ['あなたは……本当に私にできると思ってるんですか？', '信じてくれてありがとう。', 'それがここに呼んだ理由ですか？'],
-            'ko': ['당신은……진짜로 제가 할 수 있다고 생각해요?', '믿어줘서 감사해요.', '그게 저를 부른 이유예요?'],
-          },
-          relChanges: [12, 10, 8],
-        },
-        {
-          npcContext: 'The meeting is ending. You almost said something real — you can feel it. Pull back into professional mode, but not before one small slip: maybe you say her name again in a way that is slightly different from how you usually say it. Or you pause at the door instead of leaving cleanly, just a second too long. Or you answer a question she did not ask. Western emotional restraint at its most maddening: the hook is that she can feel something is there, but she cannot name it. Neither can you.',
-          playerOptions: {
-            'zh-cn': ['我挺好的。', '……你呢？', '谢谢你今天的咖啡。'],
-            'en': ['I am fine.', '...And you?', 'Thank you for the coffee today.'],
-            'ja': ['大丈夫です。', '……あなたは？', '今日のコーヒー、ありがとうございました。'],
-            'ko': ['괜찮아요.', '……당신은요?', '오늘 커피 감사해요.'],
-          },
-          relChanges: [5, 15, 8],
-        },
-      ],
-    },
-  },
 
   // ══════════════════════════════════════════════════════
   // 签约场景（游戏开始前的街边相遇）

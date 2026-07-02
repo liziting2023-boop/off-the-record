@@ -348,7 +348,7 @@ const STATE = {
         `${app.skin} skin`,
         `wearing only a simple neat polo work shirt with a small staff badge`,
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
-        `clean-cut innocent features, slightly flushed cheeks, earnest warm expression`,
+        `clean-cut innocent features, slightly flushed cheeks, delighted joyful expression, eyes lighting up with surprise and fondness, bright warm smile`,
         scene,
       ].filter(Boolean).join(', ');
     },
