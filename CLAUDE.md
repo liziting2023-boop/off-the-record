@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.66** |
+| 当前版本 | **v10.67** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -39,6 +39,14 @@ git push https://<TOKEN>@github.com/liziting2023-boop/off-the-record.git main
 
 ### 自动部署
 push 到 main → GitHub Actions → 约 30 秒生效。
+
+### Worker v2（2026-07-03 API部署，上架准备第一阶段）
+- **限额**：每设备每日 claude 400次 / image 150张；全局日上限 5000 / 2000（防抓包刷账单）。超限返回 429 `{error:'quota_exceeded'}`，游戏端 `warnQuota()` 一次性提示并优雅降级
+- **设备标识**：请求头 `X-Device-Id`（游戏端 `getDeviceId()` 生成UUID存 `otr_device_id`，独立于存档key）；无头则按IP兜底限额
+- **云存档**：`/save` GET/PUT 按设备ID存取（上限400KB）。游戏端：saveGame 包装后8秒防抖推送；启动时本地无进度→询问恢复云端档→写localStorage后reload（走loadGame原地合并，避免v10.51那类引用分裂）
+- **KV**：`OTR_KV`（id `b8fb10bd006c4a7991933606514f19f6`），键：`q:{日期}:{设备}:{类型}`/`g:{日期}:{类型}`（TTL 2天）/`save:{设备}`
+- ⚠️ 用API重部署Worker时，metadata.bindings 必须带全：2个 plain_text key + OTR_KV 绑定，否则会丢
+- 上架第二阶段待做：可选登录（Sign in with Apple/Google）、内购（RevenueCat）、隐私政策页
 
 ### 每次 commit 必须同步更新版本号（三处）
 - `index.html` 约第 349 行：`<p ...>v10.XX</p>`

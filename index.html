@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.66"></script>
-<script src="state.js?v=10.66"></script>
+<script src="story.js?v=10.67"></script>
+<script src="state.js?v=10.67"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -442,7 +442,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.66</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.67</p>
   </div>
 </div>
 
@@ -1086,6 +1086,26 @@ function getNPCName(key) {
 // API 调用
 // ══════════════════════════════════════════════════════
 
+// ── 匿名设备ID：云存档与用量限额的身份标识（独立于存档key，清档/重开不影响）──
+function getDeviceId() {
+  let id = null;
+  try { id = localStorage.getItem('otr_device_id'); } catch (e) {}
+  if (!id) {
+    id = (crypto.randomUUID ? crypto.randomUUID() : 'd-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
+    try { localStorage.setItem('otr_device_id', id); } catch (e) {}
+  }
+  return id;
+}
+
+// 今日AI用量达到上限时的一次性提示（Worker 返回 429）
+function warnQuota() {
+  if (G._quotaWarned) return;
+  G._quotaWarned = true;
+  const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
+  alert(isZh ? '今日 AI 用量已达上限，内容生成会暂停——明天会自动恢复。已有的进度不受影响。'
+             : 'Daily AI usage limit reached — generation will pause and resume tomorrow. Your progress is safe.');
+}
+
 async function claude(prompt, sys = '') {
   if (DEV_MODE_TXT) {
     const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
@@ -1134,7 +1154,8 @@ async function claude(prompt, sys = '') {
   }
   const _culturalCtx = 'CULTURAL CONTEXT: This story is set in the Western entertainment industry (' + (G.player.city||'a major Western city') + '). All characters behave according to Western social and professional norms. They are direct, individualistic, and do NOT follow Chinese cultural norms. No face-saving, no indirect language, no WeChat-style communication. Dialogue should feel like it belongs in a Western TV drama or film, not a Chinese drama. The language used is ' + G.langName + ' but the cultural context is always Western.';
   const body = { model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: prompt }], system: (_culturalCtx + (sys ? '\n\n' + sys : '')) };
-  const r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() }, body: JSON.stringify(body) });
+  if (r.status === 429) { warnQuota(); return ''; } // 今日限额已满：调用方都有空串兜底
   const d = await r.json();
   return d.content?.[0]?.text || '';
 }
@@ -1156,8 +1177,10 @@ async function img(prompt, label = '', save = false, retries = 2, seed = null, h
         model: useDev ? 'fal-ai/flux/dev' : 'fal-ai/flux/schnell',
       };
       if (seed !== null) body.seed = seed;
-      const r = await fetch(WORKER + '/image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const r = await fetch(WORKER + '/image', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() }, body: JSON.stringify(body) });
+      if (r.status === 429) { warnQuota(); return null; } // 今日限额已满：直接放弃，不再重试白烧
       const d = await r.json();
+      if (d && d.error === 'quota_exceeded') { warnQuota(); return null; }
       const url = d.images?.[0]?.url;
       if (url) {
         const ok = await new Promise(res => { const i = new Image(); i.onload = () => res(true); i.onerror = () => res(false); i.src = url; setTimeout(() => res(false), 9000); });
@@ -4848,8 +4871,47 @@ function devSkipToDay() {
 // ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
+// ── 云存档同步：本地每次保存后8秒防抖推送云端（按设备ID，Worker /save）──
+let _cloudTimer = null;
+function scheduleCloudSync() {
+  clearTimeout(_cloudTimer);
+  _cloudTimer = setTimeout(() => {
+    try {
+      fetch(WORKER + '/save', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() },
+        body: JSON.stringify(STATE.data),
+      }).catch(() => {}); // 失败静默，下次保存再试
+    } catch (e) {}
+  }, 8000);
+}
+
+// 本地无进度时检查云端存档，有则询问恢复（换浏览器/重装找回进度）
+async function maybeRestoreCloudSave() {
+  if (hasResumableSave()) return; // 本地有进度，绝不覆盖
+  try {
+    const r = await fetch(WORKER + '/save', { headers: { 'X-Device-Id': getDeviceId() } });
+    const data = await r.json();
+    if (data && data.player && data.player.name) {
+      const isZh = (data.lang === 'zh-cn' || data.lang === 'zh-tw' || G.lang === 'zh-cn' || G.lang === 'zh-tw');
+      const msg = isZh ? '发现云端存档（' + data.player.name + ' · 第' + (data.day||1) + '天），要恢复吗？'
+                       : 'Cloud save found (' + data.player.name + ' · Day ' + (data.day||1) + '). Restore it?';
+      if (confirm(msg)) {
+        localStorage.setItem('otr_save_v2', JSON.stringify(data));
+        location.reload(); // 重载后走 loadGame 的原地合并路径（避免引用分裂）
+      }
+    }
+  } catch (e) {}
+}
+
 window.addEventListener('load', () => {
   STATE.init();
+  // 包一层 saveGame：本地保存成功后排队同步云端
+  (function wrapSaveForCloud() {
+    const _origSave = STATE.save.saveGame.bind(STATE.save);
+    STATE.save.saveGame = function () { const ok = _origSave(); if (ok) scheduleCloudSync(); return ok; };
+  })();
+  maybeRestoreCloudSave();
   // 旧存档日历键迁移：起始年份从2024改成2027后，旧存档里 '2024-xx-xx' 的日历事件键
   // 不迁移的话会变成永远无法处理的孤儿事件（待处理邀约的角标永远清不掉）
   (function migrateCalendarDates() {
@@ -4884,7 +4946,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.66 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.67 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
