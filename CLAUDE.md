@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.58** |
+| 当前版本 | **v10.59** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -273,6 +273,16 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 **v10.58**：
 - 卧室三选一的 B 张改为 `BEDROOM_LAYOUT_B`（用户指定：长方形卧室、中央双人床、两侧对称床头柜+窗户、床上吊灯、右侧梳妆台竖镜、床尾脚凳、左下角单人椅、大地毯）；A/C 仍为小户型书房一体，B 的灯光mood同步改为双床头灯而非书桌灯
 - 美术风格一致性核查结论（无代码问题）：`img()` 对所有图统一在最前面加 `STATE.imagePrompts.styles[G.imgStyle]`（默认illustrated）前缀，各 `build*Prompt` 均不自带画风词，所以**不改设置时全部NPC含管家画风完全一致**。管家看起来偏卡通是**内容描述词**导致（年龄20最小、slim youthful build、"innocent features, slightly flushed cheeks"、默认Korean族裔）把同一画风带偏，非风格设置不一致。若仍要弱化：删管家prompt里的"slightly flushed cheeks / innocent features"、把年龄措辞再成熟化
+
+**v10.59（用户第八轮反馈，含v10.58后未推送的累积项）**：
+- **剧情补见系统（方案A）**：`G.scriptedDone`标记每个剧情日是否玩过；`getPendingScriptedDay()`找最早未完成的剧情日作为"今日剧情"（标注"补上错过的"），玩家用约会/自由活动绕过登场日（如Day3没见男演员）也不会漏主线人物；工作类剧情不顺延到周末；Day5拒绝/过期邀约视为已处理；旧存档按npc.met回填标记
+- **NPC邀约不再约当天**：晚间好感消息的邀约daysFromNow改1-6（prompt明确"现在是深夜，最早约明天"），修"晚上回家后才收到今晚19:30的约"
+- **生图物体否定词教训（重要，容易再犯）**："NO backpack/NO glasses"这类否定式对flux无效甚至反向诱导（提到物体名就更容易画出来）。管家/鼓手prompt和genNPCPortraitPlain已全部改为不提物体词、只正向描述（"只穿polo工作衫、双手空垂、光洁无须娃娃脸"）；管家改"Boyishly handsome...college-age big-boy look, clean-shaven completely beardless"（大男孩、无胡子）
+- 见面场景结束旁白用实际见面地点（修约吃饭却显示"拍摄结束"——原来借用当天剧情事件的地点）；`_vnEndLoc`机制，剧情场景入口清空
+- 聊天见面地点枚举补全（magazine_shoot/recording_studio/music_training/rooftop/livehouse），要求AI按玩家实际提议的地点选（修约陪拍摄却是街道背景）
+- 卧室三选一B张改用户指定的双人床布局（`BEDROOM_LAYOUT_B`）
+- 日历每次打开默认选中今天（不保留上次离开时选的日期）
+- 已确认现状（无需改）：白天行程结束→自动触发当天已接受的19:30邀约→之后才回家过夜，链路已通；管家出场固定工作服+空手
 
 ## 9. 待开发（优先顺序）
 

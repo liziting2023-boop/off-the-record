@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.58"></script>
-<script src="state.js?v=10.58"></script>
+<script src="story.js?v=10.59"></script>
+<script src="state.js?v=10.59"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -426,7 +426,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.58</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.59</p>
   </div>
 </div>
 
@@ -1208,7 +1208,8 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
     const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + age + '-year-old. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. Return ONLY the name.');
     G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
   }
-  const plainComp = 'upper body portrait, ' + pose + ', plain soft gradient studio backdrop, no environment details, no props, single person only, NO glasses, NO eyewear, NO backpack, NO bag, nothing carried, realistic adult proportions, mature young adult NOT a teenager NOT a student';
+  // 不提"眼镜/背包"等物体词（否定式对flux无效甚至反向诱导），只正向描述
+  const plainComp = 'upper body portrait, ' + pose + ', plain soft gradient studio backdrop, no environment details, single person only, bare face, hands relaxed and empty, nothing carried, realistic proportions';
   const secretRevealed = STATE.events.has('foundBirthCertificate');
   let prompt = '';
   if (npcKey === 'agent')    prompt = STATE.imagePrompts.buildAgentPrompt(G, plainComp, day);
@@ -1455,9 +1456,10 @@ var _calSelectedDay = null;
 
 function openCalendar() {
   setABn('bn-calendar');
+  // 每次打开日历都默认选中今天（不保留上次离开时选的其它日期）
+  _calSelectedDay = getCalDateStr(G.day);
   renderCalendar();
-  // 默认选中今天并显示当天事件
-  renderCalDayEvents(getCalDateStr(G.day));
+  renderCalDayEvents(_calSelectedDay);
   go('s-calendar');
   // 玩家已打开日历：清掉"新安排"标记并重算角标（待处理邀约仍然计数）
   setTimeout(function() {
@@ -2451,15 +2453,36 @@ function isGameWeekend(day) {
   return wd === 0 || wd === 6;
 }
 
+// ── 剧情补见（方案A）：找出最早一个还没玩过的剧情日 ──
+// 玩家如果某天通过约会/自由活动绕过了当天剧情（如Day3没见到男演员），
+// 那个剧情会自动顺延到之后的每一天作为"今日剧情"，直到玩过为止，主线人物不会漏
+function getPendingScriptedDay() {
+  if (!G.scriptedDone) G.scriptedDone = {};
+  for (var d = 1; d <= Math.min(G.day, 30); d++) {
+    if (STORY.scriptedEvents[d] && !G.scriptedDone[d]) return d;
+  }
+  return null;
+}
+
 function buildDayOpts() {
   const opts = document.getElementById('d-opts'); opts.innerHTML = '';
-  let ev = STORY.utils.getScriptedEvent(G.day);
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
-  // Day5 咖啡是邀请制：只有玩家在日历里接受了经纪人的邀约才触发剧情，拒绝/未处理则当自由日
-  if (G.day === 5 && ev) {
+  // 今日剧情 = 最早一个未完成的剧情日（错过的剧情顺延补见）
+  let evDay = getPendingScriptedDay();
+  let ev = evDay != null ? STORY.utils.getScriptedEvent(evDay) : null;
+  // Day5 咖啡是邀请制：接受→触发剧情；拒绝/过期→视为已处理不再顺延；未决→今天先不显示
+  if (evDay === 5 && ev) {
     const inv5 = (G.calendar.events[getCalDateStr(5)] || []).find(e => e.id === 'invite_agent_5');
-    if (!inv5 || inv5.status !== 'accepted') ev = null;
+    if (inv5 && (inv5.status === 'declined' || inv5.status === 'expired')) {
+      G.scriptedDone[5] = true; ev = null;
+      const nextD = getPendingScriptedDay();
+      if (nextD != null) { evDay = nextD; ev = STORY.utils.getScriptedEvent(nextD); }
+    } else if (!inv5 || inv5.status !== 'accepted') {
+      ev = null;
+    }
   }
+  // 周末不排工作：顺延到周末的工作类剧情继续等到工作日
+  if (ev && ev.isWork && isGameWeekend(G.day)) ev = null;
   // 选项区上方的提示语
   document.getElementById('d-opts-head').textContent =
     isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?';
@@ -2473,14 +2496,17 @@ function buildDayOpts() {
     return btn;
   };
   if (ev) {
-    const actLabel = getScriptedLabel(ev, G.day, lang);
-    const actSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
-    opts.appendChild(makeOpt(actLabel, actSub, 'work', () => playScripted(G.day)));
+    const actLabel = getScriptedLabel(ev, evDay, lang);
+    // 顺延补见的剧情标注出来，让玩家知道这是补上的
+    const actSub = evDay < G.day
+      ? (isZh?'今日剧情 · 补上错过的':lang==='ja'?'今日のストーリー · 補完':lang==='ko'?'오늘의 이야기 · 보충':"Today's story · catching up")
+      : (isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story");
+    opts.appendChild(makeOpt(actLabel, actSub, 'work', () => playScripted(evDay)));
     if (!ev.isWork) {
       // 非工作剧情日（如Day4回公寓）：给2个顺路小活动，逛完后仍然会进今天的剧情
       const soc2 = [...getSocOps(lang)].sort(() => Math.random()-0.5).slice(0,2);
       const sSub2 = isZh?'顺路逛逛 · 之后回来':lang==='ja'?'寄り道 · その後戻る':lang==='ko'?'들렀다 가기':'Stop by first · then continue';
-      soc2.forEach(s => opts.appendChild(makeOpt(s.label, sSub2, '', () => playFree(s.key, s.label, false, true))));
+      soc2.forEach(s => opts.appendChild(makeOpt(s.label, sSub2, '', () => playFree(s.key, s.label, false, evDay))));
     } else {
       // 工作剧情日行程固定，用灰色空占位保持3个选项的视觉高度
       for (let i = 0; i < 2; i++) {
@@ -2618,8 +2644,8 @@ async function playFree(key, label, isWork, thenScripted) {
     const btn = document.createElement('button');
     btn.className = 'vn-next';
     btn.textContent = contLabel;
-    // 剧情日的顺路小活动：结束后接着进今天的剧情，而不是直接入夜
-    btn.onclick = () => thenScripted ? playScripted(G.day) : goEvening();
+    // 剧情日的顺路小活动：结束后接着进剧情（thenScripted 传剧情日编号，可能是顺延补见的旧日）
+    btn.onclick = () => thenScripted ? playScripted(typeof thenScripted === 'number' ? thenScripted : G.day) : goEvening();
     document.getElementById('vn-opts').appendChild(btn);
   }
 
@@ -2777,7 +2803,8 @@ function runMeetupScene(npcKey, locKey, title) {
   const startBtn = document.createElement('button');
   startBtn.className = 'vn-next';
   startBtn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
-  startBtn.onclick = () => runVNDialog(rounds, npcKey, G.day, 0);
+  // 见面场景：结束旁白用实际见面地点，不借用当天剧情事件（否则约吃饭却显示"拍摄结束"）
+  startBtn.onclick = () => { _vnEndLoc = locKey; runVNDialog(rounds, npcKey, G.day, 0); };
   document.getElementById('vn-opts').appendChild(startBtn);
 }
 
@@ -2952,6 +2979,10 @@ async function startScriptedScene(day, ev) {
   document.getElementById('vn-speaker').textContent = '';
   document.getElementById('vn-text').innerHTML = preText;
   document.getElementById('vn-opts').innerHTML = '';
+  _vnEndLoc = null; // 剧情场景：结束旁白用当天剧情事件的地点（清掉可能残留的见面地点）
+  // 标记该剧情日已完成（补见机制：没玩过的剧情会一直顺延到玩家玩到为止）
+  if (!G.scriptedDone) G.scriptedDone = {};
+  G.scriptedDone[day] = true;
   if (ev.isWork) { G.fame = Math.min(100, G.fame + 5); G.daysWithoutWork = 0; }
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   // Day1 与经纪人会面：生成首月工作计划写入日历（对话里经纪人会让她今晚查日历）
@@ -3015,6 +3046,10 @@ function vnSpeak(who) { // 'npc' | 'player' | null —— 轮流出现：谁说�
   pEl.style.visibility = (who !== 'player' || !pEl.classList.contains('has-img')) ? 'hidden' : 'visible';
 }
 
+// 场景结束旁白的地点来源：见面/顺路等非剧情场景会设成实际地点，避免借用当天剧情事件的地点
+// （比如Day3当天剧情是杂志拍摄，但玩家约经纪人吃饭结束时不该显示"拍摄结束"）
+let _vnEndLoc = null;
+
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   if (round === 0) setVNAvatars(npcKey);
   if (round >= dialogRounds.length) {
@@ -3022,15 +3057,20 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     const endLabel = isZhEnd?'离开':G.lang==='ja'?'立ち去る':G.lang==='ko'?'자리를 뜨다':'Leave';
     const isZhEnd2 = G.lang==='zh-cn'||G.lang==='zh-tw';
     // Add a brief transition narration before leaving
+    // 优先用本场景显式设置的地点（见面场景）；没有才回退到当天剧情事件的地点
+    const isMeetup = !!_vnEndLoc;
     const ev2 = STORY.utils.getScriptedEvent(day);
-    const locKey2 = ev2 ? ev2.location : '';
-    const transitionNar = {
+    const locKey2 = _vnEndLoc || (ev2 ? ev2.location : '');
+    const transitionNar = isMeetup
+      ? (isZhEnd2 ? '你们道了别，各自离开。今晚的余温还留在指尖。' : 'You say your goodbyes and part ways. The warmth of the evening still lingers.')
+      : ({
       agent_office: isZhEnd2?'他起身送你到门口，替你按住电梯，笑着说了句"明天见"。你走进电梯时，他还站在原地目送你。':'He walks you to the door himself, holds the elevator for you, and says "See you tomorrow" with a smile. He is still standing there watching as the doors close.',
       recording_studio: isZhEnd2?'你推开录音室的门，走进走廊。':'You push open the studio door and step into the corridor.',
       magazine_shoot: isZhEnd2?'拍摄结束。你收拾好自己的东西。':'The shoot wraps. You gather your things.',
       cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
       apartment_lobby: isZhEnd2?'你回到了自己的公寓。':'You head back up to your apartment.',
-    }[locKey2] || (isZhEnd2?'你离开了。':'You leave.');
+    }[locKey2] || (isZhEnd2?'你离开了。':'You leave.'));
+    _vnEndLoc = null; // 用完清掉，避免泄漏到下一个剧情场景
     vnSpeak(null); // 旁白：两个头像都不高亮
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = transitionNar;
@@ -3526,7 +3566,8 @@ async function generateAffinityMessages(day) {
         (tier === 'high' ? 'You can suggest meeting up, dinner, or a specific activity.' : '') +
         (tier === 'mid' ? 'Keep it casual but warm.' : '') +
         '\n1-2 sentences, Western style, natural. Language: ' + G.langName + '.' +
-        '\nRespond with ONLY valid JSON, no markdown fences: {"text":"the message","invite": null or {"daysFromNow": <integer 0-6, 0=tonight/today, MUST match what the message text says>, "time":"HH:MM"}}. If the message proposes meeting at a specific time, you MUST fill "invite" so her calendar matches the text exactly.'
+        '\nIt is LATE EVENING right now — NEVER invite her for tonight or today (the day is over); the earliest possible invitation is TOMORROW. Word the message accordingly.' +
+        '\nRespond with ONLY valid JSON, no markdown fences: {"text":"the message","invite": null or {"daysFromNow": <integer 1-6, 1=tomorrow, MUST match what the message text says>, "time":"HH:MM"}}. If the message proposes meeting at a specific time, you MUST fill "invite" so her calendar matches the text exactly.'
       );
       var msg = '', inviteInfo = null;
       try {
@@ -3537,7 +3578,8 @@ async function generateAffinityMessages(day) {
 
       if (msg && msg.trim().length > 3) {
         // 邀约写入日历：日期严格按AI在JSON里声明的天数（和消息文字一致），不再乱猜3-7天后
-        if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 0 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
+        // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"（避免回家后才收到今晚19:30的约）
+        if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
           var inviteDay = day + inviteInfo.daysFromNow;
           var isZhInv = G.lang==='zh-cn'||G.lang==='zh-tw';
           addNPCInvite(npcKey, inviteDay,
@@ -3986,7 +4028,8 @@ async function sendChatReply() {
       'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ' +
       'If it is late evening and you would naturally sign off (going to sleep, busy), say so in the reply and set "endChat": true — you will not reply again tonight.' +
       'If she invites you to do something together TODAY and you WANT to accept (personality + affinity permitting), fill "meet" with a location and short title — the game will offer her a meet-up button. Personal meetups are allowed any day. ' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall", "title":"short meetup title in ' + G.langName + '"}}');
+      'For "locationKey" pick the place that ACTUALLY matches what she proposed: if she asks you to come along to a magazine shoot use "magazine_shoot", a recording session use "recording_studio", a practice use "music_training"; otherwise pick the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue. ' +
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short meetup title in ' + G.langName + '"}}');
     const [raw] = await Promise.all([claude(prompt), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null;
     try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; }
@@ -4252,12 +4295,22 @@ window.addEventListener('load', () => {
     });
     STATE.save.saveGame();
   })();
+  // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
+  // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
+  (function migrateScriptedDone() {
+    if (!G.scriptedDone) G.scriptedDone = {};
+    var introNpc = { 1:'agent', 2:'drummer', 3:'actor', 4:'butler' };
+    Object.keys(introNpc).forEach(function(d) {
+      if (G.npcs[introNpc[d]] && G.npcs[introNpc[d]].met) G.scriptedDone[d] = true;
+    });
+    if (G.day > 5 && G.scriptedDone[5] == null) G.scriptedDone[5] = true;
+  })();
   applyLang();
   setupTitleButtons();
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.58 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.59 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

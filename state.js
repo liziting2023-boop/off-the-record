@@ -32,6 +32,7 @@ const STATE = {
     daysWithoutWork: 0,
     publicSceneCount: 0, // 侦探出现计数
     today: null, // 今天做了什么（{label, isWork, npc}），供晚间消息等引用，每天开始时重置
+    scriptedDone: {}, // 剧情固定日完成标记（{day: true}）：没玩到的剧情会自动顺延到下一天（方案A补见机制）
 
     // 玩家设定（与NPC完全独立）
     player: {
@@ -267,7 +268,7 @@ const STATE = {
         `casual dark clothing, band tee or leather jacket`,
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
-        `NO glasses, NO eyewear of any kind, bare face`,
+        `bare clean-shaven face, clear focused eyes`,
         scene,
       ].filter(Boolean).join(', ');
     },
@@ -329,22 +330,20 @@ const STATE = {
       const npc = G.npcs?.butler || STATE.data.npcs.butler;
       const origin = npc.origin || 'Korean';
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['Korean'];
-      // 用户要求：管家一律不戴眼镜（原"40%概率戴镜隐藏眼神"的设定取消）
-      const glassesNote = 'NO glasses, NO eyewear of any kind, bare face, earnest warm eyes';
-
+      // ⚠️ 生图经验：不要在提示词里出现"backpack/glasses"等物体词（哪怕是 NO backpack 的否定式）——
+      // flux 对否定词无效甚至反向诱导。这里只做正向描述：光洁无须的脸、双手空垂、只穿polo工作衫
       return [
-        `Handsome 20-year-old ${origin} young man, mature young adult with realistic proportions, NOT a teenager, NOT a cartoon child`,
+        `Boyishly handsome 20-year-old ${origin} young man, fresh youthful college-age big-boy look`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
+        `clean-shaven smooth boyish face, completely beardless, bare face with clear bright eyes`,
         `172cm slim youthful build`,
         `building manager`,
         `${app.hair} clean and neat`,
         `${app.skin} skin`,
-        `building manager work uniform, neat polo shirt or work vest, unassuming`,
-        `clean-cut innocent features, slightly flushed cheeks`,
-        `earnest warm expression`,
-        `NO backpack, NO bag, NO shoulder strap, nothing carried on his back, hands empty`,
-        glassesNote,
+        `wearing only a simple neat polo work shirt with a small staff badge`,
+        `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
+        `clean-cut innocent features, slightly flushed cheeks, earnest warm expression`,
         scene,
       ].filter(Boolean).join(', ');
     },
