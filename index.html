@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.64"></script>
-<script src="state.js?v=10.64"></script>
+<script src="story.js?v=10.65"></script>
+<script src="state.js?v=10.65"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -438,7 +438,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.64</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.65</p>
   </div>
 </div>
 
@@ -1330,10 +1330,11 @@ async function genProtagonistScene(locKey, day) {
   const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : '') + candid) + (detShadow || '');
   // 复用玩家确认头像时的 seed，让女主在不同场景里的形象尽量保持一致
   // 注意：不能用 || null，seed 恰好是 0 时会被误判成没设置，默认值本身就是 null 所以直接传即可
-  let url = await img(prompt, locKey, false, 2, G.player.portraitSeed);
+  // 女主的独自行程图也走高质量开关（开HQ时用flux/dev）
+  let url = await img(prompt, locKey, false, 2, G.player.portraitSeed, true);
   // 个别地点（市集/酒吧等）完整prompt容易生成失败：降级为纯地点+人物简述再试一次
   if (!url) {
-    url = await img('young woman spending time at ' + sceneComp + ', medium-wide candid shot, not looking at camera', locKey + '-fallback', false, 1, G.player.portraitSeed);
+    url = await img('young woman spending time at ' + sceneComp + ', medium-wide candid shot, not looking at camera', locKey + '-fallback', false, 1, G.player.portraitSeed, true);
   }
   return url;
 }
@@ -3717,21 +3718,47 @@ async function maybeStayOver(npcKey, locKey) {
   document.getElementById('vn-text').innerHTML = formatNPCText(line);
   vopts.innerHTML = '';
   const mk = (label, fn) => { const el = document.createElement('div'); el.className = 'vn-opt'; el.textContent = label; el.onclick = fn; vopts.appendChild(el); };
-  // 留下：黑幕渐隐+含蓄旁白 → 直接进入第二天
-  mk(isZh?'……留下':'…Stay', () => {
+  // 留下：生成一张沙发依偎的暧昧图（含蓄）→ 含蓄旁白 → 相拥而眠进入第二天
+  mk(isZh?'……留下':'…Stay', async () => {
     STATE.relationships.change(npcKey, 10);
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
     G._stayedOver = { npc: npcKey, day: G.day };
     STATE.memory.addEvent(npcKey, (G.npcs[npcKey].nights === 1 ? 'She stayed the night with you for the FIRST time' : 'She stayed the night with you') + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
     STATE.save.saveGame();
     playSound('rel-up');
-    // 夜幕渐隐 + 含蓄旁白，然后直接过夜进入第二天
-    showNightTransition();
     const nar = isZh ? '这一夜，城市的灯替你们守住了秘密。' : 'Tonight, the city lights keep your secret.';
-    G._eveNar = nar;
-    G.phase = 'evening';
-    addStress(-10);
-    setTimeout(() => { G.day++; startDay(); }, 400);
+    // 沙发依偎图（含蓄尺度：相拥、着装完整、暖光），走高质量开关
+    vnSpeak(null);
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').textContent = nar;
+    vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
+    let coupleUrl = null;
+    try {
+      const player = G.player;
+      const app = STATE.imagePrompts.npcAppearance[G.npcs[npcKey].origin || 'American'] || STATE.imagePrompts.npcAppearance['American'];
+      const couplePrompt = 'tender romantic couple scene, a beautiful 23-year-old young woman with ' + (player.hairColor||'dark brown') + ' ' + (player.hairStyle||'long wavy hair') +
+        ' and a handsome man (' + app.features + '), cuddling close together on a cozy sofa in a dim warm living room late at night, her head resting on his shoulder, his arm around her, wrapped in a soft blanket, fully clothed, soft lamp glow and city lights through the window, intimate tasteful atmosphere, eyes closed peaceful';
+      coupleUrl = await img(couplePrompt, 'Stay-over · Day ' + G.day, false, 2, G.npcs[npcKey].portraitSeed, true);
+    } catch(e) {}
+    if (coupleUrl) {
+      document.getElementById('vn-npc-card').style.display = 'none';
+      document.getElementById('vn-bg').src = coupleUrl; document.getElementById('vn-bg').style.display = 'block';
+      document.getElementById('vn-bg-ph').style.display = 'none';
+      G.gallery.push({ url: coupleUrl, label: (isZh?'过夜 · 第'+G.day+'天':'Stay-over · Day '+G.day) });
+      STATE.save.saveGame();
+    }
+    vopts.innerHTML = '';
+    const sleepBtn2 = document.createElement('button');
+    sleepBtn2.className = 'vn-next';
+    sleepBtn2.textContent = isZh?'相拥而眠':'Fall asleep together';
+    sleepBtn2.onclick = () => {
+      showNightTransition();
+      G._eveNar = nar;
+      G.phase = 'evening';
+      addStress(-10);
+      setTimeout(() => { G.day++; startDay(); }, 400);
+    };
+    vopts.appendChild(sleepBtn2);
   });
   // 婉拒：得体拒绝反而+好感
   mk(isZh?'今晚先回去（婉拒）':'Not tonight (gently)', async () => {
@@ -4810,7 +4837,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.64 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.65 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
