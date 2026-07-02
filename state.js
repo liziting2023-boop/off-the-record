@@ -78,7 +78,7 @@ const STATE = {
         name: null,          // AI生成的名字
         portraitUrl: null,   // 玩家选择的肖像
         portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
-        relationship: 30,    // 初始好感度：合约关系，有基础但有距离
+        relationship: 15,    // 初始好感度：合约关系（v10.64调低，涨速也全局放缓）
         met: false,          // 是否已相遇
         // 记忆系统：记录发生过的事
         memory: [],
@@ -90,7 +90,7 @@ const STATE = {
         name: null,
         portraitUrl: null,
         portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
-        relationship: 35,    // 初始好感度：傲慢外表下已经注意到她了
+        relationship: 12,    // 初始好感度：傲慢外表下已经注意到她了（调低）
         met: false,
         memory: [],
         currentMood: 'dismissive',
@@ -100,7 +100,7 @@ const STATE = {
         name: null,
         portraitUrl: null,
         portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
-        relationship: 15,    // 初始好感度：魅力攻势，一见就撩
+        relationship: 8,     // 初始好感度：魅力攻势，一见就撩（调低）
         met: false,
         memory: [],
         currentMood: 'charming',
@@ -120,7 +120,7 @@ const STATE = {
         name: null,
         portraitUrl: null,
         portraitSeed: null,  // 生图种子，后续所有场景复用以保持形象一致
-        relationship: 20,    // 初始好感度：温暖亲切，一见如故
+        relationship: 10,    // 初始好感度：温暖亲切，一见如故（调低）
         met: false,
         memory: [],
         currentMood: 'warm',
@@ -430,6 +430,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
 Emotional state this chapter: ${emotionalState}.
+TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
 ${additionalContext ? 'Current context: ' + additionalContext : ''}
@@ -452,7 +453,9 @@ Stay completely in character. Let your cultural background subtly influence how 
     change(npcKey, delta) {
       const npc = STATE.data.npcs[npcKey];
       if (!npc) return;
-      npc.relationship = Math.max(0, Math.min(100, npc.relationship + delta));
+      // 全局好感度增速放缓：所有来源统一×0.6（用户反馈涨太快；负值同样温和化）
+      const scaled = delta > 0 ? Math.max(1, Math.round(delta * 0.6)) : Math.min(-1, Math.round(delta * 0.6));
+      npc.relationship = Math.max(0, Math.min(100, npc.relationship + (delta === 0 ? 0 : scaled)));
     },
 
     get(npcKey) {
