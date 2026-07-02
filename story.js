@@ -278,6 +278,31 @@ const STORY = {
       isPublic: false,
       composition: 'apartment rooftop terrace, city skyline panoramic view, night sky or golden hour',
     },
+    farmers_market: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'lively farmers market, fresh vegetables and fruit stalls, morning light, baskets and produce crates',
+    },
+    supermarket: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'bright modern supermarket aisle, shelves of groceries, shopping cart, clean fluorescent lighting',
+    },
+    beauty_salon: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'elegant beauty salon, facial treatment chairs, soft spa lighting, plants and mirrors',
+    },
+    hair_salon: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'stylish hair salon, styling chairs and large mirrors, hair products on shelves, warm modern lighting',
+    },
+    shopping_mall: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'upscale shopping mall interior, boutique storefronts, glass railings and escalators, bright airy atrium',
+    },
   },
 
   // ══════════════════════════════════════════════════════
@@ -595,10 +620,10 @@ const STORY = {
       isWork: true,
       chapter: 1,
       preText: {
-        'zh-cn': '经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你走进去时，他已经坐在桌后。\n没有立刻抬头看你。',
-        'en': 'Your agent\'s office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nHe is already sitting behind his desk when you walk in.\nHe does not look up immediately.',
-        'ja': 'エージェントのオフィスは24階にある。\n床から天井までの窓の外、街が広がっている——まだあなたの名前を知らない街が。\n\n入ると、彼はすでに机の後ろに座っていた。すぐには顔を上げなかった。',
-        'ko': '에이전트의 사무실은 24층에 있다.\n바닥부터 천장까지 이어진 창문 너머, 도시가 펼쳐져 있다——아직 당신의 이름을 모르는 도시가.\n\n들어서자 그는 이미 책상 뒤에 앉아 있었다. 바로 고개를 들지 않았다.',
+        'zh-cn': '经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你一推门，他就从桌后站了起来，\n笑着朝你走来："来了？正等你呢。"',
+        'en': 'Your agent\'s office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nThe moment you push the door open, he rises from behind his desk,\nwalking toward you with a smile: "There you are. I\'ve been waiting."',
+        'ja': 'エージェントのオフィスは24階にある。\n床から天井までの窓の外、街が広がっている——まだあなたの名前を知らない街が。\n\nドアを開けた瞬間、彼は机の後ろから立ち上がり、\n笑顔で歩み寄ってきた。「来たね。待ってたよ」',
+        'ko': '에이전트의 사무실은 24층에 있다.\n바닥부터 천장까지 이어진 창문 너머, 도시가 펼쳐져 있다——아직 당신의 이름을 모르는 도시가.\n\n문을 열자마자 그는 책상 뒤에서 일어나\n미소를 지으며 다가왔다. "왔구나. 기다리고 있었어."',
       },
       dialogRounds: [
         {

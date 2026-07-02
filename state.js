@@ -333,7 +333,7 @@ const STATE = {
       const glassesNote = 'NO glasses, NO eyewear of any kind, bare face, earnest warm eyes';
 
       return [
-        `Adorable yet handsome 20-year-old ${origin} young man`,
+        `Handsome 20-year-old ${origin} young man, mature young adult with realistic proportions, NOT a teenager, NOT a cartoon child`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
         `172cm slim youthful build`,
