@@ -613,8 +613,8 @@ const STORY = {
           relChanges: [5, 3, 8],
         },
         {
-          // Round 2: 提到乐队，严禁说鼓手的名字（玩家还没见过他）
-          npcContext: 'Give her the work directive. You have assembled a band — she is the lead singer. The band leader is a drummer. CRITICAL: Do NOT mention the drummer by name under any circumstances. He is unnamed in this scene. Describe him only as: difficult, high standards, best in the city. Tell her to go to the recording studio tomorrow at 9am sharp. This is an order.',
+          // Round 2: 公布首月工作计划 + 乐队 + 明天见鼓手（严禁说鼓手的名字，玩家还没见过他）
+          npcContext: 'Give her the work directive. First: you have already planned her ENTIRE first month — 3 to 4 working days per week (vocal training, dance and fitness, demo recording, styling shoots, media training, producer meetings). The full schedule is already in her calendar — tell her to check it tonight. Warn her that extra work may be added on short notice and she is expected to show up. Second: you have assembled a band — she is the lead singer. The band leader is a drummer. CRITICAL: Do NOT mention the drummer by name under any circumstances. He is unnamed in this scene. Describe him only as: difficult, high standards, best in the city. Tell her to go to the recording studio tomorrow at 9am sharp to meet him. This is an order, not a discussion.',
           playerOptions: {
             'zh-cn': ['我明天一定去。', '他好相处吗？', '你为什么要为我组乐队？'],
             'en': ['I will be there tomorrow.', 'Is he easy to work with?', 'Why did you put a band together for me?'],

@@ -52,6 +52,7 @@ const STATE = {
     apartment: {
       livingDayUrl: null,
       livingNightUrl: null,
+      bedroomNightUrl: null,  // 晚间界面用固定布局的卧室夜景（避免夜晚客厅和白天摆设不一致）
       selectedStyle: null,
       selectedLayout: null,
     },

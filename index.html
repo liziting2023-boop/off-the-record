@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.51"></script>
-<script src="state.js?v=10.51"></script>
+<script src="story.js?v=10.52"></script>
+<script src="state.js?v=10.52"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -123,11 +123,26 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .vn-bg-ph{position:absolute;inset:0;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);z-index:0;display:flex;align-items:center;justify-content:center;}
 .vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;}
+/* NPC初次登场三选一 */
+#npc-trio{position:absolute;inset:0;z-index:5;background:rgba(15,8,12,0.93);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 14px calc(70px + env(safe-area-inset-bottom));}
+.npct-head{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4.5vw,18px);color:rgba(255,240,245,0.95);text-align:center;line-height:1.6;}
+.npct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:430px;margin:16px 0 8px;}
+.npct-card{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,0.25);cursor:pointer;background:#241a28;}
+.npct-card.sel{border-color:var(--rose);box-shadow:0 0 16px rgba(196,96,122,0.6);}
+.npct-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.npct-card .iph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.npct-hint{font-size:10px;letter-spacing:1px;color:rgba(255,240,245,0.45);margin-bottom:12px;}
 /* NPC固定立绘卡片：玩家确认过的形象，压在场景背景之上、对话框之下（保证同一NPC每次长一样） */
 .vn-npc-card{position:absolute;top:7%;left:50%;transform:translateX(-50%);z-index:1;width:min(60vw,290px);border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(15,8,12,0.4);border:3px solid rgba(255,255,255,0.85);cursor:pointer;}
 .vn-npc-card img{width:100%;display:block;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
 .vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:50vh;overflow-y:auto;}
+/* 对话双头像框：左NPC右女主，谁"说话"谁高亮 */
+.vn-avatars{display:flex;justify-content:space-between;padding:0 16px;margin-bottom:6px;position:relative;z-index:3;}
+.vn-av{width:60px;height:60px;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,0.4);opacity:0.35;transition:opacity .3s,border-color .3s,box-shadow .3s;background:#241a28;}
+.vn-av.active{opacity:1;border-color:var(--rose);box-shadow:0 0 12px rgba(196,96,122,0.55);}
+.vn-av img{width:100%;height:100%;object-fit:cover;display:block;}
+.vn-av:not(.has-img){display:none;}
 .vn-speaker{font-size:12px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.2vw,20px);font-style:italic;color:#FFF0F3;line-height:1.5;margin-bottom:10px;}
 .vn-text .speech{color:#FFB8C8;font-style:italic;}
@@ -155,13 +170,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .daily-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .daily-room-ph{position:absolute;inset:0;width:100%;height:100%;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
-.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.03) 0%, rgba(255,232,240,0.12) 45%, rgba(255,232,240,0.55) 68%, rgba(255,232,240,0.85) 100%);}
+.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0) 0%, rgba(255,232,240,0) 58%, rgba(255,232,240,0.35) 78%, rgba(255,232,240,0.7) 100%);}
 .daily-wrap{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;pointer-events:none;}
 .daily-wrap > *{pointer-events:auto;}
 .daily-top{flex:0 0 auto;padding:16px 16px 8px;}
 .daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;text-shadow:0 1px 6px rgba(255,255,255,0.95), 0 2px 18px rgba(255,255,255,0.8);}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.95;text-transform:uppercase;margin-top:2px;text-shadow:0 1px 5px rgba(255,255,255,0.95), 0 2px 12px rgba(255,255,255,0.8);}
 .daily-nar{flex:0 0 auto;padding:12px 16px;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);line-height:1.6;text-align:center;}
+.daily-opts-head{flex:0 0 auto;padding:2px 20px 6px;font-size:11px;letter-spacing:3px;color:var(--pink-deep);text-transform:uppercase;font-weight:500;text-shadow:0 1px 5px rgba(255,255,255,0.9);}
 .daily-opts{flex:0 0 auto;padding:6px 12px max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;margin-top:auto;margin-bottom:64px;}
 .daily-opt{background:rgba(255,255,255,0.85);border:1.5px solid rgba(196,96,122,0.12);border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);color:var(--text-dark);display:flex;justify-content:space-between;align-items:center;min-height:52px;flex:0 0 auto;transition:all 0.15s;}
 .daily-opt.locked{cursor:default;pointer-events:none;background:rgba(196,96,122,0.08);border:1.5px dashed rgba(196,96,122,0.2);color:rgba(92,31,53,0.3);}
@@ -178,7 +194,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .eve-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .eve-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .eve-room-ph{position:absolute;inset:0;width:100%;height:100%;background:linear-gradient(160deg,#FFD8E8,#FFE8F0);display:flex;align-items:center;justify-content:center;}
-.eve-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0.03) 0%, rgba(255,232,240,0.12) 45%, rgba(255,232,240,0.55) 68%, rgba(255,232,240,0.85) 100%);}
+.eve-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0) 0%, rgba(255,232,240,0) 58%, rgba(255,232,240,0.35) 78%, rgba(255,232,240,0.7) 100%);}
 .eve-content{position:relative;z-index:2;width:100%;height:100%;padding:16px 16px 24px;display:flex;flex-direction:column;justify-content:flex-end;gap:12px;overflow-y:auto;pointer-events:none;}
 .eve-content > *{pointer-events:auto;}
 .eve-nar{font-family:'Cormorant Garamond',serif;font-size:clamp(13px,3.5vw,16px);font-style:italic;color:var(--text-dark);line-height:1.7;margin-bottom:8px;}
@@ -383,7 +399,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.51</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.52</p>
   </div>
 </div>
 
@@ -648,6 +664,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <div class="daily-date" id="d-date">Day 1</div>
     </div>
     <div class="daily-nar" id="d-txt"></div>
+    <div class="daily-opts-head" id="d-opts-head"></div>
     <div class="daily-opts" id="d-opts"></div>
   </div>
 </div>
@@ -668,7 +685,22 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="vn-bg-ph" id="vn-bg-ph" style="display:none"></div>
   <div class="vn-overlay" id="vn-overlay" style="display:none"></div>
   <div class="vn-npc-card" id="vn-npc-card" style="display:none" onclick="openLB(document.getElementById('vn-npc-img').src)"><img id="vn-npc-img" src="" alt=""></div>
+  <!-- NPC初次登场：三选一确认形象（选中的锁定为该NPC固定立绘） -->
+  <div id="npc-trio" style="display:none">
+    <div class="npct-head" id="npct-head">选择他的样子</div>
+    <div class="npct-grid">
+      <div class="npct-card" id="npct-0" onclick="selNPCTrio(0)"><div class="iph"></div></div>
+      <div class="npct-card" id="npct-1" onclick="selNPCTrio(1)"><div class="iph"></div></div>
+      <div class="npct-card" id="npct-2" onclick="selNPCTrio(2)"><div class="iph"></div></div>
+    </div>
+    <div class="npct-hint" id="npct-hint">再点一次可放大查看</div>
+    <button class="btn-p" id="npct-confirm" onclick="confirmNPCTrio()" style="visibility:hidden">就是他</button>
+  </div>
   <div class="vn-content" id="vn-content" style="display:none">
+    <div class="vn-avatars" id="vn-avatars" style="display:none">
+      <div class="vn-av" id="vn-av-npc"><img id="vn-av-npc-img" src="" alt=""></div>
+      <div class="vn-av" id="vn-av-player"><img id="vn-av-player-img" src="" alt=""></div>
+    </div>
     <div class="vn-dialog">
       <div class="vn-speaker" id="vn-speaker"></div>
       <div class="vn-text" id="vn-text"></div>
@@ -1107,6 +1139,75 @@ function showNPCScene(npcKey, day, locKey, pushGallery) {
   });
 }
 
+// ── 通用对话头像（无场景环境，柔和渐变背景）：用于初次登场三选一 ──
+async function genNPCPortraitPlain(npcKey, day, pose) {
+  if (!G.npcs[npcKey].name) {
+    const origin = G.npcs[npcKey].origin || 'American';
+    const age = STORY.characters[npcKey]?.age || 25;
+    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + age + '-year-old. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. Return ONLY the name.');
+    G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
+  }
+  const plainComp = 'upper body portrait, ' + pose + ', plain soft gradient studio backdrop, no environment details, no props, single person only';
+  const secretRevealed = STATE.events.has('foundBirthCertificate');
+  let prompt = '';
+  if (npcKey === 'agent')    prompt = STATE.imagePrompts.buildAgentPrompt(G, plainComp, day);
+  if (npcKey === 'drummer')  prompt = STATE.imagePrompts.buildDrummerPrompt(G, plainComp, day);
+  if (npcKey === 'actor')    prompt = STATE.imagePrompts.buildActorPrompt(G, plainComp, day);
+  if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
+  if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
+  if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
+  return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, G.npcs[npcKey].portraitSeed);
+}
+
+// ── NPC初次登场三选一：三张共用seed不同姿势的头像，玩家选中的锁定为固定立绘 ──
+let _npcTrio = null;
+async function showNPCTrioChooser(npcKey, day, onDone) {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  _npcTrio = { npcKey, urls: [null, null, null], sel: -1, onDone };
+  document.getElementById('npct-head').textContent = isZh?'看清他的样子……':G.lang==='ja'?'彼の姿は……':G.lang==='ko'?'그의 모습은……':'This is how he looks…';
+  document.getElementById('npct-hint').textContent = isZh?'再点一次可放大查看':G.lang==='ja'?'もう一度タップで拡大':G.lang==='ko'?'한 번 더 누르면 확대':'Tap again to enlarge';
+  const confirmBtn = document.getElementById('npct-confirm');
+  confirmBtn.style.visibility = 'hidden';
+  confirmBtn.textContent = isZh?'就是他':G.lang==='ja'?'彼だ':G.lang==='ko'?'바로 이 사람':"That's him";
+  for (let i = 0; i < 3; i++) {
+    const c = document.getElementById('npct-' + i);
+    c.classList.remove('sel');
+    c.innerHTML = '<div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div>';
+  }
+  document.getElementById('npc-trio').style.display = 'flex';
+  const poses = ['facing camera, calm direct gaze', 'three-quarter angle, arms crossed', 'slight side angle turning toward viewer'];
+  let any = false;
+  for (let i = 0; i < 3; i++) {
+    const url = await genNPCPortraitPlain(npcKey, day, poses[i]);
+    if (url) { any = true; _npcTrio.urls[i] = url; document.getElementById('npct-' + i).innerHTML = '<img src="' + url + '">'; }
+  }
+  if (!any) {
+    // DEV关图模式或全部生成失败：跳过选择直接继续剧情
+    document.getElementById('npc-trio').style.display = 'none';
+    const done = _npcTrio.onDone; _npcTrio = null;
+    if (done) done();
+  }
+}
+
+function selNPCTrio(i) {
+  if (!_npcTrio || !_npcTrio.urls[i]) return;
+  if (_npcTrio.sel === i) { openLB(_npcTrio.urls[i]); return; }
+  _npcTrio.sel = i;
+  for (let j = 0; j < 3; j++) document.getElementById('npct-' + j).classList.toggle('sel', j === i);
+  document.getElementById('npct-confirm').style.visibility = 'visible';
+}
+
+function confirmNPCTrio() {
+  if (!_npcTrio || _npcTrio.sel < 0) return;
+  const { npcKey, urls, sel, onDone } = _npcTrio;
+  G.npcs[npcKey].portraitUrl = urls[sel];
+  G.gallery.push({ url: urls[sel], label: getNPCName(npcKey) });
+  STATE.save.saveGame();
+  document.getElementById('npc-trio').style.display = 'none';
+  _npcTrio = null;
+  if (onDone) onDone();
+}
+
 async function genProtagonistScene(locKey, day) {
   const loc = STORY.locations[locKey] || {};
   const sceneComp = loc.composition || 'elegant setting';
@@ -1305,6 +1406,8 @@ function closeCalendar() {
 // Add event to calendar
 function calAddEvent(dateStr, event) {
   if (!G.calendar.events[dateStr]) G.calendar.events[dateStr] = [];
+  // 按 id 去重：同一天重复进入 startDay（如"继续游戏"恢复）不会重复添加同一事件
+  if (event.id && G.calendar.events[dateStr].some(e => e.id === event.id)) return;
   // Check for conflicts (two NPC invites on same day)
   var existing = G.calendar.events[dateStr].filter(e => e.type === 'npc_invite' && e.status === 'accepted');
   if (existing.length > 0 && event.type === 'npc_invite') {
@@ -1458,6 +1561,58 @@ function renderCalDayEvents(dateStr) {
 }
 
 // Auto-add work events and NPC invites to calendar
+// ── 经纪人首月工作计划：Day1 签约会面时生成，写入日历（必须行程）──
+// 每周3-4个工作日（剧情固定日也计入当周工作量），任务从下方池子里抽
+const AGENT_PLAN_TASKS = [
+  { loc:'recording_studio', npc:'drummer', t:{ 'zh-cn':'乐队排练','zh-tw':'樂隊排練', en:'Band rehearsal', ja:'バンドリハーサル', ko:'밴드 리허설' } },
+  { loc:'recording_studio', npc:'drummer', t:{ 'zh-cn':'录制Demo','zh-tw':'錄製Demo', en:'Demo recording', ja:'デモ録音', ko:'데모 녹음' } },
+  { loc:'music_training',   npc:null, t:{ 'zh-cn':'声乐训练','zh-tw':'聲樂訓練', en:'Vocal training', ja:'ボイストレーニング', ko:'보컬 트레이닝' } },
+  { loc:'music_training',   npc:null, t:{ 'zh-cn':'舞蹈体能训练','zh-tw':'舞蹈體能訓練', en:'Dance & fitness', ja:'ダンス・体力トレーニング', ko:'댄스·체력 훈련' } },
+  { loc:'magazine_shoot',   npc:null, t:{ 'zh-cn':'形象定妆拍摄','zh-tw':'形象定妝拍攝', en:'Styling & test shoot', ja:'スタイリング撮影', ko:'스타일링 촬영' } },
+  { loc:'music_training',   npc:null, t:{ 'zh-cn':'媒体应对训练','zh-tw':'媒體應對訓練', en:'Media training', ja:'メディアトレーニング', ko:'미디어 트레이닝' } },
+  { loc:'cafe_meeting',     npc:'agent', t:{ 'zh-cn':'与制作人会面','zh-tw':'與製作人會面', en:'Producer meeting', ja:'プロデューサーとの面談', ko:'프로듀서 미팅' } },
+  { loc:'music_training',   npc:null, t:{ 'zh-cn':'词曲创作课','zh-tw':'詞曲創作課', en:'Songwriting session', ja:'ソングライティング', ko:'작사·작곡 세션' } },
+];
+
+function generateAgentMonthPlan() {
+  if (G.calendar.agentPlanDone) return;
+  // 双保险：日历里已有必须行程就不再生成（防止存档标志位意外丢失导致重复排班）
+  if (Object.values(G.calendar.events).flat().some(e => e && e.source === 'agent_mandate')) { G.calendar.agentPlanDone = true; return; }
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var shuffle = function(a){ return [...a].sort(function(){ return Math.random()-0.5; }); };
+  var pool = shuffle(AGENT_PLAN_TASKS);
+  var ti = 0;
+  // Day1=周一（2027-03-01），每周从 day 1+7*w 开始
+  for (var week = 0; week < 5; week++) {
+    var weekdays = [];
+    for (var d = 1 + 7*week; d <= 5 + 7*week; d++) {
+      if (d >= 2 && d <= 30) weekdays.push(d);
+    }
+    if (!weekdays.length) continue;
+    var target = 3 + Math.floor(Math.random()*2); // 每周3-4个工作日
+    var scriptedWork = weekdays.filter(function(d){ var e = STORY.utils.getScriptedEvent(d); return e && e.isWork; }).length;
+    var free = weekdays.filter(function(d){ return !STORY.utils.getScriptedEvent(d); });
+    var need = Math.max(0, target - scriptedWork);
+    shuffle(free).slice(0, need).sort(function(a,b){return a-b;}).forEach(function(d) {
+      var task = pool[ti++ % pool.length];
+      calAddEvent(getCalDateStr(d), {
+        id: 'mandate_' + d,
+        type: 'work',
+        source: 'agent_mandate',
+        npcKey: task.npc || null,
+        npcName: task.npc ? getNPCName(task.npc) : '',
+        title: task.t[G.lang] || task.t['en'],
+        locKey: task.loc,
+        status: 'accepted',
+        time: '09:00',
+        description: isZh ? '经纪人安排的必须行程' : 'Scheduled by your agent (mandatory)',
+      });
+    });
+  }
+  G.calendar.agentPlanDone = true;
+  STATE.save.saveGame();
+}
+
 function autoAddCalendarEvents(day) {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var dateStr = getCalDateStr(day);
@@ -1756,22 +1911,27 @@ function selRoom(opt) {
   preGenNight();
 }
 
+// 晚间卧室固定布局（用户指定）：小户型卧室书房一体，左墙衣柜+书桌+一体单人床+窗户
+const BEDROOM_LAYOUT = 'compact bedroom-study combo room, rectangular layout, full-height floor-to-ceiling wardrobe covering the entire left wall, a desk against the wall to the right of the wardrobe with a three-drawer mobile cabinet under its right side and a study chair in front, the desk connects to the single bed forming an integrated layout, single bed along the right wall with storage drawers underneath, bed directly below the window, two-tier open wall-mounted bookshelf above the desk filled with books folders and storage boxes, photo board on the wall behind the desk, large framed window with curtains in the middle of the right wall, green plants visible outside the window, wooden floor, compact space with ample storage, combined study and rest area';
+
 async function preGenNight() {
-  // 夜景复用和白天完全相同的房间布局描述，只切换成夜间灯光，避免家具布局对不上
-  const layout = G.apartment.selectedLayout || LIVING_LAYOUT;
+  // 晚间界面用卧室而不是客厅夜景：客厅夜景每次生成摆设都和白天对不上，卧室用固定布局提示词
   const url = await img(
-    layout + ', the exact same room shown at night, warm interior lamp lighting, city lights softly visible through the window, cozy evening atmosphere, NO daylight'
-  , 'Room — Night');
-  G.apartment.livingNightUrl = url;
+    BEDROOM_LAYOUT + ', cozy warm night lamp lighting, evening atmosphere, NO daylight, no people'
+  , 'Bedroom — Night');
+  G.apartment.bedroomNightUrl = url;
+  STATE.save.saveGame();
 }
 
 // ══════════════════════════════════════════════════════
 // PROTAGONIST
 // ══════════════════════════════════════════════════════
+// 通用对话头像：柔和渐变纯色背景、无场景环境——立绘之后会叠在各种场景背景上使用，
+// 带具体环境（浴室/办公室等）会穿帮，所以只做人物+朴素背景
 const MIRRORS = [
-  'young woman in her bathroom, morning routine, standing at marble vanity sink washing face, wearing cozy oversized t-shirt, soft warm bathroom lighting, city view through frosted window, shot from side angle NOT facing mirror, NO reflection, NO duplicate person, cinematic intimate feel',
-  'young woman in modern bathroom, morning light, leaning against tiled wall near window, fully dressed in casual home clothes, looking thoughtfully downward, warm backlighting, NO mirror visible, NO reflection, single person only',
-  'young woman in elegant bathroom, morning, sitting on edge of bathtub, wearing comfortable oversized shirt, natural soft light from window, contemplative mood, shot from slight above angle, NO mirror, NO reflection, one person only',
+  'upper body portrait, facing camera with a soft natural expression, wearing casual everyday clothes, plain soft gradient studio backdrop, no furniture, no environment details, soft diffused lighting, single person only',
+  'upper body portrait, three-quarter angle, looking slightly past the camera, gentle thoughtful expression, casual clothes, plain muted gradient backdrop, no environment details, soft warm lighting, single person only',
+  'upper body portrait, slight side angle with head turned toward viewer, calm confident expression, casual clothes, plain soft gradient backdrop, no props, no environment, cinematic soft lighting, single person only',
 ];
 
 let _protoSeed = null;
@@ -1838,10 +1998,11 @@ async function genAgent() {
 
   // Generate portraits after (skip in DEV_MODE_IMG)
   if (!DEV_MODE_IMG) {
+    // 通用对话头像：无办公室等环境背景（立绘之后会叠在场景背景上，带环境会穿帮）
     const angles = [
-      'standing in high-rise office at night, three-quarter angle, city lights behind, direct intense gaze',
-      'close-up portrait, office setting, serious expression with hidden depth',
-      'side profile turning toward camera, city night through window, cinematic',
+      'upper body portrait, three-quarter angle, direct intense gaze, plain dark gradient studio backdrop, no environment details, cinematic soft lighting, single person only',
+      'upper body portrait, facing camera, serious expression with hidden depth, plain muted gradient backdrop, no props, no environment, soft dramatic lighting, single person only',
+      'upper body portrait, side profile turning toward camera, plain soft gradient backdrop, no environment details, cinematic lighting, single person only',
     ];
     // 同一批候选图共用一个 seed，保证美术风格一致，只有角度/姿势不同
     _agentSeed = Math.floor(Math.random() * 1000000);
@@ -2099,7 +2260,7 @@ async function startDay() {
   }
   buildDayOpts();
   generatePhoneContent();
-  if (!G.apartment.livingNightUrl) preGenNight();
+  if (!G.apartment.bedroomNightUrl) preGenNight();
 }
 
 function getGameDate(day) {
@@ -2132,6 +2293,9 @@ function buildDayOpts() {
   const opts = document.getElementById('d-opts'); opts.innerHTML = '';
   const ev = STORY.utils.getScriptedEvent(G.day);
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  // 选项区上方的提示语
+  document.getElementById('d-opts-head').textContent =
+    isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?';
   const phoneLabel = isZh?'查看手机':lang==='ja'?'スマホを確認':lang==='ko'?'휴대폰 확인':'Check phone';
   const phoneSub = isZh?'消息 · 朋友圈 · 行业资讯':'Messages · Moments · Industry';
   const makeOpt = (label, sub, cls, onclick) => {
@@ -2171,6 +2335,15 @@ function buildDayOpts() {
     const socOps = getSocOps(lang);
     const shuffle = a => [...a].sort(() => Math.random()-0.5);
     const sSub = isZh?'社交 · 可能遇到有趣的人':'Social · May meet someone';
+    // 经纪人安排的必须行程：显示为第一个选项，但保留2个社交选项——
+    // 玩家可以选择翘掉，但晚上会收到经纪人的质问消息（见 playFree/goEvening）
+    const mandate = !hasPendingInvite && todayCalEvents.find(e => e.source === 'agent_mandate' && e.status === 'accepted');
+    if (mandate) {
+      const mSub = isZh?'必须行程 · 经纪人安排':lang==='ja'?'必須スケジュール':lang==='ko'?'필수 일정':'Mandatory · Set by your agent';
+      opts.appendChild(makeOpt(mandate.title, mSub, 'work', () => playScheduledEvent(todayDateStr, mandate)));
+      shuffle(socOps).slice(0,2).forEach(s => opts.appendChild(makeOpt(s.label, sSub, '', () => playFree(s.key, s.label, false))));
+      return;
+    }
     if (isGameWeekend(G.day)) {
       // 周末不安排工作，全部是休闲/社交选项
       shuffle(socOps).slice(0,3).forEach(s => opts.appendChild(makeOpt(s.label, sSub, '', () => playFree(s.key, s.label, false))));
@@ -2224,6 +2397,8 @@ async function playFree(key, label, isWork) {
   document.getElementById('vn-bg-ph').style.display = 'flex';
   document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
+  document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
+  document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2233,6 +2408,10 @@ async function playFree(key, label, isWork) {
   if (isWork) { G.fame = Math.min(100, G.fame + 5); G.daysWithoutWork = 0; } else { G.daysWithoutWork = (G.daysWithoutWork||0) + 1; }
   // 记录今天做了什么，供晚间消息等引用，避免AI生成内容和当天剧情对不上
   G.today = { label, isWork, npc: null };
+  // 今天有经纪人安排的必须行程却选了别的 → 标记为翘掉，晚上经纪人会发消息质问
+  (G.calendar.events[getCalDateStr(G.day)] || []).forEach(e => {
+    if (e.source === 'agent_mandate' && e.status === 'accepted') { e.status = 'missed'; G.today.skippedMandate = e.title; }
+  });
 
   // 场景图片后台加载
   genProtagonistScene(key, G.day).then(url => {
@@ -2265,6 +2444,8 @@ async function playScheduledEvent(dateStr, event) {
   document.getElementById('vn-bg-ph').style.display = 'flex';
   document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
+  document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
+  document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2326,11 +2507,17 @@ async function startScriptedSceneWithLateOrigin(day, ev) {
   document.getElementById('vn-bg-ph').style.display = 'flex';
   document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
+  document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
+  document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
   document.getElementById('vn-text').innerHTML = preText;
   document.getElementById('vn-opts').innerHTML = '';
+  // 独白幕背景：无人物地点背景（不再是纯粉色占位）
+  genLocationBg(ev.location, day).then(url => {
+    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+  });
   // Show "someone walks over" continue button, then ask origin
   const contLabel = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   const btn = document.createElement('button');
@@ -2351,6 +2538,8 @@ async function startScriptedScene(day, ev) {
   document.getElementById('vn-bg-ph').style.display = 'flex';
   document.getElementById('vn-bg').style.display = 'none'; // 清掉上一场景残留的背景图
   document.getElementById('vn-npc-card').style.display = 'none'; // 场景开始时先隐藏固定立绘卡片，需要时再显示
+  document.getElementById('vn-avatars').style.display = 'none'; // 对话头像框由 setVNAvatars 在对话开始时显示
+  document.getElementById('npc-trio').style.display = 'none'; // 三选一浮层复位
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
@@ -2358,18 +2547,57 @@ async function startScriptedScene(day, ev) {
   document.getElementById('vn-opts').innerHTML = '';
   if (ev.isWork) { G.fame = Math.min(100, G.fame + 5); G.daysWithoutWork = 0; }
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
+  // Day1 与经纪人会面：生成首月工作计划写入日历（对话里经纪人会让她今晚查日历）
+  if (day === 1 && ev.npc === 'agent') generateAgentMonthPlan();
   // 记录今天做了什么，供晚间消息等引用，避免AI生成的内容和当天剧情对不上
   G.today = { label: getScriptedLabel(ev, day, lang), isWork: ev.isWork, npc: ev.npc };
-  // Load image in background：已确认立绘→固定立绘+地点背景；初次见面→完整场景图并锁定形象
-  showNPCScene(ev.npc, day, ev.location, true);
+  if (G.npcs[ev.npc].portraitUrl) {
+    // 已确认立绘 → 固定立绘卡片 + 地点背景
+    showNPCScene(ev.npc, day, ev.location, false);
+  } else {
+    // 初次见面：独白幕先铺无人物地点背景（不再是纯粉色占位），立绘三选一在点"继续"后进行
+    genLocationBg(ev.location, day).then(url => {
+      if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+    });
+  }
   // Show Continue button to start dialogue
   const contLabel = lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   const startBtn = document.createElement('button'); startBtn.className = 'vn-next'; startBtn.textContent = contLabel;
-  startBtn.onclick = () => runVNDialog(ev.dialogRounds, ev.npc, day, 0);
+  startBtn.onclick = () => {
+    if (!G.npcs[ev.npc].portraitUrl) {
+      // 初次见面：先三选一确认形象，选完展示固定立绘再开始对话
+      showNPCTrioChooser(ev.npc, day, () => {
+        showNPCScene(ev.npc, day, ev.location, false);
+        runVNDialog(ev.dialogRounds, ev.npc, day, 0);
+      });
+    } else {
+      runVNDialog(ev.dialogRounds, ev.npc, day, 0);
+    }
+  };
   document.getElementById('vn-opts').appendChild(startBtn);
 }
 
+// ── 对话双头像框：左NPC右女主，谁说话谁高亮 ──
+function setVNAvatars(npcKey) {
+  const wrap = document.getElementById('vn-avatars');
+  const nImg = document.getElementById('vn-av-npc-img');
+  const pImg = document.getElementById('vn-av-player-img');
+  const nUrl = npcKey && G.npcs[npcKey] ? G.npcs[npcKey].portraitUrl : null;
+  const pUrl = G.player.portraitUrl;
+  nImg.src = nUrl || '';
+  pImg.src = pUrl || '';
+  document.getElementById('vn-av-npc').classList.toggle('has-img', !!nUrl);
+  document.getElementById('vn-av-player').classList.toggle('has-img', !!pUrl);
+  wrap.style.display = (nUrl || pUrl) ? 'flex' : 'none';
+}
+
+function vnSpeak(who) { // 'npc' | 'player' | null
+  document.getElementById('vn-av-npc').classList.toggle('active', who === 'npc');
+  document.getElementById('vn-av-player').classList.toggle('active', who === 'player');
+}
+
 async function runVNDialog(dialogRounds, npcKey, day, round) {
+  if (round === 0) setVNAvatars(npcKey);
   if (round >= dialogRounds.length) {
     const isZhEnd = G.lang==='zh-cn'||G.lang==='zh-tw';
     const endLabel = isZhEnd?'离开':G.lang==='ja'?'立ち去る':G.lang==='ko'?'자리를 뜨다':'Leave';
@@ -2384,6 +2612,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
       cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
       apartment_lobby: isZhEnd2?'你回到了自己的公寓。':'You head back up to your apartment.',
     }[locKey2] || (isZhEnd2?'你离开了。':'You leave.');
+    vnSpeak(null); // 旁白：两个头像都不高亮
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = transitionNar;
     const endBtn = document.createElement('button');
@@ -2398,6 +2627,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   const dlg = dialogRounds[round];
   const npcName = getNPCName(npcKey);
   const lang = G.langName;
+  vnSpeak('npc');
   document.getElementById('vn-speaker').textContent = npcName;
   document.getElementById('vn-text').textContent = '...';
   document.getElementById('vn-opts').innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
@@ -2423,10 +2653,11 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     _extraCtx += ' Cultural background (' + _origin + '): ' + _culturalTraits + ' Let this subtly texture how you speak.';
   }
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, dlg.npcContext + _extraCtx);
-  const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
+  const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
   document.getElementById('vn-text').innerHTML = formatNPCText(npcLine);
+  vnSpeak('npc');
   // Generate options
   const playerLang = G.lang; const isZh = playerLang==='zh-cn'||playerLang==='zh-tw';
   // Use scripted options if available
@@ -2514,6 +2745,7 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
   const isJa = G.lang==='ja'; const isKo = G.lang==='ko';
 
   // Show player's choice
+  vnSpeak('player');
   document.getElementById('vn-speaker').textContent = G.player.name || (isZh?'你':'You');
   document.getElementById('vn-text').textContent = playerReply;
   document.getElementById('vn-opts').innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
@@ -2524,7 +2756,8 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
     const char = STORY.characters[npcKey];
     const closingCtx = STATE.memory.buildDialoguePrompt(npcKey, day, G.langName, G.player.name,
       'The player just said: "' + playerReply + '". Give a brief closing reaction to end the scene naturally (1-2 sentences max). Could be dismissive, warm, or ambiguous. Use 你/you for player, never 她/she.');
-    const closingLine = await claude(closingCtx + '\n\nOne brief closing line (1-2 sentences). Use 「」for speech in Chinese, quotation marks in other languages. Plain text only, no HTML.');
+    const closingLine = await claude(closingCtx + '\n\nOne brief closing line (1-2 sentences). Use 「」for speech in Chinese, quotation marks in other languages. Any non-spoken action of yourself must be in THIRD person (他/he), never first person 我/I outside quotes. Plain text only, no HTML.');
+    vnSpeak('npc');
     document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
     document.getElementById('vn-text').innerHTML = formatNPCText(closingLine);
   }
@@ -2558,8 +2791,10 @@ async function quickResp(npcKey, relChange, reply) {
 // ══════════════════════════════════════════════════════
 async function goEvening() {
   go('s-evening');
-  if (G.apartment.livingNightUrl) { setImg('eve-img','eve-ph',G.apartment.livingNightUrl); }
-  else { preGenNight().then(() => { if (G.apartment.livingNightUrl) setImg('eve-img','eve-ph',G.apartment.livingNightUrl); }); }
+  // 晚间用固定布局的卧室夜景（旧存档还没有卧室图时回退客厅夜景）
+  var eveRoomUrl = G.apartment.bedroomNightUrl || G.apartment.livingNightUrl;
+  if (eveRoomUrl) { setImg('eve-img','eve-ph',eveRoomUrl); }
+  else { preGenNight().then(() => { var u = G.apartment.bedroomNightUrl || G.apartment.livingNightUrl; if (u) setImg('eve-img','eve-ph',u); }); }
   const fr = getCurFame(G.fame);
   const agentMemory = STATE.memory.getSummary('agent');
   const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
@@ -2587,10 +2822,21 @@ async function goEvening() {
   // 把今天实际发生的事喂给AI，避免生成内容和当天剧情对不上（比如明明去了录音室，晚上却说"试镜表现很好"）
   const todayContext = G.today ? ('Today (Day ' + G.day + ') she ' + (G.today.isWork ? 'worked at' : 'spent time at') + ' "' + G.today.label + '". Do NOT invent a different activity — react to or reference this specific thing, or keep it generic/emotional if unsure.') : '';
 
+  // 今天翘掉了经纪人安排的必须行程 → 晚间消息改为质问，并小幅扣好感
+  const missedMandate = (G.calendar.events[getCalDateStr(G.day)] || []).find(e => e.source === 'agent_mandate' && e.status === 'missed');
+  const agentMsgPrompt = missedMandate
+    ? ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'Her') + ' is your signed artist. She SKIPPED the mandatory scheduled work "' + missedMandate.title + '" today' + (G.today ? ' and went to "' + G.today.label + '" instead' : '') + '. Send a stern, controlled, questioning text (1-2 sentences) — cold displeasure, demand an explanation, no yelling. Language: ' + G.langName + '.')
+    : ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. It is late evening of Day ' + G.day + ' of her contract. ' + todayContext + ' STRICT: do NOT invent events that did not happen — no auditions, directors, callbacks, streaming platforms (e.g. Netflix), or industry people asking about her unless mentioned in the context above. Send a terse 1-sentence text. NO contract talk. Language: ' + G.langName + '.');
+  if (missedMandate) {
+    STATE.relationships.change('agent', -5);
+    missedMandate.status = 'missed_handled'; // 避免第二天晚上重复质问
+    STATE.memory.addEvent('agent', 'She skipped mandatory "' + missedMandate.title + '" on day ' + G.day + '. You confronted her by text.', G.day);
+  }
+
   // Generate Claude content in background
   Promise.all([
     claude('Write 1 poetic evening sentence for ' + (G.player.name||'her') + ' Day ' + G.day + ' in ' + (G.player.city||'the city') + '. ' + todayContext + ' Second person "You". Language: ' + G.langName + '. No quotes.'),
-    claude('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. It is late evening of Day ' + G.day + ' of her contract. ' + todayContext + ' STRICT: do NOT invent events that did not happen — no auditions, directors, callbacks, streaming platforms (e.g. Netflix), or industry people asking about her unless mentioned in the context above. Send a terse 1-sentence text. NO contract talk. Language: ' + G.langName + '.')
+    claude(agentMsgPrompt)
   ]).then(function(results) {
     var eveTxt = results[0], msgTxt = results[1];
     if (eveTxt && eveTxt.trim()) document.getElementById('eve-nar').textContent = eveTxt.trim();
@@ -2601,11 +2847,8 @@ async function goEvening() {
         isVoice:false, emoji:'👔', color:'#C4A882', day: G.day,
         time:(22+Math.floor(Math.random()*2))+':'+Math.floor(Math.random()*59).toString().padStart(2,'0')
       });
+      // 卡片显隐由 updatePhoneBadge（notifyNewMessage 内部会调用）统一按真实未读状态维护
       notifyNewMessage('agent');
-      // 有新消息了，刷新一下卡片显示状态（若玩家正开着经纪人会话则已被标为已读，不再显示）
-      var stillUnread = Object.values(G.phone.messages||{}).flat().some(m => m && m.npc==='agent' && !m.read && !m.mine);
-      var eveMsgCard = document.querySelector('.eve-msg');
-      if (eveMsgCard && stillUnread) eveMsgCard.style.display = 'flex';
       STATE.memory.addEvent('agent','Evening: "'+msgTxt.trim().slice(0,50)+'"',G.day);
     }
   }).catch(function(){});
@@ -2850,7 +3093,7 @@ async function generatePhoneContent() {
       const dateStr = getCalDateStr(targetDay);
       // 剧情固定日、或当天已经有其它NPC安排的活动了 → 不写入日历，避免产生一个永远无法被处理的冲突
       const hasStoryDay = !!STORY.utils.getScriptedEvent(targetDay);
-      const hasSchedConflict = (G.calendar.events[dateStr] || []).some(e => e.source === 'npc_message' && e.status === 'accepted');
+      const hasSchedConflict = (G.calendar.events[dateStr] || []).some(e => (e.source === 'npc_message' || e.source === 'agent_mandate') && e.status === 'accepted');
       if (!hasStoryDay && !hasSchedConflict) {
         const VALID_SCHED_LOCS = ['recording_studio','music_training','cafe_meeting','art_gallery','night_bar'];
         const locKey = VALID_SCHED_LOCS.includes(scheduledEvent.locationKey) ? scheduledEvent.locationKey : 'music_training';
@@ -2998,6 +3241,12 @@ function updatePhoneBadge() {
   G.phone.unreadCount = unreadThreads;
   const badge = document.getElementById('phone-badge');
   if (badge) { badge.textContent = unreadThreads; badge.classList.toggle('show', unreadThreads > 0); }
+  // 晚间"收到新消息"卡片跟真实未读状态联动：看完消息回到晚间界面时卡片同步消失
+  const eveCard = document.querySelector('.eve-msg');
+  if (eveCard) {
+    const agentUnread = Object.values(G.phone.messages||{}).flat().some(m => m && m.npc==='agent' && !m.read && !m.mine);
+    eveCard.style.display = agentUnread ? 'flex' : 'none';
+  }
 }
 
 function formatMsgTimestamp(m) {
@@ -3224,6 +3473,10 @@ function startNewGame() {
   // 清空旧存档 + 原地重置状态，避免旧的好感度/名字/记忆漏进新游戏
   STATE.reset();
   applyLang();
+  // 刷新徽章UI：不刷新的话手机/日历角标还显示重置前的旧计数
+  updatePhoneBadge();
+  var calBadge = document.getElementById('cal-badge');
+  if (calBadge) calBadge.style.display = 'none';
   go('s-lang');
 }
 
@@ -3286,7 +3539,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.51 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.52 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
