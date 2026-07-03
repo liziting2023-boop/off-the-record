@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.71** |
+| 当前版本 | **v10.72** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -85,8 +85,13 @@ push 到 main → GitHub Actions → 约 30 秒生效。
   - `/image` → fal.ai
 
 ### DEV MODE
-- `DEV_MODE_IMG = false`（true = 跳过生图省钱）→ 说【关图】/【开图】切换
+- `DEV_MODE_IMG = false`（true = 跳过生图省钱，const，改源码切换）
 - `DEV_MODE_TXT = false`
+
+### 开发者后台命令（浏览器控制台 F12 调用，v10.72 加）
+- **`otrNewQuota()`**：换一个新设备ID → 立刻拿到全新的每日AI额度（服务器按设备ID计额度，每设备每日约400次对话）。不改Worker、本地存档进度不丢（存档key独立于设备ID）。**开发者测试撞额度时随时自己调**
+- **`otrQuota()`**：查看当前设备ID（额度按它在Worker端计）
+- 撞额度/网络失败时游戏不再空白卡住：`claude()` 优雅返回空串（不再throw冻结场景），场景/快速对话/手机聊天都会显示 `aiFailMsg()`「AI内容暂时无法生成，可能今日额度已满」+ 出口按钮（模拟真实玩家看到的降级）
 
 ### 存档
 - Key：`otr_save_v2`（v1 已废弃）
@@ -373,6 +378,11 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **技术**:单个 `<audio id="player-audio">` + inline事件(ontimeupdate/onended/onplay/onpause);歌词按 currentTime 找当前行高亮+`scrollTo`居中;文件名空格用 `encodeURI` 处理
 - ⚠️ **托管教训**:占位期1首MP3(~3MB)放 `repo/music/` 可以;但**正式10首(30-40MB)别塞git仓库**——拖慢仓库+吃GitHub Pages流量,上线前要迁到 Cloudflare R2/CDN 单独托管、按需加载。`file` 已设计成路径/URL,到时改地址即可
 - 这也给第2章"专辑企划"提前铺好了能用的播放器
+
+**v10.72（AI失败可见化 + 开发者额度自助命令）**：
+- **失败可见化**:撞每日额度(429)/网络/CORS失败时,`claude()` 改为优雅返回空串(之前网络错误会throw把场景冻结在"...")；场景对话(runVNDialog)、快速对话(runQuickNPCChat)、手机聊天(sendChatReply)在AI返回空时都显示 `aiFailMsg()`「AI内容暂时无法生成,可能今日额度已满,明天恢复」+出口按钮,不再空白卡住(模拟真实玩家看到的降级体验)
+- **开发者后台命令**(浏览器控制台F12):`otrNewQuota()` 换新设备ID→满额;`otrQuota()` 查当前设备ID。详见 §4 DEV MODE
+- 背景:用户密集测试撞到每日400次/设备的额度,表现为"NPC对话和名字都不出来"(对话空白+只显示角色标签)。查证后端/API健康、代码无回归,是额度问题;顺手做了失败可见化让未来玩家不会看到神秘空白
 
 ## 9. 待开发（优先顺序）
 

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.71"></script>
-<script src="state.js?v=10.71"></script>
+<script src="story.js?v=10.72"></script>
+<script src="state.js?v=10.72"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -477,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.71</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.72</p>
   </div>
 </div>
 
@@ -1171,6 +1171,36 @@ function warnQuota() {
              : 'Daily AI usage limit reached — generation will pause and resume tomorrow. Your progress is safe.');
 }
 
+// AI 内容生成失败（额度满/网络/CORS）时的可见提示——玩家能立刻看到而不是空白卡住
+let _aiDown = false;
+function aiFailMsg() {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  if (isZh) return '（AI 内容暂时无法生成——可能今日额度已满。稍后或明天再试，进度已保存。）';
+  if (G.lang==='ja') return '（AIコンテンツを生成できません。本日の上限に達した可能性があります。進行状況は保存済み。）';
+  if (G.lang==='ko') return '（AI 콘텐츠를 생성할 수 없습니다. 오늘 한도에 도달했을 수 있습니다. 진행 상황은 저장됨.）';
+  return "(AI content isn't available right now — you may have reached today's limit. Try again later or tomorrow. Your progress is saved.)";
+}
+
+// ── 开发者后台命令（浏览器控制台 F12 调用，和 DEV 用法一致）──
+// otrNewQuota()：换一个新设备ID → 立刻拿到全新的每日AI额度（服务器按设备ID计额度）。
+// 不改 Worker，本地存档进度不丢（存档key独立于设备ID），等于自己开了个无痕窗口。
+window.otrNewQuota = function() {
+  var old = null;
+  try { old = localStorage.getItem('otr_device_id'); localStorage.removeItem('otr_device_id'); } catch(e){}
+  var id = getDeviceId(); // 重新生成并写回 localStorage
+  try { if (typeof G !== 'undefined' && G) G._quotaWarned = false; } catch(e){}
+  _aiDown = false;
+  console.log('%c[OTR] 今日AI额度已重置为满额。','color:#4a9;font-weight:bold');
+  console.log('[OTR] 新设备ID = ' + id + '（旧 = ' + old + '）');
+  return id;
+};
+// otrQuota()：查看当前设备ID（额度按它在服务器端计，每日约400次对话）
+window.otrQuota = function() {
+  var id = getDeviceId();
+  console.log('[OTR] 当前设备ID = ' + id + '；额度按此ID在Worker端计（约400次对话/天，明天自动重置）。需要满额可调用 otrNewQuota()');
+  return id;
+};
+
 async function claude(prompt, sys = '') {
   if (DEV_MODE_TXT) {
     const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
@@ -1219,9 +1249,16 @@ async function claude(prompt, sys = '') {
   }
   const _culturalCtx = 'CULTURAL CONTEXT: This story is set in the Western entertainment industry (' + (G.player.city||'a major Western city') + '). All characters behave according to Western social and professional norms. They are direct, individualistic, and do NOT follow Chinese cultural norms. No face-saving, no indirect language, no WeChat-style communication. Dialogue should feel like it belongs in a Western TV drama or film, not a Chinese drama. The language used is ' + G.langName + ' but the cultural context is always Western.';
   const body = { model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: prompt }], system: (_culturalCtx + (sys ? '\n\n' + sys : '')) };
-  const r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() }, body: JSON.stringify(body) });
-  if (r.status === 429) { warnQuota(); return ''; } // 今日限额已满：调用方都有空串兜底
-  const d = await r.json();
+  let r;
+  try {
+    r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() }, body: JSON.stringify(body) });
+  } catch (e) {
+    // 网络/CORS 错误：优雅返回空串（调用方都有兜底 + 显示 aiFailMsg），不再让场景卡在"..."
+    _aiDown = true; return '';
+  }
+  if (r.status === 429) { _aiDown = true; warnQuota(); return ''; } // 今日限额已满
+  if (!r.ok) { _aiDown = true; return ''; } // 其它错误也兜底
+  let d; try { d = await r.json(); } catch (e) { _aiDown = true; return ''; }
   return d.content?.[0]?.text || '';
 }
 
@@ -3313,7 +3350,16 @@ async function runQuickNPCChat(npcKey, ctx, onDone) {
       (ctx.custom || _workCtx) + ' ' + buildScheduleContext(3) +
       ' Any non-spoken action of yourself must be in THIRD person. Spoken words in 「」 for Chinese or quotes otherwise. Plain text only.'));
   } catch(e) {}
-  if (!line || !line.trim()) { if (onDone) onDone(); return; }
+  if (!line || !line.trim()) {
+    // AI 不可用：给可见提示 + 继续按钮，不再静默跳过（模拟真实玩家看到的降级）
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').textContent = aiFailMsg();
+    vopts.innerHTML = '';
+    var _qb = document.createElement('button'); _qb.className = 'vn-next';
+    _qb.textContent = (G.lang==='zh-cn'||G.lang==='zh-tw')?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
+    _qb.onclick = onDone; vopts.appendChild(_qb);
+    return;
+  }
   document.getElementById('vn-text').innerHTML = formatNPCText(line);
   vopts.innerHTML = '';
   const finish = async (reply, rc) => {
@@ -3690,6 +3736,18 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   _vnLastReply = null;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, _replyCtx + ' ' + dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
   const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
+  if (!npcLine || !npcLine.trim()) {
+    // AI 不可用（额度满/网络）：明确告知玩家 + 给出离开出口，不再空白卡住（模拟真实玩家看到的降级）
+    vnSpeak(null);
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').textContent = aiFailMsg();
+    var _vo = document.getElementById('vn-opts'); _vo.innerHTML = '';
+    var _eb = document.createElement('button'); _eb.className = 'vn-next';
+    _eb.textContent = (G.lang==='zh-cn'||G.lang==='zh-tw')?'离开':G.lang==='ja'?'立ち去る':G.lang==='ko'?'자리를 뜨다':'Leave';
+    _eb.onclick = goEvening;
+    _vo.appendChild(_eb);
+    return;
+  }
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
   document.getElementById('vn-text').innerHTML = formatNPCText(npcLine);
@@ -5159,6 +5217,12 @@ async function sendChatReply() {
         STATE.memory.addEvent(npc, 'You two agreed over text to meet on day ' + fiDay + ': "' + (futureInv.title||'') + '"', G.day);
       }
       notifyNewMessage(npc);
+    } else {
+      // AI 无回复（今日额度已满/网络问题）：明确告知玩家，不再静默无反应
+      var t2b = document.getElementById('chat-typing'); if (t2b) t2b.remove();
+      if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+      G.phone.messages[G.day].push({ npc, name: getNPCName(npc), text: aiFailMsg(), isVoice: false, emoji: '⚠️', color: '#c0392b', day: G.day, time: getPhoneClockTime(), read: (_openChatNpc === npc) });
+      notifyNewMessage(npc);
     }
   } catch (e) {
     console.error('chat reply failed:', e);
@@ -5503,7 +5567,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.71 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.72 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
