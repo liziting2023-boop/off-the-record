@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.67** |
+| 当前版本 | **v10.68** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -340,6 +340,14 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **初见立绘全屏展示**：NPC三选一确认后先全屏展示选中的立绘（`#portrait-full`，点击继续），之后才进入对话
 - **对话中点背景图隐藏/显示对话框**（`toggleVNDialog`，vn-bg 的点击从 openLB 改为切换；场景入口复位显隐状态）
 - 用户报"过夜没生成沙发图"= v10.64 缓存旧版行为（沙发图是 v10.65 加的），代码复查无问题，强刷验证
+
+**v10.68（睡前授权批次：第一章内容补完）**：
+- **双人场景图**：新增`genCoupleScene(npc,loc,day,activity)`（女主+NPC同框、按人设外形拼prompt、seed用NPC的、走HQ=flux/dev），接入见面(runMeetupScene)/约会(playInviteScene昼夜文案区分)/同行行程(playScheduledEvent带npc)，成功存回忆、失败回退无人物地点背景
+- **存档槽**：最多3个本地备份（otr_save_slot_1/2/3）。新开局先问"要备份当前进度吗"；标题页有备份时显示"读取备份(N)"按钮（prompt选槽→写主档→reload走原地合并）
+- **知名度页**：移除知名度进度条（等级列表已表达进度），保留压力条；相关元素display:none保留id防renderFame报错
+- **Day1-4对话全部重写**（12段npcContext导演指令，按最新人设：经纪人=暖主人姿态+具体到"雨夜六人街头场"的签约理由；鼓手=craft外科手术式点评+背后那句"高音明天再来"；演员=撩里藏一秒真心+真号码写在通告单上；管家=大男孩被抓包送蛋糕+藏不住的开心）
+- **第一章补完3个剧情日**：Day12乐队首次合练（鼓手当众留她的part+教练习+"你的歌排第三首"）、Day22深夜大堂（管家自费修好走廊灯+"汤做多了"+问灯其实不是问灯）、Day30章末深夜加练（关灯唱高音→他忘了打鼓三秒→"明天睡懒觉"他给过的第一个假）；Day30进场trigger drummerHeardHighNote、晚间门口黑森林蛋糕卡（trigger butlerLeftBlackForestCake+管家好感）
+- **教训**：新剧情日必须避开周末（原排Day14=周日被"周末不排工作剧情"规则挡住不显示，冒烟测试抓到，移到Day12周五）。加剧情日先查 `new Date(2027,2,D).getDay()`
 
 ## 9. 待开发（优先顺序）
 

@@ -673,7 +673,7 @@ const STORY = {
       dialogRounds: [
         {
           // Round 1: 冷酷评估
-          npcContext: 'This is the first official work meeting after signing. You are welcoming her into her new life — warm, encouraging, but clearly the one in charge. Start by putting her at ease: a genuine observation about her potential or something specific you noticed about her music that impressed you. High standards, warm delivery.',
+          npcContext: 'Day 1 of the contract, her first official work meeting. You are her agent — warm, sharp, quietly thrilled you signed her. Open with a small host gesture: pour her a coffee or slide a water across the desk without asking. Then tell her ONE specific thing from her street sets that convinced you to sign her — a lyric that stuck with you for days, or how she held a rainy-night crowd of six like it was an arena. Specific, never flattery. Close the beat with what you expect of her this month, said like a promise you intend to keep together, not a threat.',
           playerOptions: {
             'zh-cn': ['我准备好了。', '……好。', '你想从哪里开始？'],
             'en': ['I am ready.', '...Okay.', 'Where do you want to start?'],
@@ -684,7 +684,7 @@ const STORY = {
         },
         {
           // Round 2: 公布首月工作计划 + 乐队 + 明天见鼓手（严禁说鼓手的名字，玩家还没见过他）
-          npcContext: 'Give her the work directive. First: you have already planned her ENTIRE first month — 3 to 4 working days per week (vocal training, dance and fitness, demo recording, styling shoots, media training, producer meetings). The full schedule is already in her calendar — tell her to check it tonight. Warn her that extra work may be added on short notice and she is expected to show up. Second: you have assembled a band — she is the lead singer. The band leader is a drummer. CRITICAL: Do NOT mention the drummer by name under any circumstances. He is unnamed in this scene. Describe him only as: difficult, high standards, best in the city. Tell her to go to the recording studio tomorrow at 9am sharp to meet him — encourage her: you picked this band FOR her, you believe she can win him over. Firm about the schedule, warm about her.',
+          npcContext: 'Now the work directive, delivered like a gift you are proud of. First: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. Second, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Tomorrow, 9am, recording studio — firm on the time, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it.',
           playerOptions: {
             'zh-cn': ['我明天一定去。', '他好相处吗？', '你为什么要为我组乐队？'],
             'en': ['I will be there tomorrow.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
@@ -695,7 +695,7 @@ const STORY = {
         },
         {
           // Round 3: 热情送客
-          npcContext: 'The meeting is ending. Wrap up warmly: stand up, walk her to the door yourself, remind her gently "Nine o\'clock tomorrow", and send her off with genuine encouragement — you believe in her and you let her feel it. Maybe a small personal touch: use her name warmly, or tell her to get a good dinner tonight. NO cold dismissals, NO looking away, NO acting like nothing happened — you see her out like a gracious host.',
+          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — nine o\'clock tomorrow — then send her off with something personal: use her first name for the first time today, tell her to eat a real dinner tonight, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],
@@ -721,7 +721,7 @@ const STORY = {
       },
       dialogRounds: [
         {
-          npcContext: 'You are meeting the new lead singer for the first time. You are openly skeptical. Make a blunt, slightly cutting remark about her — not cruel, but the kind of thing only someone with extremely high standards would say. You are testing whether she will crack or push back.',
+          npcContext: 'First meeting with the lead singer your agent bolted onto YOUR band. You are 26, the best drummer in this city, and openly unconvinced. Stay behind the kit, arms crossed, do not get up. Open with one blunt, surgical observation about her craft — her breathing, her hands, how she carried herself walking in — the kind of cut only someone who has watched a hundred singers fail can make. Never about her looks, never cruel: about craft. You are testing exactly one thing — does she fold, or does she push back. (Secretly you already listened to her street recordings twice. You will never admit this.)',
           playerOptions: {
             'zh-cn': ['我会证明给你看的。', '……你直接说完吧。', '你也不是什么好相处的人。'],
             'en': ['I will prove you wrong.', '...Go on then.', 'You are not exactly easy either.'],
@@ -731,7 +731,7 @@ const STORY = {
           relChanges: [10, 5, 15],
         },
         {
-          npcContext: 'Challenge her directly about her musicianship. Ask her something specific that would reveal whether she is serious or just talented. Something about rhythm, breath control, or how she handles failure on stage. You want to see if she is worth your time.',
+          npcContext: 'Dig into her musicianship with a REAL question, not an insult. Pick ONE and make it concrete: where does she breathe in her longest phrase; what does she do the night after a bad show; can she hold tempo when a drunk crowd claps off-beat. If her answer is honest, let one flicker of respect slip through the scowl — then kill it immediately and move on. You speak in short sentences. You do not do small talk. You respect people who bleed for the work.',
           playerOptions: {
             'zh-cn': ['我天天练到深夜。', '那你来告诉我怎么做。', '我还在学，但我不会放弃。'],
             'en': ['I practice until midnight every night.', 'Then show me how it should be done.', 'I am still learning, but I will not quit.'],
@@ -741,7 +741,7 @@ const STORY = {
           relChanges: [8, 15, 12],
         },
         {
-          npcContext: 'She is leaving. You have turned back to your drums — classic dismissal. But just as she reaches the door, say one more thing. Not a compliment. A challenge. Something like "that high note — do it again tomorrow" or "show up early." It sounds like an order but it means: I\'m paying attention. Do NOT soften it. Do NOT explain it. Just say it to her back, like it costs you nothing. But it does.',
+          npcContext: 'She is leaving. You have already turned back to your drums — classic dismissal. Just as she reaches the door, throw one line at her back without looking up: an order that is secretly an investment. Something like: that high note — again, tomorrow. Or: come early, before the others. Do NOT soften it. Do NOT explain it. It costs you something to say, which is exactly why you say it to her back instead of her face.',
           playerOptions: {
             'zh-cn': ['……明天见。', '我知道了，谢谢你。', '我会让你改变主意的。'],
             'en': ['...See you tomorrow.', 'Understood. Thank you.', 'I will change your mind.'],
@@ -767,7 +767,7 @@ const STORY = {
       },
       dialogRounds: [
         {
-          npcContext: 'You are charming and effortlessly self-assured. You have heard her music — be specific about one thing in it that actually caught you off guard. Not generic praise. Something that reveals you actually listened. Then immediately pivot back to your usual playful surface, like you gave away too much and need to take it back. The hook: for one second, the performance dropped.',
+          npcContext: 'You are 29, a rising actor sharing today\'s shoot space, and flirting is your native language — the smirk, the lean, eye contact held two beats too long. But open with the one thing she will not expect: you actually know her music. Name ONE precise detail that caught you off guard — a lyric that reads like a confession, the crack in her voice on the last chorus — and for exactly one second the charm drops and you mean it. Then catch yourself and slide back into the playful surface, like you gave away too much. The hook is that one dropped second.',
           playerOptions: {
             'zh-cn': ['你也听过我的歌？', '谢谢你……我想。', '你是在夸我还是调侃我？'],
             'en': ['You have heard my song?', 'Thank you... I think.', 'Is that a compliment or are you teasing?'],
@@ -777,7 +777,7 @@ const STORY = {
           relChanges: [8, 5, 12],
         },
         {
-          npcContext: 'Casually mention something about another woman — a co-star, someone you were photographed with recently. Not maliciously, just carelessly. You do not even notice how it lands. This is your normal.',
+          npcContext: 'Mid-conversation your phone buzzes, or a crew member mentions your co-star — the woman the tabloids pair you with. Wave it off with a lazy half-smirk, pure that-is-publicity-not-biography energy — but do NOT explain or defend; you are used to everyone assuming. What actually interests you is HER reaction: watch it openly, and if she pretends not to care, tease her about how hard she is pretending.',
           playerOptions: {
             'zh-cn': ['你们……很熟？', '……哦。', '这和我有什么关系？'],
             'en': ['You two are... close?', '...Oh.', 'What does that have to do with me?'],
@@ -787,7 +787,7 @@ const STORY = {
           relChanges: [5, 3, 10],
         },
         {
-          npcContext: 'Before leaving, make one move that is harder to dismiss than the rest of the conversation. Could be slipping her your actual personal number (not your publicist), naming a specific place and time, or saying something that drops the performance just for a second. Western style — direct, confident, no gifts. You do not need props. Make it feel like a choice she has to make.',
+          npcContext: 'The wrap call comes. Before you go, make one move harder to dismiss than all the flirting: write your REAL number — not the publicist line — on her call sheet, or name a specific place and a specific time, and for one beat the smirk is gone. Direct, confident, Western: no props, no gifts, no speeches. Frame it as a choice only she can make — then leave first, so she cannot answer.',
           playerOptions: {
             'zh-cn': ['……谢谢。', '你对每个人都这样吗？', '我会考虑的。'],
             'en': ['...Thank you.', 'Do you do this for everyone?', 'I will think about it.'],
@@ -814,7 +814,7 @@ const STORY = {
       dialogRounds: [
         {
           // 必须先自我介绍
-          npcContext: 'Introduce yourself — you are the building manager for this floor. Slightly nervous, slightly over-prepared. You baked her something (lemon cake) because you noticed she has been skipping meals. Western informality: no honorifics, no formal titles. Maybe call her by her first name or just "hey." The cake is the gesture. Let it be awkward in a genuine way, not in a performative way.',
+          npcContext: 'You are the 20-year-old building manager, caught red-handed leaving a homemade lemon cake on her mailbox. Startle, flush, then introduce yourself in a rush — big-boy energy, words tumbling slightly. Let the truth slip out: you noticed the food delivery boxes never come and her lights stay on too late, so... cake. No titles, no formality — just her first name, said carefully like you practiced it in the elevator. Genuinely awkward, never smooth. And when she actually talks to you instead of brushing past, your whole face lights up like you won something.',
           playerOptions: {
             'zh-cn': ['你……做的？', '谢谢你，这很贴心。', '你是怎么知道我喜欢甜的？'],
             'en': ['You... made this?', 'Thank you, that is very thoughtful.', 'How did you know I like sweet things?'],
@@ -824,7 +824,7 @@ const STORY = {
           relChanges: [10, 8, 12],
         },
         {
-          npcContext: 'Tell her something small you have noticed — the time she usually gets home, what coffee she orders, that she always takes the stairs. Be a little embarrassed about how much you have noticed. Western earnestness: this is not poetic, it is just honest. Do not frame it as admiring her stoicism — just say what you saw.',
+          npcContext: 'Tell her something small you have noticed — what time she usually gets home, that she always takes the stairs, the coffee cup she carries on Thursdays. Halfway through, hear yourself and get embarrassed at how much you have noticed, and admit it out loud. Western earnestness: not poetic, just honest. Delighted, warm, a little flustered — the joy of talking to her keeps breaking through the embarrassment.',
           playerOptions: {
             'zh-cn': ['你……观察得很仔细。', '你平时也这么关心其他住户吗？', '谢谢你注意到了。'],
             'en': ['You... notice a lot.', 'Do you do this for all the residents?', 'Thank you for noticing.'],
@@ -834,7 +834,7 @@ const STORY = {
           relChanges: [8, 5, 15],
         },
         {
-          npcContext: 'You have offered to help. Now as she is about to leave, say one thing that reveals you have been thinking about her more than a building manager should. Not creepy — genuine. Maybe you remembered something specific she mentioned once in passing, or you stayed up to fix something in her apartment before she even asked. Then immediately get flustered and cover it with something practical. The hook: he noticed. He always notices.',
+          npcContext: 'As she is about to leave, one thing slips out that reveals you think about her more than a building manager should — you already fixed the corridor light outside her door because she gets home after dark, or you remembered something she mentioned once in passing. Immediately get flustered and cover it with something practical (it is... my job). Beam when she thanks you. The hook: he noticed. He always notices — and he is terrible at hiding how happy she makes him.',
           playerOptions: {
             'zh-cn': ['我会记住的，谢谢。', '那……能帮我修一下门铃吗？', '你真的很好。'],
             'en': ['I will keep that in mind, thank you.', 'Actually... could you fix my doorbell?', 'You are very kind.'],
@@ -846,7 +846,143 @@ const STORY = {
       ],
     },
 
+      
+    12: {
+      npc: 'drummer',
+      location: 'recording_studio',
+      isWork: true,
+      chapter: 1,
+      preText: {
+        'zh-cn': '第一次全员合练。\n\n贝斯手迟到了十分钟，键盘手在调一个永远调不好的音。\n只有他坐在鼓后面，像一座随时会喷发的火山。\n\n然后他敲了两下鼓槌——\n整个房间瞬间安静下来。',
+        'en': 'First full-band rehearsal.\n\nThe bassist is ten minutes late. The keyboardist keeps tuning a note that will never be right.\nOnly he sits behind the kit, a volcano deciding whether today is the day.\n\nThen he clacks his sticks twice —\nand the whole room goes silent.',
+        'ja': '初めての全員リハーサル。\n\nベーシストは10分遅刻、キーボードは永遠に合わない音を調整している。\n彼だけがドラムの後ろに座っていた。いつ噴火してもおかしくない火山のように。\n\nそしてスティックを二度鳴らすと——\n部屋中が一瞬で静まり返った。',
+        'ko': '첫 전체 합주.\n\n베이시스트는 10분 지각했고, 키보드는 영원히 맞지 않을 음을 조율하고 있다.\n그만이 드럼 뒤에 앉아 있었다. 언제 터질지 모르는 화산처럼.\n\n그가 스틱을 두 번 부딪치자——\n방 전체가 순식간에 조용해졌다.',
       },
+      dialogRounds: [
+        {
+          npcContext: 'Mid-rehearsal. The band is sloppy today and you hate sloppy. Stop the song mid-bar by clacking your sticks, call out exactly what is wrong in two sentences — bassist dragging, keys rushing — then turn to HER last and, to everyone\'s surprise including yours, say her part was the only thing worth keeping. Say it like a fact, not a compliment, then count the band back in.',
+          playerOptions: {
+            'zh-cn': ['……谢谢？', '再来一遍，我可以更好。', '你对他们太凶了。'],
+            'en': ['...Thanks?', 'Again — I can do better.', 'You are too hard on them.'],
+            'ja': ['……ありがとう？', 'もう一回、もっと良くできます。', '彼らに厳しすぎますよ。'],
+            'ko': ['……고마워요?', '한 번 더요, 더 잘할 수 있어요.', '너무 심하게 대하는 거 아니에요?'],
+          },
+          relChanges: [8, 15, 10],
+        },
+        {
+          npcContext: 'Break time. Everyone scatters for coffee except you two. Without looking at her, slide your practice pad over and show her a sticking exercise for internal tempo — the thing you make every singer you actually respect learn. Explain it in the fewest words possible. If she fumbles it, correct her with one word, not touch. This is how you tell someone they are in.',
+          playerOptions: {
+            'zh-cn': ['教我。', '为什么突然对我这么好？', '你练这个练了多少年？'],
+            'en': ['Teach me.', 'Why are you suddenly being nice to me?', 'How many years did this take you?'],
+            'ja': ['教えてください。', 'どうして急に優しいんですか？', 'これ、何年練習したんですか？'],
+            'ko': ['가르쳐줘요.', '갑자기 왜 잘해줘요?', '이거 몇 년이나 연습한 거예요?'],
+          },
+          relChanges: [15, 10, 12],
+        },
+        {
+          npcContext: 'Rehearsal ends, the others leave. As she packs up, tell her the set list for the showcase — and that you put HER song third: the dead spot where audiences decide whether to stay. Do not explain why. If she asks, shrug — someone has to hold that spot. (The truth you will not say: third is where you put the one you trust.)',
+          playerOptions: {
+            'zh-cn': ['我不会让你失望的。', '为什么是我？', '第三首……我会记住的。'],
+            'en': ['I will not let you down.', 'Why me?', 'Third song... I will remember that.'],
+            'ja': ['期待は裏切りません。', 'どうして私なんですか？', '3曲目……覚えておきます。'],
+            'ko': ['실망시키지 않을게요.', '왜 저예요?', '세 번째 곡……기억할게요.'],
+          },
+          relChanges: [12, 15, 8],
+        },
+      ],
+    },
+
+    22: {
+      npc: 'butler',
+      location: 'apartment_lobby',
+      isWork: false,
+      chapter: 1,
+      preText: {
+        'zh-cn': '晚上十点，你拖着一身疲惫回来。\n\n大堂的灯比平时亮——不对，是走廊尽头那盏\n坏了两个星期的灯，今天亮了。\n\n他正站在梯子上收工具。\n看到你，差点从梯子上摔下来。',
+        'en': 'Ten p.m. You drag yourself home, bone-tired.\n\nThe lobby seems brighter than usual — no, it is the corridor light,\nthe one that has been dead for two weeks. It works now.\n\nHe is up a ladder, packing away tools.\nHe sees you and nearly falls off it.',
+        'ja': '夜10時、疲れ切って帰ってきた。\n\nロビーがいつもより明るい——いや、廊下の奥の\n2週間切れたままだった電球が、今日は点いている。\n\n彼は脚立の上で工具を片付けていた。\nあなたに気づいて、危うく落ちそうになった。',
+        'ko': '밤 10시, 지친 몸을 이끌고 돌아왔다.\n\n로비가 평소보다 밝다——아니, 복도 끝의\n2주째 꺼져 있던 전등이 오늘은 켜져 있다.\n\n그는 사다리 위에서 공구를 정리하고 있었다.\n당신을 보고 하마터면 떨어질 뻔했다.',
+      },
+      dialogRounds: [
+        {
+          npcContext: 'Ten p.m., you are on a ladder putting tools away — you finally fixed the corridor light that was dead for two weeks, on your own time, because she keeps coming home after dark. She catches you. Nearly fall off the ladder. Explain the light in a fluster, absolutely do NOT admit you did it for her — then accidentally admit exactly that, in the worst and most obvious way possible.',
+          playerOptions: {
+            'zh-cn': ['……是为了我修的？', '小心点，先下来。', '这栋楼有你真好。'],
+            'en': ['...You fixed it for me?', 'Careful — come down first.', 'This building is lucky to have you.'],
+            'ja': ['……私のために直したの？', '危ないから、先に降りて。', 'この建物にあなたがいてよかった。'],
+            'ko': ['……저 때문에 고친 거예요?', '조심해요, 일단 내려와요.', '이 건물에 당신이 있어서 다행이에요.'],
+          },
+          relChanges: [15, 10, 12],
+        },
+        {
+          npcContext: 'She is being kind to you and you can barely handle it. Offer her the thing you prepared and pretended you did not: there is soup upstairs — you made too much, obviously, way too much, completely by accident, and it would honestly be a favor to YOU if she took some. Watch her face the entire time while pretending to pack tools.',
+          playerOptions: {
+            'zh-cn': ['那我就不客气了。', '你总是"刚好"多做一份吗？', '下次一起吃吧。'],
+            'en': ['Then I will not be shy.', 'Do you always "accidentally" make extra?', 'Next time, let us eat together.'],
+            'ja': ['じゃあ、遠慮なく。', 'いつも「たまたま」多く作るの？', '今度は一緒に食べよう。'],
+            'ko': ['그럼 사양 않을게요.', '항상 "우연히" 많이 만들어요?', '다음엔 같이 먹어요.'],
+          },
+          relChanges: [10, 12, 15],
+        },
+        {
+          npcContext: 'Before she goes up, ask — carefully, like the words might break — whether the corridor light is bright enough now, or should you adjust it. It is not about the light. It has never been about the light. Whatever she answers, smile like the whole day just became worth it.',
+          playerOptions: {
+            'zh-cn': ['刚刚好，谢谢你。', '你想问的不是灯吧？', '晚安，早点休息。'],
+            'en': ['It is just right. Thank you.', 'That is not really about the light, is it?', 'Good night — get some rest.'],
+            'ja': ['ちょうどいいよ、ありがとう。', '聞きたいのは電気のことじゃないでしょ？', 'おやすみ、早く休んでね。'],
+            'ko': ['딱 좋아요, 고마워요.', '정말 묻고 싶은 건 전등이 아니죠?', '잘 자요, 일찍 쉬어요.'],
+          },
+          relChanges: [10, 15, 8],
+        },
+      ],
+    },
+
+    30: {
+      npc: 'drummer',
+      location: 'recording_studio',
+      isWork: true,
+      chapter: 1,
+      preText: {
+        'zh-cn': '第三十天。加练到深夜。\n\n整层楼只剩你们两个人，和一盏调音台的灯。\n他说：最后一遍，唱到那个高音就收工。\n\n你深吸一口气。\n这一个月所有的疲惫，都压进了这一口气里。',
+        'en': 'Day thirty. Practice has run deep into the night.\n\nThe whole floor is empty except the two of you and one console lamp.\nHe says: last take — hit the note, then we go home.\n\nYou take a breath.\nA whole month of exhaustion goes into it.',
+        'ja': '30日目。練習は深夜まで続いた。\n\nフロアには二人と、卓上の小さな明かりだけ。\n彼は言う。「ラストテイク。あの高音を出したら帰るぞ」\n\nあなたは息を吸い込む。\nこの一ヶ月の疲れすべてを、その一呼吸に込めて。',
+        'ko': '30일째. 연습은 깊은 밤까지 이어졌다.\n\n층 전체에 남은 건 두 사람과 콘솔 램프 하나뿐.\n그가 말한다. 마지막 테이크——그 고음만 내면 퇴근이야.\n\n당신은 숨을 들이쉰다.\n한 달치 피로를 전부 그 한 호흡에 눌러 담아서.',
+      },
+      dialogRounds: [
+        {
+          npcContext: 'Day 30, nearly midnight, just the two of you left in the studio. She is about to attempt the high note she has chased all month. Set it up like it is nothing — last take, then home — but kill the room lights except the console lamp, because you know singers reach further in the dark. Count her in with your sticks. Quiet, for once.',
+          playerOptions: {
+            'zh-cn': ['（闭上眼，开口唱。）', '如果我唱上去了呢？', '陪我练到这么晚……谢谢你。'],
+            'en': ['(Close your eyes. Sing.)', 'And if I hit it?', 'Staying this late with me... thank you.'],
+            'ja': ['（目を閉じて、歌い出す。）', 'もし出せたら、どうします？', 'こんな遅くまで……ありがとう。'],
+            'ko': ['(눈을 감고, 노래한다.)', '만약 성공하면요?', '이렇게 늦게까지……고마워요.'],
+          },
+          relChanges: [12, 15, 8],
+        },
+        {
+          npcContext: 'She hits it. The note you privately doubted she had. For three full seconds you forget to play. When the take ends, do not perform enthusiasm — you are physically incapable of it — but let her see the thing you cannot hide: you stopped drumming to listen. Then cover it fast: check the recording, mutter that the take was usable. Usable, from you, is a standing ovation.',
+          playerOptions: {
+            'zh-cn': ['我做到了……我真的做到了。', '你刚才停下来了。我听到了。', '再来一遍，我还能更好。'],
+            'en': ['I did it... I actually did it.', 'You stopped playing. I heard it.', 'Again — I can do it even better.'],
+            'ja': ['出せた……本当に出せた。', 'さっき、手が止まってましたね。聞こえてました。', 'もう一回。もっと良くできます。'],
+            'ko': ['해냈어……정말 해냈어.', '방금 연주 멈췄죠. 들었어요.', '한 번 더요. 더 잘할 수 있어요.'],
+          },
+          relChanges: [10, 15, 12],
+        },
+        {
+          npcContext: 'Packing up, almost 1 a.m. Walk her out — you never walk anyone out. At the door, tell her the truth in your own broken way: a month ago you told the agent this would not work. Tonight you are not saying you were wrong — you physically cannot say those words — but tell her to sleep in tomorrow. The first day off you have ever given anyone. Then leave before she can make it a moment.',
+          playerOptions: {
+            'zh-cn': ['明天……我要睡到中午。', '你刚才，是在夸我吗？', '这一个月，谢谢你没对我手下留情。'],
+            'en': ['Tomorrow... I am sleeping till noon.', 'Was that... a compliment?', 'Thank you for never going easy on me.'],
+            'ja': ['明日は……昼まで寝ます。', '今の、褒めたんですか？', 'この一ヶ月、手加減しないでくれてありがとう。'],
+            'ko': ['내일은……점심까지 잘 거예요.', '방금 그거, 칭찬이에요?', '한 달 동안 봐주지 않아서 고마워요.'],
+          },
+          relChanges: [8, 12, 15],
+        },
+      ],
+    },
+
+  },
 
   // ══════════════════════════════════════════════════════
   // 签约场景（游戏开始前的街边相遇）

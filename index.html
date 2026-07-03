@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.67"></script>
-<script src="state.js?v=10.67"></script>
+<script src="story.js?v=10.68"></script>
+<script src="state.js?v=10.68"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -442,7 +442,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.67</p>
+    <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.68</p>
   </div>
 </div>
 
@@ -905,8 +906,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="fame-inner" style="max-width:360px;width:100%">
     <div class="fame-player" id="fame-player-name">—</div>
     <div class="fame-level-lbl" id="fame-level-lbl">⭐ —</div>
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 5px"><span id="fame-bar-lbl" style="font-size:12px;letter-spacing:2px;color:var(--pink-deep);font-weight:700">⭐ 知名度</span><span class="fame-pct" id="fame-pct" style="margin:0">5/100</span></div>
-    <div class="fame-bar-bg"><div class="fame-bar-fill" id="fame-bar" style="width:5%"></div></div>
+    <!-- 知名度进度条已按用户要求移除（等级列表本身已表达进度），只保留压力条 -->
+    <div style="display:none"><span id="fame-bar-lbl"></span><span id="fame-pct"></span><div id="fame-bar"></div></div>
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 5px"><span id="stress-lbl" style="font-size:12px;letter-spacing:2px;color:var(--pink-deep);font-weight:700">😮‍💨 压力</span><span class="fame-pct" id="stress-pct" style="margin:0">0/100</span></div>
     <div class="fame-bar-bg"><div class="fame-bar-fill" id="stress-bar" style="width:0%;background:#7fb37f"></div></div>
     <div id="stress-hint" style="font-size:10px;color:var(--text-mid);opacity:0.75;margin:4px 0 14px"></div>
@@ -1371,6 +1372,20 @@ function confirmNPCTrio() {
   document.getElementById('npc-trio').style.display = 'none';
   _npcTrio = null;
   if (onDone) onDone();
+}
+
+// ── 双人场景图：女主+NPC在地点里自然互动（约会/见面/同行行程用，走HQ开关=flux/dev）──
+async function genCoupleScene(npcKey, locKey, day, activity) {
+  const npc = G.npcs[npcKey] || {};
+  const app = STATE.imagePrompts.npcAppearance[npc.origin || 'American'] || STATE.imagePrompts.npcAppearance['American'];
+  const loc = STORY.locations[locKey] || {};
+  const sceneComp = loc.composition || 'elegant setting';
+  const player = G.player;
+  const prompt = 'two people together, a beautiful 23-year-old young woman with ' + (player.hairColor||'dark brown') + ' ' + (player.hairStyle||'long wavy hair') +
+    ' and a handsome man (' + app.features + '), ' + (activity ? activity + ', ' : '') +
+    'naturally interacting with each other at this place: ' + sceneComp +
+    ', medium-wide candid shot, warm chemistry between them, neither looking at the camera, cinematic composition, exactly two people';
+  return await img(prompt, 'couple-' + locKey, false, 2, npc.portraitSeed, true);
 }
 
 async function genProtagonistScene(locKey, day) {
@@ -2735,7 +2750,9 @@ function getScriptedLabel(ev, day, lang) {
   if (day===2) return isZh ? '去录音室' : 'Recording Studio';
   if (day===3) return isZh ? '去杂志拍摄' : 'Magazine Shoot';
   if (day===4) return isZh ? '回到公寓' : 'Back to the apartment';
-  if (day===5) return isZh ? '和' + name + '喝咖啡' : 'Coffee with ' + name;
+  if (day===12) return isZh ? '乐队首次合练' : 'First full-band rehearsal';
+  if (day===22) return isZh ? '深夜的大堂' : 'The lobby, late at night';
+  if (day===30) return isZh ? '深夜加练 · 那个高音' : 'Midnight practice · The note';
   return isZh ? '今日剧情' : "Today's story";
 }
 
@@ -3057,8 +3074,15 @@ function runMeetupScene(npcKey, locKey, title) {
   document.getElementById('vn-speaker').textContent = '';
   document.getElementById('vn-text').textContent = isZh ? '你们约在了' + title + '。' : 'You meet up: ' + title + '.';
   document.getElementById('vn-opts').innerHTML = '';
-  genLocationBg(locKey, G.day).then(url => {
-    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+  // 见面用双人图（女主+NPC同框，dev模型）；失败回退无人物地点背景
+  genCoupleScene(npcKey, locKey, G.day, 'meeting up casually').then(url => {
+    if (url) {
+      document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+      G.gallery.push({ url, label: title + ' · Day ' + G.day });
+      STATE.save.saveGame();
+    } else {
+      genLocationBg(locKey, G.day).then(u2 => { if (u2) { document.getElementById('vn-bg').src = u2; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; } });
+    }
   });
   G.today = { label: title, isWork: false, npc: npcKey };
   addStress(-5); // 和喜欢的人见面也解压
@@ -3210,8 +3234,16 @@ async function playScheduledEvent(dateStr, event) {
   const locKey = event.locKey || 'music_training';
   if (event.npcKey && G.npcs[event.npcKey]) {
     if (!G.npcs[event.npcKey].met) G.npcs[event.npcKey].met = true;
-    // 已确认立绘→固定立绘+地点背景；初次见面→完整场景图并锁定形象
-    showNPCScene(event.npcKey, G.day, locKey, true);
+    // 和NPC同行的行程用双人图（dev模型）；失败回退原有立绘+背景方案
+    genCoupleScene(event.npcKey, locKey, G.day, 'working together on: ' + (event.title || 'a session')).then(url => {
+      if (url) {
+        document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+        G.gallery.push({ url, label: (event.title || '') + ' · Day ' + G.day });
+        STATE.save.saveGame();
+      } else {
+        showNPCScene(event.npcKey, G.day, locKey, true);
+      }
+    });
   } else {
     genProtagonistScene(locKey, G.day).then(url => {
       if (url) {
@@ -3320,6 +3352,8 @@ async function startScriptedScene(day, ev) {
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   // Day1 与经纪人会面：生成首月工作计划写入日历（对话里经纪人会让她今晚查日历）
   if (day === 1 && ev.npc === 'agent') generateAgentMonthPlan();
+  // Day30 章末：鼓手听到了那个高音（剧情事件标记，影响后续章节对话）
+  if (day === 30 && ev.npc === 'drummer') STATE.events.trigger('drummerHeardHighNote');
   // 记录今天做了什么，供晚间消息等引用，避免AI生成的内容和当天剧情对不上
   G.today = { label: getScriptedLabel(ev, day, lang), isWork: ev.isWork, npc: ev.npc };
   // 独白幕只显示无人物地点背景，NPC立绘等进入对话时才出现
@@ -3744,8 +3778,15 @@ async function playInviteScene(inv) {
   // 地点：邀约生成时带的locKey优先，否则按NPC性格+昼夜时段挑（修中午约饭却出夜晚酒吧图）
   const locKey = (inv.locKey && STORY.locations[inv.locKey]) ? inv.locKey : pickDateSpot(npcKey, isDayDate);
   document.getElementById('vn-text').textContent = '';
-  genLocationBg(locKey, G.day).then(url => {
-    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+  // 约会用双人图（女主+NPC同框，dev模型）；失败回退无人物地点背景
+  genCoupleScene(npcKey, locKey, G.day, isDayDate ? 'on a relaxed daytime date' : 'on a romantic evening date').then(url => {
+    if (url) {
+      document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+      G.gallery.push({ url, label: (inv.title || 'Date') + ' · Day ' + G.day });
+      STATE.save.saveGame();
+    } else {
+      genLocationBg(locKey, G.day).then(u2 => { if (u2) { document.getElementById('vn-bg').src = u2; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; } });
+    }
   });
   STATE.relationships.change(npcKey, 5); // 赴约加好感
   addStress(-5); // 晚间约会解压
@@ -3954,6 +3995,21 @@ async function goEvening() {
       STATE.memory.addEvent('agent','Evening: "'+msgTxt.trim().slice(0,50)+'"',evDay);
     }
   }).catch(function(){});
+  // Day30 章末彩蛋：深夜回家，门口放着一块黑森林蛋糕（没有署名——但你知道是谁）
+  if (G.day === 30 && !STATE.events.has('butlerLeftBlackForestCake')) {
+    STATE.events.trigger('butlerLeftBlackForestCake');
+    STATE.relationships.change('butler', 3);
+    STATE.memory.addEvent('butler', 'You left a black forest cake at her door the night she hit the high note (day 30). No note. She knows.', G.day);
+    var cakeCard = document.createElement('div');
+    cakeCard.className = 'eve-msg';
+    cakeCard.style.cssText = 'align-items:center;gap:10px';
+    cakeCard.innerHTML = '<div style="width:36px;height:36px;background:rgba(196,96,122,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">🍰</div>' +
+      '<div style="font-size:12px;line-height:1.7;color:var(--text-mid)">' +
+      (isZh ? '门口放着一块黑森林蛋糕。没有字条，还带着冷藏的凉气。<br>这栋楼里会做这种事的，只有一个人。'
+            : 'A black forest cake sits at your door. No note, still cold from the fridge.<br>Only one person in this building would do this.') +
+      '</div>';
+    document.getElementById('eve-msgs').prepend(cakeCard);
+  }
   // 好感NPC的晚间消息也当晚生成（睡前收齐当天所有消息，不再第二天早上补看昨晚的）
   generateAffinityMessages(G.day);
   STATE.save.saveGame();
@@ -4816,15 +4872,69 @@ function setupTitleButtons() {
     btnCont.style.display = 'none';
     btnBegin.textContent = 'Begin';
   }
+  // 有备份槽才显示"读取备份"
+  var btnSlots = document.getElementById('btn-slots');
+  if (btnSlots) {
+    var slots = listSaveSlots();
+    btnSlots.style.display = slots.length ? 'block' : 'none';
+    btnSlots.textContent = (isZh ? '读取备份 (' : 'Load Backup (') + slots.length + ')';
+  }
 }
 
 function continueGame() {
   startDay();
 }
 
+// ── 存档槽：最多3个本地备份（otr_save_slot_1/2/3），新开局前可备份、标题页可读回 ──
+function listSaveSlots() {
+  var slots = [];
+  for (var i = 1; i <= 3; i++) {
+    try {
+      var raw = localStorage.getItem('otr_save_slot_' + i);
+      if (raw) { var d = JSON.parse(raw); slots.push({ i, name: d.player && d.player.name || '—', day: d.day || 1 }); }
+    } catch (e) {}
+  }
+  return slots;
+}
+
+function backupCurrentSave() {
+  // 存进第一个空槽；都满了则覆盖最旧的1号槽
+  var target = 1;
+  for (var i = 1; i <= 3; i++) { if (!localStorage.getItem('otr_save_slot_' + i)) { target = i; break; } }
+  localStorage.setItem('otr_save_slot_' + target, JSON.stringify(STATE.data));
+  return target;
+}
+
+function loadSaveSlot(i) {
+  var raw = localStorage.getItem('otr_save_slot_' + i);
+  if (!raw) return;
+  localStorage.setItem('otr_save_v2', raw);
+  location.reload(); // 重载后走 loadGame 原地合并
+}
+
+function showSlotPicker() {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var slots = listSaveSlots();
+  if (!slots.length) { alert(isZh?'没有备份存档':'No backup saves'); return; }
+  var msg = (isZh?'输入要读取的备份编号：\n':'Enter backup number to load:\n') +
+    slots.map(s => s.i + ') ' + s.name + ' · ' + (isZh?'第'+s.day+'天':'Day '+s.day)).join('\n');
+  var pick = prompt(msg);
+  var n = parseInt(pick, 10);
+  if (slots.some(s => s.i === n)) {
+    if (hasResumableSave() && !confirm(isZh?'读取备份会替换当前进度（当前第'+G.day+'天），继续吗？':'Loading will replace current progress (Day '+G.day+'). Continue?')) return;
+    loadSaveSlot(n);
+  }
+}
+
 function startNewGame() {
   if (hasResumableSave()) {
     var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+    // 先问要不要备份当前进度（保留存档再开新档）
+    if (confirm(isZh ? '要先备份当前进度（第' + G.day + '天）吗？备份后可从标题页"读取备份"找回。'
+                     : 'Back up current progress (Day ' + G.day + ') first? You can restore it from the title screen later.')) {
+      var slot = backupCurrentSave();
+      alert(isZh ? '已备份到 ' + slot + ' 号槽。' : 'Backed up to slot ' + slot + '.');
+    }
     var msg = isZh ? '开始新游戏会清除当前进度（第' + G.day + '天）和所有NPC好感度，确定吗？'
                    : 'Starting a new game will erase your current progress (Day ' + G.day + ') and all relationships. Continue?';
     if (!confirm(msg)) return;
@@ -4946,7 +5056,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.67 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.68 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
