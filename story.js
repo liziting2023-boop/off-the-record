@@ -216,7 +216,7 @@ const STORY = {
     magazine_shoot: {
       isOutdoor: false,
       isPublic: true,
-      composition: 'fashion magazine photoshoot set, dramatic studio lighting, professional cameras and crew, elegant backdrop',
+      composition: 'high-fashion editorial magazine photoshoot set, seamless backdrop, dramatic studio strobe lighting with colored gel accents, professional cameras with softboxes and lighting rigs, glossy editorial atmosphere',
     },
     brand_event: {
       isOutdoor: true,
