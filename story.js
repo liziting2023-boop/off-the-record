@@ -165,17 +165,17 @@ const STORY = {
         autumn: 'golden autumn, fallen leaves on boulevards, misty morning',
         winter: 'grey cold winter, occasional light snow, holiday atmosphere',
       },
-      'Tokyo': {
-        spring: 'cherry blossom season, pink petals falling, warm gentle light',
-        summer: 'hot humid summer, neon reflections on wet streets, rainy season',
-        autumn: 'stunning red and orange maple leaves, crisp clear light',
-        winter: 'cold dry winter, occasional snow, New Year atmosphere',
+      'Chicago': {
+        spring: 'fresh windy spring, blossoming lakefront trees, bright crisp light off Lake Michigan',
+        summer: 'warm bright summer, lakefront breeze, festivals, golden evening light',
+        autumn: 'crisp golden autumn, amber leaves along the lakefront, clear blue sky',
+        winter: 'cold snowy winter, icy wind off the lake, downtown holiday lights',
       },
-      'Seoul': {
-        spring: 'cherry and azalea blossoms, pastel pink tones, spring breeze',
-        summer: 'hot humid monsoon season, lush green, dramatic stormy sky',
-        autumn: 'brilliant red and gold foliage, crisp mountain air, clear sky',
-        winter: 'harsh cold winter, heavy snow, frozen river, warm café glow',
+      'Toronto': {
+        spring: 'cool fresh spring, blossoming trees, bright light over Lake Ontario',
+        summer: 'warm pleasant summer, lakeside patios, long golden evenings',
+        autumn: 'vivid red and gold autumn, crisp air, maple leaves, clear sky',
+        winter: 'cold snowy winter, frosty lakefront, warm downtown lights',
       },
       'Sydney': {
         // 南半球相反

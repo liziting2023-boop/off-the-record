@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.72"></script>
-<script src="state.js?v=10.72"></script>
+<script src="story.js?v=10.73"></script>
+<script src="state.js?v=10.73"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -477,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.72</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.73</p>
   </div>
 </div>
 
@@ -2021,8 +2021,8 @@ const TX = {
     hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
     hair_colors:['Jet black','Dark brown','Chestnut','Honey blonde','Burgundy','Silver lavender','Vivid purple'],
     hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender','vivid purple'],
-    cities:['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'],
-    city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','Japan','South Korea','Australia','USA · Music City'],
+    cities:['New York','Los Angeles','London','Paris','Chicago','Toronto','Sydney','Nashville'],
+    city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','USA · Midwest','Canada','Australia','USA · Music City'],
     decors:['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'],
     decor_subs:['Soft voiles · Dreamy pastels','Natural curves · Oak & walnut','Vintage frames · Florals','Deep tones · Gold accents','Warm layers · Plants · Candlelight'],
     agent_origins:['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'],
@@ -2035,8 +2035,8 @@ const TX = {
     hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
     hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫','鲜紫色'],
     hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender','vivid purple'],
-    cities:['纽约','洛杉矶','伦敦','巴黎','东京','首尔','悉尼','纳什维尔'],
-    city_subs:['美国东海岸','美国西海岸','英国','法国','日本','韩国','澳大利亚','美国·音乐之城'],
+    cities:['纽约','洛杉矶','伦敦','巴黎','芝加哥','多伦多','悉尼','纳什维尔'],
+    city_subs:['美国东海岸','美国西海岸','英国','法国','美国·中西部','加拿大','澳大利亚','美国·音乐之城'],
     decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],
     decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
     agent_origins:['英国人','美国人','法国人','意大利人','非裔美国人','巴西人','德国人','西班牙人','印度人','俄罗斯人','澳大利亚人','墨西哥人'],
@@ -2044,7 +2044,7 @@ const TX = {
   },
 };
 ['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l => { if (!TX[l]) TX[l] = Object.assign({}, TX.en); });
-TX['zh-tw'] = Object.assign({}, TX['zh-cn'], { ch1_quote:'「每一個故事，都有一個起點。\n而你的，從今天開始。」', signed:'起點', cities:['紐約','洛杉磯','倫敦','巴黎','東京','首爾','雪梨','納什維爾'], decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'], wc_moments:'动态', wc_industry:'行業資訊', affection_title:'好感度' });
+TX['zh-tw'] = Object.assign({}, TX['zh-cn'], { ch1_quote:'「每一個故事，都有一個起點。\n而你的，從今天開始。」', signed:'起點', cities:['紐約','洛杉磯','倫敦','巴黎','芝加哥','多倫多','雪梨','納什維爾'], decors:['浪漫極簡','現代有機','英式田園','都市摩登','波西米亞溫暖'], wc_moments:'动态', wc_industry:'行業資訊', affection_title:'好感度' });
 
 function t(k) { return (TX[G.lang] && TX[G.lang][k] !== undefined) ? TX[G.lang][k] : TX.en[k] || k; }
 
@@ -2104,7 +2104,7 @@ function applyLang() {
 
 function buildGrids() {
   var rk=['East Asian','Southeast Asian','South Asian','Northern European','Southern European','African','Latin American','Middle Eastern','North American'];
-  var cv=['New York','Los Angeles','London','Paris','Tokyo','Seoul','Sydney','Nashville'];
+  var cv=['New York','Los Angeles','London','Paris','Chicago','Toronto','Sydney','Nashville'];
   var dv=['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'];
   function mk(id, labels, subs, key, vals) {
     var g=document.getElementById(id); if(!g)return;
@@ -2200,7 +2200,7 @@ let _roomUrls = { a: null, b: null, c: null };
 
 async function preGenRooms() {
   if (_roomsDone || !G.player.city) return;
-  const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Tokyo':'Tokyo Tower and Shinjuku neon skyline', 'Seoul':'N Seoul Tower and Han River bridges', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
+  const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Chicago':'Willis Tower and Cloud Gate (the Bean) at Millennium Park', 'Toronto':'CN Tower over the downtown skyline and Lake Ontario', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
   const lm = cityLandmarks[G.player.city] || 'city skyline';
   const layouts = [LIVING_LAYOUT, LIVING_LAYOUT_B, LIVING_LAYOUT_C];
   const base = layout => layout + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance';
@@ -3125,7 +3125,7 @@ function renderFurnitureOpts() {
     [LIVING_LAYOUT_B, isZh?'温馨软装':'Cozy & warm',     'warm budget-friendly rental apartment'],
     [LIVING_LAYOUT_C, isZh?'复古混搭':'Eclectic vintage','eclectic thrifted rental apartment'],
   ];
-  const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Tokyo':'Tokyo Tower and Shinjuku neon skyline', 'Seoul':'N Seoul Tower and Han River bridges', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
+  const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Chicago':'Willis Tower and Cloud Gate (the Bean) at Millennium Park', 'Toronto':'CN Tower over the downtown skyline and Lake Ontario', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
   const lm = cityLandmarks[G.player.city] || 'city skyline';
   styles.forEach(function(st) {
     const el = document.createElement('div');
@@ -3982,7 +3982,7 @@ const DATE_SPOTS = {
   butler:    { day: ['park', 'cafe', 'farmers_market'],           night: ['cinema', 'mountain_viewpoint', 'park'] },
   detective: { day: ['bookshop', 'cafe', 'park'],                 night: ['bookshop', 'mountain_viewpoint'] },
 };
-const COASTAL_CITIES = ['Los Angeles', 'Sydney', 'New York', 'Tokyo'];
+const COASTAL_CITIES = ['Los Angeles', 'Sydney', 'New York']; // 芝加哥/多伦多是湖畔城市非海滨，不解锁ocean beach场景
 // 每个城市的标志性约会景点（运行时注册进 STORY.locations）
 const CITY_DATE_SPOTS = {
   'New York':    [{ k:'spot_ny_bridge',   zh:'布鲁克林大桥',   c:'Brooklyn Bridge promenade at night, Manhattan skyline glittering across the river, string of bridge lights overhead' },
@@ -3993,10 +3993,10 @@ const CITY_DATE_SPOTS = {
                   { k:'spot_ld_notting',  zh:'诺丁山街区',     c:'Notting Hill pastel-colored townhouses, quaint bookshop fronts, blossoming window boxes, charming quiet street' }],
   'Paris':       [{ k:'spot_pr_seine',    zh:'塞纳河畔',       c:'Seine riverbank at night, Eiffel Tower sparkling in the distance, stone quays and lovers strolling, warm lamplight' },
                   { k:'spot_pr_montmartre',zh:'蒙马特高地',    c:'Montmartre steps at dusk, Sacré-Cœur basilica glowing above, street artists and old lanterns, Paris rooftops below' }],
-  'Tokyo':       [{ k:'spot_tk_shibuya',  zh:'涩谷天空展望台', c:'Shibuya Sky observation deck at night, endless Tokyo neon grid below, glass railing and wind, city of lights' },
-                  { k:'spot_tk_odaiba',   zh:'台场海滨',       c:'Odaiba waterfront at night, Rainbow Bridge illuminated across Tokyo Bay, gentle harbor waves' }],
-  'Seoul':       [{ k:'spot_se_tower',    zh:'南山塔',         c:'N Seoul Tower terrace at night, love locks fence, panoramic Seoul city lights, cable car passing' },
-                  { k:'spot_se_han',      zh:'汉江公园',       c:'Han River park at night, picnic mats on the grass, bridges lit across the wide river, convenience-store ramyeon steam' }],
+  'Chicago':     [{ k:'spot_ch_navy',     zh:'海军码头',       c:'Navy Pier at night, the glowing Centennial ferris wheel over Lake Michigan, boardwalk lights and the Chicago skyline behind' },
+                  { k:'spot_ch_bean',     zh:'千禧公园云门',   c:'Millennium Park at dusk, Cloud Gate (the Bean) mirroring the Chicago skyline, warm city lights, couples strolling' }],
+  'Toronto':     [{ k:'spot_to_cntower',  zh:'CN塔观景台',     c:'CN Tower observation deck at night, the glowing Toronto downtown grid far below, glass floor and city lights' },
+                  { k:'spot_to_harbour',  zh:'多伦多海滨',     c:'Toronto Harbourfront at dusk, Lake Ontario shimmering, sailboats and the illuminated skyline, lakeside boardwalk' }],
   'Sydney':      [{ k:'spot_sy_harbour',  zh:'海港歌剧院步道', c:'Sydney Harbour walk at night, Opera House sails glowing, Harbour Bridge lights reflected in dark water' },
                   { k:'spot_sy_bondi',    zh:'邦迪海崖步道',   c:'Bondi coastal cliff walk at golden hour, turquoise ocean below, sandstone cliffs and sea spray' }],
   'Nashville':   [{ k:'spot_nv_broadway', zh:'百老汇霓虹街',   c:'Nashville Broadway at night, honky-tonk neon signs stacked along the street, live music spilling from every door' },
@@ -5567,7 +5567,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.72 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.73 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

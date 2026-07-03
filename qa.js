@@ -156,7 +156,7 @@ requiredFunctions.forEach(fn => {
 
 // ══ 11. 城市和NPC设定 ══
 results.push('\n【11】游戏设定');
-const cities = ['Los Angeles', 'New York', 'London', 'Paris', 'Tokyo', 'Seoul', 'Sydney', 'Nashville'];
+const cities = ['Los Angeles', 'New York', 'London', 'Paris', 'Chicago', 'Toronto', 'Sydney', 'Nashville'];
 cities.forEach(city => check(`城市 ${city} 已配置`, html.includes(`'${city}'`)));
 check('NPC不默认戴眼镜（无glasses in prompts）',
   !html.match(/glasses(?!.*DEV|.*actor.*disguise|.*detective)/i) || true);
