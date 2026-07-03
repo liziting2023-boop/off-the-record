@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.70"></script>
-<script src="state.js?v=10.70"></script>
+<script src="story.js?v=10.71"></script>
+<script src="state.js?v=10.71"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -242,6 +242,39 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .wc-tab.active .wc-tab-label{color:var(--wechat-green);}
 .wc-tab-badge{position:absolute;top:4px;right:20%;background:#f00;color:#fff;font-size:8px;border-radius:50%;width:14px;height:14px;display:none;align-items:center;justify-content:center;}
 .wc-tab-badge.show{display:flex;}
+/* ── 音乐播放器（模拟真实听歌软件，深色沉浸风 + 随播放滚动歌词）── */
+#music-player{position:fixed;inset:0;z-index:420;background:linear-gradient(180deg,#2a1a2e 0%,#1a1020 55%,#0d0812 100%);display:none;flex-direction:column;color:#fff;}
+#music-player.open{display:flex;}
+.mp-top{display:flex;align-items:center;padding:14px 16px 4px;flex-shrink:0;}
+.mp-top .mp-down{font-size:24px;line-height:1;background:none;border:none;color:#fff;cursor:pointer;width:24px;}
+.mp-top .mp-alb{flex:1;text-align:center;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.65);text-transform:uppercase;}
+.mp-cover{width:min(58vw,220px);height:min(58vw,220px);margin:10px auto 16px;border-radius:16px;background:linear-gradient(135deg,#e26a9c,#8a4bd0 60%,#3d2c66);box-shadow:0 14px 44px rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-size:60px;flex-shrink:0;}
+.mp-cover.playing{animation:mpPulse 4s ease-in-out infinite;}
+@keyframes mpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.mp-meta{text-align:center;padding:0 24px;flex-shrink:0;}
+.mp-title{font-size:19px;font-weight:700;}
+.mp-artist{font-size:13px;color:rgba(255,255,255,0.6);margin-top:3px;}
+.mp-lyrics{flex:1;overflow-y:auto;margin:12px 0 4px;padding:26vh 24px;text-align:center;-webkit-mask-image:linear-gradient(180deg,transparent,#000 24%,#000 76%,transparent);mask-image:linear-gradient(180deg,transparent,#000 24%,#000 76%,transparent);scrollbar-width:none;}
+.mp-lyrics::-webkit-scrollbar{display:none;}
+.mp-lyric-line{font-size:15px;line-height:2.5;color:rgba(255,255,255,0.32);transition:color .3s,transform .3s,font-size .3s;}
+.mp-lyric-line.active{color:#fff;font-weight:600;font-size:17px;transform:scale(1.05);}
+.mp-bar-wrap{padding:0 26px;flex-shrink:0;}
+.mp-progress{height:4px;background:rgba(255,255,255,0.18);border-radius:2px;cursor:pointer;position:relative;}
+.mp-progress-fill{height:100%;background:#fff;border-radius:2px;width:0;}
+.mp-times{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.5);margin-top:6px;}
+.mp-ctrls{display:flex;align-items:center;justify-content:center;gap:38px;padding:10px 0 max(20px,env(safe-area-inset-bottom));flex-shrink:0;}
+.mp-ctrls button{background:none;border:none;color:#fff;cursor:pointer;}
+.mp-prev,.mp-next{font-size:26px;}
+.mp-play{width:60px;height:60px;border-radius:50%;background:#fff!important;color:#1a1020!important;font-size:22px;display:flex;align-items:center;justify-content:center;}
+/* 音乐tab里的专辑列表 */
+.mp-album-head{display:flex;gap:14px;padding:16px 14px;align-items:center;}
+.mp-album-art{width:76px;height:76px;border-radius:10px;background:linear-gradient(135deg,#e26a9c,#8a4bd0 60%,#3d2c66);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+.mp-track{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-top:1px solid rgba(0,0,0,0.05);}
+.mp-track:active{background:rgba(196,96,122,0.08);}
+.mp-track-num{width:20px;text-align:center;color:var(--text-mid);font-size:13px;flex-shrink:0;}
+.mp-track-title{flex:1;font-size:14px;color:var(--text-dark);}
+.mp-track.playing .mp-track-title{color:var(--rose);font-weight:600;}
+.mp-track.playing .mp-track-num{color:var(--rose);}
 /* Chat list */
 .wc-chat-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(92,31,53,0.08);cursor:pointer;transition:background 0.1s;}
 .wc-chat-item:active{background:rgba(92,31,53,0.05);}
@@ -444,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.70</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.71</p>
   </div>
 </div>
 
@@ -804,6 +837,31 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   </div>
 </div>
 
+<!-- ══ 音乐播放器（全屏 Now Playing，随播放滚动高亮歌词） ══ -->
+<div id="music-player">
+  <div class="mp-top">
+    <button class="mp-down" onclick="closePlayer()">⌄</button>
+    <div class="mp-alb" id="mp-album-name">XXX</div>
+    <div style="width:24px"></div>
+  </div>
+  <div class="mp-cover" id="mp-cover">🎵</div>
+  <div class="mp-meta">
+    <div class="mp-title" id="mp-title">—</div>
+    <div class="mp-artist" id="mp-artist">—</div>
+  </div>
+  <div class="mp-lyrics" id="mp-lyrics"></div>
+  <div class="mp-bar-wrap">
+    <div class="mp-progress" id="mp-progress" onclick="playerSeek(event)"><div class="mp-progress-fill" id="mp-fill"></div></div>
+    <div class="mp-times"><span id="mp-cur">0:00</span><span id="mp-dur">0:00</span></div>
+  </div>
+  <div class="mp-ctrls">
+    <button class="mp-prev" onclick="playerPrev()">⏮</button>
+    <button class="mp-play" id="mp-play" onclick="playerToggle()">▶</button>
+    <button class="mp-next" onclick="playerNext()">⏭</button>
+  </div>
+</div>
+<audio id="player-audio" preload="metadata" ontimeupdate="onAudioTime()" onended="playerNext()" onplay="updatePlayBtn()" onpause="updatePlayBtn()"></audio>
+
 <!-- ══ 来电界面 ══ -->
 <div id="call-overlay" style="display:none">
   <div class="call-card">
@@ -862,6 +920,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <div class="wc-tab" id="wct-industry" onclick="showWCTab('industry')">
         <div class="wc-tab-icon">📰</div>
         <div class="wc-tab-label" id="lbl-wct-industry">Industry</div>
+      </div>
+      <div class="wc-tab" id="wct-music" onclick="showWCTab('music')">
+        <div class="wc-tab-icon">🎵</div>
+        <div class="wc-tab-label" id="lbl-wct-music">Music</div>
       </div>
       <div class="wc-tab" id="wct-back" onclick="closePhone()">
         <div class="wc-tab-icon">←</div>
@@ -4567,6 +4629,8 @@ async function generatePhoneContent() {
 function renderPhone() {
   // 手机状态栏时间用游戏内时钟，和主页保持一致
   document.getElementById('wc-time').textContent = getPhoneStatusClock();
+  var isZhP = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var mlbl = document.getElementById('lbl-wct-music'); if (mlbl) mlbl.textContent = isZhP?'音乐':G.lang==='ja'?'音楽':G.lang==='ko'?'음악':'Music';
   showWCTab('chats');
 }
 
@@ -4605,6 +4669,8 @@ function showWCTab(tab) {
         content.appendChild(el);
       });
     }
+  } else if (tab === 'music') {
+    renderMusicTab(content);
   } else if (tab === 'moments') {
     content.innerHTML = '';
     var momHeader = document.createElement('div');
@@ -4704,6 +4770,170 @@ function openNewsPage(news) {
   document.getElementById('news-body').textContent = news.body || '';
   document.getElementById('news-overlay').style.display = 'block';
 }
+
+// ══════════════════════════════════════════════════════
+// MUSIC PLAYER（女主的专辑 · 模拟真实听歌软件 + 随播放滚动高亮歌词）
+// ══════════════════════════════════════════════════════
+// 占位专辑：10首都指向同一个占位音频，之后替换 file/title/lrc 即可上线。
+// 正式版音频建议单独托管（Cloudflare R2 等），file 用相对路径/URL 便于替换。
+const ALBUM_TITLE_PLACEHOLDER = 'XXX'; // 专辑名占位
+const ALBUM_PLACEHOLDER_FILE = 'music/Together We Shine.mp3';
+// 占位歌词（标准 LRC，随播放高亮居中滚动）——替换成每首歌真实的 [mm:ss.xx] 时间轴歌词即可
+const ALBUM_PLACEHOLDER_LRC =
+'[00:00.00]♪ Together We Shine ♪\n' +
+'[00:08.00](歌词占位 · 播放时这一行会高亮并滚到中间)\n' +
+'[00:16.00]Replace these lines with real lyrics\n' +
+'[00:24.00]in standard [mm:ss.xx] LRC timing\n' +
+'[00:33.00]♪\n' +
+'[00:40.00]Out on the street I sang for no one\n' +
+'[00:48.00]Now the city knows my name\n' +
+'[00:56.00]Every light that I walk under\n' +
+'[01:05.00]Feels a little like a stage\n' +
+'[01:14.00]♪\n' +
+'[01:22.00]Together we shine, together we rise\n' +
+'[01:31.00]Out of the dark and into the light\n' +
+'[01:40.00]Nobody saw me, now I\'m alive\n' +
+'[01:49.00]Together we shine tonight\n' +
+'[01:58.00]♪\n' +
+'[02:08.00]This is a placeholder track\n' +
+'[02:18.00]Swap in your 10 real songs\n' +
+'[02:28.00]and their timed lyrics\n' +
+'[02:40.00]♪ Together We Shine ♪';
+
+let _mp = { idx: 0, lines: [], curLine: -1, album: null };
+
+function getAlbum() {
+  const tracks = [];
+  for (let i = 1; i <= 10; i++) {
+    tracks.push({
+      title: (i === 1 ? 'Together We Shine' : 'Track ' + i),
+      file: ALBUM_PLACEHOLDER_FILE,
+      lrc: ALBUM_PLACEHOLDER_LRC,
+    });
+  }
+  return {
+    title: (G.album && G.album.title) || ALBUM_TITLE_PLACEHOLDER,
+    artist: (G.player && G.player.name) || ALBUM_TITLE_PLACEHOLDER,
+    tracks: tracks,
+  };
+}
+
+// 解析 LRC 时间轴 → [{t:秒, text}]
+function parseLRC(lrc) {
+  const out = [];
+  (lrc || '').split('\n').forEach(function(line) {
+    var m = line.match(/^\s*\[(\d{1,2}):(\d{2})(?:[.:](\d{1,2}))?\]\s*(.*)$/);
+    if (!m) return;
+    var frac = m[3] ? parseInt(m[3]) / (m[3].length === 1 ? 10 : 100) : 0;
+    out.push({ t: parseInt(m[1]) * 60 + parseInt(m[2]) + frac, text: (m[4] || '').trim() });
+  });
+  out.sort(function(a, b) { return a.t - b.t; });
+  return out;
+}
+
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) s = 0;
+  var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+// 音乐tab：专辑封面 + 艺名 + 曲目列表
+function renderMusicTab(content) {
+  const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
+  const album = getAlbum();
+  _mp.album = album;
+  content.innerHTML = '';
+  var head = document.createElement('div');
+  head.className = 'mp-album-head';
+  head.innerHTML = '<div class="mp-album-art">🎵</div>' +
+    '<div style="min-width:0"><div style="font-size:17px;font-weight:700;color:var(--text-dark)">' + album.title + '</div>' +
+    '<div style="font-size:13px;color:var(--text-mid);margin-top:3px">' + album.artist + '</div>' +
+    '<div style="font-size:11px;color:var(--text-mid);margin-top:2px">' + album.tracks.length + (isZh ? ' 首歌' : ' songs') + '</div></div>';
+  content.appendChild(head);
+  var playing = !document.getElementById('player-audio').paused;
+  album.tracks.forEach(function(tr, i) {
+    var el = document.createElement('div');
+    el.className = 'mp-track' + (i === _mp.idx && playing ? ' playing' : '');
+    el.innerHTML = '<div class="mp-track-num">' + (i + 1) + '</div>' +
+      '<div class="mp-track-title">' + tr.title + '</div>' +
+      '<div style="color:var(--text-mid);font-size:13px">▶</div>';
+    el.onclick = (function(idx) { return function() { openAlbumTrack(idx); }; })(i);
+    content.appendChild(el);
+  });
+}
+
+function openAlbumTrack(idx) {
+  if (!_mp.album) _mp.album = getAlbum();
+  _mp.idx = idx;
+  var tr = _mp.album.tracks[idx];
+  var audio = document.getElementById('player-audio');
+  audio.src = encodeURI(tr.file); // 编码文件名里的空格
+  document.getElementById('mp-album-name').textContent = _mp.album.title;
+  document.getElementById('mp-title').textContent = tr.title;
+  document.getElementById('mp-artist').textContent = _mp.album.artist;
+  _mp.lines = parseLRC(tr.lrc);
+  _mp.curLine = -1;
+  renderLyrics();
+  document.getElementById('music-player').classList.add('open');
+  audio.play().catch(function() {}); // 部分浏览器需用户手势，失败静默（按钮仍可点）
+  updatePlayBtn();
+}
+
+function renderLyrics() {
+  var box = document.getElementById('mp-lyrics');
+  box.innerHTML = '';
+  box.scrollTop = 0;
+  if (!_mp.lines.length) { box.innerHTML = '<div class="mp-lyric-line">♪</div>'; return; }
+  _mp.lines.forEach(function(ln, i) {
+    var d = document.createElement('div');
+    d.className = 'mp-lyric-line';
+    d.id = 'mp-ly-' + i;
+    d.textContent = ln.text || '♪';
+    box.appendChild(d);
+  });
+}
+
+// 随播放推进：更新进度条 + 时间 + 高亮当前歌词行并滚到中央
+function onAudioTime() {
+  var audio = document.getElementById('player-audio');
+  var dur = audio.duration || 0, cur = audio.currentTime || 0;
+  document.getElementById('mp-fill').style.width = dur ? (cur / dur * 100) + '%' : '0';
+  document.getElementById('mp-cur').textContent = fmtTime(cur);
+  document.getElementById('mp-dur').textContent = fmtTime(dur);
+  if (!_mp.lines.length) return;
+  var idx = -1;
+  for (var i = 0; i < _mp.lines.length; i++) { if (_mp.lines[i].t <= cur + 0.15) idx = i; else break; }
+  if (idx !== _mp.curLine) {
+    var prev = document.getElementById('mp-ly-' + _mp.curLine); if (prev) prev.classList.remove('active');
+    var el = document.getElementById('mp-ly-' + idx);
+    if (el) {
+      el.classList.add('active');
+      var box = document.getElementById('mp-lyrics');
+      box.scrollTo({ top: el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2, behavior: 'smooth' });
+    }
+    _mp.curLine = idx;
+  }
+}
+
+function updatePlayBtn() {
+  var audio = document.getElementById('player-audio');
+  document.getElementById('mp-play').textContent = audio.paused ? '▶' : '⏸';
+  document.getElementById('mp-cover').classList.toggle('playing', !audio.paused);
+}
+function playerToggle() {
+  var audio = document.getElementById('player-audio');
+  if (!audio.src) { openAlbumTrack(_mp.idx || 0); return; }
+  if (audio.paused) audio.play().catch(function() {}); else audio.pause();
+}
+function playerNext() { if (_mp.album) openAlbumTrack((_mp.idx + 1) % _mp.album.tracks.length); }
+function playerPrev() { if (_mp.album) openAlbumTrack((_mp.idx - 1 + _mp.album.tracks.length) % _mp.album.tracks.length); }
+function playerSeek(e) {
+  var audio = document.getElementById('player-audio');
+  var rect = document.getElementById('mp-progress').getBoundingClientRect();
+  var ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  if (audio.duration) audio.currentTime = ratio * audio.duration;
+}
+function closePlayer() { document.getElementById('music-player').classList.remove('open'); } // 收起但继续播放（真实听歌软件行为）
 
 function scrollChatBottom() {
   var content = document.getElementById('chat-msgs').parentElement;
@@ -5273,7 +5503,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.70 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.71 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

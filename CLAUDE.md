@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.70** |
+| 当前版本 | **v10.71** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -366,6 +366,13 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 
 **v10.70（过夜转场星空背景）**：
 - 过夜转场（入睡→第二天的夜幕画面）加AI生成的星空背景图（`#nt-sky`，月亮+独白压在上层，用户指定的固定prompt=深靛紫渐变星空、中央留白给独白）。存档缓存复用（`G.nightSky={url,day}`），每 `NIGHT_SKY_REFRESH_DAYS`（=10，可调）个游戏日换一张；`ensureNightSky()` 在 goEvening 后台预生成/到期换图，生成失败或还没好时回退原CSS星空渐变、不阻塞转场
+
+**v10.71（女主专辑 · 音乐播放器,模拟真实听歌软件）**：
+- 手机新增"音乐"tab(🎵):显示女主的专辑(封面/专辑名/艺名=`G.player.name`/曲目列表),点曲目→全屏 Now Playing(大封面+艺名+进度条可拖+播放/暂停/上下曲+**随播放高亮居中滚动的歌词**);收起(⌄)继续后台播放,和真实听歌软件一致
+- **占位数据**:10首都指向 `repo/music/Together We Shine.mp3`(用户放的占位歌),专辑名占位 `XXX`,占位LRC歌词。**替换方式**:改 `getAlbum()` 里的 tracks(title/file/lrc)即可上线真正10首;歌词用标准 `[mm:ss.xx]` LRC 格式,`parseLRC()` 解析
+- **技术**:单个 `<audio id="player-audio">` + inline事件(ontimeupdate/onended/onplay/onpause);歌词按 currentTime 找当前行高亮+`scrollTo`居中;文件名空格用 `encodeURI` 处理
+- ⚠️ **托管教训**:占位期1首MP3(~3MB)放 `repo/music/` 可以;但**正式10首(30-40MB)别塞git仓库**——拖慢仓库+吃GitHub Pages流量,上线前要迁到 Cloudflare R2/CDN 单独托管、按需加载。`file` 已设计成路径/URL,到时改地址即可
+- 这也给第2章"专辑企划"提前铺好了能用的播放器
 
 ## 9. 待开发（优先顺序）
 
