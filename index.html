@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.69"></script>
-<script src="state.js?v=10.69"></script>
+<script src="story.js?v=10.70"></script>
+<script src="state.js?v=10.70"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -377,7 +377,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 /* 过夜转场：全屏夜幕，压在所有界面（含底部导航）之上 */
 #night-transition{position:fixed;inset:0;z-index:400;background:linear-gradient(180deg,#161228 0%,#251d40 55%,#3d2c52 100%);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .6s ease;pointer-events:none;}
 #night-transition.show{opacity:1;pointer-events:auto;}
-.nt-inner{display:flex;flex-direction:column;align-items:center;}
+#nt-sky{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+.nt-inner{display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;}
 .nt-moon{font-size:42px;margin-bottom:20px;filter:drop-shadow(0 0 18px rgba(255,240,200,0.35));animation:ntFloat 3s ease-in-out infinite;}
 @keyframes ntFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .nt-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,4.5vw,19px);color:rgba(255,240,245,0.92);line-height:1.9;text-align:center;padding:0 32px;max-width:420px;min-height:1.9em;opacity:0;transition:opacity .8s ease;}
@@ -443,7 +444,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.69</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.70</p>
   </div>
 </div>
 
@@ -825,6 +826,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 <!-- ══ 过夜转场（入睡→第二天早晨之间的夜幕画面，独白显示在这里） ══ -->
 <div id="night-transition" style="display:none">
+  <img id="nt-sky" alt="">
   <div class="nt-inner">
     <div class="nt-moon">🌙</div>
     <div class="nt-text" id="nt-text"></div>
@@ -4103,6 +4105,7 @@ async function goEvening() {
   if (_todayInv.length && G._invHandledDay !== G.day) { showEveningInviteChoice(_todayInv); return; }
   G.clockMin = Math.max(G.clockMin || 0, 22 * 60 + Math.floor(Math.random() * 12)); // 统一游戏时钟：入夜
   go('s-evening');
+  ensureNightSky(); // 入睡前预生成/更新过夜转场星空图（后台，不阻塞）
   // 晚间也显示今天是哪一天（和早晨首页同一套格式）
   (function(){
     var days_zh = ['周日','周一','周二','周三','周四','周五','周六'];
@@ -4250,11 +4253,26 @@ function judgeRelChange(npcKey, reply) {
 }
 
 // ── 过夜转场 ──
+// 星空背景：按用户指定的固定prompt生成，缓存复用；每 NIGHT_SKY_REFRESH_DAYS 个游戏日换一张（可调）。
+// 生成失败/还没生成好时回退原CSS星空渐变，不阻塞转场
+const NIGHT_SKY_PROMPT = 'Abstract dreamy night sky, deep indigo and violet gradient, countless tiny stars, soft cosmic nebula, subtle celestial glow, ethereal atmosphere, cinematic lighting, elegant luxury aesthetic, minimal composition, clean negative space in the center, no landscape, no mountains, no water, no lake, no ocean, no forest, no buildings, no city, no landmarks, no indoor scene, no objects, no people, only endless night sky and stars, romantic, premium otome game background, ultra detailed, soft bloom, volumetric lighting, masterpiece, vertical mobile wallpaper';
+const NIGHT_SKY_REFRESH_DAYS = 10;
+async function ensureNightSky() {
+  if (G.nightSky && G.nightSky.url && (G.day - (G.nightSky.day || 0)) < NIGHT_SKY_REFRESH_DAYS) return;
+  if (G._nightSkyGenDay === G.day) return; // 本日已经在生成了，防重复调用
+  G._nightSkyGenDay = G.day;
+  const url = await img(NIGHT_SKY_PROMPT, 'night-sky');
+  if (url) { G.nightSky = { url, day: G.day }; STATE.save.saveGame(); }
+}
 let _ntActive = false;
 function showNightTransition() {
   _ntActive = true;
   const nt = document.getElementById('night-transition');
   const tEl = document.getElementById('nt-text');
+  const sky = document.getElementById('nt-sky');
+  if (G.nightSky && G.nightSky.url) { sky.src = G.nightSky.url; sky.style.display = 'block'; }
+  else { sky.style.display = 'none'; }
+  ensureNightSky(); // 后台补生成/到期换图（本次转场不等它，下次生效）
   tEl.classList.remove('show'); tEl.textContent = '';
   nt.style.display = 'flex';
   requestAnimationFrame(() => nt.classList.add('show'));
@@ -5255,7 +5273,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.69 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.70 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

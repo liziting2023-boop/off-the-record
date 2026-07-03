@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.69** |
+| 当前版本 | **v10.70** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -46,7 +46,7 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **云存档**：`/save` GET/PUT 按设备ID存取（上限400KB）。游戏端：saveGame 包装后8秒防抖推送；启动时本地无进度→询问恢复云端档→写localStorage后reload（走loadGame原地合并，避免v10.51那类引用分裂）
 - **KV**：`OTR_KV`（id `b8fb10bd006c4a7991933606514f19f6`），键：`q:{日期}:{设备}:{类型}`/`g:{日期}:{类型}`（TTL 2天）/`save:{设备}`
 - ⚠️ 用API重部署Worker时，metadata.bindings 必须带全：2个 plain_text key + OTR_KV 绑定，否则会丢
-- 上架第二阶段待做：可选登录（Sign in with Apple/Google）、内购（RevenueCat，**已定点数制**，完整方案见 `D:\OTR\monetization_plan.md`——消耗/定价/Worker记账/webhook全部设计好了，照做即可）、隐私政策页
+- 上架第二阶段待做：可选登录（Sign in with Apple/Google）、内购（RevenueCat，**已定"订阅为主+图/装扮氪金层"**，完整方案见 `D:\OTR\monetization_plan.md`——订阅卖"关系持续/记忆/能约"、氪金卖专属CG/换装/搬家、群聊+每月新NPC探索、记忆分层架构、快进机制前置；定价总额倒推目标全年$15-40）、隐私政策页
 
 ### 每次 commit 必须同步更新版本号（三处）
 - `index.html` 约第 349 行：`<p ...>v10.XX</p>`
@@ -71,7 +71,7 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 | `npc_backgrounds.md` | NPC 人物背景、感情线、父母背景（可持续填写） |
 | `npc_storylines.md` | NPC 平行感情线（好感未达标时 NPC 的独立发展） |
 | `npc_secondary.md` | 二线 NPC 设定与开发时机 |
-| `monetization_plan.md` | 收费方案（点数制）：消耗表/定价/免费赠点/Worker记账架构/RevenueCat集成，随App上架实施 |
+| `monetization_plan.md` | 收费方案（订阅+氪金层）：三层收入结构/记忆与成本/群聊+月更NPC/搬家/快进机制/竞品对标，随App上架实施 |
 
 ---
 
@@ -363,6 +363,9 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - 过夜改造：邀请措辞按 `nights` 计数分化（已过夜后不再"再喝一杯"式初次借口）；"留下"撤掉v10.65沙发图，改AI生成的含蓄撩人文字（贴耳低语/解扣/落地窗后拥式意象，门槛处淡出，有固定文案兜底）
 - **code-review另抓到的存量bug**：白天赴约（v10.64起）从首页直接进 playInviteScene 不切屏，整场约会在隐藏DOM里跑完——已补标准场景入口；相册重复存缓存背景图（新 `pushGalleryUnique` 按URL去重）
 - 遗留清理项（记录未做）：MIRRORS姿势串/种子三元组[+7919,+15838]/ACTION RULE句/设置背景图三行DOM 的多处重复待提取helper；glam地点清单建议改成story.js条目上的标志位；upcomingDatesRef 与 buildScheduleContext 的日期格式待合并（同prompt里两份日历，改起始日期时易失同步）
+
+**v10.70（过夜转场星空背景）**：
+- 过夜转场（入睡→第二天的夜幕画面）加AI生成的星空背景图（`#nt-sky`，月亮+独白压在上层，用户指定的固定prompt=深靛紫渐变星空、中央留白给独白）。存档缓存复用（`G.nightSky={url,day}`），每 `NIGHT_SKY_REFRESH_DAYS`（=10，可调）个游戏日换一张；`ensureNightSky()` 在 goEvening 后台预生成/到期换图，生成失败或还没好时回退原CSS星空渐变、不阻塞转场
 
 ## 9. 待开发（优先顺序）
 
