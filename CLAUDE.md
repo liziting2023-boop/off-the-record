@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.74** |
+| 当前版本 | **v10.75** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -394,6 +394,12 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **去掉"24楼"具体楼层**（签约narration + Day1办公室intro,4语言）：改"城市高处/高层"——修①反复提24楼②文案说24楼但生图像100楼的矛盾（楼层不写死,图是啥楼都不冲突）
 - **男演员Day3对白导演指令重写**（3轮npcContext）：原指令太"表演笔记"式(one dropped second/charm drops)导致输出莫名奇妙紫色→简化为具体beat+强制"grounded/natural/plain,no purple speeches"，产出更像真人说话
 - 待续（用户继续测中）：本地化残留、其余文案、场景对话Bug（对话框挡脸/红白字/长对白分页/美容院图被挡）、过夜场景背景错、UI字号
+
+**v10.75（用户第十二轮反馈·第三批:本地化残留）**：
+- **onboarding英文残留补齐**:卧室页(Choose your bedroom/Where the day ends/This is my bedroom)、This is my home、That's me、That night、Tell me about him、Where was he from?/举止那句、I remember him、HIS NAME、And so it began、↺New options——这些之前写死英文没走语言系统。3个无id按钮(That night/Tell me about him/HIS NAME)补了id,其余本来有id只是applyLang没覆盖。**改法**:applyLang末尾加一段自包含 `L(zh,en,ja,ko)` 本地化块(不动巨型TX对象,零风险),4语言。"选择语言"现在对这些也生效
+- **文案两处**:①"选择他的形象"→**"这是我看到的他"**(用户要求)②flashback stamp"每一个夜晚,几个月来"→"几个月前·街头"(去掉和旁白"每天晚上"的重复)
+- 已验证:zh全中文零英文残留、en回退正常、无报错
+- 待续(用户继续测):场景对话Bug(对话框挡脸/红白字/长对白分页/美容院图被挡)、过夜场景背景错、UI字号
 
 ## 9. 待开发（优先顺序）
 
