@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.73** |
+| 当前版本 | **v10.74** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -388,6 +388,12 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **人物图默认Dev**:`state.data.hqPortraits` 默认 false→true。人物立绘/头像走 flux/dev(28步,画质与解剖服从度高,修"背后长胸"类schnell崩坏);背景仍schnell省钱。旧存档保留原值,新档默认Dev。设置页开关仍在
 - **城市换血**:取消东京、首尔→**芝加哥、多伦多**(欧美音乐娱乐名城,迎合西方市场)。改动点全清:en/zh-cn/zh-tw三处显示数组、cv英文值数组、cityLandmarks×2、COASTAL_CITIES(去Tokyo,芝/多是湖畔非海滨不解锁ocean beach)、CITY_DATE_SPOTS(芝=海军码头/千禧公园云门,多=CN塔/多伦多海滨)、story.js四季氛围、qa.js。grep验证零残留
 - 待续批次(已排):本地化残留(卧室页/Tell me about him/and so it began等英文没翻)、文案(选择他的形象→这是我看到的他、独白重复、公寓漏字)、场景对话Bug(对话框挡脸移不动、回复没接玩家输入、红白字、长对白分页、美容院图被挡)、过夜场景背景错(游乐园/录音棚)、经纪人签约剧本改暖、UI字号单独一批。**"周五7:14"经查是开场旁白硬编码stamp(open_stamp),非日期bug**
+
+**v10.74（用户第十二轮反馈·第二批:确认过的内容改写）**：
+- **经纪人签约剧本改暖**（story.js 签约场景narration,4语言）：原"他没抬头把合同推过玻璃桌面/你拿起了笔"冷淡且突兀→改"他起身笑着走来、目光落在你身上、把合同轻轻推来、'剩下的路我们一起走'、你签下名字、从这一刻起一切都不一样了"（暖+签约明确+收尾不突兀）
+- **去掉"24楼"具体楼层**（签约narration + Day1办公室intro,4语言）：改"城市高处/高层"——修①反复提24楼②文案说24楼但生图像100楼的矛盾（楼层不写死,图是啥楼都不冲突）
+- **男演员Day3对白导演指令重写**（3轮npcContext）：原指令太"表演笔记"式(one dropped second/charm drops)导致输出莫名奇妙紫色→简化为具体beat+强制"grounded/natural/plain,no purple speeches"，产出更像真人说话
+- 待续（用户继续测中）：本地化残留、其余文案、场景对话Bug（对话框挡脸/红白字/长对白分页/美容院图被挡）、过夜场景背景错、UI字号
 
 ## 9. 待开发（优先顺序）
 

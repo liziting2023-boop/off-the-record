@@ -665,10 +665,10 @@ const STORY = {
       isWork: true,
       chapter: 1,
       preText: {
-        'zh-cn': '经纪人的办公室在24楼。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你一推门，他就从桌后站了起来，\n笑着朝你走来："来了？正等你呢。"',
-        'en': 'Your agent\'s office is on the 24th floor.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nThe moment you push the door open, he rises from behind his desk,\nwalking toward you with a smile: "There you are. I\'ve been waiting."',
-        'ja': 'エージェントのオフィスは24階にある。\n床から天井までの窓の外、街が広がっている——まだあなたの名前を知らない街が。\n\nドアを開けた瞬間、彼は机の後ろから立ち上がり、\n笑顔で歩み寄ってきた。「来たね。待ってたよ」',
-        'ko': '에이전트의 사무실은 24층에 있다.\n바닥부터 천장까지 이어진 창문 너머, 도시가 펼쳐져 있다——아직 당신의 이름을 모르는 도시가.\n\n문을 열자마자 그는 책상 뒤에서 일어나\n미소를 지으며 다가왔다. "왔구나. 기다리고 있었어."',
+        'zh-cn': '经纪人的办公室在城市高处。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你一推门，他就从桌后站了起来，\n笑着朝你走来："来了？正等你呢。"',
+        'en': 'Your agent\'s office sits high above the city.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nThe moment you push the door open, he rises from behind his desk,\nwalking toward you with a smile: "There you are. I\'ve been waiting."',
+        'ja': 'エージェントのオフィスは街を見下ろす高層階にある。\n床から天井までの窓の外、街が広がっている——まだあなたの名前を知らない街が。\n\nドアを開けた瞬間、彼は机の後ろから立ち上がり、\n笑顔で歩み寄ってきた。「来たね。待ってたよ」',
+        'ko': '에이전트의 사무실은 도시를 내려다보는 높은 층에 있다.\n바닥부터 천장까지 이어진 창문 너머, 도시가 펼쳐져 있다——아직 당신의 이름을 모르는 도시가.\n\n문을 열자마자 그는 책상 뒤에서 일어나\n미소를 지으며 다가왔다. "왔구나. 기다리고 있었어."',
       },
       dialogRounds: [
         {
@@ -767,7 +767,7 @@ const STORY = {
       },
       dialogRounds: [
         {
-          npcContext: 'You are 29, a rising actor sharing today\'s shoot space, and flirting is your native language — the smirk, the lean, eye contact held two beats too long. But open with the one thing she will not expect: you actually know her music. Name ONE precise detail that caught you off guard — a lyric that reads like a confession, the crack in her voice on the last chorus — and for exactly one second the charm drops and you mean it. Then catch yourself and slide back into the playful surface, like you gave away too much. The hook is that one dropped second.',
+          npcContext: 'You are a charming rising actor sharing today\'s shoot. Flirt lightly and NATURALLY — a smirk, a look held a beat too long — the way a real confident Western man would, not theatrically. Then surprise her: you actually listened to her music. Quote ONE specific real detail (a single lyric, the crack in her voice on the last chorus), and for one second you drop the act and mean it — then cover it with a light joke, like you said too much. KEEP EVERY LINE GROUNDED, natural and conversational — plain things a person actually says out loud, no purple speeches, no over-poetic monologues.',
           playerOptions: {
             'zh-cn': ['你也听过我的歌？', '谢谢你……我想。', '你是在夸我还是调侃我？'],
             'en': ['You have heard my song?', 'Thank you... I think.', 'Is that a compliment or are you teasing?'],
@@ -777,7 +777,7 @@ const STORY = {
           relChanges: [8, 5, 12],
         },
         {
-          npcContext: 'Mid-conversation your phone buzzes, or a crew member mentions your co-star — the woman the tabloids pair you with. Wave it off with a lazy half-smirk, pure that-is-publicity-not-biography energy — but do NOT explain or defend; you are used to everyone assuming. What actually interests you is HER reaction: watch it openly, and if she pretends not to care, tease her about how hard she is pretending.',
+          npcContext: 'A crew member mentions your co-star — the woman the tabloids pair you with — or your phone buzzes. Brush it off easily with a half-smirk: that is publicity, not my life. Do NOT over-explain or defend. What you actually care about is HER reaction — watch her, and if she pretends not to care, tease her lightly about pretending. Keep it natural and easy, short real lines, not a monologue.',
           playerOptions: {
             'zh-cn': ['你们……很熟？', '……哦。', '这和我有什么关系？'],
             'en': ['You two are... close?', '...Oh.', 'What does that have to do with me?'],
@@ -787,7 +787,7 @@ const STORY = {
           relChanges: [5, 3, 10],
         },
         {
-          npcContext: 'The wrap call comes. Before you go, make one move harder to dismiss than all the flirting: write your REAL number — not the publicist line — on her call sheet, or name a specific place and a specific time, and for one beat the smirk is gone. Direct, confident, Western: no props, no gifts, no speeches. Frame it as a choice only she can make — then leave first, so she cannot answer.',
+          npcContext: 'The shoot wraps. Before you leave, do ONE thing more real than all the flirting: write your actual number (not the publicist line) on her call sheet, or name a specific place and time — and for one beat the smirk is gone, you are just direct and sincere. No gifts, no speeches. Make it clearly her choice, then leave first so she cannot answer. Keep the words short, plain and grounded.',
           playerOptions: {
             'zh-cn': ['……谢谢。', '你对每个人都这样吗？', '我会考虑的。'],
             'en': ['...Thank you.', 'Do you do this for everyone?', 'I will think about it.'],
@@ -1022,10 +1022,10 @@ const STORY = {
         },
         isAuto: true,
         autoText: {
-          'zh-cn': '你看着他消失在人群里。\n\n名片还带着体温。\n\n三天后，你拨了那个号码。\n他的办公室在24楼——落地窗，城市全景，一个告诉你他很认真的地方。\n\n他没抬头，把合同推过玻璃桌面。\n一年。独家代理。\n\n你拿起了笔。',
-          'en': 'You watched him disappear into the crowd.\n\nThe card was still warm.\n\nThree days later, you called.\nHis office was on the 24th floor — corner suite, city view, the kind of room that tells you he is serious.\n\nHe slid a contract across the glass desk without looking up.\nOne year. Exclusive representation.\n\nYou picked up the pen.',
-          'ja': 'あなたは人混みの中で彼が去るのを見ていた。\n\n名刺はまだ少し温かかった。\n\n三日後、あなたはその番号に電話した。\n彼のオフィスは24階にあった。\n\nガラスのデスクを挟んで向かい合った。\n彼は契約書をあなたの前に滑らせた——一年間、専属契約。\n\nあなたはサインした。',
-          'ko': '당신은 인파 속에서 그가 떠나는 걸 바라봤다.\n\n명함이 아직 온기를 품고 있었다.\n\n사흘 후, 당신은 그 번호로 전화를 걸었다.\n그의 사무실은 24층에 있었다.\n\n유리 책상을 사이에 두고 마주 앉았다.\n그가 계약서를 밀어왔다——1년, 전속 계약.\n\n당신은 사인했다.',
+          'zh-cn': '你看着他消失在人群里。\n\n名片还带着体温。\n\n三天后，你拨了那个号码。\n他的办公室在城市高处，落地窗外天际线一路铺开——可让你安心的不是窗外的景，是他起身、笑着朝你走来的样子。\n\n他把合同轻轻推到你面前，目光一直落在你身上：\n「一年，独家代理。剩下的路，我们一起走。」\n\n你拿起笔，一笔一划签下自己的名字。\n从这一刻起，一切都不一样了。',
+          'en': 'You watched him disappear into the crowd.\n\nThe card was still warm.\n\nThree days later, you called.\nHis office sat high above the city, the whole skyline spread beyond the glass — but what put you at ease was not the view. It was the way he stood and crossed the room to meet you, smiling.\n\nHe slid the contract to you gently, his eyes never leaving yours.\n"One year. Exclusive representation. The rest of the road, we walk together."\n\nYou picked up the pen and signed your name, stroke by stroke.\nFrom this moment, everything was different.',
+          'ja': 'あなたは人混みの中で彼が去るのを見ていた。\n\n名刺はまだ少し温かかった。\n\n三日後、あなたはその番号に電話した。\n彼のオフィスは街を見下ろす高層階にあり、ガラスの向こうに地平線が広がっていた——けれど、あなたを安心させたのは景色ではなく、立ち上がって笑顔で歩み寄ってくる彼の姿だった。\n\n彼は契約書をそっとあなたの前に滑らせ、まっすぐに見つめた。\n「一年、専属契約。この先の道は、一緒に歩こう」\n\nあなたはペンを取り、一文字ずつ名前を書いた。\nこの瞬間から、すべてが変わった。',
+          'ko': '당신은 인파 속에서 그가 떠나는 걸 바라봤다.\n\n명함이 아직 온기를 품고 있었다.\n\n사흘 후, 당신은 그 번호로 전화를 걸었다.\n그의 사무실은 도시를 내려다보는 높은 층에 있었고, 유리 너머로 스카이라인이 펼쳐져 있었다——하지만 당신을 안심시킨 건 풍경이 아니라, 자리에서 일어나 미소 지으며 다가오는 그의 모습이었다.\n\n그는 계약서를 부드럽게 밀어주며, 당신에게서 눈을 떼지 않았다.\n"1년, 전속 계약. 남은 길은, 함께 걸어요."\n\n당신은 펜을 들어 한 획 한 획 이름을 적었다.\n이 순간부터, 모든 것이 달라졌다.',
         },
       },
     ],
