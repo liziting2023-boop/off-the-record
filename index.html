@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.77"></script>
-<script src="state.js?v=10.77"></script>
+<script src="story.js?v=10.78"></script>
+<script src="state.js?v=10.78"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -477,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.77</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.78</p>
   </div>
 </div>
 
@@ -506,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="wrap">
     <div class="stamp" id="open-stamp">Friday · 7:14 AM</div>
     <p class="nar" id="open-nar"></p>
-    <button class="btn-g" onclick="go('s-name')">Continue</button>
+    <button class="btn-g" id="btn-open-cont" onclick="go('s-name')">Continue</button>
   </div>
 </div>
 
@@ -517,7 +517,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="sec-head"><h2 id="name-title">What's your name?</h2><p id="name-sub">The name you perform under.</p></div>
     <input class="name-inp" id="name-inp" type="text" maxlength="20" placeholder="Your name...">
     <p style="font-size:11px;color:var(--ink-muted);margin-bottom:16px" id="name-hint">This is how everyone will know you.</p>
-    <button class="btn-p" onclick="saveName()">Continue</button>
+    <button class="btn-p" id="btn-name-cont" onclick="saveName()">Continue</button>
   </div>
 </div>
 
@@ -2125,6 +2125,12 @@ function applyLang() {
     s('lbl-choose-portrait', L('这是我看到的他','THIS IS HOW I SAW HIM','これが私の見た彼','내가 본 그의 모습'));
     // flashback stamp 去掉与旁白"每天晚上"的重复
     s('flashback-stamp', L('几个月前 · 街头','Months earlier · On the street','数ヶ月前 · 路上で','몇 달 전 · 거리에서'));
+    // v10.78：onboarding 里一堆写死英文的 Continue / Generate 按钮 + 姓名页提示/占位符
+    var cont = L('继续','Continue','続ける','계속');
+    ['btn-lang','btn-open-cont','btn-name-cont','btn-mom','btn-dad','btn-hair','btn-city'].forEach(function(id){ s(id, cont); });
+    s('btn-decor', L('生成我的公寓','Generate my apartment','部屋を生成する','내 아파트 생성'));
+    s('name-hint', L('大家会用这个名字认识你。','This is how everyone will know you.','この名前でみんなに知られる。','이 이름으로 모두가 당신을 알게 돼요.'));
+    var ni = document.getElementById('name-inp'); if (ni) ni.placeholder = L('你的名字…','Your name...','あなたの名前…','당신의 이름…');
   })();
   buildGrids();
 }
@@ -2200,15 +2206,32 @@ function saveName() {
 // ══════════════════════════════════════════════════════
 // HERITAGE
 // ══════════════════════════════════════════════════════
+// 血统页本地化：族裔名(o)/眼睛(e)/肤色(s)。en 及未知语言用英文原值(heritageTraits)，zh/ja/ko 用下表
+const HERITAGE_L10N = {
+  'East Asian':       { zh:{o:'东亚',e:'深棕色杏仁眼',s:'浅至中等金色肌'},   ja:{o:'東アジア',e:'濃い茶色のアーモンド形の目',s:'明るめ〜中間の黄金色の肌'}, ko:{o:'동아시아',e:'짙은 갈색 아몬드형 눈',s:'밝은~중간 골드톤 피부'} },
+  'Southeast Asian':  { zh:{o:'东南亚',e:'温暖的深棕色眼',s:'暖调金棕色肌'}, ja:{o:'東南アジア',e:'温かみのある濃い茶色の目',s:'暖かい黄金褐色の肌'},       ko:{o:'동남아시아',e:'따뜻한 짙은 갈색 눈',s:'따뜻한 황금빛 갈색 피부'} },
+  'South Asian':      { zh:{o:'南亚',e:'深棕色眼',s:'中至深棕色肌'},         ja:{o:'南アジア',e:'深い茶色の目',s:'中間〜濃い茶色の肌'},                     ko:{o:'남아시아',e:'깊은 갈색 눈',s:'중간~짙은 갈색 피부'} },
+  'Northern European':{ zh:{o:'北欧',e:'蓝色或灰色眼',s:'白皙冷调肌'},       ja:{o:'北欧',e:'青または灰色の目',s:'色白でクールトーンの肌'},                 ko:{o:'북유럽',e:'파란색 또는 회색 눈',s:'희고 쿨톤인 피부'} },
+  'Southern European':{ zh:{o:'南欧',e:'暖棕或绿色眼',s:'暖橄榄色肌'},       ja:{o:'南欧',e:'温かい茶色または緑の目',s:'暖かいオリーブ色の肌'},             ko:{o:'남유럽',e:'따뜻한 갈색 또는 녹색 눈',s:'따뜻한 올리브색 피부'} },
+  'African':          { zh:{o:'非洲',e:'浓郁深棕色眼',s:'深棕至乌木色肌'},   ja:{o:'アフリカ',e:'豊かな濃い茶色の目',s:'濃い茶色〜漆黒の肌'},               ko:{o:'아프리카',e:'짙고 깊은 갈색 눈',s:'짙은 갈색~흑단색 피부'} },
+  'Latin American':   { zh:{o:'拉丁美洲',e:'棕色或榛色眼',s:'中等暖棕色肌'}, ja:{o:'ラテンアメリカ',e:'茶色またはヘーゼルの目',s:'中間の暖かい茶色の肌'},  ko:{o:'라틴아메리카',e:'갈색 또는 헤이즐 눈',s:'중간 톤의 따뜻한 갈색 피부'} },
+  'Middle Eastern':   { zh:{o:'中东',e:'深邃杏仁眼',s:'中等橄榄至小麦色肌'}, ja:{o:'中東',e:'深いアーモンド形の目',s:'中間のオリーブ〜小麦色の肌'},         ko:{o:'중동',e:'깊은 아몬드형 눈',s:'중간 올리브~밀색 피부'} },
+  'North American':   { zh:{o:'北美',e:'明亮的蓝色眼',s:'白皙带暖金色晒痕'}, ja:{o:'北米',e:'明るい青い目',s:'色白で暖かいゴールドの日焼け'},               ko:{o:'북미',e:'밝은 파란 눈',s:'희고 따뜻한 골드빛 태닝'} },
+};
 function showHeritage() {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const lk = isZh ? 'zh' : (lang==='ja' ? 'ja' : (lang==='ko' ? 'ko' : null)); // 本地化key，null=用英文原值
+  const ori = eng => { const m = HERITAGE_L10N[eng]; return (lk && m) ? m[lk].o : eng; };
+  const mo = ori(G.player.motherOrigin), fo = ori(G.player.fatherOrigin);
+  const mEyes = (lk && HERITAGE_L10N[G.player.motherOrigin]) ? HERITAGE_L10N[G.player.motherOrigin][lk].e : G.player.motherEyes;
+  const fSkin = (lk && HERITAGE_L10N[G.player.fatherOrigin]) ? HERITAGE_L10N[G.player.fatherOrigin][lk].s : G.player.fatherSkin;
   let nar, el, sl, hl;
-  if (isZh) { nar = '我母亲来自<em>' + G.player.motherOrigin + '</em>。我父亲来自<em>' + G.player.fatherOrigin + '</em>。<br><br>人们总说我是他们两个人完美的融合。'; el='眼睛'; sl='肤色'; hl='血统'; }
-  else if (lang==='ja') { nar = '母は<em>' + G.player.motherOrigin + '</em>出身。父は<em>' + G.player.fatherOrigin + '</em>出身。<br><br>みんないつも二人を完璧に混ぜ合わせたと言っていた。'; el='目'; sl='肌'; hl='出身'; }
-  else if (lang==='ko') { nar = '어머니는 <em>' + G.player.motherOrigin + '</em> 출신. 아버지는 <em>' + G.player.fatherOrigin + '</em> 출신.<br><br>항상 두 분이 완벽하게 섞였다고 했다.'; el='눈'; sl='피부'; hl='혈통'; }
-  else { nar = 'My mother was from <em>' + G.player.motherOrigin + '</em>. My father from <em>' + G.player.fatherOrigin + '</em>.<br><br>People always said I was a perfect mix of both.'; el='Eyes'; sl='Skin'; hl='Heritage'; }
+  if (isZh) { nar = '我母亲来自<em>' + mo + '</em>。我父亲来自<em>' + fo + '</em>。<br><br>人们总说我是他们两个人完美的融合。'; el='眼睛'; sl='肤色'; hl='血统'; }
+  else if (lang==='ja') { nar = '母は<em>' + mo + '</em>出身。父は<em>' + fo + '</em>出身。<br><br>みんないつも二人を完璧に混ぜ合わせたと言っていた。'; el='目'; sl='肌'; hl='出身'; }
+  else if (lang==='ko') { nar = '어머니는 <em>' + mo + '</em> 출신. 아버지는 <em>' + fo + '</em> 출신.<br><br>항상 두 분이 완벽하게 섞였다고 했다.'; el='눈'; sl='피부'; hl='혈통'; }
+  else { nar = 'My mother was from <em>' + mo + '</em>. My father from <em>' + fo + '</em>.<br><br>People always said I was a perfect mix of both.'; el='Eyes'; sl='Skin'; hl='Heritage'; }
   document.getElementById('h-nar').innerHTML = nar;
-  document.getElementById('h-traits').innerHTML = '<div class="ti"><div class="tl">' + el + '</div><div class="tv">' + G.player.motherEyes + '</div></div><div class="ti"><div class="tl">' + sl + '</div><div class="tv">' + G.player.fatherSkin + '</div></div><div class="ti"><div class="tl">' + hl + '</div><div class="tv">' + G.player.motherOrigin + ' × ' + G.player.fatherOrigin + '</div></div>';
+  document.getElementById('h-traits').innerHTML = '<div class="ti"><div class="tl">' + el + '</div><div class="tv">' + mEyes + '</div></div><div class="ti"><div class="tl">' + sl + '</div><div class="tv">' + fSkin + '</div></div><div class="ti"><div class="tl">' + hl + '</div><div class="tv">' + mo + ' × ' + fo + '</div></div>';
   document.getElementById('btn-heritage').textContent = t('thats_right');
   go('s-heritage');
   preGenRooms();
@@ -5595,7 +5618,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.77 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.78 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

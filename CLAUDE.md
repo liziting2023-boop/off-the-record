@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.77** |
+| 当前版本 | **v10.78** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -411,6 +411,12 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **禁止动作夹在台词中间**（runVNDialog OUTPUT RULES）：原来会出现「台词前半」动作。「台词后半」。加规则"台词一次说完,动作只能放整句话前或后,不能夹中间"。（这才是用户"台词一次说完"的真实诉求；v10.76停的是页级分页,是另一回事）
 
 > ⚠️ **部署延迟教训（2026-07-03）**：连推 v10.71-76 后线上卡在 v10.73——GitHub Pages 有部署记录但 CDN 边缘缓存/构建传播延迟(可达10min+)，换浏览器无效(边缘缓存共享)。**对策:攒几个改动再push一次,别频繁推**(频繁push可能让Pages构建排队)。代码不丢,等边缘缓存刷新即到最新
+
+**v10.78（用户截图·onboarding本地化第二轮:按钮+血统页）**：
+- **Continue/Generate按钮全本地化**:开场/姓名/母/父/发型/城市页的"Continue"、"Generate my apartment"(→生成我的公寓)——之前全写死英文。2个无id按钮(开场509/姓名520)补id,其余applyLang补齐,4语言
+- **姓名页**:占位符"Your name…"→"你的名字…"、hint"This is how everyone will know you."→"大家会用这个名字认识你。"
+- **血统页彻底本地化**(HERITAGE_L10N映射表+showHeritage重写):原来"我母亲来自African/North American"和卡片"眼睛Rich dark brown/肤色Fair…/血统African×North American"全是英文原始值。现按9个族裔×zh/ja/ko映射(族裔名o/眼睛e/肤色s),en及未知语言仍用英文原值。实测zh"我母亲来自非洲…眼睛浓郁深棕色眼/肤色白皙带暖金色晒痕/血统非洲×北美"、en回退正常
+- 教训:onboarding英文残留分散在多处(HTML写死按钮+动态拼接的值),需逐页扫。已修两轮
 
 ## 9. 待开发（优先顺序）
 
