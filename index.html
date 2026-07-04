@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.83"></script>
-<script src="state.js?v=10.83"></script>
+<script src="story.js?v=10.84"></script>
+<script src="state.js?v=10.84"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -180,6 +180,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 /* Loading overlay for VN scene */
 .vn-loading{position:absolute;inset:0;z-index:10;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
 .vn-loading-txt{font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:var(--ink-muted);}
+/* 手机版开发者面板：连点版本号5下开启的悬浮⚙DEV + 按钮面板 */
+#dev-fab{position:fixed;right:6px;top:50%;transform:translateY(-50%);z-index:99998;display:none;background:rgba(20,10,15,0.55);color:#ffe;border:1px solid rgba(255,200,210,0.4);border-radius:14px;padding:7px 8px;font-family:'Jost',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+#dev-panel{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(10,5,8,0.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:20px;}
+#dev-panel .dev-card{width:100%;max-width:340px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+#dev-panel h3{color:#ffe;font-family:'Jost',sans-serif;font-size:13px;letter-spacing:2px;text-align:center;margin-bottom:2px;}
+.dev-sec{color:rgba(255,220,230,0.5);font-size:9px;letter-spacing:2px;text-transform:uppercase;text-align:center;margin-top:6px;}
+.dev-btn{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,200,210,0.3);border-radius:12px;padding:13px;color:#FFF0F3;font-family:'Jost',sans-serif;font-size:14px;text-align:center;cursor:pointer;min-height:46px;}
+.dev-btn.close{background:rgba(180,80,100,0.32);margin-top:6px;}
 /* 一次性轻提示：点图放大 / 点背景收起对话框 */
 .vn-tap-hint{position:absolute;top:calc(3% + 8px);left:50%;transform:translateX(-50%);z-index:5;max-width:82vw;text-align:center;background:rgba(15,8,12,0.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,200,210,0.28);border-radius:20px;padding:8px 16px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:1px;color:rgba(255,240,245,0.92);box-shadow:0 6px 22px rgba(15,8,12,0.4);pointer-events:none;animation:vnHintFade 5s ease forwards;}
 @keyframes vnHintFade{0%{opacity:0;transform:translateX(-50%) translateY(-6px);}12%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;transform:translateX(-50%) translateY(-6px);}}
@@ -448,6 +456,23 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lb" onclick="closeLB()"><div class="lb-close">✕</div><img id="lb-img" src="" alt=""></div>
+<!-- 手机版开发者测试面板：标题页连点版本号5下开启右侧⚙DEV，点开即可按钮测试(无需F12/打字) -->
+<div id="dev-fab" onclick="openDevPanel()">⚙DEV</div>
+<div id="dev-panel">
+  <div class="dev-card">
+    <h3>开发者测试面板</h3>
+    <div class="dev-sec">过夜剧情（好感自动设80，直接跳场景）</div>
+    <button class="dev-btn" onclick="devStay('agent')">过夜 · 经纪人</button>
+    <button class="dev-btn" onclick="devStay('drummer')">过夜 · 鼓手</button>
+    <button class="dev-btn" onclick="devStay('actor')">过夜 · 男演员</button>
+    <button class="dev-btn" onclick="devStay('butler')">过夜 · 管家</button>
+    <button class="dev-btn" onclick="devStay('detective')">过夜 · 侦探</button>
+    <div class="dev-sec">图像 / 额度</div>
+    <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
+    <button class="dev-btn" onclick="otrNewQuota();closeDevPanel()">重置今日AI额度</button>
+    <button class="dev-btn close" onclick="closeDevPanel()">关闭</button>
+  </div>
+</div>
 
 <!-- NPC ORIGIN SHEET -->
 <div class="npc-origin-overlay" id="npc-origin-overlay">
@@ -480,7 +505,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.83</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.84</p>
   </div>
 </div>
 
@@ -1244,6 +1269,29 @@ window.otrClearBg = function() {
   try { STATE.save.saveGame(); } catch(e){}
   console.log('%c[OTR] 已清空地点/家 背景缓存，下次进场景会重新生成。','color:#4a9;font-weight:bold');
 };
+// ── 手机版开发者面板：标题页连点版本号5下开启右侧⚙DEV，点开是按钮面板（免F12/打字）──
+let _devTaps = 0, _devTapT = 0;
+function devTap() {
+  const now = Date.now();
+  if (now - _devTapT > 2500) _devTaps = 0;
+  _devTapT = now; _devTaps++;
+  if (_devTaps >= 5) {
+    _devTaps = 0;
+    const fab = document.getElementById('dev-fab');
+    fab.style.display = 'block';
+    try { alert('开发者模式已开启：屏幕右侧的 ⚙DEV 按钮，点开即可测试。'); } catch(e){}
+  }
+}
+function openDevPanel() { document.getElementById('dev-panel').style.display = 'flex'; }
+function closeDevPanel() { document.getElementById('dev-panel').style.display = 'none'; }
+function devStay(k) {
+  closeDevPanel();
+  if (typeof G === 'undefined' || !G || !G.npcs || Object.keys(G.npcs).length === 0) {
+    try { alert('请先「开始」或读取存档进入游戏，再测过夜剧情。'); } catch(e){}
+    return;
+  }
+  otrTestStay(k);
+}
 
 async function claude(prompt, sys = '') {
   if (DEV_MODE_TXT) {
@@ -5727,7 +5775,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.83 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.84 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

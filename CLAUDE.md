@@ -449,6 +449,12 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - 已起独立server验证:零JS报错、v10.83、otrTestStay/otrClearBg已注册、OVERNIGHT_STYLE五NPC齐、经纪人prompt含强笑容措辞。改动在 index.html+state.js
 - 待用户实测确认:笑脸是否够暖、背景混人是否减少、约会是否不再talk shop、五个NPC过夜文案性格是否拉开
 
+**v10.84（手机版开发者测试面板）**：用户在手机上测，没有F12/`javascript:`地址栏也被移动端浏览器拦截→做了游戏内隐藏面板
+- **触发**：标题页连点版本号(`#ver-tag`, onclick=`devTap()`)5下(2.5s内)→右侧悬浮 `⚙DEV`(`#dev-fab`)出现，弹alert提示。之后 ⚙DEV 常驻(顶层元素,跨屏保留)，点开 `#dev-panel` 全屏按钮面板
+- **按钮**：过夜×5(经纪人/鼓手/演员/管家/侦探→`devStay(k)`→`otrTestStay`,好感自动80直接跳场景)、清背景缓存(`otrClearBg`)、重置额度(`otrNewQuota`)、关闭。`devStay`若G未初始化(还没进游戏)会提示先开始/读档
+- DOM放在 lightbox 后(顶层,不在.screen内所以跨屏保留)。已mobile尺寸截图验证渲染+8按钮+零报错
+- 控制台命令(otrTestStay/otrClearBg/otrNewQuota/otrQuota/otrNewQuota)仍可用,面板只是手机友好的入口
+
 ## 9. 待开发（优先顺序）
 
 ### 立即
