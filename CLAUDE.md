@@ -11,7 +11,7 @@
 | 游戏名 | Off the Record |
 | 类型 | AI 驱动乙女游戏（视觉小说） |
 | 目标用户 | 非中国市场女性，30-50 岁，欧美/东南亚 |
-| 当前版本 | **v10.78** |
+| 当前版本 | **v10.79** |
 | Live 网址 | https://liziting2023-boop.github.io/off-the-record/ |
 | GitHub 仓库 | liziting2023-boop/off-the-record |
 | 本地仓库路径 | D:\OTR\repo |
@@ -417,6 +417,10 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **姓名页**:占位符"Your name…"→"你的名字…"、hint"This is how everyone will know you."→"大家会用这个名字认识你。"
 - **血统页彻底本地化**(HERITAGE_L10N映射表+showHeritage重写):原来"我母亲来自African/North American"和卡片"眼睛Rich dark brown/肤色Fair…/血统African×North American"全是英文原始值。现按9个族裔×zh/ja/ko映射(族裔名o/眼睛e/肤色s),en及未知语言仍用英文原值。实测zh"我母亲来自非洲…眼睛浓郁深棕色眼/肤色白皙带暖金色晒痕/血统非洲×北美"、en回退正常
 - 教训:onboarding英文残留分散在多处(HTML写死按钮+动态拼接的值),需逐页扫。已修两轮
+
+**v10.79（用户反馈:美发店没换发型选项）**：
+- **互动店铺在剧情日"顺路逛逛"也能用**:美发/家具/商场原来有 `&& !thenScripted` 守卫——只有自由日给选项,剧情日(如Day1)当"顺路逛逛"进去只有旁白+继续,没换发型/换装/换客厅选项(用户在Day1撞到)。现去掉守卫,三个函数都加 `thenScripted` 参数,完成后:顺路日→`playScripted`继续当天剧情、自由日→`goEvening`入夜
+- 待续:签约首轮回复没接玩家输入、过夜场景背景错、美容院图被挡、UI批
 
 ## 9. 待开发（优先顺序）
 

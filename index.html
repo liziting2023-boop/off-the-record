@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.78"></script>
-<script src="state.js?v=10.78"></script>
+<script src="story.js?v=10.79"></script>
+<script src="state.js?v=10.79"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -477,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.78</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.79</p>
   </div>
 </div>
 
@@ -3036,15 +3036,14 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   document.getElementById('vn-text').textContent = (narration || '').trim();
 
   const contLabel = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
-  // 美发店：可以改发型/发色，改完用原seed重新生成头像并更新形象
-  if (key === 'hair_salon' && !thenScripted) {
-    renderHairSalonOpts();
-  } else if (key === 'furniture_store' && !thenScripted) {
-    // 家具店：可以给客厅换新布置（三选一后替换客厅图）
-    renderFurnitureOpts();
-  } else if (key === 'shopping_mall' && !thenScripted) {
-    // 商场：可以买新衣服（描述款式→3张新装头像三选一→替换女主头像）
-    renderShoppingOpts();
+  // 互动型店铺（美发/家具/商场）：无论是自由日还是剧情日"顺路逛逛"都提供选项；
+  // thenScripted 传下去，改完后自由日→入夜、顺路日→继续当天剧情（修"顺路去美发店没有换发型选项"）
+  if (key === 'hair_salon') {
+    renderHairSalonOpts(thenScripted);
+  } else if (key === 'furniture_store') {
+    renderFurnitureOpts(thenScripted);
+  } else if (key === 'shopping_mall') {
+    renderShoppingOpts(thenScripted);
   } else {
     const btn = document.createElement('button');
     btn.className = 'vn-next';
@@ -3104,8 +3103,9 @@ function inlineTrioChooser(urls, cfg) {
 }
 
 // ── 商场买衣服：玩家描述想要的颜色/款式 → 3张新装头像三选一 → 替换女主头像 ──
-function renderShoppingOpts() {
+function renderShoppingOpts(thenScripted) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const contAfter = () => { if (thenScripted) playScripted(typeof thenScripted==='number'?thenScripted:G.day); else goEvening(); };
   const vopts = document.getElementById('vn-opts');
   vopts.innerHTML = '';
   const head = document.createElement('div');
@@ -3147,9 +3147,9 @@ function renderShoppingOpts() {
         G.player.portraitUrl = url;
         G.gallery.push({ url, label: isZh?('新造型 · 第'+G.day+'天'):('New outfit · Day '+G.day) });
         STATE.save.saveGame();
-        goEvening();
+        contAfter();
       },
-      onSkip: goEvening,
+      onSkip: contAfter,
     });
   };
   inp.onkeydown = function(e){ if (e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); sendBtn.onclick(); } };
@@ -3157,13 +3157,14 @@ function renderShoppingOpts() {
   const skip = document.createElement('div');
   skip.className = 'vn-opt';
   skip.textContent = isZh?'只是逛逛，什么都不买':'Just browsing';
-  skip.onclick = () => goEvening();
+  skip.onclick = () => contAfter();
   vopts.appendChild(skip);
 }
 
 // ── 家具店：选新客厅风格 → 重新生成客厅图并替换（白天图；夜晚卧室不受影响）──
-function renderFurnitureOpts() {
+function renderFurnitureOpts(thenScripted) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  const contAfter = () => { if (thenScripted) playScripted(typeof thenScripted==='number'?thenScripted:G.day); else goEvening(); };
   const vopts = document.getElementById('vn-opts');
   vopts.innerHTML = '';
   const head = document.createElement('div');
@@ -3199,9 +3200,9 @@ function renderFurnitureOpts() {
           G.apartment.selectedStyle = st[2];
           G.gallery.push({ url, label: (isZh?'新客厅 · 第'+G.day+'天':'New living room · Day '+G.day) });
           STATE.save.saveGame();
-          goEvening();
+          contAfter();
         },
-        onSkip: goEvening,
+        onSkip: contAfter,
       });
     };
     vopts.appendChild(el);
@@ -3209,13 +3210,15 @@ function renderFurnitureOpts() {
   const skip = document.createElement('div');
   skip.className = 'vn-opt';
   skip.textContent = isZh?'只是逛逛，什么都不买':'Just browsing';
-  skip.onclick = () => goEvening();
+  skip.onclick = () => contAfter();
   vopts.appendChild(skip);
 }
 
 // ── 美发店：选新发型/发色 → 用原seed重生成女主头像 ──
-function renderHairSalonOpts() {
+function renderHairSalonOpts(thenScripted) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  // 完成后：顺路日→继续当天剧情，自由日→入夜
+  const contAfter = () => { if (thenScripted) playScripted(typeof thenScripted==='number'?thenScripted:G.day); else goEvening(); };
   const vopts = document.getElementById('vn-opts');
   vopts.innerHTML = '';
   const styles = [
@@ -3259,13 +3262,13 @@ function renderHairSalonOpts() {
       if (url) { G.player.portraitUrl = url; G.gallery.push({ url, label: (G.lang==='zh-cn'||G.lang==='zh-tw')?('新造型 · 第'+G.day+'天'):('New look · Day '+G.day) }); }
       STATE.save.saveGame();
     }
-    goEvening();
+    contAfter();
   };
   vopts.appendChild(done);
   const skip = document.createElement('div');
   skip.className = 'vn-opt';
   skip.textContent = isZh?'只是修剪一下，不换造型':'Just a trim';
-  skip.onclick = () => goEvening();
+  skip.onclick = () => contAfter();
   vopts.appendChild(skip);
 }
 
@@ -5618,7 +5621,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.78 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.79 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
