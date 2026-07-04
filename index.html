@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.80"></script>
-<script src="state.js?v=10.80"></script>
+<script src="story.js?v=10.81"></script>
+<script src="state.js?v=10.81"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -477,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.80</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.81</p>
   </div>
 </div>
 
@@ -4190,6 +4190,21 @@ async function playInviteScene(inv) {
 }
 
 // ── 过夜暗示（含蓄留白，不出图）：留下/婉拒/装没听懂 ──
+// 每个NPC的"家"背景提示词 + 生成函数：过夜时背景切到他家，不停留在公共约会地点；按NPC缓存复用省生图
+const HOME_PROMPTS = {
+  agent:    'upscale modern high-rise apartment living room, floor-to-ceiling windows with a glittering city skyline, minimalist warm luxury, refined and tasteful',
+  drummer:  'cool artistic loft, a drum kit and guitars in the corner, vinyl records and band posters, exposed brick walls, string lights, lived-in creative space',
+  actor:    'stylish designer bachelor apartment, moody accent lighting, a city view, sleek modern furniture, a little glamorous',
+  butler:   'cozy tidy modest apartment, shelves of books, plants, homey and comfortable, warm and inviting',
+  detective:'understated masculine apartment, dark warm wood tones, bookshelves, a coat on a rack, a quiet noir mood',
+};
+async function genNPCHomeBg(npcKey) {
+  if (G.npcs[npcKey] && G.npcs[npcKey].homeUrl) return G.npcs[npcKey].homeUrl; // 缓存复用
+  const base = HOME_PROMPTS[npcKey] || HOME_PROMPTS.agent;
+  const url = await img(base + ', late at night, warm dim intimate lamp light, cozy private interior, no people', 'home-' + npcKey);
+  if (url && G.npcs[npcKey]) { G.npcs[npcKey].homeUrl = url; STATE.save.saveGame(); }
+  return url;
+}
 async function maybeStayOver(npcKey, locKey) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   vnSpeak('npc');
@@ -4200,8 +4215,8 @@ async function maybeStayOver(npcKey, locKey) {
   // 二次过夜邀请：已过夜后不再用"再喝一杯"这类初次借口，措辞更亲密直接（但仍含蓄）
   const _nightsSoFar = G.npcs[npcKey].nights || 0;
   const _stayCtx = _nightsSoFar === 0
-    ? 'The evening date is ending, and neither of you wants it to. In YOUR character\'s voice, gently and suggestively invite her to not go home tonight — tasteful, implicit, never explicit (e.g. an unfinished sentence, "今晚别回去了？", an offer of one more drink at your place). One or two sentences, spoken words only.'
-    : 'The evening date is ending. She has ALREADY stayed the night with you ' + _nightsSoFar + ' time(s) — you are past pretexts now, so do NOT invent an excuse like "one more drink". Invite her to stay with the quiet confidence and intimacy of someone she has woken up next to: reference tonight, or something small and private between you two, or simply hold her gaze and say it plainly. Vary it — never the same line twice. Still tasteful and implicit, never explicit. One or two sentences, spoken words only.';
+    ? 'The evening date is ending, and neither of you wants it to. In YOUR character\'s voice, gently and suggestively invite her back to YOUR place tonight — tasteful, implicit, never explicit (an unfinished sentence, "今晚…别急着回去？", "来我那儿坐坐"). One or two sentences, spoken words only.'
+    : 'The evening date is ending. She has ALREADY stayed the night with you ' + _nightsSoFar + ' time(s) — past pretexts now. Invite her back to your place with the quiet confidence and intimacy of someone she has woken up next to: reference tonight, or something small and private between you two. Vary it — never the same line twice. Tasteful and implicit. One or two sentences, spoken words only.';
   let line = '';
   try {
     line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _stayCtx));
@@ -4210,12 +4225,14 @@ async function maybeStayOver(npcKey, locKey) {
   document.getElementById('vn-text').innerHTML = formatNPCText(line);
   vopts.innerHTML = '';
   const mk = (label, fn) => { const el = document.createElement('div'); el.className = 'vn-opt'; el.textContent = label; el.onclick = fn; vopts.appendChild(el); };
-  // 留下：不出图（v10.69撤掉沙发图），改为按人设生成的含蓄撩人文字描写 → 夜幕转场进第二天
-  mk(isZh?'……留下':'…Stay', async () => {
+  // 是否已在他家（约会地点=他的住处）；约会大多在公共地点，所以基本是"在外面"
+  const atHome = !!(locKey && /_home$/.test(locKey));
+  // 跟他走 → 转场到他家背景 → 含蓄撩人文字（v10.69起不出人物图）→ 夜幕转场进第二天
+  const goHomeAndStay = async () => {
     STATE.relationships.change(npcKey, 10);
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
     G._stayedOver = { npc: npcKey, day: G.day };
-    STATE.memory.addEvent(npcKey, (G.npcs[npcKey].nights === 1 ? 'She stayed the night with you for the FIRST time' : 'She stayed the night with you') + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
+    STATE.memory.addEvent(npcKey, (G.npcs[npcKey].nights === 1 ? 'She went home with you and stayed the night for the FIRST time' : 'She went home with you and stayed the night') + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
     STATE.save.saveGame();
     playSound('rel-up');
     const nar = isZh ? '这一夜，城市的灯替你们守住了秘密。' : 'Tonight, the city lights keep your secret.';
@@ -4223,19 +4240,22 @@ async function maybeStayOver(npcKey, locKey) {
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
-    // 高级撩人的文字描写（第二人称对她、他的动作第三人称）：在门槛处淡出，撩而不露骨
+    // 背景切到他家（不再停留在游乐园等公共约会地点）
+    if (!atHome) {
+      try { const homeUrl = await genNPCHomeBg(npcKey); if (homeUrl) { const bg = document.getElementById('vn-bg'); bg.src = homeUrl; bg.style.display = 'block'; const ph = document.getElementById('vn-bg-ph'); if (ph) ph.style.display = 'none'; } } catch(e) {}
+    }
     let stayNar = '';
     try {
       stayNar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
-        'She chose to STAY the night' + (G.npcs[npcKey].nights === 1 ? ' with you for the very first time — there is nervousness under the electricity' : ' — not the first time; there is familiarity woven into the heat now') + '. ' +
-        'Write the moment as a SHORT second-person narration addressed to HER (start with 你/You), describing HIS actions in third person (他/he). 2-3 sentences. ' +
-        'Style: seductive but elegant and implicit — think of beats like: he sets down his glass and closes the distance, his lips at her ear saying something only she gets to hear; his fingers finding the first button; him wrapping his arms around her from behind as they stand at the floor-to-ceiling window, the city lights below. Choose actions that fit HIS personality and tonight\'s date — do NOT copy these examples verbatim. ' +
-        'HARD RULES: stop at the threshold — clothing mostly stays on-page, nothing explicit, no body parts beyond ear/neck/waist/hands/lips, no undressing beyond a single button, fade out with restraint. NO inner thoughts narration, only what is seen, heard and felt on the skin. Plain text only, no HTML.'));
+        'You have brought her back to YOUR home and she chose to stay' + (G.npcs[npcKey].nights === 1 ? ' for the very first time — nervousness under the electricity' : ' — not the first time; familiarity woven into the heat now') + '. ' +
+        'Write the moment as a SHORT second-person narration addressed to HER (start with 你/You), HIS actions in third person (他/he). 2-3 sentences. ' +
+        'Style: seductive but elegant and implicit, set inside HIS home — beats like: he closes the door and the distance, his lips at her ear saying something only she gets to hear; his fingers finding the first button; drawing her in from behind by the waist. Fit HIS personality and his home; do NOT copy verbatim. ' +
+        'HARD RULES: stop at the threshold — clothing mostly stays on-page, nothing explicit, nothing beyond ear/neck/waist/hands/lips, no undressing beyond a single button, fade out with restraint. NO inner thoughts, only what is seen, heard and felt. Plain text only, no HTML.'));
     } catch(e) {}
     if (!stayNar || !stayNar.trim()) {
       stayNar = isZh
-        ? '他放下杯子，走近你，声音低得只剩你们两个人能听见：「今晚，别急着走。」窗外的城市灯火在他身后铺开，他从身后轻轻环住你的腰。'
-        : 'He sets down his glass and closes the distance, his voice dropping to something only you are meant to hear: "Don\'t rush home tonight." The city lights spread out behind him as his arms fold around you from behind.';
+        ? '门在身后合上，他走近你，声音低得只剩你们两个人能听见：「今晚，别急着走。」他从身后轻轻环住你的腰。'
+        : 'The door closes behind you. He steps in close, his voice dropping to something only you are meant to hear: "Don\'t rush off tonight." His arms fold around you from behind.';
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(stayNar.trim());
     vopts.innerHTML = '';
@@ -4250,7 +4270,9 @@ async function maybeStayOver(npcKey, locKey) {
       setTimeout(() => { G.day++; startDay(); }, 400);
     };
     vopts.appendChild(sleepBtn2);
-  });
+  };
+  // 选项：在外面=跟他走(去他家)；已在他家=直接留下
+  mk(atHome ? (isZh?'……留下':'…Stay') : (isZh?'跟他走':'…Go with him'), goHomeAndStay);
   // 婉拒：得体拒绝反而+好感
   mk(isZh?'今晚先回去（婉拒）':'Not tonight (gently)', async () => {
     STATE.relationships.change(npcKey, 3);
@@ -5636,7 +5658,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.80 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.81 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
