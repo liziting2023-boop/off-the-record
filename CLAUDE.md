@@ -467,6 +467,13 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - ⚠️尺度:走"steamy言情+高潮淡出",非硬核。若claude-sonnet对更露骨请求部分软化/拒绝需再调;且上架App Store有分级/内容政策风险(用户自行权衡)
 - 已离线验证(stub AI/图):两幕流程零报错、img prompt以静物空房开头、文案prompt含romance/erotic指令、scene字段正确注入
 
+**v10.87（过夜文案再修:独立散文生成 + 设置页版本号）**：用户"文案还是不好"
+- **根因**：过夜两幕文案调 `buildDialoguePrompt`(对话框架:"你就是这个NPC用他口吻说话/完全保持角色"),却塞"写第二人称叙述",模型被"扮角色说话"vs"写小说"撕扯→产出别扭。且没用 `claude()` 的 `sys` 系统提示、无范例
+- **改法**：新增 `genOvernightProse(npcKey,act,firstNight)` 绕开对话框架——①强系统提示(把模型设成"award-winning成人言情小说家",给成人内容许可+register)②干净场景指令(NPC名/性格style/场景/道具/该幕热度)③**few-shot范例** `_overnightExemplar(act)`(中英各一段高质量steamy范例,拉品质,让模型对齐而非发挥)。第二幕仍erotic romance尺度、高潮fade。邀请台词仍走buildDialoguePrompt(那本就是口语,正确)
+- **设置页加版本号**：底部 `#ver-tag-settings`「Off the Record · v10.87」,点它也触发 `devTap()`(=连点5下开DEV面板,现在游戏中/设置页都能开)。标题页版本号保留
+- 已离线验证:两幕都走genOvernightProse(sys含novelist、user含范例、act2含erotic指令)、邀请仍走对话框架、设置版本号显示、零报错
+- ⚠️若claude-sonnet对露骨仍软化:范例已是明确尺度锚,应有帮助;真不行需再提尺度或考虑作者手写兜底
+
 - **后续块(按序)**：②过夜后关系动态(公开/低调+朋友聚会+吃醋不回消息,公开低调按性格:鼓手公开/经纪人低调/演员先低调后公开/管家私密/侦探绝对低调) ③美容院(做美容图+按特征重生成女主头像)+选NPC加发色 ④NPC出场节奏重排(演员+管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位**全新恋爱向NPC**由我提方案) 
 
 ## 9. 待开发（优先顺序）

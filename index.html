@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.86"></script>
-<script src="state.js?v=10.86"></script>
+<script src="story.js?v=10.87"></script>
+<script src="state.js?v=10.87"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -505,7 +505,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.86</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.87</p>
   </div>
 </div>
 
@@ -1059,6 +1059,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.87</p>
   </div>
 </div>
 
@@ -4347,6 +4348,40 @@ async function genNPCHomeActBg(npcKey, act) {
   if (url && G.npcs[npcKey]) { G.npcs[npcKey][field] = url; STATE.save.saveGame(); }
   return url;
 }
+// ── 过夜散文生成：不走 buildDialoguePrompt(那是对话框架,会让模型"扮角色说话",产出别扭)。
+//    改用强系统提示(成人言情小说家)+ 干净场景指令 + 一段范例(few-shot)拉品质。第二幕更露骨、高潮处淡出。──
+function _overnightExemplar(act) {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  if (act === 2) return isZh
+    ? '你迎上去的那一刻，他终于松开了手里一直绷着的那根弦。吻落下来，比方才更深、更急，他的手掌顺着你的背脊一路往上，把你整个人揽进怀里。衣扣一颗颗松开，他的唇离开你的唇，沿着下颌、颈侧一寸寸往下，滚烫的呼吸落在锁骨上，惹得你轻轻发颤。你听见自己的呼吸乱成一片，也听见他在你耳边哑声念你的名字，像在忍耐，又像在恳求。他把你按向床，最后一点灯光晃了晃——然后，熄了。'
+    : "The moment you lean into him, the thread he's been holding so tightly finally snaps. His kiss comes back deeper, hungrier, his palm sliding up the length of your spine to gather you fully against him. Buttons give way one by one; his mouth leaves yours to travel along your jaw, the side of your throat, his scorching breath at your collarbone pulling a shiver out of you. You hear your own breathing come apart, and his voice, hoarse against your ear, saying your name like he's holding on and begging at once. He lowers you to the bed, the last of the lamplight wavers — and then it goes out.";
+  return isZh
+    ? '门在身后合上的那一刻，整间屋子忽然只剩下你们两个人的呼吸。他把那杯酒递过来，指尖擦过你的手背，却没有收回去，就那样停在那里，温热的一点触碰慢慢烧起来。「你今晚，不用走。」他的声音压得很低，低到你几乎是从他胸腔里听见的。他没有再靠近，只是看着你，把最后那一步，留给了你。'
+    : "The door closes and all at once the room narrows to the sound of the two of you breathing. He holds the glass out, his fingertips grazing the back of your hand and staying there, that one warm point of contact slowly catching fire. \"You don't have to leave tonight,\" he says, low enough that you feel it more than hear it. He doesn't come any closer — he just looks at you, and leaves the last step to you.";
+}
+async function genOvernightProse(npcKey, act, firstNight) {
+  const name = getNPCName(npcKey);
+  const isButler = npcKey === 'butler';
+  const style = OVERNIGHT_STYLE[npcKey] || '';
+  const a1 = OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent;
+  const a2 = OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent;
+  const sys = 'You are an award-winning contemporary romance novelist writing an intimate scene for an adult (18+) otome visual novel — lush, sensory, emotionally immersive prose in the register of a bestselling steamy romance, unafraid of heat but never crude or clinical. Write in ' + G.langName + '. Output ONLY the scene prose itself: second person addressed to the heroine (你/you), the man\'s actions in third person (他/he). No preamble, no headings, no meta, no restating these instructions, no quotation marks around the whole thing. Plain text only.';
+  let user;
+  if (act === 1) {
+    user = 'Write ACT ONE of an overnight scene. The man is ' + name + '. His manner when things turn intimate: ' + style + ' ' +
+      (isButler ? 'IMPORTANT — here HE is the shy, passive one: SHE takes the lead while he is flustered, ears burning, overwhelmed and adoring, barely believing this is happening. ' : '') +
+      'They have just come back to his place' + (firstNight ? ' for the very first time' : '') + ', ' + a1.scene + '. Build the beat around a small charged ritual — ' + a1.prop + ' — that becomes the excuse to close the distance between them. ' +
+      'This is the SLOW BURN before anything happens: 3-4 sentences of varied, breathless rhythm. Build the tension and STOP at the first real touch, or the held look a heartbeat before the kiss — go no further, leave her the choice. Suggestive and charged, not explicit yet. ' +
+      'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(1) + '"';
+  } else {
+    user = 'Write ACT TWO of an overnight scene — the payoff, and it should be genuinely steamy. The man is ' + name + '. His manner when things turn intimate: ' + style + ' ' +
+      (isButler ? 'IMPORTANT — HE stays the shy, passive one throughout: SHE leads every step and he follows, trembling and overwhelmed and worshipful, his touch only going where hers guides it; the heat comes from his undoing, not from dominance. ' : '') +
+      'She chose to let it continue; the scene has moved to ' + a2.scene + '. ' +
+      'Write it like the hottest scene in a bestselling erotic romance: the kiss deepens and breaks restraint, clothing comes loose and falls away, mouths and hands map bare skin, the heat and ache and wanting all in vivid sensory detail and rising, breathless rhythm. Noticeably more explicit and daring than act one — but keep the heightened, evocative register of romance (sensation and desire, the poetry of bodies), NOT clinical or crude anatomy. 4-6 sentences. Let the peak arrive and then CUT AWAY artfully at the very height — fade to black on the sharpest, most charged beat rather than narrating the act itself. ' +
+      'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(2) + '"';
+  }
+  return await claude(user, sys);
+}
 async function maybeStayOver(npcKey, locKey) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   vnSpeak('npc');
@@ -4383,14 +4418,8 @@ async function maybeStayOver(npcKey, locKey) {
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     try { const u = await genNPCHomeActBg(npcKey, 2); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
-    const act2 = OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent;
-    const act2Ctx = 'She chose to let it continue. This is ACT TWO — the payoff, and it should be genuinely steamy. The scene moves to ' + act2.scene + '. ' +
-      (isButler
-        ? 'IMPORTANT — HE stays the shy, passive one throughout: SHE leads every step and he follows, trembling and overwhelmed and worshipful, his touch only going where hers guides it — the heat comes from his undoing, not from any dominance. '
-        : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' Let THAT drive every beat — a possessive man, a shy one and a controlled one must feel completely different in this moment. ') +
-      'WRITE LIKE THE HOTTEST SCENE IN A BESTSELLING EROTIC ROMANCE NOVEL: vivid, sensual, unashamed, deeply physical. The kiss deepens and breaks restraint; clothing comes loose and falls away; mouths and hands map bare skin; the heat, the ache, the wanting all rendered in sensory detail and rising, breathless rhythm. Be noticeably more explicit and daring than act one — but keep it the heightened, evocative register of romance (sensation, desire, the poetry of bodies), NOT clinical or crude anatomical description. Second person addressed to HER (你/You), his actions in third person (他/he). 4-6 sentences, breathless and building. Let the peak arrive and then cut away artfully at the very height — fade to black on the sharpest, most charged beat rather than narrating the act itself. NO inner analysis — only what is felt, seen and heard. Plain text only, no HTML.';
     let act2Nar = '';
-    try { act2Nar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, act2Ctx)); } catch(e){}
+    try { act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1); } catch(e){}
     if (!act2Nar || !act2Nar.trim()) {
       act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料一件件松开，他的唇沿着你的颈线往下，每一寸都被他记在心里。你听见自己的呼吸乱了，也听见他在你耳边低低地念你的名字——然后灯光暗了下去，剩下的夜，只属于你们两个人。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens piece by piece; his mouth traces down the line of your throat, learning every inch of you. You hear your own breath break apart, his voice low against your ear saying your name — and then the light dims, and the rest of the night belongs only to the two of you.';
     }
@@ -4439,14 +4468,8 @@ async function maybeStayOver(npcKey, locKey) {
       try { const u = await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
-    const act1Ctx = 'You have just brought her into YOUR home' + (firstNight ? ' for the very first time' : '') + '. This is ACT ONE — the slow burn before anything happens, ' + act1.scene + '. ' +
-      'Center it on a small charged ritual — ' + act1.prop + ' — that becomes the excuse to close the distance between you. ' +
-      (isButler
-        ? 'IMPORTANT — HE is the shy, passive one here: flustered, ears burning, hands unsteady, while SHE is the one leaning in and taking the initiative; write her boldness and his overwhelmed, adoring, barely-believing-it surrender. '
-        : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' ') +
-      'WRITE LIKE A BESTSELLING ROMANCE NOVEL — lush, sensory, emotionally immersive: the warmth coming off him, the catch of her breath, one specific vivid detail, the charged silence between words. Second person addressed to HER (你/You), his actions in third person (他/he). 3-4 sentences, with varied rhythm — short breathless lines against longer ones. Build the tension and STOP right at the first real touch, or the held look in the half-second before the kiss — leave the next move to her choice. Suggestive and charged, not explicit yet. NO inner analysis or naming of feelings — make her FEEL it through the body and the room. Plain text only, no HTML.';
     let act1Nar = '';
-    try { act1Nar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, act1Ctx)); } catch(e){}
+    try { act1Nar = await genOvernightProse(npcKey, 1, firstNight); } catch(e){}
     if (!act1Nar || !act1Nar.trim()) {
       act1Nar = isZh ? '门在身后轻轻合上，屋里只剩一盏暖灯。他把酒杯递到你手里，指尖擦过你的，没有收回。「今晚，别急着走。」他的声音低下去，近得你能感觉到他呼吸里的温度——然后他停在那里，只是看着你，把接下来的一步，留给了你。' : 'The door clicks shut behind you and the room narrows to one warm lamp. He presses the glass into your hand, his fingertips grazing yours and staying there. "Don\'t rush off tonight," he murmurs, close enough that you feel the warmth of his breath — and then he stops, just looking at you, leaving the next move to you.';
     }
@@ -5842,7 +5865,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.86 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.87 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
