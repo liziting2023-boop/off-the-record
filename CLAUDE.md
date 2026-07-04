@@ -461,6 +461,12 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **管家过夜=女主主动/他被动**（`isButler` 分支）：两幕prompt都写成他害羞被动、女主leans in taking initiative、他ears burning跟随
 - 旧单幕 `genNPCHomeBg`/`homeUrl` 保留未删(现已不被过夜流程调用)
 - 已起独立server离线验证(stub AI/图):邀请三选项→跟他走→第一幕两选项→继续→第二幕(nights0→1,好感80→86,_stayedOver置位,"夜还很长"按钮)/离开→"回家"→夜幕转场,全程零报错。用 `otrTestStay(npc)` 面板即可复测
+**v10.86（用户反馈:过夜第一幕图有人 + 文案都不好/第二幕要更露骨）**：
+- **分幕背景生成人物修复**：flux对"沙发上啤酒/餐桌两杯茶"这类构图会自动画人(过夜场景本不该出现人物,一致性靠立绘)。`OVERNIGHT_ACT1`/`ACT2` 重构为对象(img生图/scene文案/prop动作)，img改成**道具静物特写+强调空房unoccupied**(如"still-life close view...empty worn couch in background...unoccupied")，`genNPCHomeActBg` 负向词加强(no man/woman/figure on couch/bed/chair)。降低概率,flux仍无法100%,旧图 `otrClearBg()` 重刷
+- **过夜文案重写为言情/情色小说笔法**：原prompt产出被用户评"都不好"。act1Ctx→"WRITE LIKE A BESTSELLING ROMANCE NOVEL"(lush/sensory/emotionally immersive,3-4句变节奏,停在吻前的对视);act2Ctx→"HOTTEST SCENE IN A BESTSELLING EROTIC ROMANCE"(**按用户要求更露骨**:吻深入/衣物褪去/唇与手描摹肌肤/欲望与热度的感官细节,4-6句,但保持言情的意象化register非解剖式,在最高潮处艺术性fade to black)。两版中英fallback也重写得更好
+- ⚠️尺度:走"steamy言情+高潮淡出",非硬核。若claude-sonnet对更露骨请求部分软化/拒绝需再调;且上架App Store有分级/内容政策风险(用户自行权衡)
+- 已离线验证(stub AI/图):两幕流程零报错、img prompt以静物空房开头、文案prompt含romance/erotic指令、scene字段正确注入
+
 - **后续块(按序)**：②过夜后关系动态(公开/低调+朋友聚会+吃醋不回消息,公开低调按性格:鼓手公开/经纪人低调/演员先低调后公开/管家私密/侦探绝对低调) ③美容院(做美容图+按特征重生成女主头像)+选NPC加发色 ④NPC出场节奏重排(演员+管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位**全新恋爱向NPC**由我提方案) 
 
 ## 9. 待开发（优先顺序）

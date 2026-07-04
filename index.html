@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.85"></script>
-<script src="state.js?v=10.85"></script>
+<script src="story.js?v=10.86"></script>
+<script src="state.js?v=10.86"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -505,7 +505,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.85</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.86</p>
   </div>
 </div>
 
@@ -4322,27 +4322,28 @@ async function genNPCHomeBg(npcKey) {
   if (url && G.npcs[npcKey]) { G.npcs[npcKey].homeUrl = url; STATE.save.saveGame(); }
   return url;
 }
-// ── 过夜两幕：第一幕(试探)= 他家的一个标志性场景+道具(客厅/餐桌/吧台/书桌/阳台/窗边,按性格给道具:倒酒/放唱片/泡茶等)；第二幕= 换到床/沙发 ──
+// ── 过夜两幕：第一幕(试探)= 他家标志性场景+道具；第二幕= 床/沙发。
+//    img=生图用(以道具/静物特写为主+强调空房,避免flux往沙发/床上画人)；scene=文案用(人所在的位置)；prop=试探动作 ──
 const OVERNIGHT_ACT1 = {
-  agent:    { setting:'at the marble bar counter of his high-rise apartment, a bottle of red wine breathing and two crystal glasses, the city skyline glittering beyond floor-to-ceiling windows', prop:'pouring the wine and offering her the glass' },
-  drummer:  { setting:'on the low worn couch of his loft, the record player turning, two open beers on a crate, string lights and vinyl all around', prop:'handing her a beer and dropping the needle on a record he wants her to hear' },
-  actor:    { setting:'out on the balcony of his designer apartment, the city glittering far below, two glasses of wine on the rail, warm light spilling from inside', prop:'passing her a glass of wine and standing close against the night air' },
-  butler:   { setting:'at the small kitchen table of his cozy apartment, a pot of tea steeping and two mugs, books and plants and warm lamp light around', prop:'pouring her tea, his hands not quite steady' },
-  detective:{ setting:'at the desk by the bookshelf in his understated apartment, two low glasses of whiskey, a single warm lamp, a quiet noir hush', prop:'sliding a glass of whiskey across to her and watching her over the rim' },
+  agent:    { scene:'at the marble bar counter of his high-rise apartment, the city skyline glittering beyond the glass', prop:'pouring the red wine and holding the glass out to her', img:'a still-life close view of a marble bar counter at night, a bottle of red wine and two poured crystal glasses catching the light, a glittering city skyline blurred beyond floor-to-ceiling windows behind, an empty unoccupied luxury apartment interior' },
+  drummer:  { scene:'in his artist loft, a record spinning, string lights and vinyl everywhere', prop:'handing her a beer and dropping the needle on a record he wants her to hear', img:'a still-life close view inside a dim artist loft at night, a record spinning on a turntable, two open beer bottles on a wooden crate, string lights and stacked vinyl records, an empty worn couch in the background, unoccupied interior' },
+  actor:    { scene:'on the balcony of his designer apartment, the city glittering far below', prop:'passing her a glass of wine and standing close against the night air', img:'a still-life close view on a designer apartment balcony at night, two glasses of red wine resting on the railing, a glittering city far below, warm light spilling from the empty room behind, unoccupied' },
+  butler:   { scene:'at the small kitchen table of his cozy apartment, books and plants around', prop:'pouring her tea, his hands not quite steady', img:'a still-life close view of a small cozy round kitchen table at night, a teapot steeping and two mugs of tea, books and a small potted plant, warm lamp light, empty chairs, an unoccupied homey apartment interior' },
+  detective:{ scene:'at the desk by the bookshelf in his apartment, a quiet noir hush', prop:'sliding a glass of whiskey across to her and watching her over the rim', img:'a still-life close view of a dark wood desk by a bookshelf at night, two low glasses of amber whiskey, a single warm desk lamp, a quiet noir mood, an empty unoccupied masculine study interior' },
 };
 const OVERNIGHT_ACT2 = {
-  agent:    'his bedroom — a wide low bed with fine dark linens, the skyline glow through the glass, dim warm light',
-  drummer:  'the wide worn couch in his loft, a throw blanket pulled loose, the string lights low and warm',
-  actor:    'his stylish bedroom, moody low light, a sleek dark bed, the city glowing beyond the window',
-  butler:   'his small tidy bedroom, soft simple bedding, one warm lamp, shy and close',
-  detective:'his bedroom — dark wood, plain good linens, a single lamp, restrained and warm',
+  agent:    { scene:'his bedroom, the skyline glowing beyond the glass', img:'an empty unoccupied luxury bedroom at night, a wide low bed with rumpled fine dark linens turned back, a city skyline glow through floor-to-ceiling glass, dim warm light' },
+  drummer:  { scene:'the wide worn couch in his loft', img:'an empty worn couch in a dim artist loft, a throw blanket pulled loose across it, low string lights, warm intimate mood, unoccupied interior' },
+  actor:    { scene:'his stylish bedroom, the city glowing beyond the window', img:'an empty unoccupied stylish bedroom at night, a sleek dark bed with covers turned back, moody low accent light, a city glowing beyond the window' },
+  butler:   { scene:'his small tidy bedroom, warm and shy', img:'an empty unoccupied small tidy bedroom, soft simple bedding slightly turned down, one warm lamp, cozy intimate mood' },
+  detective:{ scene:'his bedroom, dark wood and restrained warmth', img:'an empty unoccupied understated bedroom, dark wood, plain good linens turned back, a single warm lamp, quiet noir mood' },
 };
 async function genNPCHomeActBg(npcKey, act) {
   const field = act === 2 ? 'homeAct2Url' : 'homeAct1Url';
   if (G.npcs[npcKey] && G.npcs[npcKey][field]) return G.npcs[npcKey][field]; // 按NPC+幕缓存复用
-  const base = act === 2 ? (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent)
-                         : (OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent).setting;
-  const url = await img(base + ', late at night, warm dim intimate lamp light, cozy private interior, absolutely nobody in frame, empty room, no people, no humans, no figures', 'home-act' + act + '-' + npcKey);
+  const spec = act === 2 ? (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent)
+                         : (OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent);
+  const url = await img(spec.img + ', late at night, warm dim intimate lamp light, cinematic still life interior photograph, absolutely nobody in frame, not a single person, no man, no woman, no figure or silhouette on the couch or bed or chair, completely empty and unoccupied room, no people, no humans', 'home-act' + act + '-' + npcKey);
   if (url && G.npcs[npcKey]) { G.npcs[npcKey][field] = url; STATE.save.saveGame(); }
   return url;
 }
@@ -4382,17 +4383,16 @@ async function maybeStayOver(npcKey, locKey) {
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     try { const u = await genNPCHomeActBg(npcKey, 2); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
-    const act2Ctx = 'She chose to let it continue. This is ACT TWO — the charged main moment, drawn out and more seductive than act one. ' +
-      'The scene has moved to ' + (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent) + '. ' +
+    const act2 = OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent;
+    const act2Ctx = 'She chose to let it continue. This is ACT TWO — the payoff, and it should be genuinely steamy. The scene moves to ' + act2.scene + '. ' +
       (isButler
-        ? 'IMPORTANT — HE stays the shy, passive one: SHE leads throughout, he follows her lead trembling and overwhelmed and adoring; his hands only move where hers invite them. '
-        : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' Let THAT drive every beat — a possessive man, a shy one and a controlled one must read completely differently. ') +
-      'Write as a SHORT second-person narration to HER (你/You), his actions third person (他/he). 2-3 sentences. ' +
-      'HARD RULES: stop at the threshold — clothing mostly stays on-page, nothing explicit, nothing beyond ear/neck/waist/hands/lips, no undressing beyond a single button, fade out with restraint. NO inner thoughts, only what is seen, heard and felt. Plain text only, no HTML.';
+        ? 'IMPORTANT — HE stays the shy, passive one throughout: SHE leads every step and he follows, trembling and overwhelmed and worshipful, his touch only going where hers guides it — the heat comes from his undoing, not from any dominance. '
+        : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' Let THAT drive every beat — a possessive man, a shy one and a controlled one must feel completely different in this moment. ') +
+      'WRITE LIKE THE HOTTEST SCENE IN A BESTSELLING EROTIC ROMANCE NOVEL: vivid, sensual, unashamed, deeply physical. The kiss deepens and breaks restraint; clothing comes loose and falls away; mouths and hands map bare skin; the heat, the ache, the wanting all rendered in sensory detail and rising, breathless rhythm. Be noticeably more explicit and daring than act one — but keep it the heightened, evocative register of romance (sensation, desire, the poetry of bodies), NOT clinical or crude anatomical description. Second person addressed to HER (你/You), his actions in third person (他/he). 4-6 sentences, breathless and building. Let the peak arrive and then cut away artfully at the very height — fade to black on the sharpest, most charged beat rather than narrating the act itself. NO inner analysis — only what is felt, seen and heard. Plain text only, no HTML.';
     let act2Nar = '';
     try { act2Nar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, act2Ctx)); } catch(e){}
     if (!act2Nar || !act2Nar.trim()) {
-      act2Nar = isZh ? '他把你带向沙发，声音低得只剩你们能听见。灯光暗下去，剩下的夜，只属于你们两个人。' : 'He draws you toward the couch, his voice low enough that only you can hear it. The lights dim, and the rest of the night belongs to just the two of you.';
+      act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料一件件松开，他的唇沿着你的颈线往下，每一寸都被他记在心里。你听见自己的呼吸乱了，也听见他在你耳边低低地念你的名字——然后灯光暗了下去，剩下的夜，只属于你们两个人。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens piece by piece; his mouth traces down the line of your throat, learning every inch of you. You hear your own breath break apart, his voice low against your ear saying your name — and then the light dims, and the rest of the night belongs only to the two of you.';
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(act2Nar.trim());
     vopts.innerHTML = '';
@@ -4439,16 +4439,16 @@ async function maybeStayOver(npcKey, locKey) {
       try { const u = await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
-    const act1Ctx = 'You have just brought her into YOUR home' + (firstNight ? ' for the very first time' : '') + '. This is ACT ONE — a tentative, suggestive opening beat, NOT the main moment yet. ' +
-      'Setting: ' + act1.setting + '. Build the beat around a small ritual of hosting that turns charged — e.g. ' + act1.prop + ' — then closing a little of the distance. ' +
+    const act1Ctx = 'You have just brought her into YOUR home' + (firstNight ? ' for the very first time' : '') + '. This is ACT ONE — the slow burn before anything happens, ' + act1.scene + '. ' +
+      'Center it on a small charged ritual — ' + act1.prop + ' — that becomes the excuse to close the distance between you. ' +
       (isButler
-        ? 'IMPORTANT — HE is the shy, passive one here: flustered and hesitant, while SHE leans in and takes the initiative; write him receiving her boldness, ears burning, barely believing this is happening. '
+        ? 'IMPORTANT — HE is the shy, passive one here: flustered, ears burning, hands unsteady, while SHE is the one leaning in and taking the initiative; write her boldness and his overwhelmed, adoring, barely-believing-it surrender. '
         : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' ') +
-      'Write as a SHORT second-person narration to HER (你/You), his actions third person (他/he). 2-3 sentences. Stop right at the first charged touch or held look — leave the next move to her choice. Nothing explicit. Plain text only, no HTML.';
+      'WRITE LIKE A BESTSELLING ROMANCE NOVEL — lush, sensory, emotionally immersive: the warmth coming off him, the catch of her breath, one specific vivid detail, the charged silence between words. Second person addressed to HER (你/You), his actions in third person (他/he). 3-4 sentences, with varied rhythm — short breathless lines against longer ones. Build the tension and STOP right at the first real touch, or the held look in the half-second before the kiss — leave the next move to her choice. Suggestive and charged, not explicit yet. NO inner analysis or naming of feelings — make her FEEL it through the body and the room. Plain text only, no HTML.';
     let act1Nar = '';
     try { act1Nar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, act1Ctx)); } catch(e){}
     if (!act1Nar || !act1Nar.trim()) {
-      act1Nar = isZh ? '门在身后合上。他为你倒了杯酒，指尖擦过你的手，然后没有移开。屋里很静，只剩你们两个人的呼吸。' : 'The door closes behind you. He pours you a glass, his fingertips brush yours and stay. The room goes quiet, down to just the two of you breathing.';
+      act1Nar = isZh ? '门在身后轻轻合上，屋里只剩一盏暖灯。他把酒杯递到你手里，指尖擦过你的，没有收回。「今晚，别急着走。」他的声音低下去，近得你能感觉到他呼吸里的温度——然后他停在那里，只是看着你，把接下来的一步，留给了你。' : 'The door clicks shut behind you and the room narrows to one warm lamp. He presses the glass into your hand, his fingertips grazing yours and staying there. "Don\'t rush off tonight," he murmurs, close enough that you feel the warmth of his breath — and then he stops, just looking at you, leaving the next move to you.';
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(act1Nar.trim());
     vopts.innerHTML = '';
@@ -5842,7 +5842,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.85 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.86 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
