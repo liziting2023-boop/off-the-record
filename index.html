@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.88"></script>
-<script src="state.js?v=10.88"></script>
+<script src="story.js?v=10.89"></script>
+<script src="state.js?v=10.89"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -506,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.88</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.89</p>
   </div>
 </div>
 
@@ -1067,7 +1067,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.88</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.89</p>
   </div>
 </div>
 
@@ -3516,11 +3516,12 @@ function runMeetupScene(npcKey, locKey, title) {
   const locDesc = (STORY.locations[locKey]||{}).composition || '';
   // 三轮临场对话（复用剧情对话引擎，选项由AI动态生成）
   const seeds = pickSeeds(2);
-  const meetStyle = ' ACTION RULE: include ONE brief physical action in third person that fits THIS specific place — take inspiration from (do not copy verbatim): ' + dateActionHint(locKey) + '. Use a different gesture each round. NO inner thoughts or psychological narration — only what can be seen and heard.';
+  const _mrel = (G.npcs[npcKey]||{}).relationship;
+  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey);
   const rounds = [
-    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, maybe tease about the texts.' + meetStyle },
-    { npcContext: 'The meetup continues. Steer into: ' + seeds[0] + '. Keep it true to your personality and current affinity, with a light flirtatious undertone. Same location.' + meetStyle },
-    { npcContext: 'The meetup is winding down. Close with: ' + seeds[1] + ' — something she will think about later tonight. Same location.' + meetStyle },
+    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective; maybe tease about the texts.' + meetStyle },
+    { npcContext: 'The meetup continues — press toward what you want, let a little of your subtext show. A topic to draw on if useful: ' + seeds[0] + '. Keep it true to your personality and current affinity, with a light flirtatious undertone. Same location.' + meetStyle },
+    { npcContext: 'The meetup is winding down. Land your objective so it stays with her tonight. A topic if useful: ' + seeds[1] + '. Same location.' + meetStyle },
   ];
   STATE.memory.addEvent(npcKey, 'Met up with her ("' + title + '") after texting, day ' + G.day + '.', G.day);
   STATE.save.saveGame();
@@ -4242,6 +4243,49 @@ function pickSeeds(n) {
   const s = [...DATE_TOPIC_SEEDS].sort(() => Math.random()-0.5);
   return s.slice(0, n);
 }
+// ── 每场戏给NPC一个"目的+潜台词"，让台词和动作都有动机（修"莫名其妙,不懂他为什么这么做/这么说"）。
+//    戏剧=目的+阻碍+潜台词：目的驱动他这场想要什么，潜台词是他真正在干嘛/在藏什么。动作也从这里长出来，不再从地点表随机抓。──
+const DATE_INTENTS = {
+  agent: {
+    low:  { want:"read whether she's truly serious about this and tough enough for the industry", sub:"he stays composed and professional on the surface, but he's already more drawn to her than he means to be" },
+    mid:  { want:"know the real woman behind the artist tonight, off the clock", sub:"he's quietly testing how far he can step out of the manager role before it shows" },
+    high: { want:"be with her simply as a man tonight, not her agent", sub:"he knows exactly how he feels and is holding the professional line by a single thread" },
+  },
+  drummer: {
+    low:  { want:"find out if she takes the music as seriously as he does", sub:"his bluntness is a test; if he comes off dismissive it's because he's already rattled by how good she is" },
+    mid:  { want:"show her a piece of his real world without having to say he cares", sub:"he speaks through actions and music because words for feelings scare him" },
+    high: { want:"close the distance he keeps pretending isn't there", sub:"he'd rather do something for her than risk saying the thing out loud" },
+  },
+  actor: {
+    low:  { want:"win her over the way he wins everyone — and enjoy the game", sub:"the charm is practiced armor; she's the first who makes it feel like more than a game" },
+    mid:  { want:"see if she sees past the performance to the person underneath", sub:"he shows a real wound on purpose — half seduction, half genuine reaching out" },
+    high: { want:"be unperformed in front of someone, just once", sub:"he's terrified of how real this is and keeps flirting to stay on familiar ground" },
+  },
+  butler: {
+    low:  { want:"make her feel cared-for and at ease, and simply be near her", sub:"his warmth is real, but there's something about her he isn't saying" },
+    mid:  { want:"matter to her as more than the helpful boy from downstairs", sub:"he's guarding a secret and it makes his earnestness ache a little" },
+    high: { want:"let himself want her openly for once", sub:"his devotion is genuine and his motive is complicated — both are true at the same time" },
+  },
+  detective: {
+    low:  { want:"read her — what she knows, who she trusts", sub:"every friendly question has a purpose three layers down; he tells himself it's still the job" },
+    mid:  { want:"understand her, for reasons that stopped being professional a while ago", sub:"he's unsettled that he can't stay detached, and hides it behind stillness" },
+    high: { want:"drop the surveillance and just be a man across the table from her", sub:"the hardest thing for him is being read in return — tonight he lets her" },
+  },
+};
+function sceneIntent(npcKey, rel) {
+  const m = DATE_INTENTS[npcKey] || DATE_INTENTS.agent;
+  const tier = (rel||0) >= 70 ? 'high' : (rel||0) >= 40 ? 'mid' : 'low';
+  return m[tier] || m.low;
+}
+// 把目的+潜台词拼成一段注入对话prompt的指令：要求每句台词、每个动作都为这个目的服务、透出潜台词，不许无动机
+function intentBlock(npcKey, rel) {
+  const it = sceneIntent(npcKey, rel);
+  return ' SCENE INTENT (this silently drives everything he says and does — the reason behind every line and gesture): what he wants right now is to ' + it.want + '. His private subtext: ' + it.sub + '. Every line and every physical action must serve this objective and quietly reveal this subtext — nothing arbitrary, nothing that reads as random. He never states the objective outright; it shows through what he chooses to say, ask, and do.';
+}
+// 动作规则：动作从"他此刻想要什么+他是谁"长出来，透出意图，贴合场地(地点表只作场地灵感)，而非随机手势
+function intentActionRule(locKey) {
+  return ' ACTION RULE: include ONE brief physical action in third person that ARISES from what he wants right now and who he is — it should quietly reveal his intent or subtext, and fit THIS place (loose inspiration for what is physically available here, do NOT just copy: ' + dateActionHint(locKey) + '). Never a generic decorative gesture, never the same one twice. NO inner thoughts or naming of feelings — only what can be seen and heard, but let the action carry the meaning.';
+}
 
 // 各地点的约会动作提示（欧美男友式、贴合场合）——解决"无论去哪动作都一样"。
 // AI从中取意（不必逐字照抄），每轮换不同的动作
@@ -4312,13 +4356,14 @@ async function playInviteScene(inv) {
   const locDesc = (STORY.locations[locKey]||{}).composition || '';
   const tier = STORY.specialDates.getAffinityTier(G.npcs[npcKey].relationship);
   const seeds = pickSeeds(3);
+  const _rel = G.npcs[npcKey].relationship;
   const flirt = ' Keep a romantic, gently flirtatious undertone with real tension — calibrate boldness to affinity (' + tier + '): high = openly charged, mid = testing the waters, low = restrained sparks. It is a ' + (isDayDate ? 'relaxed daytime DATE' : 'evening DATE') + ', not a work meeting.' +
     ' THIS IS PERSONAL TIME — do NOT talk shop no matter your profession: no recording studio, band, drummer, rehearsals, set lists, contracts, gigs, castings, agency business or career logistics. You are here as a man interested in HER, not as her agent/colleague. Talk about her as a person, this place, small human things, and the pull between you.' +
-    ' ACTION RULE: include ONE brief physical action in third person that fits THIS specific place — take inspiration from (do not copy verbatim): ' + dateActionHint(locKey) + '. Use a DIFFERENT gesture than earlier in this date, never repeat one. NO inner thoughts or psychological narration — only what can be seen and heard.';
+    intentBlock(npcKey, _rel) + intentActionRule(locKey);
   const rounds = [
-    { npcContext: 'Your date with her just began at this place: ' + locDesc + '. Open in character — weave in: ' + seeds[0] + '.' + flirt },
-    { npcContext: 'The date deepens. Steer into: ' + seeds[1] + '. Stay in this location.' + flirt },
-    { npcContext: 'The date is winding down. Close with: ' + seeds[2] + '. Leave her with something she will replay in her head at home.' + flirt },
+    { npcContext: 'Your date with her just began at this place: ' + locDesc + '. Open in character, already quietly pursuing your objective. Let a topic surface naturally if it helps: ' + seeds[0] + '.' + flirt },
+    { npcContext: 'The date deepens — press toward what you want and let a little of your subtext show through. A topic to draw on if useful: ' + seeds[1] + '. Stay in this location.' + flirt },
+    { npcContext: 'The date is winding down. Land your objective in a way that leaves her replaying it at home tonight. A topic if useful: ' + seeds[2] + '. Stay in this location.' + flirt },
   ];
   _vnEndLoc = locKey; // 结束旁白用约会地点
   // 晚间约会 + 好感≥75 → 对话结束时触发过夜暗示（白天约会不触发）
@@ -5894,7 +5939,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.88 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.89 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
