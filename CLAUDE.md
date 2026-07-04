@@ -433,6 +433,22 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - **"留下"流程重构**（用户设计）：约会大多在公共地点→邀请措辞改"邀她回我那儿"、选项改**"跟他走"**→选后**背景切到他家**→在他家出含蓄撩人文字→"夜还很长"进第二天;若本就在他家(locKey以_home结尾)选项才是"留下"。婉拒/装没听懂不变
 - 待做:美容院图被独白框挡、UI批(字号/对话框挡脸/红白字配色)
 
+**v10.82（UI批·用户第十二轮反馈收尾:字号/配色/对话框挡脸）**：三项方向均经用户确认后实施
+- **红/白字配色拉大区分**（`.vn-text`）：旁白从近白粉 `#FFF0F3` 改中性偏暗暖白 `#E9DFE1`（读作"安静的旁白"、退后），台词保持粉但从 `#FFB8C8`→`#FFB2C6` 并加柔和外发光 `text-shadow:0 0 10px rgba(255,150,180,.28)`（"跳"出来但不刺眼）。用户之前觉得两色 confusing→现靠"旁白变暗中性+台词发光"拉开，非只靠色相
+- **VN字号整体上调一档**：`.vn-text` clamp(15,4.2vw,20)→clamp(16,4.6vw,22)、`.vn-opt` (15,4.5vw,18)→(16,4.8vw,20)、`.vn-input` (14,4vw,16)→(15,4.2vw,17)、`.vn-speaker` 12→13px。针对30-50岁用户手机可读性
+- **对话框挡脸=用户选"只靠点击收起"**（不改布局，立绘 top3%/max52vh 与底部对话框 max50vh 中段重叠维持原样）：补一个**一次性轻提示** `vn-tap-hint`（首次出现固定立绘时淡入5s、localStorage `otr_vn_taphint` 记住只提一次、4语言）"点画面放大·点背景收起对话框"，让已有的"点图开lightbox看大图/点bg toggle对话框"两个功能可发现。美容院图被挡同此解（点图即可全屏看清）
+- 改动全在 index.html（CSS+`showVNTapHint()`，showNPCScene显示立绘处调用），纯前端零风险；已静态核对语法与三处版本号(v10.82)
+- **UI批至此清完**（字号√/红白字√/对话框挡脸√）。剩余历史待续项若用户再提再处理
+
+**v10.83（用户第十三轮反馈:立绘表情/背景混人/约会跑题/过夜按性格 + 开发者测试命令）**：
+- **经纪人立绘变严肃修复**（两处根因）：①`buildAgentPrompt` 表情措辞从 `warm approachable expression, relaxed confident smile, composed friendly presence`（带"composed"压制笑、被flux/dev写实渲染成严肃商务脸）改 `a genuine warm smile, kind eyes crinkling slightly, relaxed and approachable, easy friendly charm, clearly smiling not serious`；②三选一共用 `poses` 原含 `arms crossed`(抱臂=封闭)、`calm direct gaze`(中性冷)会压过各NPC自身表情→改为纯取景角度 `facing the camera directly / relaxed three-quarter angle / slight side angle turning toward the viewer`。设定是"冷改暖"，笑容现由各build*Prompt自己的表情句驱动，poses不再干扰
+- **地点背景混进人**（`genLocationBg`）：flux对否定词不敏感，办公室/咖啡馆等会自动填人。prompt加强正向"空无一人"措辞（completely deserted, absolutely nobody in frame, not a single person or figure or silhouette, architectural/scenery photograph with no subjects…）降低概率，无法100%消除(flux固有局限)。⚠️旧图已缓存在 `G.bgCache`，需 `otrClearBg()` 清缓存才会重生成
+- **约会文案跑去录音室**（`playInviteScene` 的 `flirt` 串）："not a work meeting"太弱，压不过 buildDialoguePrompt 注入的"职业=talent agent"+满是录音室/乐队的记忆。加硬禁令：THIS IS PERSONAL TIME—禁录音室/乐队/鼓手/排练/歌单/合约/试镜/经纪业务/职业后勤，"你是以对她有意思的男人身份在场，不是经纪人/同事"
+- **过夜暧昧文案按性格差异化**（新增 `OVERNIGHT_STYLE` 映射，注入 stayNar prompt）：原来所有NPC共用通用动作模板(关门/耳边低语/解第一颗扣子/从背后揽腰)。现按性格：经纪人=从容笃定的暖(deliberate/savoring/给她迎上来的机会)、鼓手=少话用手/急切但最后一秒放柔、演员=玩味表演却露真心、管家=青涩发烫手抖用眼神问、侦探=克制精准一个动作胜千言。prompt明确"占有欲强的/害羞的/克制的读起来要完全不同，别默认通用模板"。HARD RULES(止于门槛/不露骨/淡出)不变
+- **开发者测试命令**（F12）：`otrTestStay(npcKey, locKey)` 直接跳进任意NPC过夜场景测邀请台词+跟他走后的性格化文案(自动设好感80，默认agent/rooftop；locKey以_home结尾=已在他家)；`otrClearBg()` 清地点/家背景缓存重生成(用于重刷混进人的旧图)
+- 已起独立server验证:零JS报错、v10.83、otrTestStay/otrClearBg已注册、OVERNIGHT_STYLE五NPC齐、经纪人prompt含强笑容措辞。改动在 index.html+state.js
+- 待用户实测确认:笑脸是否够暖、背景混人是否减少、约会是否不再talk shop、五个NPC过夜文案性格是否拉开
+
 ## 9. 待开发（优先顺序）
 
 ### 立即

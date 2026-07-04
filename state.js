@@ -251,7 +251,7 @@ const STATE = {
         app.hair,
         `${app.skin} skin tone`,
         app.suit,
-        `warm approachable expression, relaxed confident smile, composed friendly presence`,
+        `a genuine warm smile, kind eyes crinkling slightly, relaxed and approachable, easy friendly charm, clearly smiling not serious`,
         `NO glasses`,
         scene,
       ].filter(Boolean).join(', ');
