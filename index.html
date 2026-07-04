@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.79"></script>
-<script src="state.js?v=10.79"></script>
+<script src="story.js?v=10.80"></script>
+<script src="state.js?v=10.80"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -477,7 +477,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.79</p>
+    <p style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px">v10.80</p>
   </div>
 </div>
 
@@ -504,7 +504,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 <!-- ══ OPEN ══ -->
 <div class="screen" id="s-open">
   <div class="wrap">
-    <div class="stamp" id="open-stamp">Friday · 7:14 AM</div>
+    <div class="stamp" id="open-stamp">Monday · 7:14 AM</div>
     <p class="nar" id="open-nar"></p>
     <button class="btn-g" id="btn-open-cont" onclick="go('s-name')">Continue</button>
   </div>
@@ -2018,7 +2018,7 @@ function closeLB()      { document.getElementById('lb').classList.remove('open')
 // TRANSLATIONS
 // ══════════════════════════════════════════════════════
 const TX = {
-  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Friday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
+  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Monday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East','North America'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran','USA · Canada'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -2032,7 +2032,7 @@ const TX = {
     agent_origins:['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'],
     agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara'],
   },
-  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周五 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
+  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周一 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
     region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗','美国·加拿大'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
@@ -2457,7 +2457,8 @@ function startSigningScene() {
   runSigningDialog(0);
 }
 
-function runSigningDialog(round) {
+let _signingLastReply = ''; // 玩家在签约场景上一轮说的话，供响应式生成经纪人回应
+async function runSigningDialog(round) {
   const rounds = STORY.signingScene.rounds;
   if (round >= rounds.length) { go('s-ch1'); return; }
   const dlg = rounds[round];
@@ -2466,8 +2467,21 @@ function runSigningDialog(round) {
   const text = document.getElementById('signing-text');
   const opts = document.getElementById('signing-opts');
   speaker.textContent = G.npcs.agent.name || 'Agent';
-  text.innerHTML = dlg.getNPCLine(G.npcs.agent.name, lang).replace(/\n/g, '<br>');
   opts.innerHTML = '';
+  // 响应式开场：这一轮若要回应玩家上一句（dlg.respond），经纪人台词改AI生成——回应玩家具体说了什么，
+  // 让第一次NPC互动就像真人，而不是写死的程序。脚本 getNPCLine 作为方向+兜底（AI失败/额度满时回退）。
+  if (dlg.respond && _signingLastReply) {
+    text.innerHTML = '…';
+    var gen = '';
+    try {
+      gen = await claude(STATE.memory.buildDialoguePrompt('agent', 0, G.langName, G.player.name,
+        'This is the very first meeting, on the street where she busks — moments ago you approached her, gave her your card, and said you have been listening for three nights. She just replied: "' + _signingLastReply + '". ' +
+        'FIRST respond to what she actually said, genuinely and specifically (never ignore it or talk past it). THEN, warmly and confidently (you are a warm, encouraging agent, NOT cold or aloof), make clear you do not do this for just anyone and you mean it, and tell her to call you when she is ready so you two can sit down and talk properly — no pressure, but you hope she will not wait too long. 2-4 short sentences. Spoken words in 「」 for Chinese or quotes otherwise; any action of yourself in THIRD person. Plain text only.'));
+    } catch(e) {}
+    text.innerHTML = (gen && gen.trim()) ? formatNPCText(gen) : dlg.getNPCLine(G.npcs.agent.name, lang).replace(/\n/g, '<br>');
+  } else {
+    text.innerHTML = dlg.getNPCLine(G.npcs.agent.name, lang).replace(/\n/g, '<br>');
+  }
   if (dlg.isAuto) {
     var contLabel = lang==='zh-cn'||lang==='zh-tw'?'……':lang==='ja'?'……':lang==='ko'?'……':'...';
     var autoEl = document.createElement('div');
@@ -2514,6 +2528,7 @@ function runSigningDialog(round) {
 }
 
 function chooseSigningOpt(round, relChange, reply) {
+  _signingLastReply = reply; // 记住玩家这句，让下一轮经纪人台词回应它
   STATE.relationships.change('agent', relChange);
   STATE.memory.addEvent('agent', 'Street meeting round ' + (round+1) + '. Player said: "' + reply + '"', 0);
   const speaker = document.getElementById('signing-speaker');
@@ -3885,9 +3900,9 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     vopts2.appendChild(el);
   });
 
-  // 长对白分页已停用（v10.76 用户反馈：NPC台词要一次说完，不要切成两页）。下方逻辑保留备用。
+  // 长对白分页（用户需求：NPC话太长且以问句收尾时，先读前半→点"继续"→第二页问句+回复UI，防止选项在一屏放不下）。
+  // 注意：台词被动作夹断的问题由 v10.77 的 OUTPUT RULES 解决（禁止动作插在两段台词中间），和这个分页不冲突。
   (function(){
-    return; // 直接返回=不分页；台词整段一次显示
     var plainLen = npcLine.replace(/\s+/g,'').length;
     var sentences = npcLine.match(/[^。！!？?…]+[。！!？?…]+[」"』]?/g);
     if (plainLen <= 110 || !sentences || sentences.length < 3) return;
@@ -5621,7 +5636,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.79 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.80 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

@@ -1021,6 +1021,7 @@ const STORY = {
           return lines[lang] || lines['en'];
         },
         isAuto: true,
+        respond: true, // 这一轮经纪人的台词改为AI生成，回应玩家上一轮输入（脚本getNPCLine作方向+兜底）
         autoText: {
           'zh-cn': '你看着他消失在人群里。\n\n名片还带着体温。\n\n三天后，你拨了那个号码。\n他的办公室在城市高处，落地窗外天际线一路铺开——可让你安心的不是窗外的景，是他起身、笑着朝你走来的样子。\n\n他把合同轻轻推到你面前，目光一直落在你身上：\n「一年，独家代理。剩下的路，我们一起走。」\n\n你拿起笔，一笔一划签下自己的名字。\n从这一刻起，一切都不一样了。',
           'en': 'You watched him disappear into the crowd.\n\nThe card was still warm.\n\nThree days later, you called.\nHis office sat high above the city, the whole skyline spread beyond the glass — but what put you at ease was not the view. It was the way he stood and crossed the room to meet you, smiling.\n\nHe slid the contract to you gently, his eyes never leaving yours.\n"One year. Exclusive representation. The rest of the road, we walk together."\n\nYou picked up the pen and signed your name, stroke by stroke.\nFrom this moment, everything was different.',
