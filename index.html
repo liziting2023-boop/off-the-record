@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.87"></script>
-<script src="state.js?v=10.87"></script>
+<script src="story.js?v=10.88"></script>
+<script src="state.js?v=10.88"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -468,6 +468,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" onclick="devStay('butler')">过夜 · 管家</button>
     <button class="dev-btn" onclick="devStay('detective')">过夜 · 侦探</button>
     <div class="dev-sec">图像 / 额度</div>
+    <button class="dev-btn" id="dev-imgtoggle" onclick="devToggleImg()">生图开关：加载中…</button>
     <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
     <button class="dev-btn" onclick="otrNewQuota();closeDevPanel()">重置今日AI额度</button>
     <button class="dev-btn close" onclick="closeDevPanel()">关闭</button>
@@ -505,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.87</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.88</p>
   </div>
 </div>
 
@@ -1058,8 +1059,15 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <div class="s-style-card" id="sound-off-card" onclick="setSoundOn(false,this)"><span class="s-style-name" id="lbl-sound-off">🔇 Off</span><span class="s-style-sub" id="lbl-sound-off-sub">Silent mode</span></div>
       </div>
     </div>
+    <div>
+      <div class="settings-section-title" id="lbl-imggen-setting">IMAGE GENERATION 图片生成</div>
+      <div class="settings-style">
+        <div class="s-style-card sel" id="img-on-card" onclick="setImgOff(false,this)"><span class="s-style-name">🖼️ On 开</span><span class="s-style-sub">Generate images normally</span></div>
+        <div class="s-style-card" id="img-off-card" onclick="setImgOff(true,this)"><span class="s-style-name">🚫 Off 关</span><span class="s-style-sub">省钱·测剧情（不生图）Save money</span></div>
+      </div>
+    </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.87</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.88</p>
   </div>
 </div>
 
@@ -1283,7 +1291,18 @@ function devTap() {
     try { alert('开发者模式已开启：屏幕右侧的 ⚙DEV 按钮，点开即可测试。'); } catch(e){}
   }
 }
-function openDevPanel() { document.getElementById('dev-panel').style.display = 'flex'; }
+function _devImgLabel() {
+  const b = document.getElementById('dev-imgtoggle');
+  if (b) b.textContent = (typeof G!=='undefined' && G && G.imgOff) ? '生图：已关（省钱）→ 点开' : '生图：开 → 点关（省钱）';
+}
+function devToggleImg() {
+  if (typeof G==='undefined' || !G) { try{alert('请先进入游戏');}catch(e){} return; }
+  G.imgOff = !G.imgOff;
+  try { STATE.save.saveGame(); } catch(e){}
+  _devImgLabel();
+  try { alert('生图已' + (G.imgOff ? '关闭（不再生成图片，省钱测剧情）' : '开启')); } catch(e){}
+}
+function openDevPanel() { _devImgLabel(); document.getElementById('dev-panel').style.display = 'flex'; }
 function closeDevPanel() { document.getElementById('dev-panel').style.display = 'none'; }
 function devStay(k) {
   closeDevPanel();
@@ -1356,7 +1375,7 @@ async function claude(prompt, sys = '') {
 }
 
 async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false) {
-  if (DEV_MODE_IMG) return null;
+  if (DEV_MODE_IMG || (typeof G !== 'undefined' && G && G.imgOff)) return null; // G.imgOff = 设置里手动关掉生图(省钱,测剧情用)
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
   const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['illustrated'];
   const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
@@ -1784,6 +1803,9 @@ function openSettings() {
   // 人物图质量开关选中态
   document.getElementById('hq-off-card').classList.toggle('sel', !G.hqPortraits);
   document.getElementById('hq-on-card').classList.toggle('sel', !!G.hqPortraits);
+  // 图片生成开关选中态
+  document.getElementById('img-on-card').classList.toggle('sel', !G.imgOff);
+  document.getElementById('img-off-card').classList.toggle('sel', !!G.imgOff);
   go('s-settings');
 }
 
@@ -1792,6 +1814,13 @@ function setHQPortraits(on, el) {
   G.hqPortraits = !!on;
   document.getElementById('hq-off-card').classList.toggle('sel', !on);
   document.getElementById('hq-on-card').classList.toggle('sel', on);
+  STATE.save.saveGame();
+}
+// 图片生成开关：G.imgOff=true 时 img() 直接返回 null（不请求生图，省钱，测剧情用）。已生成缓存的图不受影响。
+function setImgOff(off, el) {
+  G.imgOff = !!off;
+  document.getElementById('img-on-card').classList.toggle('sel', !off);
+  document.getElementById('img-off-card').classList.toggle('sel', off);
   STATE.save.saveGame();
 }
 function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
@@ -5865,7 +5894,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.87 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.88 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
