@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.84"></script>
-<script src="state.js?v=10.84"></script>
+<script src="story.js?v=10.85"></script>
+<script src="state.js?v=10.85"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -505,7 +505,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.84</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.85</p>
   </div>
 </div>
 
@@ -1265,7 +1265,7 @@ window.otrTestStay = function(npcKey, locKey) {
 window.otrClearBg = function() {
   if (typeof G === 'undefined' || !G) return;
   G.bgCache = {};
-  try { for (var k in G.npcs) { if (G.npcs[k]) G.npcs[k].homeUrl = null; } } catch(e){}
+  try { for (var k in G.npcs) { if (G.npcs[k]) { G.npcs[k].homeUrl = null; G.npcs[k].homeAct1Url = null; G.npcs[k].homeAct2Url = null; } } } catch(e){}
   try { STATE.save.saveGame(); } catch(e){}
   console.log('%c[OTR] 已清空地点/家 背景缓存，下次进场景会重新生成。','color:#4a9;font-weight:bold');
 };
@@ -4322,6 +4322,30 @@ async function genNPCHomeBg(npcKey) {
   if (url && G.npcs[npcKey]) { G.npcs[npcKey].homeUrl = url; STATE.save.saveGame(); }
   return url;
 }
+// ── 过夜两幕：第一幕(试探)= 他家的一个标志性场景+道具(客厅/餐桌/吧台/书桌/阳台/窗边,按性格给道具:倒酒/放唱片/泡茶等)；第二幕= 换到床/沙发 ──
+const OVERNIGHT_ACT1 = {
+  agent:    { setting:'at the marble bar counter of his high-rise apartment, a bottle of red wine breathing and two crystal glasses, the city skyline glittering beyond floor-to-ceiling windows', prop:'pouring the wine and offering her the glass' },
+  drummer:  { setting:'on the low worn couch of his loft, the record player turning, two open beers on a crate, string lights and vinyl all around', prop:'handing her a beer and dropping the needle on a record he wants her to hear' },
+  actor:    { setting:'out on the balcony of his designer apartment, the city glittering far below, two glasses of wine on the rail, warm light spilling from inside', prop:'passing her a glass of wine and standing close against the night air' },
+  butler:   { setting:'at the small kitchen table of his cozy apartment, a pot of tea steeping and two mugs, books and plants and warm lamp light around', prop:'pouring her tea, his hands not quite steady' },
+  detective:{ setting:'at the desk by the bookshelf in his understated apartment, two low glasses of whiskey, a single warm lamp, a quiet noir hush', prop:'sliding a glass of whiskey across to her and watching her over the rim' },
+};
+const OVERNIGHT_ACT2 = {
+  agent:    'his bedroom — a wide low bed with fine dark linens, the skyline glow through the glass, dim warm light',
+  drummer:  'the wide worn couch in his loft, a throw blanket pulled loose, the string lights low and warm',
+  actor:    'his stylish bedroom, moody low light, a sleek dark bed, the city glowing beyond the window',
+  butler:   'his small tidy bedroom, soft simple bedding, one warm lamp, shy and close',
+  detective:'his bedroom — dark wood, plain good linens, a single lamp, restrained and warm',
+};
+async function genNPCHomeActBg(npcKey, act) {
+  const field = act === 2 ? 'homeAct2Url' : 'homeAct1Url';
+  if (G.npcs[npcKey] && G.npcs[npcKey][field]) return G.npcs[npcKey][field]; // 按NPC+幕缓存复用
+  const base = act === 2 ? (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent)
+                         : (OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent).setting;
+  const url = await img(base + ', late at night, warm dim intimate lamp light, cozy private interior, absolutely nobody in frame, empty room, no people, no humans, no figures', 'home-act' + act + '-' + npcKey);
+  if (url && G.npcs[npcKey]) { G.npcs[npcKey][field] = url; STATE.save.saveGame(); }
+  return url;
+}
 async function maybeStayOver(npcKey, locKey) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   vnSpeak('npc');
@@ -4344,38 +4368,35 @@ async function maybeStayOver(npcKey, locKey) {
   const mk = (label, fn) => { const el = document.createElement('div'); el.className = 'vn-opt'; el.textContent = label; el.onclick = fn; vopts.appendChild(el); };
   // 是否已在他家（约会地点=他的住处）；约会大多在公共地点，所以基本是"在外面"
   const atHome = !!(locKey && /_home$/.test(locKey));
-  // 跟他走 → 转场到他家背景 → 含蓄撩人文字（v10.69起不出人物图）→ 夜幕转场进第二天
-  const goHomeAndStay = async () => {
+  const isButler = npcKey === 'butler'; // 管家过夜：全程女主主动，他被动害羞
+  // ── 第二幕：更撩，背景换床/沙发，记为过夜 → 夜幕转场进第二天 ──
+  const goAct2 = async () => {
     STATE.relationships.change(npcKey, 10);
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
     G._stayedOver = { npc: npcKey, day: G.day };
-    STATE.memory.addEvent(npcKey, (G.npcs[npcKey].nights === 1 ? 'She went home with you and stayed the night for the FIRST time' : 'She went home with you and stayed the night') + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
+    STATE.memory.addEvent(npcKey, (G.npcs[npcKey].nights === 1 ? 'She stayed the night with you for the FIRST time' : 'She stayed the night with you') + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
     STATE.save.saveGame();
     playSound('rel-up');
-    const nar = isZh ? '这一夜，城市的灯替你们守住了秘密。' : 'Tonight, the city lights keep your secret.';
     vnSpeak(null);
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
-    // 背景切到他家（不再停留在游乐园等公共约会地点）
-    if (!atHome) {
-      try { const homeUrl = await genNPCHomeBg(npcKey); if (homeUrl) { const bg = document.getElementById('vn-bg'); bg.src = homeUrl; bg.style.display = 'block'; const ph = document.getElementById('vn-bg-ph'); if (ph) ph.style.display = 'none'; } } catch(e) {}
+    try { const u = await genNPCHomeActBg(npcKey, 2); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+    const act2Ctx = 'She chose to let it continue. This is ACT TWO — the charged main moment, drawn out and more seductive than act one. ' +
+      'The scene has moved to ' + (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent) + '. ' +
+      (isButler
+        ? 'IMPORTANT — HE stays the shy, passive one: SHE leads throughout, he follows her lead trembling and overwhelmed and adoring; his hands only move where hers invite them. '
+        : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' Let THAT drive every beat — a possessive man, a shy one and a controlled one must read completely differently. ') +
+      'Write as a SHORT second-person narration to HER (你/You), his actions third person (他/he). 2-3 sentences. ' +
+      'HARD RULES: stop at the threshold — clothing mostly stays on-page, nothing explicit, nothing beyond ear/neck/waist/hands/lips, no undressing beyond a single button, fade out with restraint. NO inner thoughts, only what is seen, heard and felt. Plain text only, no HTML.';
+    let act2Nar = '';
+    try { act2Nar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, act2Ctx)); } catch(e){}
+    if (!act2Nar || !act2Nar.trim()) {
+      act2Nar = isZh ? '他把你带向沙发，声音低得只剩你们能听见。灯光暗下去，剩下的夜，只属于你们两个人。' : 'He draws you toward the couch, his voice low enough that only you can hear it. The lights dim, and the rest of the night belongs to just the two of you.';
     }
-    let stayNar = '';
-    try {
-      stayNar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
-        'You have brought her back to YOUR home and she chose to stay' + (G.npcs[npcKey].nights === 1 ? ' for the very first time — nervousness under the electricity' : ' — not the first time; familiarity woven into the heat now') + '. ' +
-        'Write the moment as a SHORT second-person narration addressed to HER (start with 你/You), HIS actions in third person (他/he). 2-3 sentences. ' +
-        'Style: seductive but elegant and implicit, set inside HIS home. HIS physical manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' Let THAT specific manner drive every beat — a possessive man and a shy one and a controlled one should read completely differently. Draw the beats from HIS style above (do NOT default to a generic close-the-door / lips-at-ear / first-button template, and never copy any example verbatim). ' +
-        'HARD RULES: stop at the threshold — clothing mostly stays on-page, nothing explicit, nothing beyond ear/neck/waist/hands/lips, no undressing beyond a single button, fade out with restraint. NO inner thoughts, only what is seen, heard and felt. Plain text only, no HTML.'));
-    } catch(e) {}
-    if (!stayNar || !stayNar.trim()) {
-      stayNar = isZh
-        ? '门在身后合上，他走近你，声音低得只剩你们两个人能听见：「今晚，别急着走。」他从身后轻轻环住你的腰。'
-        : 'The door closes behind you. He steps in close, his voice dropping to something only you are meant to hear: "Don\'t rush off tonight." His arms fold around you from behind.';
-    }
-    document.getElementById('vn-text').innerHTML = formatNPCText(stayNar.trim());
+    document.getElementById('vn-text').innerHTML = formatNPCText(act2Nar.trim());
     vopts.innerHTML = '';
+    const nar = isZh ? '这一夜，城市的灯替你们守住了秘密。' : 'Tonight, the city lights keep your secret.';
     const sleepBtn2 = document.createElement('button');
     sleepBtn2.className = 'vn-next';
     sleepBtn2.textContent = isZh?'夜，还很长……':'The night is still young…';
@@ -4387,6 +4408,52 @@ async function maybeStayOver(npcKey, locKey) {
       setTimeout(() => { G.day++; startDay(); }, 400);
     };
     vopts.appendChild(sleepBtn2);
+  };
+  // ── 第一幕后选择离开：来了他家但没留下，小幅好感，回家睡到第二天 ──
+  const leaveAfterAct1 = async () => {
+    STATE.relationships.change(npcKey, 4);
+    STATE.memory.addEvent(npcKey, 'She came up to your place but gently chose to leave before the night went further (day ' + G.day + '). The restraint left you both wanting.', G.day);
+    STATE.save.saveGame();
+    vnSpeak('npc');
+    document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
+    document.getElementById('vn-text').textContent = '…';
+    vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
+    let resp = '';
+    try { resp = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, 'At his home she gently stopped things and chose to head home for the night. React in character as he walks her to the door — graceful, a little reluctant, respectful, no pressure (1-2 sentences, spoken words only).')); } catch(e){}
+    if (resp && resp.trim()) document.getElementById('vn-text').innerHTML = formatNPCText(resp.trim());
+    else document.getElementById('vn-text').textContent = isZh ? '他替你拉开门，笑意里有点遗憾：「路上小心。」' : 'He gets the door for you, a little reluctance under his smile. "Get home safe."';
+    vopts.innerHTML = '';
+    const b = document.createElement('button'); b.className='vn-next'; b.textContent = isZh?'回家':'Head home';
+    b.onclick = () => { showNightTransition(); G.phase='evening'; addStress(-5); setTimeout(()=>{ G.day++; startDay(); }, 400); };
+    vopts.appendChild(b);
+  };
+  // ── 跟他走/留下 → 第一幕：进他家，试探性暧昧动作 + 选择继续或离开 ──
+  const goHomeAndStay = async () => {
+    playSound('rel-up');
+    vnSpeak(null);
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').textContent = '…';
+    vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
+    const act1 = OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent;
+    if (!atHome) {
+      try { const u = await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+    }
+    const firstNight = (G.npcs[npcKey].nights || 0) === 0;
+    const act1Ctx = 'You have just brought her into YOUR home' + (firstNight ? ' for the very first time' : '') + '. This is ACT ONE — a tentative, suggestive opening beat, NOT the main moment yet. ' +
+      'Setting: ' + act1.setting + '. Build the beat around a small ritual of hosting that turns charged — e.g. ' + act1.prop + ' — then closing a little of the distance. ' +
+      (isButler
+        ? 'IMPORTANT — HE is the shy, passive one here: flustered and hesitant, while SHE leans in and takes the initiative; write him receiving her boldness, ears burning, barely believing this is happening. '
+        : 'HIS manner MUST match his character: ' + (OVERNIGHT_STYLE[npcKey] || '') + ' ') +
+      'Write as a SHORT second-person narration to HER (你/You), his actions third person (他/he). 2-3 sentences. Stop right at the first charged touch or held look — leave the next move to her choice. Nothing explicit. Plain text only, no HTML.';
+    let act1Nar = '';
+    try { act1Nar = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, act1Ctx)); } catch(e){}
+    if (!act1Nar || !act1Nar.trim()) {
+      act1Nar = isZh ? '门在身后合上。他为你倒了杯酒，指尖擦过你的手，然后没有移开。屋里很静，只剩你们两个人的呼吸。' : 'The door closes behind you. He pours you a glass, his fingertips brush yours and stay. The room goes quiet, down to just the two of you breathing.';
+    }
+    document.getElementById('vn-text').innerHTML = formatNPCText(act1Nar.trim());
+    vopts.innerHTML = '';
+    mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2);
+    mk(isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)', leaveAfterAct1);
   };
   // 选项：在外面=跟他走(去他家)；已在他家=直接留下
   mk(atHome ? (isZh?'……留下':'…Stay') : (isZh?'跟他走':'…Go with him'), goHomeAndStay);
@@ -5775,7 +5842,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.84 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.85 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

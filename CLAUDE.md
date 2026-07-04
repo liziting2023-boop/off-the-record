@@ -455,6 +455,14 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - DOM放在 lightbox 后(顶层,不在.screen内所以跨屏保留)。已mobile尺寸截图验证渲染+8按钮+零报错
 - 控制台命令(otrTestStay/otrClearBg/otrNewQuota/otrQuota/otrNewQuota)仍可用,面板只是手机友好的入口
 
+**v10.85（用户第十四轮点子·Batch1:过夜两幕 + 管家被动版）**：用户一大批点子分5块按序做，这是第1块
+- **过夜改两幕**（`maybeStayOver` 内 `goHomeAndStay`→第一幕、新增 `goAct2`/`leaveAfterAct1`）：跟他走/留下→**第一幕**(进他家,试探性暧昧:各NPC一个标志性场景+道具,`OVERNIGHT_ACT1` 经纪人吧台倒红酒/鼓手loft沙发放唱片/演员阳台递酒/管家小厨房泡茶手抖/侦探书桌递威士忌,停在第一个撩人触碰)→**选择**「让这一刻继续」or「今晚到这里就好(离开)」→继续=**第二幕**(背景换床/沙发 `OVERNIGHT_ACT2`,更撩,此时才 nights++/好感+10/记 `_stayedOver`)→夜幕转场进第二天；离开=好感+4、不记过夜、回家睡到第二天
+- **背景**：新增 `genNPCHomeActBg(npcKey,act)`,按 NPC+幕 缓存(`homeAct1Url`/`homeAct2Url`),沿用强"无人"措辞。`otrClearBg()` 已同步清这两个新字段
+- **管家过夜=女主主动/他被动**（`isButler` 分支）：两幕prompt都写成他害羞被动、女主leans in taking initiative、他ears burning跟随
+- 旧单幕 `genNPCHomeBg`/`homeUrl` 保留未删(现已不被过夜流程调用)
+- 已起独立server离线验证(stub AI/图):邀请三选项→跟他走→第一幕两选项→继续→第二幕(nights0→1,好感80→86,_stayedOver置位,"夜还很长"按钮)/离开→"回家"→夜幕转场,全程零报错。用 `otrTestStay(npc)` 面板即可复测
+- **后续块(按序)**：②过夜后关系动态(公开/低调+朋友聚会+吃醋不回消息,公开低调按性格:鼓手公开/经纪人低调/演员先低调后公开/管家私密/侦探绝对低调) ③美容院(做美容图+按特征重生成女主头像)+选NPC加发色 ④NPC出场节奏重排(演员+管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位**全新恋爱向NPC**由我提方案) 
+
 ## 9. 待开发（优先顺序）
 
 ### 立即
