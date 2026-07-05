@@ -454,7 +454,9 @@ Stay completely in character. Let your cultural background subtly influence how 
       const npc = STATE.data.npcs[npcKey];
       if (!npc) return;
       // 全局好感度增速放缓：所有来源统一×0.6（用户反馈涨太快；负值同样温和化）
-      const scaled = delta > 0 ? Math.max(1, Math.round(delta * 0.6)) : Math.min(-1, Math.round(delta * 0.6));
+      // 再乘 AFFINITY_PACE（index.html 顶部常量，收集真人数据后调节奏用；默认1.0=无变化）
+      const pace = (typeof window !== 'undefined' && window.AFFINITY_PACE) || 1;
+      const scaled = delta > 0 ? Math.max(1, Math.round(delta * 0.6 * pace)) : Math.min(-1, Math.round(delta * 0.6 * pace));
       npc.relationship = Math.max(0, Math.min(100, npc.relationship + (delta === 0 ? 0 : scaled)));
     },
 

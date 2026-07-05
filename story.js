@@ -549,7 +549,7 @@ const STORY = {
       noGlasses: true,
       hiddenGlasses: true, // 偶尔戴来隐藏眼神
       emotionalArc: {
-        1: 'Warm red tea. "Congratulations, big sister." The look in his eyes says "finally found you."',
+        1: 'Warm, caring neighbor energy — small kindnesses, remembers her preferences, a look that says "finally found you". (He already congratulated her on signing when they FIRST met — NEVER congratulate her about the contract or bring the signing up again.)',
         2: 'Hot compress for her wrist.削苹果时眼神变冷: "He always thinks he can control everything."',
         3: 'Rooftop ice cream. Head on her shoulder. "Let\'s run away."',
         4: 'Mango cake. Quickly pulls his sleeve down over an expensive watch.',
@@ -767,7 +767,7 @@ const STORY = {
       },
       dialogRounds: [
         {
-          npcContext: 'You are a charming rising actor sharing today\'s shoot. Flirt lightly and NATURALLY — a smirk, a look held a beat too long — the way a real confident Western man would, not theatrically. Then surprise her: you actually listened to her music. Quote ONE specific real detail (a single lyric, the crack in her voice on the last chorus), and for one second you drop the act and mean it — then cover it with a light joke, like you said too much. KEEP EVERY LINE GROUNDED, natural and conversational — plain things a person actually says out loud, no purple speeches, no over-poetic monologues.',
+          npcContext: 'You are a charming rising actor sharing today\'s shoot — you ACT, you do not make music. Flirt lightly and NATURALLY — a smirk, a look held a beat too long — the way a real confident Western man would, not theatrically. Then surprise her: you actually listened to HER music (the song is HERS — say 你那首/"that song of yours", NEVER 我那首/"my song"; do NOT invent a song title — refer to a lyric or a moment in it instead). Quote ONE specific real detail (a single lyric, the crack in her voice on the last chorus), and for one second you drop the act and mean it — then cover it with a light joke, like you said too much. KEEP EVERY LINE GROUNDED, natural and conversational — plain things a person actually says out loud, no purple speeches, no over-poetic monologues.',
           playerOptions: {
             'zh-cn': ['你也听过我的歌？', '谢谢你……我想。', '你是在夸我还是调侃我？'],
             'en': ['You have heard my song?', 'Thank you... I think.', 'Is that a compliment or are you teasing?'],
