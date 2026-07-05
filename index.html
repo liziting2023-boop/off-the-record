@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.92"></script>
-<script src="state.js?v=10.92"></script>
+<script src="story.js?v=10.93"></script>
+<script src="state.js?v=10.93"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -506,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.92</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.93</p>
   </div>
 </div>
 
@@ -979,8 +979,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="wc-content">
       <div class="wc-msg-area" id="chat-msgs"></div>
     </div>
+    <!-- emoji选择行：点😊展开，点表情追加进输入框 -->
+    <div id="chat-emoji-row" style="display:none;flex-wrap:wrap;gap:2px;padding:6px 10px;background:rgba(255,255,255,0.92);border-top:1px solid rgba(196,96,122,0.12)"></div>
     <div class="wc-input-bar">
-      <input id="chat-input" type="text" maxlength="300" placeholder="输入消息…" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendChatReply()">
+      <button id="chat-emoji-btn" onclick="toggleChatEmoji()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:0 4px;flex-shrink:0">😊</button>
+      <input id="chat-input" type="text" maxlength="300" placeholder="输入消息…" oninput="saveChatDraft()" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendChatReply()">
       <button id="chat-send-btn" onclick="sendChatReply()">发送</button>
     </div>
   </div>
@@ -1066,8 +1069,16 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <div class="s-style-card" id="img-off-card" onclick="setImgOff(true,this)"><span class="s-style-name">🚫 Off 关</span><span class="s-style-sub">省钱·测剧情（不生图）Save money</span></div>
       </div>
     </div>
+    <div>
+      <div class="settings-section-title" id="lbl-bday-setting">MY BIRTHDAY 我的生日 🎂</div>
+      <div style="display:flex;gap:10px;justify-content:center;align-items:center">
+        <select id="bday-month" onchange="setBirthday()" style="background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:9px 12px;font-family:'Jost',sans-serif;font-size:14px;color:var(--text-dark);outline:none"></select>
+        <select id="bday-day" onchange="setBirthday()" style="background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:9px 12px;font-family:'Jost',sans-serif;font-size:14px;color:var(--text-dark);outline:none"></select>
+      </div>
+      <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
+    </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.92</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.93</p>
   </div>
 </div>
 
@@ -1697,6 +1708,24 @@ function playSound(type) {
     return;
   }
 
+  // ── stay-invite: 过夜邀请专属音效（低音暧昧下行双音+柔和尾音，提醒玩家触发了过夜邀请）──
+  if (type === 'stay-invite') {
+    const seq = [[392.0, 0], [329.6, 0.16], [261.6, 0.34]]; // G4→E4→C4 缓慢下行，暧昧沉一点
+    seq.forEach(([freq, dt]) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const t = ctx.currentTime + dt;
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.06, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+      o.start(t); o.stop(t + 0.75);
+    });
+    return;
+  }
+
   // ── new-day: 柔和晨钟琶音（过夜转场结束时播放）──
   if (type === 'new-day') {
     // 柔和上行琶音 + 低音铃（原高频双啼听着像口哨，已去掉）
@@ -1820,7 +1849,24 @@ function openSettings() {
   // 图片生成开关选中态
   document.getElementById('img-on-card').classList.toggle('sel', !G.imgOff);
   document.getElementById('img-off-card').classList.toggle('sel', !!G.imgOff);
+  // 生日选择器：填充选项 + 回显已存生日
+  (function(){
+    var isZhB = G.lang==='zh-cn'||G.lang==='zh-tw';
+    var m = document.getElementById('bday-month'), d = document.getElementById('bday-day');
+    if (m && !m.options.length) {
+      m.innerHTML = '<option value="">' + (isZhB?'月':'Month') + '</option>' + Array.from({length:12},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+(isZhB?'月':'')+'</option>').join('');
+      d.innerHTML = '<option value="">' + (isZhB?'日':'Day') + '</option>' + Array.from({length:31},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+(isZhB?'日':'')+'</option>').join('');
+    }
+    if (m) m.value = G.player.birthMonth || '';
+    if (d) d.value = G.player.birthDay || '';
+  })();
   go('s-settings');
+}
+// 存玩家生日（月/日）：生日当天 startDay 里触发特别问候/安排
+function setBirthday() {
+  G.player.birthMonth = parseInt(document.getElementById('bday-month').value, 10) || null;
+  G.player.birthDay = parseInt(document.getElementById('bday-day').value, 10) || null;
+  STATE.save.saveGame();
 }
 
 // 人物图质量：true=人物立绘用 flux/dev（Worker需支持model字段，未支持时静默回落schnell）
@@ -2790,6 +2836,7 @@ function showNPCOrigin(npcKey, callback) {
     nosGrid.appendChild(el);
   });
   document.getElementById('nos-confirm').style.visibility = 'hidden';
+  _nosPhase = 'origin'; _selectedNPCHair = null; // 重置两步选择状态
   document.getElementById('npc-origin-overlay').classList.add('open');
 }
 
@@ -2800,10 +2847,47 @@ function selNPCOrigin(val, el) {
   document.getElementById('nos-confirm').style.visibility = 'visible';
 }
 
+// 两步选择：①族裔 ②发色（不选发型——发型跟族裔外形表走）。发色存 npc.hairColor，生图时覆盖外形表颜色
+var _nosPhase = 'origin';
+var _selectedNPCHair = null;
 function confirmNPCOrigin() {
+  if (_nosPhase === 'origin') {
+    if (!_selectedNPCOrigin) return;
+    G.npcs[_pendingNPCKey].origin = _selectedNPCOrigin;
+    _nosPhase = 'hair'; _selectedNPCHair = null;
+    var isZhH = G.lang==='zh-cn'||G.lang==='zh-tw';
+    document.getElementById('nos-title').textContent = isZhH?'他的发色？':G.lang==='ja'?'彼の髪色は？':G.lang==='ko'?'그의 머리색은?':'His hair colour?';
+    document.getElementById('nos-sub').textContent = isZhH?'「保持本色」则跟随他的族裔气质':G.lang==='ja'?'「そのまま」で自然な色に':G.lang==='ko'?'「자연색」이면 기본 색상':'"Natural" keeps his default shade';
+    var grid = document.getElementById('nos-grid');
+    grid.innerHTML = '';
+    var colors = [
+      [null,             isZhH?'保持本色':G.lang==='ja'?'そのまま':G.lang==='ko'?'자연색':'Natural'],
+      ['jet black',      isZhH?'乌黑':G.lang==='ja'?'漆黒':G.lang==='ko'?'칠흑':'Jet black'],
+      ['dark brown',     isZhH?'深棕':G.lang==='ja'?'ダークブラウン':G.lang==='ko'?'다크브라운':'Dark brown'],
+      ['chestnut brown', isZhH?'栗棕':G.lang==='ja'?'栗色':G.lang==='ko'?'밤색':'Chestnut'],
+      ['golden blonde',  isZhH?'金发':G.lang==='ja'?'ブロンド':G.lang==='ko'?'금발':'Blonde'],
+      ['ash grey',       isZhH?'雾灰':G.lang==='ja'?'アッシュグレー':G.lang==='ko'?'애쉬그레이':'Ash grey'],
+    ];
+    colors.forEach(function(c) {
+      var el = document.createElement('div');
+      el.className = 'nos-card';
+      el.textContent = c[1];
+      el.onclick = function() {
+        document.querySelectorAll('.nos-card').forEach(x => x.classList.remove('sel'));
+        el.classList.add('sel');
+        _selectedNPCHair = c[0];
+        document.getElementById('nos-confirm').style.visibility = 'visible';
+      };
+      grid.appendChild(el);
+    });
+    document.getElementById('nos-confirm').style.visibility = 'hidden';
+    return; // 弹层留在第二步
+  }
+  // 第二步确认 → 收尾
+  _nosPhase = 'origin';
   document.getElementById('npc-origin-overlay').classList.remove('open');
   if (_pendingNPCCallback && _selectedNPCOrigin) {
-    G.npcs[_pendingNPCKey].origin = _selectedNPCOrigin;
+    if (_selectedNPCHair) G.npcs[_pendingNPCKey].hairColor = _selectedNPCHair;
     _pendingNPCCallback(_selectedNPCOrigin);
   }
 }
@@ -2872,6 +2956,42 @@ async function startDay() {
     });
     // 写进经纪人记忆：榜单一周一更的事实（防止聊天时说出"练完舞回来数字就会动"这种当日可变的错误暗示）
     STATE.memory.addEvent('agent', 'Weekly chart posted: she is at #' + rank + '. FACT: the chart updates ONLY once a week (next Monday) — nothing she does today changes the number before then; never imply otherwise.', G.day);
+  }
+  // ── 玩家生日（设置里填的月/日）：祝福消息 + 名气低=高好感NPC约今晚过生日 / 名气高=歌迷庆生活动 ──
+  if (G.player.birthMonth && G.player.birthDay && G._bdayCelebrated !== G.day) {
+    var _bds = getCalDateStr(G.day);
+    if (parseInt(_bds.slice(5,7),10) === G.player.birthMonth && parseInt(_bds.slice(8,10),10) === G.player.birthDay) {
+      G._bdayCelebrated = G.day;
+      var isZhB2 = G.lang==='zh-cn'||G.lang==='zh-tw';
+      calAddEvent(_bds, { id:'pbday_'+G.day, type:'player_birthday', title:isZhB2?'🎂 我的生日':'🎂 My Birthday', status:'accepted', time:'', description:isZhB2?'今天是你的日子。':'Today is yours.' });
+      var _bdayMet = Object.keys(G.npcs).filter(function(k){return G.npcs[k].met;}).sort(function(a,b){return (G.npcs[b].relationship||0)-(G.npcs[a].relationship||0);});
+      // 好感前3的NPC发生日祝福（按性格，各写各的）
+      _bdayMet.slice(0,3).forEach(function(k) {
+        (async function(){ try {
+          var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
+            'Today is HER birthday. Send her a birthday text in YOUR own voice — warm, teasing, quiet, or extravagant, whatever fits YOUR personality; personal and specific to her, never a generic greeting card line (1-2 sentences). Output only the message text.'));
+          if (t && t.trim()) {
+            if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+            G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:NPC_UI[k]?.emoji||'🎂', color:NPC_UI[k]?.color||'#C4A882', day:G.day, time:nextMsgTime(G.day, 7*60+20, true) });
+            notifyNewMessage(k);
+            STATE.save.saveGame();
+          }
+        } catch(e){} })();
+      });
+      if (G.fame < 40 && _bdayMet.length) {
+        // 名气还小：好感最高的NPC约今晚一起过生日（正常邀约流程，晚间赴约）
+        addNPCInvite(_bdayMet[0], G.day, isZhB2?'生日晚餐 🎂':'Birthday dinner 🎂', isZhB2?'生日不该一个人过。今晚，交给我。':'Birthdays are not for spending alone. Tonight is on me.', '19:30');
+      } else if (G.fame >= 40) {
+        // 名气高：歌迷自发庆生活动（经纪人转达+新闻卡）
+        if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+        G.phone.messages[G.day].push({ npc:'agent', name:getNPCName('agent'),
+          text: isZhB2?'生日快乐。歌迷们在市中心给你办了庆生活动——下午去露个面吧，他们等了很久。':'Happy birthday. Your fans put together a celebration downtown — drop by this afternoon, they have been waiting.',
+          news: { headline: isZhB2?((G.player.name||'她')+'生日：歌迷自发聚集庆生'):((G.player.name||'She')+"'s birthday: fans gather to celebrate"), body: isZhB2?'今天是她的生日。粉丝们自发聚集在市中心广场，带着蜡烛、手幅和她的歌。从街头到舞台，这是属于她和他们共同的一天。':'It is her birthday. Fans gathered downtown with candles, banners and her songs. From street corner to stage — this day belongs to her, and to them.', imgUrl:null, day:G.day },
+          day:G.day, time:nextMsgTime(G.day, 7*60+18, true) });
+        notifyNewMessage('agent');
+        STATE.memory.addEvent('agent', 'Her birthday today — fans held a celebration downtown (day ' + G.day + ').', G.day);
+      }
+    }
   }
   // 连续几天不回某个NPC的消息 → 掉好感（每3天扣一次3点）
   Object.keys(G.npcs).forEach(function(k) {
@@ -3160,7 +3280,12 @@ function getLeisureOps(lang) {
     { key:'hair_salon',    label:isZh?'美发店':lang==='ja'?'ヘアサロン':lang==='ko'?'미용실':'Hair Salon' },
     { key:'bookshop',      label:isZh?'书店':lang==='ja'?'書店':lang==='ko'?'서점':'Bookshop' },
     { key:'furniture_store',label:isZh?'逛家具店':lang==='ja'?'家具店':lang==='ko'?'가구점':'Furniture Store' },
-  ];
+  ].concat(
+    // 名气≥50 且还没换过房：解锁"售楼处看房"（换更宽敞豪华的家）
+    (G.fame >= 50 && !(G.apartment && G.apartment.upgraded))
+      ? [{ key:'realty', label:isZh?'🏙️ 售楼处看房':lang==='ja'?'🏙️ モデルルーム見学':lang==='ko'?'🏙️ 모델하우스 구경':'🏙️ Visit the Showroom' }]
+      : []
+  );
 }
 
 // ── 自由选择日的活动（非剧情固定天）──
@@ -3218,6 +3343,10 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   // thenScripted 传下去，改完后自由日→入夜、顺路日→继续当天剧情（修"顺路去美发店没有换发型选项"）
   if (key === 'hair_salon') {
     renderHairSalonOpts(thenScripted);
+  } else if (key === 'beauty_salon') {
+    renderBeautyOpts(thenScripted);
+  } else if (key === 'realty') {
+    renderRealtyOpts(thenScripted);
   } else if (key === 'furniture_store') {
     renderFurnitureOpts(thenScripted);
   } else if (key === 'shopping_mall') {
@@ -3232,6 +3361,102 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   }
 
   STATE.save.saveGame();
+}
+
+// ── 售楼处：名气≥50解锁，选新家风格 → 重生成客厅(日/夜)+卧室(夜)三张图替换公寓 ──
+const REALTY_STYLES = [
+  { zh:'云端顶层公寓', en:'Sky Penthouse',
+    living:'luxury penthouse open-plan living room, double-height floor-to-ceiling windows with a sweeping city skyline view, italian designer sofa, marble and warm wood, sculptural pendant light, refined minimal luxury',
+    bedroom:'luxury penthouse bedroom, low wide bed with fine linens, floor-to-ceiling glass with glittering skyline, soft indirect cove lighting, serene high-end minimalism' },
+  { zh:'河景大平层', en:'Riverside Flat',
+    living:'spacious high-end riverside apartment living room, wide window wall overlooking the river and city lights, deep comfortable sofas, brass and walnut accents, gallery wall, warm sophisticated tones',
+    bedroom:'elegant riverside apartment bedroom, upholstered headboard, tall windows over the water, layered warm bedside lamps, calm luxurious textures' },
+  { zh:'花园洋房', en:'Garden Townhouse',
+    living:'elegant townhouse living room with french doors opening to a private green garden, herringbone wood floor, classic modern furniture, fireplace, abundant natural light, quiet old-money charm',
+    bedroom:'townhouse bedroom with garden view windows, soft canopy of morning light, classic bed with linen bedding, antique dresser, tranquil refined warmth' },
+];
+function renderRealtyOpts(thenScripted) {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  const vopts = document.getElementById('vn-opts');
+  const contAfter = () => { if (thenScripted) playScripted(typeof thenScripted==='number'?thenScripted:G.day); else goEvening(); };
+  const head = document.createElement('div');
+  head.className = 'vn-quick-label';
+  head.textContent = isZh?'看中了哪一套？（换新家会重新生成家里的图）':'Which one feels like home?';
+  vopts.appendChild(head);
+  REALTY_STYLES.forEach((st, i) => {
+    const el = document.createElement('div');
+    el.className = 'vn-opt';
+    el.textContent = '🏙️ ' + (isZh?st.zh:st.en);
+    el.onclick = async () => {
+      vopts.innerHTML = '<div class="gt" style="margin:6px auto">Moving in<span class="loading-dots"></span></div>';
+      try {
+        const ld = await img(st.living + ', bright daylight streaming in, empty room, no people', 'newhome-living-day');
+        const ln = await img(st.living + ', late evening, warm lamps glowing, city lights outside, empty room, no people', 'newhome-living-night');
+        const bn = await img(st.bedroom + ', late night, one warm bedside lamp, empty room, no people', 'newhome-bedroom-night');
+        if (ld) { G.apartment.livingDayUrl = ld; G.gallery.push({ url: ld, label: isZh?('新家 · '+st.zh):('New home · '+st.en) }); }
+        if (ln) G.apartment.livingNightUrl = ln;
+        if (bn) G.apartment.bedroomNightUrl = bn;
+        G.apartment.upgraded = true;
+        G.apartment.upgradeStyle = st.en;
+        // 所有认识的NPC都知道她搬了新家（之后对话/消息可自然引用）
+        Object.keys(G.npcs).forEach(k => { if (G.npcs[k].met) STATE.memory.addEvent(k, 'She moved into a beautiful new upscale home (' + st.en + ') on day ' + G.day + ' — a milestone of how far she has come.', G.day); });
+        STATE.save.saveGame();
+        const done = document.createElement('div');
+        document.getElementById('vn-text').textContent = isZh
+          ? '签完字，钥匙放进掌心的那一刻，比任何奖杯都沉。新家的窗外，是你一步一步唱出来的城市。'
+          : 'When the keys land in your palm, they weigh more than any trophy. Outside your new windows is the city you sang your way into.';
+        vopts.innerHTML = '';
+        const b = document.createElement('button'); b.className='vn-next'; b.textContent=isZh?'搬进新家':'Move in';
+        b.onclick = contAfter;
+        vopts.appendChild(b);
+      } catch(e) { contAfter(); }
+    };
+    vopts.appendChild(el);
+  });
+  const skip = document.createElement('button');
+  skip.className = 'vn-next';
+  skip.textContent = isZh?'只是看看，先不换':'Just looking';
+  skip.onclick = contAfter;
+  vopts.appendChild(skip);
+}
+
+// ── 美容院：做完护理可"焕新形象照"——发型/发色/族裔全部保持，只换一张新的形象照（新seed重生成）──
+function renderBeautyOpts(thenScripted) {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  const vopts = document.getElementById('vn-opts');
+  const contAfter = () => { if (thenScripted) playScripted(typeof thenScripted==='number'?thenScripted:G.day); else goEvening(); };
+  const redo = document.createElement('div');
+  redo.className = 'vn-opt';
+  redo.textContent = isZh?'✨ 焕新形象照（重新生成头像）':'✨ Fresh new portrait';
+  redo.onclick = async () => {
+    vopts.innerHTML = '<div class="gt" style="margin:6px auto">Glowing<span class="loading-dots"></span></div>';
+    const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
+    const newSeed = Math.floor(Math.random() * 1000000);
+    const url = await img(base + ', ' + MIRRORS[0] + ', fresh glowing skin after a spa day', 'New portrait', false, 2, newSeed, true);
+    if (!url) { contAfter(); return; }
+    inlineTrioChooser([G.player.portraitUrl, url], {
+      headText: isZh?'左：现在 · 右：焕新后':'Left: now · Right: refreshed',
+      confirmText: isZh?'就用这张':'Use this one',
+      skipText: isZh?'还是原来的好':'Keep the old one',
+      onConfirm: (chosen, idx) => {
+        if (idx === 1) {
+          G.player.portraitUrl = url;
+          G.player.portraitSeed = newSeed; // 新形象照成为新的固定seed
+          G.gallery.push({ url, label: isZh?('焕新形象 · 第'+G.day+'天'):('Fresh look · Day '+G.day) });
+          G._lookChange = { day: G.day, desc: 'a glowing refreshed look after a spa day (new portrait)', seen: {} };
+        }
+        STATE.save.saveGame();
+        contAfter();
+      },
+      onSkip: contAfter,
+    });
+  };
+  vopts.appendChild(redo);
+  const skip = document.createElement('button');
+  skip.className = 'vn-next';
+  skip.textContent = isZh?'只做护理，舒服就好':'Just the treatment';
+  skip.onclick = contAfter;
+  vopts.appendChild(skip);
 }
 
 // ── 通用内嵌三选一（渲染进 vn-opts）：买衣服换装/家具店换客厅共用 ──
@@ -3324,6 +3549,7 @@ function renderShoppingOpts(thenScripted) {
       onConfirm: (url) => {
         G.player.portraitUrl = url;
         G.gallery.push({ url, label: isZh?('新造型 · 第'+G.day+'天'):('New outfit · Day '+G.day) });
+        G._lookChange = { day: G.day, desc: 'a striking new outfit she just bought', seen: {} };
         STATE.save.saveGame();
         contAfter();
       },
@@ -3437,7 +3663,7 @@ function renderHairSalonOpts(thenScripted) {
       vopts.innerHTML = '<div class="gt" style="margin:6px auto">Styling<span class="loading-dots"></span></div>';
       const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
       const url = await img(base + ', ' + MIRRORS[0], 'New look', false, 2, G.player.portraitSeed, true);
-      if (url) { G.player.portraitUrl = url; G.gallery.push({ url, label: (G.lang==='zh-cn'||G.lang==='zh-tw')?('新造型 · 第'+G.day+'天'):('New look · Day '+G.day) }); }
+      if (url) { G.player.portraitUrl = url; G.gallery.push({ url, label: (G.lang==='zh-cn'||G.lang==='zh-tw')?('新造型 · 第'+G.day+'天'):('New look · Day '+G.day) }); G._lookChange = { day: G.day, desc: 'a brand-new hairstyle (' + (selStyle||'') + ', ' + (selColor||'') + ')', seen: {} }; }
       STATE.save.saveGame();
     }
     contAfter();
@@ -3565,7 +3791,7 @@ function runMeetupScene(npcKey, locKey, title) {
   const _mrel = (G.npcs[npcKey]||{}).relationship;
   const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey);
   const rounds = [
-    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective; maybe tease about the texts.' + meetStyle },
+    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective; maybe tease about the texts.' + lookChangeNote(npcKey) + meetStyle },
     { npcContext: 'The meetup continues — press toward what you want, let a little of your subtext show. A topic to draw on if useful: ' + seeds[0] + '. Keep it true to your personality and current affinity, with a light flirtatious undertone. Same location.' + meetStyle },
     { npcContext: 'The meetup is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective so it stays with her tonight. A topic if useful: ' + seeds[1] + '. Same location.' + meetStyle },
   ];
@@ -4394,6 +4620,16 @@ function intentBlock(npcKey, rel) {
   const it = sceneIntent(npcKey, rel);
   return ' SCENE INTENT (this silently drives everything he says and does — the reason behind every line and gesture): what he wants right now is to ' + it.want + '. His private subtext: ' + it.sub + '. Every line and every physical action must serve this objective and quietly reveal this subtext — nothing arbitrary, nothing that reads as random. He never states the objective outright; it shows through what he chooses to say, ask, and do.';
 }
+// 换造型反馈：最近3天内换过发型/新衣/形象照，且该NPC还没见过 → 见面第一轮注意到并按性格回应一次
+function lookChangeNote(npcKey) {
+  const lc = G._lookChange;
+  if (!lc || (G.day - lc.day) > 3) return '';
+  if (!lc.seen) lc.seen = {};
+  if (lc.seen[npcKey]) return '';
+  lc.seen[npcKey] = true;
+  return ' NOTICE HER LOOK: she recently changed her look — ' + lc.desc + '. Early in this scene, notice it and react in YOUR character\'s voice (a compliment, a tease, a beat of being caught staring — whatever fits you). Briefly, once, then move on.';
+}
+
 // 动作规则：动作从"他此刻想要什么+他是谁"长出来，透出意图，贴合场地(地点表只作场地灵感)，而非随机手势
 function intentActionRule(locKey) {
   return ' ACTION RULE: include ONE brief physical action in third person that ARISES from what he wants right now and who he is — it should quietly reveal his intent or subtext, and fit THIS place (loose inspiration for what is physically available here, do NOT just copy: ' + dateActionHint(locKey) + '). Never a generic decorative gesture, never the same one twice.' +
@@ -4479,7 +4715,7 @@ async function playInviteScene(inv) {
     ' THIS IS PERSONAL TIME — do NOT talk shop no matter your profession: no recording studio, band, drummer, rehearsals, set lists, contracts, gigs, castings, agency business or career logistics. You are here as a man interested in HER, not as her agent/colleague. Talk about her as a person, this place, small human things, and the pull between you.' +
     intentBlock(npcKey, _rel) + intentActionRule(locKey);
   const rounds = [
-    { npcContext: 'Your date with her just began at this place: ' + locDesc + '. Open in character, already quietly pursuing your objective. Let a topic surface naturally if it helps: ' + seeds[0] + '.' + flirt },
+    { npcContext: 'Your date with her just began at this place: ' + locDesc + '. Open in character, already quietly pursuing your objective. Let a topic surface naturally if it helps: ' + seeds[0] + '.' + lookChangeNote(npcKey) + flirt },
     { npcContext: 'The date deepens — press toward what you want and let a little of your subtext show through. A topic to draw on if useful: ' + seeds[1] + '. Stay in this location.' + flirt },
     { npcContext: 'The date is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective in a way that leaves her replaying it at home tonight. A topic if useful: ' + seeds[2] + '. Stay in this location.' + flirt },
   ];
@@ -4638,6 +4874,7 @@ async function maybeStayOver(npcKey, locKey) {
   } catch(e) {}
   if (!line || !line.trim()) { _vnEndLoc = locKey; runVNDialog([], npcKey, G.day, 0); return; }
   document.getElementById('vn-text').innerHTML = formatNPCText(line);
+  playSound('stay-invite'); // 过夜邀请专属音效：提醒玩家这不是普通对话
   vopts.innerHTML = '';
   const mk = (label, fn) => { const el = document.createElement('div'); el.className = 'vn-opt'; el.textContent = label; el.onclick = fn; vopts.appendChild(el); };
   // 已在某人家=无需转场；destHers=今晚发生在她家（她家过夜 / 送她回家他上来）
@@ -4891,12 +5128,22 @@ async function goEvening() {
     var cakeCard = document.createElement('div');
     cakeCard.className = 'eve-msg';
     cakeCard.style.cssText = 'align-items:center;gap:10px';
-    cakeCard.innerHTML = '<div style="width:36px;height:36px;background:rgba(196,96,122,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px">🍰</div>' +
+    cakeCard.innerHTML = '<div id="cake-img-slot" style="width:36px;height:36px;background:rgba(196,96,122,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🍰</div>' +
       '<div style="font-size:12px;line-height:1.7;color:var(--text-mid)">' +
       (isZh ? '门口放着一块黑森林蛋糕。没有字条，还带着冷藏的凉气。<br>这栋楼里会做这种事的，只有一个人。'
             : 'A black forest cake sits at your door. No note, still cold from the fridge.<br>Only one person in this building would do this.') +
       '</div>';
     document.getElementById('eve-msgs').prepend(cakeCard);
+    // 蛋糕生成一张实图（点开可放大），失败保留🍰
+    (async function(){ try {
+      var cu = await img('a single slice of black forest cake with dark cherries and chocolate shavings in a clear takeout box, left on a doormat in front of an apartment door, late night warm hallway light from above, cinematic close-up still life, no people', 'butler-cake');
+      if (cu) {
+        var slot = document.getElementById('cake-img-slot');
+        if (slot) { slot.innerHTML = '<img src="' + cu + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;cursor:pointer" onclick="openLB(this.src)">'; slot.style.background = 'none'; }
+        G.gallery.push({ url: cu, label: isZh ? '门口的蛋糕 · 第30天' : 'The cake · Day 30' });
+        STATE.save.saveGame();
+      }
+    } catch(e){} })();
   }
   // 好感NPC的晚间消息也当晚生成（睡前收齐当天所有消息，不再第二天早上补看昨晚的）
   generateAffinityMessages(G.day);
@@ -5678,12 +5925,40 @@ function openWCChat(npc) {
   document.getElementById('chat-wc-time').textContent = getPhoneStatusClock();
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var input = document.getElementById('chat-input');
-  input.value = '';
+  // 草稿保留：切去日历/好感度再回来，输入到一半的内容不丢
+  input.value = (G._chatDraft && G._chatDraft[npc]) || '';
   input.placeholder = isZh?'输入消息…':G.lang==='ja'?'メッセージを入力…':G.lang==='ko'?'메시지 입력…':'Type a message…';
   document.getElementById('chat-send-btn').textContent = isZh?'发送':G.lang==='ja'?'送信':G.lang==='ko'?'전송':'Send';
   renderChatMsgs(npc, firstUnread >= 0 ? firstUnread : null);
   go('s-chat');
   scrollChatBottom();
+}
+
+// ── 聊天草稿：输入即存（按NPC分开），切屏回来不丢 ──
+function saveChatDraft() {
+  if (!_openChatNpc) return;
+  if (!G._chatDraft) G._chatDraft = {};
+  G._chatDraft[_openChatNpc] = document.getElementById('chat-input').value;
+}
+// ── emoji选择行：😊开合；点表情追加进输入框（同时存草稿）──
+const CHAT_EMOJIS = ['😊','😂','🥰','😘','😉','🙈','😳','🥺','😢','😤','🤔','😴','❤️','💕','✨','🔥','👍','🙏','🎵','🍰','☕','🌙','🌹','🫶'];
+function toggleChatEmoji() {
+  const row = document.getElementById('chat-emoji-row');
+  if (row.style.display === 'none' || !row.style.display) {
+    if (!row.dataset.filled) {
+      CHAT_EMOJIS.forEach(e => {
+        const b = document.createElement('span');
+        b.textContent = e;
+        b.style.cssText = 'font-size:22px;padding:3px 5px;cursor:pointer;user-select:none';
+        b.onclick = () => { const inp = document.getElementById('chat-input'); inp.value += e; saveChatDraft(); inp.focus(); };
+        row.appendChild(b);
+      });
+      row.dataset.filled = '1';
+    }
+    row.style.display = 'flex';
+  } else {
+    row.style.display = 'none';
+  }
 }
 
 // ── 玩家在聊天里回复NPC ──
@@ -5695,6 +5970,7 @@ async function sendChatReply() {
   const text = (input.value || '').trim() || '……';
   const btn = document.getElementById('chat-send-btn');
   input.value = '';
+  if (G._chatDraft) delete G._chatDraft[npc]; // 发送后清掉草稿
   btn.disabled = true;
   // 玩家消息即时上屏
   if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
@@ -5926,9 +6202,12 @@ function renderAffection() {
     const avatar = pUrl
       ? '<img class="aff-avatar" src="' + pUrl + '" onclick="openLB(this.src)">'
       : '<div class="aff-avatar aff-avatar-emoji">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
+    // 过夜"勋章"：隐晦的🌙缀在名字后（不写字，懂的自然懂；过夜次数≥3 加一颗小星）
+    const nights = (G.npcs[npc.key] && G.npcs[npc.key].nights) || 0;
+    const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.75" title="✦">🌙' + (nights >= 3 ? '⋆' : '') + '</span>' : '';
     return '<div class="affection-card">' + avatar +
       '<div class="aff-info">' +
-        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
+        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
         '<div class="aff-bar-bg"><div class="aff-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
         '<div class="aff-score">' + heart + ' <b>' + pct + '</b> / 100</div>' +
       '</div></div>';
@@ -6161,7 +6440,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.92 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.93 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

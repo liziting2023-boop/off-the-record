@@ -520,6 +520,20 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - 已验证:her_home全流程(邀请→让他留下→两幕bg=她家图→stayedAt=hers→散文ctx带her)、公共地点两模式4/4随机、goEvening改道到白天约、addNPCInvite去重+pending、零报错
 - 测试:`otrTestStay('agent','her_home')` 可直接测她家过夜;公共locKey测随机两模式
 
+**v10.93（功能批:生日/emoji/草稿/过夜勋章/售楼处/换装反馈/蛋糕图/过夜音效/外形/美容院）**：一次上10个功能
+- **生日系统**：设置页新增"MY BIRTHDAY 🎂"月/日选择(`setBirthday`→G.player.birthMonth/Day)；startDay 里生日当天(月日匹配,`G._bdayCelebrated`防重)：日历🎂事件 + 好感前3的NPC按性格发祝福 + **名气<40=好感最高NPC约今晚生日晚餐**(走正常邀约流程) / **名气≥40=歌迷庆生活动**(经纪人消息+新闻卡)
+- **聊天emoji**：输入栏😊按钮展开24个表情行(`toggleChatEmoji`),点表情追加输入框
+- **聊天草稿保留**：`G._chatDraft[npc]` oninput即存、openChat回显、发送后清（修"切去日历回来输入丢了"）
+- **过夜勋章**：好感页名字后隐晦🌙(nights>0;≥3加⋆),不写字懂的自然懂
+- **售楼处**：名气≥50且未换房→休闲选项出现"🏙️售楼处看房"(`REALTY_STYLES`3选:云端顶层/河景大平层/花园洋房)→生成客厅日/夜+卧室夜3张图替换公寓、`apartment.upgraded`、全体已识NPC记忆"她搬新家了"
+- **换装反馈**：发廊换发型/商场新衣/美容院焕新→`G._lookChange{day,desc,seen}`；约会/见面第一轮注入 `lookChangeNote(npc)`(3天内且该NPC没见过→"注意到她的新造型并按性格回应一次")
+- **美容院焕新形象照**（playFree加beauty_salon分支→`renderBeautyOpts`）：发型/发色/族裔全保持(buildProtagonistPrompt本来就带),**新seed**重生成一张,旧vs新二选一,选新则portraitUrl+portraitSeed都换+进相册+触发换装反馈
+- **过夜邀请专属音效**：playSound新增`stay-invite`(G4→E4→C4缓慢下行暧昧双音),maybeStayOver邀请台词出现时播放
+- **外形**：演员=crisp shirt top buttons undone露锁骨(更性感,用户要求);鼓手=手臂纹身;**NPC选形象加发色第二步**(种族确认后同弹层切换到6色:保持本色/乌黑/深棕/栗棕/金发/雾灰,存`npc.hairColor`),state.js新增`applyHair()`把外形表hair串的颜色词换成所选色,5个build*Prompt全接入
+- **蛋糕出图**：Day30管家蛋糕卡片异步生成实图(点开放大,进相册),失败保留🍰
+- 已验证:emoji24个/草稿存取/🌙渲染/applyHair("golden blonde swept back")/演员衬衫+鼓手纹身入prompt/售楼处按名气门槛显隐/lookChangeNote每NPC一次/设置生日存取/**两步发色流程**(族裔→发色→回调,drummerHair=golden blonde)/**生日全触发**(日历+agent晚餐邀约+2条祝福)/零报错
+- 注:发色只对**未锁定立绘**的NPC生效(立绘已锁的照旧,重生成才变)
+
 - **后续块(按序)**：②过夜后关系动态(公开/低调+朋友聚会+吃醋不回消息,公开低调按性格:鼓手公开/经纪人低调/演员先低调后公开/管家私密/侦探绝对低调) ③美容院(做美容图+按特征重生成女主头像)+选NPC加发色 ④NPC出场节奏重排(演员+管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位**全新恋爱向NPC**由我提方案) 
 
 ## 9. 待开发（优先顺序）

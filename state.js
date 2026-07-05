@@ -248,13 +248,23 @@ const STATE = {
         app.features,
         `tall 178cm lean athletic build`,
         `talent agent`,
-        app.hair,
+        STATE.imagePrompts.applyHair(app, npc),
         `${app.skin} skin tone`,
         app.suit,
         `a genuine warm smile, kind eyes crinkling slightly, relaxed and approachable, easy friendly charm, clearly smiling not serious`,
         `NO glasses`,
         scene,
       ].filter(Boolean).join(', ');
+    },
+
+    // ── 玩家为NPC选的发色覆盖：把外形表hair串开头的颜色词换成所选发色（保留发型描述）──
+    applyHair(app, npc) {
+      const hair = app.hair || '';
+      const c = npc && npc.hairColor;
+      if (!c) return hair;
+      const re = /^(jet black|black|dark brown|light brown|ash brown|brown|dark blonde?|blonde?|auburn|chestnut|silver|gr[ae]y|red)\b/i;
+      const replaced = hair.replace(re, c);
+      return replaced !== hair ? replaced : (c + ' ' + hair);
     },
 
     // ── 鼓手生图（只用鼓手族裔）──
@@ -268,9 +278,10 @@ const STATE = {
         app.features,
         `tall 180cm athletic muscular build`,
         `rock drummer and band leader`,
-        `${app.hair} tousled`,
+        `${STATE.imagePrompts.applyHair(app, npc)} tousled`,
         `${app.skin} skin`,
         `casual dark clothing, band tee or leather jacket`,
+        `visible artistic tattoos on his forearms and upper arm, rock musician ink`,
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
         `bare clean-shaven face, clear focused eyes`,
@@ -290,9 +301,9 @@ const STATE = {
         app.features,
         `tall 180cm model physique, lean and well-proportioned`,
         `rising actor`,
-        `${app.hair} perfectly styled`,
+        `${STATE.imagePrompts.applyHair(app, npc)} perfectly styled`,
         `${app.skin} skin`,
-        `fashionable stylish outfit`,
+        `crisp dress shirt worn open at the collar with the top buttons undone, a hint of chest and collarbone showing, effortlessly seductive styling`,
         `playful flirtatious smirk, teasing charming gaze, effortlessly charismatic`,
         glassesNote,
         scene,
@@ -321,7 +332,7 @@ const STATE = {
         app.features,
         `tall imposing build, broad shoulders`,
         `private detective`,
-        app.hair,
+        STATE.imagePrompts.applyHair(app, npc),
         `${app.skin} skin`,
         `dark trench coat, tailored and imposing`,
         `quietly intense expression, misses nothing`,
@@ -344,7 +355,7 @@ const STATE = {
         `clean-shaven smooth boyish face, completely beardless, bare face with clear bright eyes`,
         `172cm slim youthful build`,
         `building manager`,
-        `${app.hair} clean and neat`,
+        `${STATE.imagePrompts.applyHair(app, npc)} clean and neat`,
         `${app.skin} skin`,
         `wearing only a simple neat polo work shirt with a small staff badge`,
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
