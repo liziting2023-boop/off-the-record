@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.93"></script>
-<script src="state.js?v=10.93"></script>
+<script src="story.js?v=10.94"></script>
+<script src="state.js?v=10.94"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -506,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.93</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.94</p>
   </div>
 </div>
 
@@ -1078,7 +1078,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.93</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.94</p>
   </div>
 </div>
 
@@ -2932,6 +2932,75 @@ async function startDay() {
       } catch(e) {}
     })();
   }
+  // ══ Batch2 过夜后关系动态 ══
+  // ① 立场消息（第一夜次日）：鼓手=想公开,邀你进他的朋友圈(聚会邀约,去=公开)；经纪人/演员/管家/侦探=按各自理由求低调
+  Object.keys(G.npcs).forEach(function(k) {
+    var n = G.npcs[k];
+    if (!n || !n._stanceDue || G.day < n._stanceDue || n._stanceSent) return;
+    n._stanceSent = true;
+    var st = REL_STANCE[k]; if (!st) return;
+    (async function(){ try {
+      var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, st.ctx));
+      if (t && t.trim()) {
+        if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+        G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:NPC_UI[k]?.emoji||'💬', color:NPC_UI[k]?.color||'#C4A882', day:G.day, time:nextMsgTime(G.day, 7*60+40, true) });
+        notifyNewMessage(k);
+      }
+      if (st.mode === 'public') {
+        // 想公开的（鼓手）：两天后晚上他的朋友聚会（日历待确认；赴约=向他的圈子公开关系）
+        var gDay = G.day + 2;
+        var isZhS = G.lang==='zh-cn'||G.lang==='zh-tw';
+        calAddEvent(getCalDateStr(gDay), {
+          id: 'gather_' + k + '_' + gDay,
+          type: 'npc_invite', npcKey: k, npcName: getNPCName(k),
+          title: isZhS ? '他的朋友聚会 🍻' : "His friends' gathering 🍻",
+          status: 'pending', time: '19:30', locKey: 'livehouse', gathering: true,
+          description: isZhS ? '去了，就等于向他的朋友们公开你们的关系。' : 'Showing up means going public to his circle.',
+        });
+        refreshCalBadge();
+        STATE.memory.addEvent(k, 'You invited her to your friends\' gathering (day ' + gDay + ', livehouse) — her showing up means going public as a couple.', G.day);
+      } else {
+        STATE.memory.addEvent(k, 'You asked her to keep what you two have strictly private for now.', G.day);
+      }
+      STATE.save.saveGame();
+    } catch(e){} })();
+  });
+  // ② 公开后的反应（次日）：其他好感≥60的NPC按性格——经纪人/管家=追问要解释,演员/鼓手=生气冷战几天不回消息,侦探=一句冷评
+  if (G._publicReactDue && G.day >= G._publicReactDue.day) {
+    var _pr = G._publicReactDue; G._publicReactDue = null;
+    var _prName = getNPCName(_pr.npc);
+    Object.keys(G.npcs).forEach(function(k) {
+      if (k === _pr.npc) return;
+      var n = G.npcs[k];
+      if (!n || !n.met || (n.relationship||0) < 60) return;
+      var r = PUBLIC_REACTIONS[k]; if (!r) return;
+      STATE.relationships.change(k, r.rel);
+      if (r.kind === 'cold') { n.coldUntil = G.day + (r.days||4); n._thawed = false; }
+      (async function(){ try {
+        var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, r.ctx.replace(/OTHER_NAME/g, _prName)));
+        if (t && t.trim()) {
+          if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+          G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:NPC_UI[k]?.emoji||'💬', color:NPC_UI[k]?.color||'#C4A882', day:G.day, time:nextMsgTime(G.day, 8*60, true) });
+          notifyNewMessage(k); STATE.save.saveGame();
+        }
+      } catch(e){} })();
+    });
+  }
+  // ③ 冷战解冻：冷够天数后发一条别扭的破冰消息（演员=装作无事发生,鼓手=生硬的橄榄枝）
+  Object.keys(G.npcs).forEach(function(k) {
+    var n = G.npcs[k];
+    if (!n || !n.coldUntil || n._thawed || G.day < n.coldUntil) return;
+    n._thawed = true; n.coldUntil = null;
+    var thawCtx = THAW_CTX[k]; if (!thawCtx) return;
+    (async function(){ try {
+      var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, thawCtx));
+      if (t && t.trim()) {
+        if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+        G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:NPC_UI[k]?.emoji||'💬', color:NPC_UI[k]?.color||'#C4A882', day:G.day, time:nextMsgTime(G.day, 7*60+50, true) });
+        notifyNewMessage(k); STATE.save.saveGame();
+      }
+    } catch(e){} })();
+  });
   // 底部日历图标显示游戏内当天日号
   var calIconEl = document.getElementById('cal-icon-day');
   if (calIconEl) calIconEl.textContent = parseInt(getCalDateStr(G.day).slice(-2), 10);
@@ -4714,14 +4783,45 @@ async function playInviteScene(inv) {
   const flirt = ' Keep a romantic, gently flirtatious undertone with real tension — calibrate boldness to affinity (' + tier + '): high = openly charged, mid = testing the waters, low = restrained sparks. It is a ' + (isDayDate ? 'relaxed daytime DATE' : 'evening DATE') + ', not a work meeting.' +
     ' THIS IS PERSONAL TIME — do NOT talk shop no matter your profession: no recording studio, band, drummer, rehearsals, set lists, contracts, gigs, castings, agency business or career logistics. You are here as a man interested in HER, not as her agent/colleague. Talk about her as a person, this place, small human things, and the pull between you.' +
     intentBlock(npcKey, _rel) + intentActionRule(locKey);
-  const rounds = [
+  let rounds;
+  if (inv.gathering) {
+    // 朋友聚会（Batch2）：他把你介绍给他的圈子=关系公开。三轮=进门介绍→融入笑闹→角落里的真心话
+    const gCtx = ' SETTING: HIS FRIENDS\' GATHERING at the livehouse — his crew, drinks, noise, warmth. She showed up, which means he is introducing her as HIS GIRL: this is going public to his people. Friends tease and size her up warmly. Write HIS line; you may fold in at most ONE brief friend reaction into his beat (never name friends — "the bassist", "one of his crew").' + lookChangeNote(npcKey) + intentActionRule(locKey);
+    rounds = [
+      { npcContext: 'She just walked in. Meet her at the door, take her hand, and introduce her to your people as your girl — proud, and quietly watching how she feels.' + gCtx },
+      { npcContext: 'The night warms up. Your friends dig up an embarrassing story about you; let it land, watch her laugh, show her she belongs here.' + gCtx },
+      { npcContext: 'Late in the night, a quieter corner away from the noise. Tell her what it means that she showed up tonight — that she let this be real in front of everyone. FINAL beat: close the scene, no new plans.' + gCtx },
+    ];
+  } else {
+    rounds = [
     { npcContext: 'Your date with her just began at this place: ' + locDesc + '. Open in character, already quietly pursuing your objective. Let a topic surface naturally if it helps: ' + seeds[0] + '.' + lookChangeNote(npcKey) + flirt },
     { npcContext: 'The date deepens — press toward what you want and let a little of your subtext show through. A topic to draw on if useful: ' + seeds[1] + '. Stay in this location.' + flirt },
     { npcContext: 'The date is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective in a way that leaves her replaying it at home tonight. A topic if useful: ' + seeds[2] + '. Stay in this location.' + flirt },
-  ];
+    ];
+  }
   _vnEndLoc = locKey; // 结束旁白用约会地点
-  // 晚间约会 + 好感≥75 → 对话结束时触发过夜暗示（白天约会不触发）
-  if (!isDayDate && (G.npcs[npcKey].relationship || 0) >= 75) {
+  if (inv.gathering) {
+    // 赴了朋友聚会=关系公开：记进所有已识NPC记忆；次日其他高好感NPC按性格反应（追问/冷战/冷评）
+    _afterDialogHook = () => {
+      const ROLE_EN = { agent:'her talent agent', drummer:'the band leader', actor:'the actor', butler:'the building manager', detective:'the detective' };
+      G.publicWith = G.publicWith || {};
+      G.publicWith[npcKey] = G.day;
+      G._publicReactDue = { day: G.day + 1, npc: npcKey };
+      Object.keys(G.npcs).forEach(k => {
+        if (!G.npcs[k].met) return;
+        STATE.memory.addEvent(k, k === npcKey
+          ? 'She came to your friends\' gathering and you introduced her as your girl — you two are PUBLIC now (day ' + G.day + ').'
+          : 'Word reached you: she appeared at ' + (ROLE_EN[npcKey]||'another man') + '\'s friends\' gathering as his girlfriend — their relationship is public now (day ' + G.day + ').', G.day);
+      });
+      STATE.relationships.change(npcKey, 8); // 公开=大表态，他很受用
+      playSound('rel-up');
+      STATE.save.saveGame();
+      // 聚会后照常可能触发过夜
+      if (!isDayDate && (G.npcs[npcKey].relationship || 0) >= 75) maybeStayOver(npcKey, locKey);
+      else { _vnEndLoc = locKey; runVNDialog([], npcKey, G.day, 0); }
+    };
+  } else if (!isDayDate && (G.npcs[npcKey].relationship || 0) >= 75) {
+    // 晚间约会 + 好感≥75 → 对话结束时触发过夜暗示（白天约会不触发）
     _afterDialogHook = () => maybeStayOver(npcKey, locKey);
   }
   runVNDialog(rounds, npcKey, G.day, 0);
@@ -4747,6 +4847,41 @@ const OVERNIGHT_STYLE = {
   butler:   'Warm and emotionally open, a little shy — for him intimacy is as much what he says as what he does. Tender and vulnerable, he lets the feeling out loud, half-confession between breaths; earnest wonder and devotion winning out over any swagger.',
   detective:'Restrained and deeply respectful — he asks, he waits for her yes, he reads her for every small signal and never assumes. Controlled, considerate heat; each move deliberate, each one an offer she can meet or turn. The quiet green-flag intensity of a man who needs her to be sure.',
 };
+// ══ 过夜后的关系动态（Batch2）══
+// 公开/低调立场按性格：鼓手=想公开(骄傲不藏) / 经纪人=要低调(利益冲突,暗里在意) /
+// 演员=先低调(花名在外,真心后才谈公开) / 管家=想私密(藏着秘密身份) / 侦探=天生绝对低调
+const REL_STANCE = {
+  drummer:  { mode: 'public',
+    ctx: 'You two have spent the night together and you are DONE hiding it — you are proud of her. Text her: this Saturday your friends are getting together at the livehouse, and you want her there — as YOUR girl, meeting your people. Blunt, warm, no games (1-2 sentences). Output only the message text.' },
+  agent:    { mode: 'private',
+    ctx: 'You two have spent the night together. As her AGENT, if this gets out it hurts HER career and looks like a conflict of interest — so, gently and warmly, ask her to keep what you two have strictly between you two for now. Make clear it is protection, not shame — you are not hiding HER, you are shielding her (1-2 sentences). Output only the message text.' },
+  actor:    { mode: 'private',
+    ctx: 'You two have spent the night together. Your tabloid reputation would eat her alive if this gets out — and part of you is not ready to be that exposed either. Ask her, charmingly but with an unusual note of seriousness, to keep this just between you two for now (1-2 sentences). Output only the message text.' },
+  butler:   { mode: 'private',
+    ctx: 'You two have spent the night together. You want to keep it something small and private and just yours — partly sweetness, partly something you are not telling her. Ask her softly to keep it between you two (1-2 sentences). Output only the message text.' },
+  detective:{ mode: 'private',
+    ctx: 'You two have spent the night together. You keep your personal life sealed off from your work by lifelong habit — tell her, in your dry understated way, that what happens between you two stays between you two, and that this is the closest thing to devotion you know how to say (1-2 sentences). Output only the message text.' },
+};
+// 公开后其他高好感NPC的反应（好感≥60才反应）：questioner=追问要解释 / cold=生气冷战N天不回消息 / dry=一句冷淡短评
+const PUBLIC_REACTIONS = {
+  agent:    { kind: 'question', rel: -8,
+    ctx: 'You just learned she showed up at OTHER_NAME\'s friends\' gathering as his girl — their relationship is public now. It lands harder than you expected. Text her: controlled, professional on the surface, hurt underneath — you want to hear it from HER, and you remind her (too formally) to think about optics. (1-2 sentences). Output only the message text.' },
+  butler:   { kind: 'question', rel: -6,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. It hurts more than you have any right to. Text her: gentle, a little broken, trying to sound happy for her and failing at the last word (1-2 sentences). Output only the message text.' },
+  actor:    { kind: 'cold', days: 5, rel: -10,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. You — who are never caught off guard by a woman — are furious and stung. Send ONE bitter, too-casual parting line (something like "congratulations, great casting") and then you intend to go silent on her (1 sentence). Output only the message text.' },
+  drummer:  { kind: 'cold', days: 4, rel: -10,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. You say exactly one blunt hurt line — short, no drama, the kind that lands harder because it is quiet — and then you stop texting her (1 sentence). Output only the message text.' },
+  detective:{ kind: 'dry', rel: -5,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. You observe, as always. Send one dry, unreadable line that only later she will realize was him caring (1 sentence). Output only the message text.' },
+};
+// 冷战解冻时的台词方向
+const THAW_CTX = {
+  actor:   'You went silent on her for days after she went public with another man. You cannot keep it up — text her something that pretends the silence never happened, with the performance slightly cracked (1-2 sentences). Output only the message text.',
+  drummer: 'You went silent on her for days after she went public with another man. Break the silence the only way you know — something gruff and practical that is secretly an olive branch (1-2 sentences). Output only the message text.',
+};
+function npcIsCold(k) { return !!(G.npcs[k] && G.npcs[k].coldUntil && G.npcs[k].coldUntil > G.day); }
+
 async function genNPCHomeBg(npcKey) {
   if (G.npcs[npcKey] && G.npcs[npcKey].homeUrl) return G.npcs[npcKey].homeUrl; // 缓存复用
   const base = HOME_PROMPTS[npcKey] || HOME_PROMPTS.agent;
@@ -4886,6 +5021,8 @@ async function maybeStayOver(npcKey, locKey) {
     STATE.relationships.change(npcKey, 10);
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
     G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
+    // 第一夜之后：第二天早上他会发"公开/低调"立场消息（鼓手=邀你进他的圈子,其余=求低调,按性格）
+    if (G.npcs[npcKey].nights === 1) G.npcs[npcKey]._stanceDue = G.day + 1;
     STATE.memory.addEvent(npcKey,
       (destHers
         ? (G.npcs[npcKey].nights === 1 ? 'You stayed the night at HER place for the FIRST time' : 'You stayed the night at HER place')
@@ -5271,6 +5408,7 @@ async function generateAffinityMessages(day) {
     .sort(([,a],[,b]) => b.relationship - a.relationship);
 
   for (const [npcKey, npc] of metNPCs) {
+    if (npcIsCold(npcKey)) continue; // 冷战中不主动发晚间消息（Batch2）
     const tier = STORY.specialDates.getAffinityTier(npc.relationship);
     const isBirthday = birthday && birthday.npc === npcKey;
     const isPlayerBirthday = !!playerBday;
@@ -5418,6 +5556,7 @@ async function generatePhoneContent() {
   // 不是每个NPC每天都发消息：按好感度分层决定（高=大概率，中=偶尔，低=很少）
   const senders = Object.keys(G.npcs).filter(k => {
     if (!G.npcs[k].met || k === 'detective') return false;
+    if (npcIsCold(k)) return false; // 冷战中不主动发消息（Batch2）
     // 昨晚过夜的NPC今早只发"晨后消息"那一条，不再进常规早晨批次（避免两条消息位置逻辑互相矛盾）
     if (G._morningAfterMark && G._morningAfterMark.day === G.day && G._morningAfterMark.npc === k) return false;
     const tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
@@ -5979,6 +6118,8 @@ async function sendChatReply() {
   STATE.memory.addEvent(npc, 'She texted: "' + text.slice(0,60) + '"', G.day);
   btn.disabled = false; // 玩家可以连续发，不用等回复
 
+  // 冷战中（因她公开了和别人的关系而生气）：不读不回，玩家发消息石沉大海（Batch2）
+  if (npcIsCold(npc)) { updatePhoneBadge(); STATE.save.saveGame(); return; }
   // NPC今天已经道过"去睡了/先忙了"→ 不再回复
   if (!G.phone.chatEnded) G.phone.chatEnded = {};
   if (G.phone.chatEnded[npc] === G.day) { updatePhoneBadge(); STATE.save.saveGame(); return; }
@@ -6440,7 +6581,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.93 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.94 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
