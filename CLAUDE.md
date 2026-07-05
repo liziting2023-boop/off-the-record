@@ -546,8 +546,18 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 ### 已全部清完的批次（用户两轮50+反馈 + 功能）
 Fix批A(v10.91对话/散文正确性)、Fix批B(v10.92邀约日历/女主家/名字)、功能批(v10.93生日/emoji/草稿/勋章/售楼处/换装反馈/美容院/音效/外形/蛋糕)、Batch2(v10.94过夜后关系动态)
 
+**v10.95（新NPC打样:对手歌手 rival + 九人相识关系网）**：用户选定新增4位(对手歌手/主厨/作曲家/保镖),先落地对手歌手打样
+- **对手歌手 rival**（宿敌变恋人,30岁,唱作男歌手,←Book Lovers机锋斗嘴register）：state.js加npc数据+`buildRivalPrompt`(pop star造型/platinum records);story.js加完整人设(corePersonality/hiddenTruths/12章emotionalArc/knows关系)
+- **全系统接线**（加第6个NPC要动的所有点）：build*Prompt两处分发、NPC_UI(🎤)、NPC_ROLES、getNPCName兜底、OVERNIGHT_STYLE/ACT1/ACT2/HOME_PROMPTS、DATE_INTENTS(3档)、DATE_SPOTS、npcPersonalityBonus([4,7,14]吃冷淡pushback)、judgeRelChange(并入drummer/agent那挂爱挑战)、showNPCOrigin族裔选择flavor、DEV面板"过夜·对手歌手"按钮
+- **Batch2立场**：rival=public但和鼓手不同——`REL_STANCE`加 gatherLoc/gTitle 参数化,rival=**night_bar庆功派对**(非livehouse友聚),想高调公开把press"宿敌"炒成年度话题;`PUBLIC_REACTIONS.rival`=冷战(一句伪装成祝贺的刺→4天沉默)、`THAW_CTX.rival`=先破冰的白旗
+- **九人相识关系网**：`NPC_ACQUAINTANCE`(含未落地的composer/chef/bodyguard,先埋数据)+`GROUP_CHATS`分组(乐队/工作/街坊/名流,侦探不入群)——供将来群聊功能读
+- 已验证:rival全maps接线、`buildRivalPrompt`、过夜act1→act2(nights1)、立场消息+庆功派对邀约(night_bar)、否定式pushback高分、零报错;state.js/story.js parse OK
+- **测试**:`⚙DEV`→"过夜·对手歌手"；rival目前只能靠DEV/otrTestStay见到(**正式第3周登场剧情随NPC出场节奏重排一起做**)
+- 打样待用户验收:rival语感/宿敌张力/公开高调派对是否对味,OK后批量做 主厨/作曲家/保镖
+
 ### 仍待开发（大件）
-- **NPC出场节奏重排 + 4个全新恋爱向NPC**（用户已定"我提议4位全新",演员/管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位）——需先出4位NPC方案给用户选
+- **NPC出场节奏重排 + 落地剩余3位新NPC**（主厨/作曲家/保镖；演员/管家→第2周、侦探→专辑发布名气小高潮、rival第3周正式登场剧情、第3/4周各2位）
+- **群聊功能**（读 NPC_ACQUAINTANCE / GROUP_CHATS）
 - **年末签约到期大分支**（自立门户/油腻老男人抢签/续约三选→自己开公司→招男员工=新NPC）(公开/低调+朋友聚会+吃醋不回消息,公开低调按性格:鼓手公开/经纪人低调/演员先低调后公开/管家私密/侦探绝对低调) ③美容院(做美容图+按特征重生成女主头像)+选NPC加发色 ④NPC出场节奏重排(演员+管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位**全新恋爱向NPC**由我提方案) 
 
 ## 9. 待开发（优先顺序）

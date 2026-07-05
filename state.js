@@ -125,6 +125,17 @@ const STATE = {
         memory: [],
         currentMood: 'warm',
       },
+      // 对手歌手（新增·第3周登场）：同期爬榜的当红唱作男歌手，宿敌变恋人
+      rival: {
+        origin: null,
+        name: null,
+        portraitUrl: null,
+        portraitSeed: null,
+        relationship: 5,     // 初始：针锋相对，谁也不服谁
+        met: false,
+        memory: [],
+        currentMood: 'competitive',
+      },
     },
 
     // 剧情事件追踪（哪些关键事件已发生）
@@ -285,6 +296,26 @@ const STATE = {
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
         `bare clean-shaven face, clear focused eyes`,
+        scene,
+      ].filter(Boolean).join(', ');
+    },
+
+    // ── 对手歌手生图（只用他自己的族裔）──
+    buildRivalPrompt(G, scene, day = 1) {
+      const npc = G.npcs?.rival || STATE.data.npcs.rival;
+      const origin = npc.origin || 'American';
+      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
+      return [
+        `Extremely handsome charismatic 30-year-old ${origin} man`,
+        app.features,
+        `tall 182cm lean stage-ready build`,
+        `chart-topping pop singer-songwriter, a rising star`,
+        `${STATE.imagePrompts.applyHair(app, npc)} fashionably styled`,
+        `${app.skin} skin`,
+        `sleek stylish stage-adjacent outfit, designer jacket over an open shirt, a few rings`,
+        `cocky confident half-smirk, sharp knowing eyes, magnetic star presence with a competitive edge`,
+        `bare clean-shaven face`,
+        `NO glasses`,
         scene,
       ].filter(Boolean).join(', ');
     },

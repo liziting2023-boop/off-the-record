@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.94"></script>
-<script src="state.js?v=10.94"></script>
+<script src="story.js?v=10.95"></script>
+<script src="state.js?v=10.95"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -467,6 +467,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" onclick="devStay('actor')">过夜 · 男演员</button>
     <button class="dev-btn" onclick="devStay('butler')">过夜 · 管家</button>
     <button class="dev-btn" onclick="devStay('detective')">过夜 · 侦探</button>
+    <button class="dev-btn" onclick="devStay('rival')">过夜 · 对手歌手</button>
     <div class="dev-sec">图像 / 额度</div>
     <button class="dev-btn" id="dev-imgtoggle" onclick="devToggleImg()">生图开关：加载中…</button>
     <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
@@ -506,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.94</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.95</p>
   </div>
 </div>
 
@@ -1078,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.94</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.95</p>
   </div>
 </div>
 
@@ -1179,6 +1180,30 @@ const NPC_UI = {
   actor:    { emoji:'🎬', color:'#9b8ec4' },
   detective:{ emoji:'🕵️', color:'#6b8cba' },
   butler:   { emoji:'🎂', color:'#7ec48a' },
+  rival:    { emoji:'🎤', color:'#d98cae' },
+};
+
+// ── 九人相识关系网（用于将来"群聊"分组 + 影响对话/吃醋）──
+// 关系性质：professional/friendly/rivalry/disdain/frenemy/industry/local；侦探=谁都认识但没人知道他在盯
+// composer/chef/bodyguard 尚未落地，先埋好数据，做到时直接读
+const NPC_ACQUAINTANCE = {
+  agent:     { actor:'professional', composer:'professional', rival:'professional', bodyguard:'employer', drummer:'professional' },
+  drummer:   { rival:'disdain', composer:'wary-respect', chef:'regular', agent:'professional' },
+  actor:     { rival:'frenemy', composer:'industry', agent:'professional' },
+  butler:    { chef:'local', bodyguard:'colleague' },
+  detective:  {}, // 观察者：知道所有人，但不进任何群聊
+  rival:     { actor:'frenemy', drummer:'disdain', agent:'professional', composer:'industry' },
+  // —— 待落地 ——
+  composer:  { agent:'professional', actor:'industry', rival:'industry', drummer:'wary-respect' },
+  chef:      { butler:'local', drummer:'regular' },
+  bodyguard: { agent:'employer', butler:'colleague' },
+};
+// 群聊分组（做群聊功能时读这个）
+const GROUP_CHATS = {
+  band:  { members:['drummer'],           zh:'乐队群',  en:'The Band' },
+  work:  { members:['agent','composer','bodyguard'], zh:'工作群', en:'The Team' },
+  block: { members:['chef','butler','bodyguard'],    zh:'街坊群', en:'The Block' },
+  scene: { members:['actor','rival'],     zh:'名流群',  en:'The Scene' },
 };
 
 // ── NPC 角色名称（多语言）──
@@ -1188,6 +1213,7 @@ const NPC_ROLES = {
   actor:    { 'zh-cn':'演员','zh-tw':'演員',ja:'俳優',ko:'배우',en:'Actor' },
   detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
   butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Building Manager' },
+  rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
 };
 function getNPCRole(key, lang) {
   const r = NPC_ROLES[key];
@@ -1205,6 +1231,7 @@ function getNPCName(key) {
     actor:    isZh?'演员':isJa?'俳優':isKo?'배우':'Actor',
     detective:isZh?'侦探':isJa?'探偵':isKo?'탐정':'Detective',
     butler:   isZh?'管家':isJa?'管理人':isKo?'관리인':'Butler',
+    rival:    isZh?'对手歌手':isJa?'ライバル歌手':isKo?'라이벌 가수':'Rival Singer',
   };
   return npc.name || fallbacks[key] || key;
 }
@@ -1465,6 +1492,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (npcKey === 'actor')    prompt = STATE.imagePrompts.buildActorPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
+  if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
 
   if (detShadow) prompt += detShadow;
 
@@ -1541,6 +1569,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'actor')    prompt = STATE.imagePrompts.buildActorPrompt(G, plainComp, day);
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
+  if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
@@ -2810,6 +2839,12 @@ function showNPCOrigin(npcKey, callback) {
       ko: ['탐정', '당신이 추측하는', '그의 침묵 속엔 어느 도시의 그림자가 숨어있다.'],
       en: ['The Detective', 'You guess', 'His silence carries the shadow of a particular city.'],
     },
+    rival: {
+      zh: ['对手歌手', '你听说', '他的锋芒里带着某个地方的底色。'],
+      ja: ['ライバル歌手', 'あなたが聞いた', '彼の鋭さには、どこかの土地の色がにじむ。'],
+      ko: ['라이벌 가수', '당신이 들은', '그의 날카로움엔 어느 곳의 색이 배어있다.'],
+      en: ['The Rival Singer', 'You have heard', 'His edge carries the colour of somewhere specific.'],
+    },
   };
 
   const d = npcNosData[npcKey];
@@ -2953,8 +2988,8 @@ async function startDay() {
         calAddEvent(getCalDateStr(gDay), {
           id: 'gather_' + k + '_' + gDay,
           type: 'npc_invite', npcKey: k, npcName: getNPCName(k),
-          title: isZhS ? '他的朋友聚会 🍻' : "His friends' gathering 🍻",
-          status: 'pending', time: '19:30', locKey: 'livehouse', gathering: true,
+          title: isZhS ? (st.gTitleZh || '他的朋友聚会 🍻') : (st.gTitleEn || "His friends' gathering 🍻"),
+          status: 'pending', time: '19:30', locKey: st.gatherLoc || 'livehouse', gathering: true,
           description: isZhS ? '去了，就等于向他的朋友们公开你们的关系。' : 'Showing up means going public to his circle.',
         });
         refreshCalBadge();
@@ -4340,6 +4375,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     actor:    [+5, +10, +12],  // actor is intrigued by indifference
     detective:[+8, +12, +5],   // detective respects measured responses
     butler:   [+15, +8, +3],   // butler responds to warmth
+    rival:    [+4, +7, +14],   // rival loves being challenged/matched — cold pushback scores highest
   };
   const relChanges = npcPersonalityBonus[npcKey] || [+10, +5, +3];
   var vopts2 = document.getElementById('vn-opts');
@@ -4596,6 +4632,7 @@ const DATE_SPOTS = {
   actor:     { day: ['cinema', 'cafe', 'shopping_mall'],          night: ['cinema', 'rooftop', 'night_bar', 'opera_house'] },
   butler:    { day: ['park', 'cafe', 'farmers_market'],           night: ['cinema', 'mountain_viewpoint', 'park'] },
   detective: { day: ['bookshop', 'cafe', 'park'],                 night: ['bookshop', 'mountain_viewpoint'] },
+  rival:     { day: ['cafe', 'shopping_mall', 'livehouse'],       night: ['night_bar', 'rooftop', 'livehouse', 'opera_house'] },
 };
 const COASTAL_CITIES = ['Los Angeles', 'Sydney', 'New York']; // 芝加哥/多伦多是湖畔城市非海滨，不解锁ocean beach场景
 // 每个城市的标志性约会景点（运行时注册进 STORY.locations）
@@ -4677,6 +4714,11 @@ const DATE_INTENTS = {
     low:  { want:"read her — what she knows, who she trusts", sub:"every friendly question has a purpose three layers down; he tells himself it's still the job" },
     mid:  { want:"understand her, for reasons that stopped being professional a while ago", sub:"he's unsettled that he can't stay detached, and hides it behind stillness" },
     high: { want:"drop the surveillance and just be a man across the table from her", sub:"the hardest thing for him is being read in return — tonight he lets her" },
+  },
+  rival: {
+    low:  { want:"win this round — get under her skin and see if she gives as good as she gets", sub:"the competition IS the flirtation; he is rattled that she does not fold, and cannot stop poking to find out why" },
+    mid:  { want:"figure out whether she is the real thing he suspects she is", sub:"he keeps score out loud to hide that he already lost — he heard her music before they ever met and never got over it" },
+    high: { want:"drop the rivalry for once and let her see the man under the act", sub:"being un-armored scares him more than losing a chart; the banter is the last thing he has to hide behind" },
   },
 };
 function sceneIntent(npcKey, rel) {
@@ -4786,7 +4828,8 @@ async function playInviteScene(inv) {
   let rounds;
   if (inv.gathering) {
     // 朋友聚会（Batch2）：他把你介绍给他的圈子=关系公开。三轮=进门介绍→融入笑闹→角落里的真心话
-    const gCtx = ' SETTING: HIS FRIENDS\' GATHERING at the livehouse — his crew, drinks, noise, warmth. She showed up, which means he is introducing her as HIS GIRL: this is going public to his people. Friends tease and size her up warmly. Write HIS line; you may fold in at most ONE brief friend reaction into his beat (never name friends — "the bassist", "one of his crew").' + lookChangeNote(npcKey) + intentActionRule(locKey);
+    const _gatherWord = npcKey === 'rival' ? "HIS star-studded AFTERPARTY — industry faces, champagne, flashbulbs" : "HIS FRIENDS' GATHERING at the livehouse — his crew, drinks, noise, warmth";
+    const gCtx = ' SETTING: ' + _gatherWord + '. She showed up, which means he is introducing her as HIS: this is going public. People tease and size her up. Write HIS line; you may fold in at most ONE brief bystander reaction into his beat (never name them — "the bassist", "one of his crew", "a photographer").' + lookChangeNote(npcKey) + intentActionRule(locKey);
     rounds = [
       { npcContext: 'She just walked in. Meet her at the door, take her hand, and introduce her to your people as your girl — proud, and quietly watching how she feels.' + gCtx },
       { npcContext: 'The night warms up. Your friends dig up an embarrassing story about you; let it land, watch her laugh, show her she belongs here.' + gCtx },
@@ -4803,7 +4846,7 @@ async function playInviteScene(inv) {
   if (inv.gathering) {
     // 赴了朋友聚会=关系公开：记进所有已识NPC记忆；次日其他高好感NPC按性格反应（追问/冷战/冷评）
     _afterDialogHook = () => {
-      const ROLE_EN = { agent:'her talent agent', drummer:'the band leader', actor:'the actor', butler:'the building manager', detective:'the detective' };
+      const ROLE_EN = { agent:'her talent agent', drummer:'the band leader', actor:'the actor', butler:'the building manager', detective:'the detective', rival:'the rival singer' };
       G.publicWith = G.publicWith || {};
       G.publicWith[npcKey] = G.day;
       G._publicReactDue = { day: G.day + 1, npc: npcKey };
@@ -4835,6 +4878,7 @@ const HOME_PROMPTS = {
   actor:    'stylish designer bachelor apartment, moody accent lighting, a city view, sleek modern furniture, a little glamorous',
   butler:   'cozy tidy modest apartment, shelves of books, plants, homey and comfortable, warm and inviting',
   detective:'understated masculine apartment, dark warm wood tones, bookshelves, a coat on a rack, a quiet noir mood',
+  rival:    'sleek high-end pop-star apartment, framed platinum records on the wall, a grand piano in the corner, moody designer lighting, floor-to-ceiling city view, glamorous but lived-in',
 };
 // 过夜暧昧文案的"举动风格"：按各NPC性格差异化（霸道/温柔/急切/青涩/克制），替代原来所有人共用的通用动作模板
 // 每个NPC的亲密语感，按用户选定的参考书校准（只学手法/register，不抄原文）：
@@ -4846,13 +4890,16 @@ const OVERNIGHT_STYLE = {
   actor:    'Playful and verbal — he flirts in teasing challenge and quick clever lines, banter as foreplay, competitive and quick-witted, loving the game. But between the lines the wit keeps slipping, and you catch how much he actually means it — the performance cracking open into something real.',
   butler:   'Warm and emotionally open, a little shy — for him intimacy is as much what he says as what he does. Tender and vulnerable, he lets the feeling out loud, half-confession between breaths; earnest wonder and devotion winning out over any swagger.',
   detective:'Restrained and deeply respectful — he asks, he waits for her yes, he reads her for every small signal and never assumes. Controlled, considerate heat; each move deliberate, each one an offer she can meet or turn. The quiet green-flag intensity of a man who needs her to be sure.',
+  rival:    'Competitive and verbal even here — he flirts in dares and one-liners, keeping score, turning it into a game he is desperate to lose. But every clever line keeps slipping, and the cocky star comes apart in a way the cameras never get to see — undone, and stunned that she is the one who did it.',
 };
 // ══ 过夜后的关系动态（Batch2）══
 // 公开/低调立场按性格：鼓手=想公开(骄傲不藏) / 经纪人=要低调(利益冲突,暗里在意) /
 // 演员=先低调(花名在外,真心后才谈公开) / 管家=想私密(藏着秘密身份) / 侦探=天生绝对低调
 const REL_STANCE = {
-  drummer:  { mode: 'public',
+  drummer:  { mode: 'public', gatherLoc: 'livehouse', gTitleZh: '他的朋友聚会 🍻', gTitleEn: "His friends' gathering 🍻",
     ctx: 'You two have spent the night together and you are DONE hiding it — you are proud of her. Text her: this Saturday your friends are getting together at the livehouse, and you want her there — as YOUR girl, meeting your people. Blunt, warm, no games (1-2 sentences). Output only the message text.' },
+  rival:    { mode: 'public', gatherLoc: 'night_bar', gTitleZh: '他的庆功派对 🥂', gTitleEn: 'His afterparty 🥂',
+    ctx: 'You two have spent the night together — and you, of all people, want it PUBLIC, loudly: turning the press "rivalry" into the story of the year. Text her, in your cocky-but-suddenly-serious voice, to come to your afterparty this weekend — walk in on your arm, let the whole room see it (1-2 sentences). Output only the message text.' },
   agent:    { mode: 'private',
     ctx: 'You two have spent the night together. As her AGENT, if this gets out it hurts HER career and looks like a conflict of interest — so, gently and warmly, ask her to keep what you two have strictly between you two for now. Make clear it is protection, not shame — you are not hiding HER, you are shielding her (1-2 sentences). Output only the message text.' },
   actor:    { mode: 'private',
@@ -4874,11 +4921,14 @@ const PUBLIC_REACTIONS = {
     ctx: 'You just learned she is publicly with OTHER_NAME now. You say exactly one blunt hurt line — short, no drama, the kind that lands harder because it is quiet — and then you stop texting her (1 sentence). Output only the message text.' },
   detective:{ kind: 'dry', rel: -5,
     ctx: 'You just learned she is publicly with OTHER_NAME now. You observe, as always. Send one dry, unreadable line that only later she will realize was him caring (1 sentence). Output only the message text.' },
+  rival:    { kind: 'cold', days: 4, rel: -9,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. You — who turns everything into a contest — just lost the one that mattered. Fire off ONE perfectly-worded barb disguised as congratulations ("great narrative, really — very on brand"), and then go silent, because silence is the only move you have left (1 sentence). Output only the message text.' },
 };
 // 冷战解冻时的台词方向
 const THAW_CTX = {
   actor:   'You went silent on her for days after she went public with another man. You cannot keep it up — text her something that pretends the silence never happened, with the performance slightly cracked (1-2 sentences). Output only the message text.',
   drummer: 'You went silent on her for days after she went public with another man. Break the silence the only way you know — something gruff and practical that is secretly an olive branch (1-2 sentences). Output only the message text.',
+  rival:   'You went silent on her for days after she went public with another man. You break first, because losing quietly is worse than losing loud — text her a barbed little line that is unmistakably you waving a white flag (1-2 sentences). Output only the message text.',
 };
 function npcIsCold(k) { return !!(G.npcs[k] && G.npcs[k].coldUntil && G.npcs[k].coldUntil > G.day); }
 
@@ -4897,6 +4947,7 @@ const OVERNIGHT_ACT1 = {
   actor:    { scene:'on the balcony of his designer apartment, the city glittering far below', prop:'passing her a glass of wine and standing close against the night air', img:'a still-life close view on a designer apartment balcony at night, two glasses of red wine resting on the railing, a glittering city far below, warm light spilling from the empty room behind, unoccupied' },
   butler:   { scene:'at the small kitchen table of his cozy apartment, books and plants around', prop:'pouring her tea, his hands not quite steady', img:'a still-life close view of a small cozy round kitchen table at night, a teapot steeping and two mugs of tea, books and a small potted plant, warm lamp light, empty chairs, an unoccupied homey apartment interior' },
   detective:{ scene:'at the desk by the bookshelf in his apartment, a quiet noir hush', prop:'sliding a glass of whiskey across to her and watching her over the rim', img:'a still-life close view of a dark wood desk by a bookshelf at night, two low glasses of amber whiskey, a single warm desk lamp, a quiet noir mood, an empty unoccupied masculine study interior' },
+  rival:    { scene:'in his sleek pop-star apartment, platinum records glinting on the wall, the city low behind him', prop:'turning it into a dare — a bet, a challenge, "last one to look away loses" — anything to keep the game running as the distance closes', img:'a still-life close view of a sleek modern pop-star apartment at night, framed platinum records on a dark wall, a bottle of champagne and two glasses on a low designer table, a grand piano silhouette, city lights blurred through the window, an empty unoccupied stylish apartment interior' },
 };
 const OVERNIGHT_ACT2 = {
   agent:    { scene:'his bedroom, the skyline glowing beyond the glass', img:'an empty unoccupied luxury bedroom at night, a wide low bed with rumpled fine dark linens turned back, a city skyline glow through floor-to-ceiling glass, dim warm light' },
@@ -4904,6 +4955,7 @@ const OVERNIGHT_ACT2 = {
   actor:    { scene:'his stylish bedroom, the city glowing beyond the window', img:'an empty unoccupied stylish bedroom at night, a sleek dark bed with covers turned back, moody low accent light, a city glowing beyond the window' },
   butler:   { scene:'his small tidy bedroom, warm and shy', img:'an empty unoccupied small tidy bedroom, soft simple bedding slightly turned down, one warm lamp, cozy intimate mood' },
   detective:{ scene:'his bedroom, dark wood and restrained warmth', img:'an empty unoccupied understated bedroom, dark wood, plain good linens turned back, a single warm lamp, quiet noir mood' },
+  rival:    { scene:'his bedroom, city lights low, platinum records glinting on the wall', img:'an empty unoccupied sleek pop-star bedroom at night, a wide bed with dark designer linens turned back, city lights through floor-to-ceiling glass, moody low accent light' },
 };
 async function genNPCHomeActBg(npcKey, act) {
   const field = act === 2 ? 'homeAct2Url' : 'homeAct1Url';
@@ -5314,7 +5366,7 @@ function judgeRelChange(npcKey, reply) {
 
   // Personality-aware scoring
   var change = base;
-  if (npcKey === 'drummer' || npcKey === 'agent') {
+  if (npcKey === 'drummer' || npcKey === 'agent' || npcKey === 'rival') {
     // These guys like challenge and pushback
     change = base + (chalScore * 8) + (negScore * 3) - (posScore * 2);
   } else if (npcKey === 'actor') {
@@ -6581,7 +6633,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.94 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.95 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

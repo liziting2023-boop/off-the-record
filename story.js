@@ -563,6 +563,43 @@ const STORY = {
         12: '"I grew up. This time, let me protect you."',
       },
     },
+
+    // 对手歌手（新增·第3周登场）：宿敌变恋人
+    rival: {
+      age: 30,
+      profession: 'Chart-topping pop singer-songwriter',
+      culture: 'Western pop-star culture. Grew up in the industry, media-trained, quick and camera-ready. Trades in banter and one-upmanship. Competitive to the bone but genuinely funny; the arrogance is a bit that he half-believes. Never bows or defers — meets everyone as an equal or a rival.',
+      corePersonality: [
+        'Razor-sharp wit — flirts and fights in banter, one clever line topping the last',
+        'Fiercely competitive, keeps score, hates losing more than he lets on',
+        'Camera-ready charm that is practiced but not hollow — he enjoys the game',
+        'Reads a room instantly; knows exactly the effect he has and uses it',
+        'Under the swagger, an artist who suspects he is manufactured and she is the real thing',
+        'Loyalty, once earned, is absolute — but earning it means beating him first',
+        'Western pop confidence: comfortable being watched, quoted, provoked',
+      ],
+      hiddenTruths: [
+        'He heard her music before they ever met and has been rattled by it since',
+        'He is terrified she will eclipse him — and, more terrifying, he wants her to',
+        'The rivalry he stokes in the press is the only way he knows to stay close to her',
+      ],
+      noGlasses: true,
+      maxSunglasses: true,
+      // 相识关系（用于群聊/吃醋系统）：损友演员、看不起鼓手、竞品经纪人、圈内作曲家
+      knows: { actor:'frenemy', drummer:'disdain', agent:'professional', composer:'industry' },
+      emotionalArc: {
+        3: 'First clash — a chart interview turned live sparring match. He needles her; she does not fold; he is intrigued despite himself.',
+        4: 'Backstage rivalry. He steals her spotlight, then quietly makes sure her mic was fixed.',
+        5: 'A duet dare neither will back down from. Their voices terrify both of them.',
+        6: 'Press paints them as enemies. He leans into it — it keeps her in his orbit.',
+        7: 'She outsells him. He congratulates her with a barb and means the opposite.',
+        8: 'A drunk 3am call. The bit drops. "You scare the hell out of me."',
+        9: 'Publicly cedes an award moment to her — the most honest thing he has done.',
+        10: 'No press, no game. Shows up with takeout and his guard down.',
+        11: 'Writes her a song under a fake name so she cannot refuse it.',
+        12: '"I spent a career trying to win. Turns out I just wanted you to."',
+      },
+    },
   },
 
   // ══════════════════════════════════════════════════════
