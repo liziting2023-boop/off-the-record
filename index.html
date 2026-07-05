@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.89"></script>
-<script src="state.js?v=10.89"></script>
+<script src="story.js?v=10.90"></script>
+<script src="state.js?v=10.90"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -506,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.89</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.90</p>
   </div>
 </div>
 
@@ -1067,7 +1067,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.89</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.90</p>
   </div>
 </div>
 
@@ -1080,6 +1080,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 const WORKER = 'https://off-the-record-api.liziting2023.workers.dev';
 const DEV_MODE_IMG = false; // true = 跳过图片生成（省钱）
 const DEV_MODE_TXT = false; // true = 跳过Claude对话（用占位文字）
+// 过夜/亲密文案尺度等级（改这一个常量即可整体切换）：
+//   'A' = 含蓄淡出（最保守）
+//   'B' = 更热但高潮处淡出、不写露骨性行为（**上架 App Store/Google Play 安全**，默认）
+//   'C' = 露骨（仅网页/成人平台版，**切勿上架两大商店**，会被拒审/下架）
+const HEAT_LEVEL = 'B';
 
 // ── 快捷访问 STATE ──
 const G = STATE.data;
@@ -4383,12 +4388,15 @@ const HOME_PROMPTS = {
   detective:'understated masculine apartment, dark warm wood tones, bookshelves, a coat on a rack, a quiet noir mood',
 };
 // 过夜暧昧文案的"举动风格"：按各NPC性格差异化（霸道/温柔/急切/青涩/克制），替代原来所有人共用的通用动作模板
+// 每个NPC的亲密语感，按用户选定的参考书校准（只学手法/register，不抄原文）：
+//   经纪人←Bared to You(占有欲/什么都知道)、鼓手←Fifty Shades(控制/粗粝支配)、
+//   男演员←Book Lovers(机锋斗嘴)、管家←Beach Read(情绪价值/温暖脆弱)、侦探←Love Hypothesis(绿旗/尊重克制)
 const OVERNIGHT_STYLE = {
-  agent:    'He leads with assured, unhurried warmth — every move deliberate and attentive, savoring rather than rushing, making her feel like the only thing in his world; a low murmur of praise against her skin, a steady hand that knows exactly what it wants but gives her every chance to meet it.',
-  drummer:  'He is all instinct and almost no words — his hands say what he never could out loud; rough-tender and impatient, he pulls her in hard and then gentles at the last second, careful with her even as his own restraint frays.',
-  actor:    'He is playful and practiced at first — teasing confidence, a slow reveal, a showman who loves being watched — but with her the performance keeps slipping, and something startlingly unguarded and real breaks through the charm.',
-  butler:   'He is earnest and shy, ears burning and hands not quite steady — reverent and a little nervous, asking with his eyes before he dares anything, sweetness and wonder winning out over any swagger.',
-  detective:'He is quiet and deliberate, all controlled restraint — one precise touch and a single low word carry more than most men manage in a hundred; watchful and unhurried, the heat all the more charged for being so carefully held back.',
+  agent:    'Possessive and knowing — he has quietly noticed everything about her and lets her feel it. His desire is direct and certain, spoken low and unhurried; he savors her, and the more she trembles the steadier and surer his hands become. Control wrapped in warmth: he tells her, softly, exactly what he wants, and exactly what he sees in her.',
+  drummer:  'Rough and commanding, almost no words — his want is blunt and physical. He takes the lead, sets the pace, tells her what he wants in short low words against her skin, hands sure and impatient; but at the very edges he gentles, checking her with his eyes. Raw dominance with unspoken care underneath.',
+  actor:    'Playful and verbal — he flirts in teasing challenge and quick clever lines, banter as foreplay, competitive and quick-witted, loving the game. But between the lines the wit keeps slipping, and you catch how much he actually means it — the performance cracking open into something real.',
+  butler:   'Warm and emotionally open, a little shy — for him intimacy is as much what he says as what he does. Tender and vulnerable, he lets the feeling out loud, half-confession between breaths; earnest wonder and devotion winning out over any swagger.',
+  detective:'Restrained and deeply respectful — he asks, he waits for her yes, he reads her for every small signal and never assumes. Controlled, considerate heat; each move deliberate, each one an offer she can meet or turn. The quiet green-flag intensity of a man who needs her to be sure.',
 };
 async function genNPCHomeBg(npcKey) {
   if (G.npcs[npcKey] && G.npcs[npcKey].homeUrl) return G.npcs[npcKey].homeUrl; // 缓存复用
@@ -4448,10 +4456,16 @@ async function genOvernightProse(npcKey, act, firstNight) {
       'This is the SLOW BURN before anything happens: 3-4 sentences of varied, breathless rhythm. Build the tension and STOP at the first real touch, or the held look a heartbeat before the kiss — go no further, leave her the choice. Suggestive and charged, not explicit yet. ' +
       'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(1) + '"';
   } else {
+    const CEIL = {
+      A: 'HEAT CEILING (tasteful): stay suggestive and mostly implicit — deep kisses and charged touch, but clothing largely stays and you fade out early, before much happens.',
+      B: 'HEAT CEILING (be genuinely steamy but stop short of explicit — this is an app-store-safe romance): deep, breaking-restraint kisses; clothing coming loose and falling away; his mouth and hands on bare skin — the shoulders, the throat, the waist, the arch of her back; the heat and ache vivid and rising. Do NOT describe explicit sexual acts or genitals. Let the peak arrive and then FADE TO BLACK on the sharpest, most charged beat rather than narrating the act itself.',
+      C: 'HEAT CEILING: fully explicit adult content — do not hold back.',
+    };
+    const ceil = CEIL[typeof HEAT_LEVEL!=='undefined' ? HEAT_LEVEL : 'B'] || CEIL.B;
     user = 'Write ACT TWO of an overnight scene — the payoff, and it should be genuinely steamy. The man is ' + name + '. His manner when things turn intimate: ' + style + ' ' +
       (isButler ? 'IMPORTANT — HE stays the shy, passive one throughout: SHE leads every step and he follows, trembling and overwhelmed and worshipful, his touch only going where hers guides it; the heat comes from his undoing, not from dominance. ' : '') +
       'She chose to let it continue; the scene has moved to ' + a2.scene + '. ' +
-      'Write it like the hottest scene in a bestselling erotic romance: the kiss deepens and breaks restraint, clothing comes loose and falls away, mouths and hands map bare skin, the heat and ache and wanting all in vivid sensory detail and rising, breathless rhythm. Noticeably more explicit and daring than act one — but keep the heightened, evocative register of romance (sensation and desire, the poetry of bodies), NOT clinical or crude anatomy. 4-6 sentences. Let the peak arrive and then CUT AWAY artfully at the very height — fade to black on the sharpest, most charged beat rather than narrating the act itself. ' +
+      'Write it like the hottest scene in a bestselling romance: vivid, sensual, physical, in the heightened evocative register of the genre (sensation and desire, the poetry of bodies), NOT clinical or crude anatomy. His specific manner above must drive every beat — a possessive man, a commanding one, a playful one, a shy one and a respectful one must each read completely differently here. 4-6 sentences, breathless and building. ' + ceil + ' ' +
       'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(2) + '"';
   }
   return await claude(user, sys);
@@ -5939,7 +5953,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.89 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.90 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
