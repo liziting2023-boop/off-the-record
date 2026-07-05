@@ -509,6 +509,17 @@ push 到 main → GitHub Actions → 约 30 秒生效。
 - 已验证:pace=1.0行为不变(50+10→56)、语气镜头渲染/填半句/tone记录、每轮1次AI调用、零报错
 - **未修留待批B**：R4(邀约/日历:自动确认/重复约/日期错位/爽约无反应/上午吞下午/图5乱)、R7(女主家场景/短信约触发过夜/送到楼下式过夜)、R1(名字性别校验)。功能批:生日/emoji/草稿保留/过夜勋章/售楼处/换装反馈/蛋糕图/过夜邀请音效/演员开衫鼓手纹身发色/美容院重生成
 
+**v10.92（Fix批B:邀约/日历系统R4 + 女主家场景R7 + 名字性别校验R1）**：
+- **R4 聊天立约改"待确认"**（futureInvite handler）：不再直接 status accepted（修"日历替我确认了没让我点"+双约撞车），玩家在日历点接受才算数；prompt 加"只有她明确同意才填futureInvite,你提议她没答就都别填"+"daysFromNow必须按DATE REFERENCE表精确落在你说出口的那天(明晚=1)"。同NPC同日已有邀约→合并更新不堆条目；`addNPCInvite` 同样去重（修图5一个计划两条）。futureInvite 新增 locationKey 落进 `inv.locKey`（修"约喝汤去了湖边"——之前聊天立约根本不带地点）
+- **R4 爽约有反应**：新增 `sendStoodUpMessage(npc,title)`——被放鸽子的NPC当晚发消息(受伤/冷淡/装不在乎按性格)；接入白天爽约+晚间选择放弃的两处
+- **R4 上午工作不吞下午约会**（goEvening开头）：入夜前发现当天还有已确认未赴的白天约→先 `playInviteScene` 赴约再入夜（`G._dayInvGuard` 防重入；playInviteScene会标completed）。图3"选了词曲创作课就直接入夜"修复
+- **R7 女主家/NPC家成为正式场景**：新增 `resolveSceneBg`(her_home=公寓已有图零生图成本;*_home=genNPCHomeBg;其余genLocationBg)+`homeLocDesc`；聊天 meet/futureInvite locationKey 加 `her_home|his_home`；runMeetupScene/playInviteScene 都支持（开场白单独写"门铃响了他来了你家"，修"你们约在了上门找她"读不通+咖啡馆兜底错景）；DATE_ACTION_HINTS 加两个家场景；标题规则禁"深夜即兴见面"式元描述+禁带她名字（修"陪Ting逛街"）
+- **R7 见面也能过夜**：runMeetupScene 晚间+好感≥75 挂 maybeStayOver（修"信息约见面不触发过夜"）
+- **R7 过夜四模式**（maybeStayOver重构 dest=at_his/at_hers/go_his/walk_hers）：公共地点50%"跟他走(他家)"/50%"**送她回家他找借口上来**"(新,用户点子);她家场景="让他留下";选项/邀请词/婉拒词/记忆/两幕背景(她家=客厅→卧室图,零生图)/散文场景(genOvernightProse加atHers参数,她家版第一幕/第二幕/换地点列表)/晨后消息(_stayedOver.at区分"她溜回家"vs"他离开她家")全按模式走
+- **R1 名字**：两处NPC名字生成加 MALE/masculine 强制+排除已用名(修Margaret Holloway女名);`claude()` 全局 CAST GUARD:五男主全男性+配角起名禁复用主角团名字(修制作人叫成演员名)
+- 已验证:her_home全流程(邀请→让他留下→两幕bg=她家图→stayedAt=hers→散文ctx带her)、公共地点两模式4/4随机、goEvening改道到白天约、addNPCInvite去重+pending、零报错
+- 测试:`otrTestStay('agent','her_home')` 可直接测她家过夜;公共locKey测随机两模式
+
 - **后续块(按序)**：②过夜后关系动态(公开/低调+朋友聚会+吃醋不回消息,公开低调按性格:鼓手公开/经纪人低调/演员先低调后公开/管家私密/侦探绝对低调) ③美容院(做美容图+按特征重生成女主头像)+选NPC加发色 ④NPC出场节奏重排(演员+管家→第2周、侦探→专辑发布名气小高潮、第3/4周各+2位**全新恋爱向NPC**由我提方案) 
 
 ## 9. 待开发（优先顺序）

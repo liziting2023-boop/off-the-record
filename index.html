@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.91"></script>
-<script src="state.js?v=10.91"></script>
+<script src="story.js?v=10.92"></script>
+<script src="state.js?v=10.92"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -506,7 +506,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.91</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.92</p>
   </div>
 </div>
 
@@ -1067,7 +1067,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       </div>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.91</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.92</p>
   </div>
 </div>
 
@@ -1367,7 +1367,13 @@ async function claude(prompt, sys = '') {
     if (isKo) return '（DEV）이것은 테스트 대화입니다.';
     return '(DEV) This is placeholder dialogue for testing.';
   }
-  const _culturalCtx = 'CULTURAL CONTEXT: This story is set in the Western entertainment industry (' + (G.player.city||'a major Western city') + '). All characters behave according to Western social and professional norms. They are direct, individualistic, and do NOT follow Chinese cultural norms. No face-saving, no indirect language, no WeChat-style communication. Dialogue should feel like it belongs in a Western TV drama or film, not a Chinese drama. The language used is ' + G.langName + ' but the cultural context is always Western.';
+  // 主角团名字守卫：五位男主全是男性；给配角起名时禁止复用主角团名字（修"制作人叫成演员的名字"）
+  let _castGuard = '';
+  try {
+    const _castNames = Object.values(G.npcs || {}).map(n => n && n.name).filter(Boolean);
+    _castGuard = ' CAST GUARD: The heroine is a woman. All five main love interests (talent agent, drummer, actor, building manager, detective) are MEN — men always carry male names. If you ever need to name a minor side character (a producer, stylist, journalist, executive...), NEVER reuse any main-cast name' + (_castNames.length ? ' (' + _castNames.join(', ') + ')' : '') + ' — invent a clearly different one.';
+  } catch(e) {}
+  const _culturalCtx = 'CULTURAL CONTEXT: This story is set in the Western entertainment industry (' + (G.player.city||'a major Western city') + '). All characters behave according to Western social and professional norms. They are direct, individualistic, and do NOT follow Chinese cultural norms. No face-saving, no indirect language, no WeChat-style communication. Dialogue should feel like it belongs in a Western TV drama or film, not a Chinese drama. The language used is ' + G.langName + ' but the cultural context is always Western.' + _castGuard;
   const body = { model: 'claude-sonnet-4-6', max_tokens: 800, messages: [{ role: 'user', content: prompt }], system: (_culturalCtx + (sys ? '\n\n' + sys : '')) };
   let r;
   try {
@@ -1420,7 +1426,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (!G.npcs[npcKey].name) {
     const origin = G.npcs[npcKey].origin || 'American';
     const age = STORY.characters[npcKey]?.age || 25;
-    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + age + '-year-old. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. Return ONLY the name.');
+    const nameStr = await claude('Generate a realistic authentic ' + origin + ' MALE name (a man\'s name — unmistakably masculine first name) for a ' + age + '-year-old MAN. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. It must NOT be any of these already-used names: ' + (Object.values(G.npcs || {}).map(n => n && n.name).filter(Boolean).join(', ') || 'none') + '. Return ONLY the name.');
     G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
   }
 
@@ -1512,7 +1518,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (!G.npcs[npcKey].name) {
     const origin = G.npcs[npcKey].origin || 'American';
     const age = STORY.characters[npcKey]?.age || 25;
-    const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + age + '-year-old. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. Return ONLY the name.');
+    const nameStr = await claude('Generate a realistic authentic ' + origin + ' MALE name (a man\'s name — unmistakably masculine first name) for a ' + age + '-year-old MAN. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. It must NOT be any of these already-used names: ' + (Object.values(G.npcs || {}).map(n => n && n.name).filter(Boolean).join(', ') || 'none') + '. Return ONLY the name.');
     G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
   }
   // 不提"眼镜/背包"等物体词（否定式对flux无效甚至反向诱导），只正向描述
@@ -2142,6 +2148,8 @@ function autoAddCalendarEvents(day) {
 // Called when NPC sends an invitation (from affinity system or story)
 function addNPCInvite(npcKey, gameDay, title, description, time) {
   var dateStr = getCalDateStr(gameDay);
+  // 同一NPC同一天已有邀约（含聊天里谈成的）→ 不再重复添加（修同一计划在日历里出现两条）
+  if ((G.calendar.events[dateStr] || []).some(function(e){ return e.type === 'npc_invite' && e.npcKey === npcKey && e.status !== 'declined' && e.status !== 'missed'; })) return;
   calAddEvent(dateStr, {
     id: 'invite_'+npcKey+'_'+gameDay,
     type: 'npc_invite',
@@ -2819,14 +2827,17 @@ async function startDay() {
   // 昨晚在TA那里过夜 → 今早收到一条含蓄的早安消息
   if (G._stayedOver && G._stayedOver.day === G.day - 1) {
     const soNpc = G._stayedOver.npc;
+    const soAtHers = G._stayedOver.at === 'hers';
     G._stayedOver = null;
     // 同步记下"今天他要发晨后消息"：常规早晨批次跳过这个NPC，避免两条消息互相矛盾（一条像她还在他家、一条像她早回家了）
     G._morningAfterMark = { npc: soNpc, day: G.day };
     (async () => {
       try {
         const soTxt = await claude(STATE.memory.buildDialoguePrompt(soNpc, G.day, G.langName, G.player.name,
-          'She stayed the night at YOUR place last night, and slipped back to her own apartment early this morning — she is HOME now, not at your place. Send her ONE short morning-after text — tender, a little charged, tasteful and implicit, in your own voice (1-2 sentences). ' +
-          'It must be consistent with her having already left (no "coffee is on the stove, help yourself" as if she were still in your kitchen). Reference last night only obliquely — warm, wanting, never crude, and NEVER anything that could read as tidying away the evidence (no washing sheets). ' +
+          (soAtHers
+            ? 'You stayed the night at HER place last night, and left early this morning — YOU are back at your own place now, she woke up at home. Send her ONE short morning-after text — tender, a little charged, tasteful and implicit, in your own voice (1-2 sentences). It must be consistent with YOU having been the guest who left her apartment (you might mention something you noticed in her space, or what you did not want to leave). '
+            : 'She stayed the night at YOUR place last night, and slipped back to her own apartment early this morning — she is HOME now, not at your place. Send her ONE short morning-after text — tender, a little charged, tasteful and implicit, in your own voice (1-2 sentences). It must be consistent with her having already left (no "coffee is on the stove, help yourself" as if she were still in your kitchen). ') +
+          'Reference last night only obliquely — warm, wanting, never crude, and NEVER anything that could read as tidying away the evidence (no washing sheets). ' +
           'Output ONLY the message text itself: no stage directions, no asterisks, no timestamps, no quotes around it.'));
         if (soTxt && soTxt.trim()) {
           if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
@@ -3503,6 +3514,22 @@ function endCall() {
   STATE.save.saveGame();
 }
 
+// ── "家"地点（her_home=女主家 / his_home及*_home=NPC家）：不走 genLocationBg，
+//    她家用公寓已有图（零生图成本），他家用 genNPCHomeBg；对话上下文给对应场景描述 ──
+async function resolveSceneBg(locKey, npcKey) {
+  if (locKey === 'her_home') {
+    const night = G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60;
+    return (night ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl) : (G.apartment.livingDayUrl || G.apartment.livingNightUrl)) || null;
+  }
+  if (/_home$/.test(locKey || '')) return await genNPCHomeBg(npcKey);
+  return await genLocationBg(locKey, G.day);
+}
+function homeLocDesc(locKey, npcKey) {
+  if (locKey === 'her_home') return 'her own small cozy apartment living room — HER space, her books and plants, warm lamp light, personal and private (he is the guest here)';
+  if (/_home$/.test(locKey || '')) return (HOME_PROMPTS[npcKey] || HOME_PROMPTS.agent) + ' — HIS home, she is the guest';
+  return (STORY.locations[locKey] || {}).composition || '';
+}
+
 // ── 消息里约成的当天见面：进入场景+3轮对话（白天/晚上都可触发）──
 function runMeetupScene(npcKey, locKey, title) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
@@ -3516,18 +3543,23 @@ function runMeetupScene(npcKey, locKey, title) {
   document.getElementById('vn-overlay').style.display = 'block';
   document.getElementById('vn-content').style.display = 'flex';
   document.getElementById('vn-speaker').textContent = '';
-  document.getElementById('vn-text').textContent = isZh ? '你们约在了' + title + '。' : 'You meet up: ' + title + '.';
+  // 家地点的开场白单独写（"你们约在了上门找她"这类拼接读不通）
+  document.getElementById('vn-text').textContent = locKey === 'her_home'
+    ? (isZh ? '门铃响了。他来了你家。' : 'The doorbell rings. He\'s at your place.')
+    : /_home$/.test(locKey||'')
+    ? (isZh ? '你去了他家。' : 'You head over to his place.')
+    : (isZh ? '你们约在了' + title + '。' : 'You meet up: ' + title + '.');
   document.getElementById('vn-opts').innerHTML = '';
-  // 见面场景用无人物地点背景（双人图已移除，见 genLocationBg 上方注释）
-  genLocationBg(locKey, G.day).then(url => {
+  // 见面场景用无人物地点背景（双人图已移除，见 genLocationBg 上方注释）；她家/他家走 resolveSceneBg
+  resolveSceneBg(locKey, npcKey).then(url => {
     if (url) {
       document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
-      if (pushGalleryUnique(url, title + ' · Day ' + G.day)) STATE.save.saveGame();
+      if (locKey !== 'her_home' && pushGalleryUnique(url, title + ' · Day ' + G.day)) STATE.save.saveGame();
     }
   });
   G.today = { label: title, isWork: false, npc: npcKey };
   addStress(-5); // 和喜欢的人见面也解压
-  const locDesc = (STORY.locations[locKey]||{}).composition || '';
+  const locDesc = homeLocDesc(locKey, npcKey);
   // 三轮临场对话（复用剧情对话引擎，选项由AI动态生成）
   const seeds = pickSeeds(2);
   const _mrel = (G.npcs[npcKey]||{}).relationship;
@@ -3543,6 +3575,11 @@ function runMeetupScene(npcKey, locKey, title) {
   startBtn.className = 'vn-next';
   startBtn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   // 见面场景：结束旁白用实际见面地点，不借用当天剧情事件（否则约吃饭却显示"拍摄结束"）
+  // 晚间见面 + 好感≥75 → 和正式约会一样能触发过夜暗示（修"用信息约见面不能触发过夜"）
+  const _meetIsEvening = G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60;
+  if (_meetIsEvening && (G.npcs[npcKey].relationship || 0) >= 75) {
+    _afterDialogHook = () => maybeStayOver(npcKey, locKey);
+  }
   startBtn.onclick = () => { _vnEndLoc = locKey; runVNDialog(rounds, npcKey, G.day, 0); };
   document.getElementById('vn-opts').appendChild(startBtn);
 }
@@ -4383,6 +4420,8 @@ const DATE_ACTION_HINTS = {
   street_market:      'paying for the little thing she lingered on before she can refuse, guiding her by the hand through the crowd, holding a bite up for her to try',
   farmers_market:     'carrying whatever she picks, holding a strawberry up for her to taste, wiping a smudge from her cheek with his thumb',
   shopping_mall:      'holding the door, taking the bags from her hand without asking, waiting outside the fitting room and reacting when she steps out',
+  her_home:           'looking at her books and photos a beat too long, handing her the mug he just washed, standing at her window taking in her view, careful and a little reverent in HER space',
+  his_home:           'moving around his own kitchen with easy familiarity, pouring her a drink without asking how she takes it — because he remembers, dropping onto the couch closer than strictly necessary',
   // 工作场地的"来看你"式见面（聊天meet可以约在拍摄/录音/训练现场）：动作要克制、有分寸
   magazine_shoot:     'bringing her a coffee between takes and staying out of the crew\'s way, holding her jacket while she is under the lights, a quiet thumbs-up from behind the photographers',
   recording_studio:   'listening by the mixing desk with his arms folded, bringing her water when her voice tires, pressing the talkback button just to say one encouraging word',
@@ -4400,7 +4439,7 @@ async function playInviteScene(inv) {
   const npcKey = inv.npcKey;
   const isDayDate = invTimeMin(inv) < 17 * 60;
   // 地点：邀约生成时带的locKey优先，否则按NPC性格+昼夜时段挑（修中午约饭却出夜晚酒吧图）
-  const locKey = (inv.locKey && STORY.locations[inv.locKey]) ? inv.locKey : pickDateSpot(npcKey, isDayDate);
+  const locKey = (inv.locKey && (STORY.locations[inv.locKey] || /_home$/.test(inv.locKey))) ? inv.locKey : pickDateSpot(npcKey, isDayDate);
   // 标准场景入口：白天赴约是从首页直接点进来的（没经过 showEveningInviteChoice 的 go('s-scene')），
   // 不切屏的话整场约会会在看不见的DOM里跑完（code-review 抓到的存量bug）；晚间路径重复初始化无害
   go('s-scene');
@@ -4418,11 +4457,11 @@ async function playInviteScene(inv) {
   document.getElementById('vn-speaker').textContent = '';
   document.getElementById('vn-text').textContent = '';
   document.getElementById('vn-opts').innerHTML = '';
-  // 约会场景用无人物地点背景（双人图已移除，NPC形象由对话头像框展示）
-  genLocationBg(locKey, G.day).then(url => {
+  // 约会场景用无人物地点背景（双人图已移除，NPC形象由对话头像框展示）；她家/他家走 resolveSceneBg
+  resolveSceneBg(locKey, npcKey).then(url => {
     if (url) {
       document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
-      if (pushGalleryUnique(url, (inv.title || 'Date') + ' · Day ' + G.day)) STATE.save.saveGame();
+      if (locKey !== 'her_home' && pushGalleryUnique(url, (inv.title || 'Date') + ' · Day ' + G.day)) STATE.save.saveGame();
     }
   });
   STATE.relationships.change(npcKey, 5); // 赴约加好感
@@ -4432,7 +4471,7 @@ async function playInviteScene(inv) {
   G.today = { label: (isZh?'和':'Evening with ') + getNPCName(npcKey) + (isZh?'的晚间约会':''), isWork: false, npc: npcKey };
   STATE.save.saveGame();
   // 三轮约会对话：随机话题种子（兴趣/展现自己/透露隐私）+ 贴合场合的动作 + 按好感度分寸的暧昧张力
-  const locDesc = (STORY.locations[locKey]||{}).composition || '';
+  const locDesc = homeLocDesc(locKey, npcKey);
   const tier = STORY.specialDates.getAffinityTier(G.npcs[npcKey].relationship);
   const seeds = pickSeeds(3);
   const _rel = G.npcs[npcKey].relationship;
@@ -4515,12 +4554,17 @@ function _overnightExemplar(act) {
     ? '门在身后合上的那一刻，整间屋子忽然只剩下你们两个人的呼吸。他把那杯酒递过来，指尖擦过你的手背，却没有收回去，就那样停在那里，温热的一点触碰慢慢烧起来。「你今晚，不用走。」他的声音压得很低，低到你几乎是从他胸腔里听见的。他没有再靠近，只是看着你，把最后那一步，留给了你。'
     : "The door closes and all at once the room narrows to the sound of the two of you breathing. He holds the glass out, his fingertips grazing the back of your hand and staying there, that one warm point of contact slowly catching fire. \"You don't have to leave tonight,\" he says, low enough that you feel it more than hear it. He doesn't come any closer — he just looks at you, and leaves the last step to you.";
 }
-async function genOvernightProse(npcKey, act, firstNight) {
+async function genOvernightProse(npcKey, act, firstNight, atHers) {
   const name = getNPCName(npcKey);
   const isButler = npcKey === 'butler';
   const style = OVERNIGHT_STYLE[npcKey] || '';
-  const a1 = OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent;
-  const a2 = OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent;
+  // atHers=这一夜发生在女主家（她家过夜/送她回家他上来）：场景全部换成她的公寓，他是踏进她空间的客人
+  const a1 = atHers
+    ? { scene: 'inside HER small cozy apartment — her books, her plants, one warm lamp; he is standing in HER space' + (firstNight ? ' for the very first time' : ''), prop: 'him taking her space in — the photos, the throw blanket, the life of hers he is finally inside of — while the small room keeps them closer than politeness allows' }
+    : (OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent);
+  const a2 = atHers
+    ? { scene: 'her bedroom — small, warm, unmistakably hers, his presence filling it' }
+    : (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent);
   const sys = 'You are an award-winning contemporary romance novelist writing an intimate scene for an adult (18+) otome visual novel — lush, sensory, emotionally immersive prose in the register of a bestselling steamy romance, unafraid of heat but never crude or clinical. Write in ' + G.langName + '. Output ONLY the scene prose itself: second person addressed to the heroine (你/you) — NEVER refer to her as "她"/"her" — the man\'s actions in third person (他/he). ' +
     'HARD BANS (all wildly overused in this game): the line "别动"/"Don\'t move"; pushing or sliding a cup/glass toward her; tucking or brushing a strand of her hair; the word "余温". Find fresher beats. ' +
     'No preamble, no headings, no meta, no restating these instructions, no quotation marks around the whole thing. Plain text only.';
@@ -4530,14 +4574,14 @@ async function genOvernightProse(npcKey, act, firstNight) {
     if (firstNight) {
       user = 'Write ACT ONE of an overnight scene — their very FIRST night. The man is ' + name + '. His manner when things turn intimate: ' + style + ' ' +
         (isButler ? 'IMPORTANT — here HE is the shy, passive one: SHE takes the lead while he is flustered, ears burning, overwhelmed and adoring, barely believing this is happening. ' : '') +
-        'They have just come back to his place for the very first time, ' + a1.scene + '. Build the beat around: ' + a1.prop + ' — let it become the excuse to close the distance between them. ' +
+        (atHers ? 'He has just come up to HER apartment, ' : 'They have just come back to his place for the very first time, ') + a1.scene + '. Build the beat around: ' + a1.prop + ' — let it become the excuse to close the distance between them. ' +
         'This is the SLOW BURN before anything happens: 3-4 sentences of varied, breathless rhythm. Build the tension and STOP at the first real touch, or the held look a heartbeat before the kiss — go no further, leave her the choice. Suggestive and charged, not explicit yet. ' +
         'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(1) + '"';
     } else {
       // 非第一次：老情侣节奏——短、熟稔、不再有"招待仪式"，不能读起来像初夜（用户反馈"每次过夜都好像是第一次"）
       user = 'Write ACT ONE of an overnight scene. The man is ' + name + ', and she has ALREADY stayed the night with him ' + nightsSoFar + ' time(s) — they are lovers now, so NO first-night nervousness and NO host ritual (no offering drinks like a guest). His manner: ' + style + ' ' +
         (isButler ? 'HE is still the shy one and SHE still leads — but with the tenderness of familiarity now. ' : '') +
-        'They come back to his place, ' + a1.scene + '. Write the EASE of two people who have done this before — an inside joke, his hands finding her waist without asking, something small that shows he remembered her from last time — that slides fast into heat. ' +
+        (atHers ? 'He comes up to HER apartment, ' : 'They come back to his place, ') + a1.scene + '. Write the EASE of two people who have done this before — an inside joke, his hands finding her waist without asking, something small that shows he remembered her from last time — that slides fast into heat. ' +
         'Keep it SHORT: 2-3 sentences, then STOP at the first charged touch or held look, leaving the next move to her. ' +
         'It must read clearly DIFFERENT from a first night — familiar, a little playful, hungrier sooner.';
     }
@@ -4551,8 +4595,10 @@ async function genOvernightProse(npcKey, act, firstNight) {
     // 第二次及以后：换个地点发生（餐桌/阳台/书房等，用户需求），并用"老情侣"笔调而非初夜的发现感
     let act2Scene = a2.scene, repeatNote = '';
     if (nightsSoFar >= 2) {
-      const _spots = ['against the edge of the dining table, plates pushed aside','out on the balcony rail with the night air on bare skin','in the study, books swept off the desk','on the kitchen counter, the fridge light the only light','against the hallway wall, barely inside the door'];
-      act2Scene = _spots[Math.floor(Math.random() * _spots.length)] + ' in his home';
+      const _spots = atHers
+        ? ['on her couch, the throw blanket slipping to the floor','against her kitchen counter, two forgotten mugs going cold','against her bookshelf, a paperback knocked loose','at her window, the city lights on bare skin']
+        : ['against the edge of the dining table, plates pushed aside','out on the balcony rail with the night air on bare skin','in the study, books swept off the desk','on the kitchen counter, the fridge light the only light','against the hallway wall, barely inside the door'];
+      act2Scene = _spots[Math.floor(Math.random() * _spots.length)] + (atHers ? ' in her apartment' : ' in his home');
       repeatNote = 'They are established lovers (night #' + nightsSoFar + ') — write the confidence, appetite and inside knowledge of repeat nights, NOT first-time discovery or nervousness. ';
     }
     user = 'Write ACT TWO of an overnight scene — the payoff, and it should be genuinely steamy. The man is ' + name + '. His manner when things turn intimate: ' + style + ' ' + repeatNote +
@@ -4570,9 +4616,20 @@ async function maybeStayOver(npcKey, locKey) {
   document.getElementById('vn-text').textContent = '...';
   const vopts = document.getElementById('vn-opts');
   vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
+  // 场所模式：已在他家=留下；在她家=让他留下；在外面=随机"跟他走(他家)"或"送她回家、他找借口上来(她家)"
+  const _atHers0 = locKey === 'her_home';
+  const _atHis0 = !!(locKey && /_home$/.test(locKey)) && !_atHers0;
+  const dest = _atHers0 ? 'at_hers' : (_atHis0 ? 'at_his' : (Math.random() < 0.5 ? 'go_his' : 'walk_hers'));
   // 二次过夜邀请：已过夜后不再用"再喝一杯"这类初次借口，措辞更亲密直接（但仍含蓄）
   const _nightsSoFar = G.npcs[npcKey].nights || 0;
-  const _stayCtx = _nightsSoFar === 0
+  const _stayCtx =
+    dest === 'at_hers'
+    ? 'You are at HER apartment and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle to NOT leave tonight — to stay here, at her place — tasteful, implicit, deniable (a reason to linger, an unfinished sentence, "外面太晚了……"). One or two sentences, spoken words only.'
+    : dest === 'walk_hers'
+    ? 'You just walked her home, and you are both at her building\'s door — the night is ending and you don\'t want it to. In YOUR character\'s voice, find a charming in-character excuse to come UP to her place (a glass of water, wanting to see the place she always mentions, "还不想说晚安") — suggestive but deniable, tasteful, never explicit. One or two sentences, spoken words only.'
+    : dest === 'at_his'
+    ? 'She is already AT your place and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle for her to STAY the night — tasteful, implicit (the hour, the rain, an unfinished sentence — anything but pressure). ' + (_nightsSoFar > 0 ? 'She has stayed before (' + _nightsSoFar + ' time(s)) — quiet intimacy, no pretext games. ' : '') + 'One or two sentences, spoken words only.'
+    : _nightsSoFar === 0
     ? 'The evening date is ending, and neither of you wants it to. In YOUR character\'s voice, gently and suggestively invite her back to YOUR place tonight — tasteful, implicit, never explicit. VARY THE PRETEXT and make it PERSONAL to you and to tonight — never the generic "one more drink/来喝杯茶": e.g. something at your place you want to show her, a record only you own, the view from your window, something you cook, or simply the honest unfinished sentence ("今晚…我还不想说晚安"). Never reuse a pretext that appears in Previous interactions. One or two sentences, spoken words only.'
     : 'The evening date is ending. She has ALREADY stayed the night with you ' + _nightsSoFar + ' time(s) — past pretexts now. Invite her back to your place with the quiet confidence and intimacy of someone she has woken up next to: reference tonight, or something small and private between you two. Vary it — never the same line twice. Tasteful and implicit. One or two sentences, spoken words only.';
   let line = '';
@@ -4583,24 +4640,29 @@ async function maybeStayOver(npcKey, locKey) {
   document.getElementById('vn-text').innerHTML = formatNPCText(line);
   vopts.innerHTML = '';
   const mk = (label, fn) => { const el = document.createElement('div'); el.className = 'vn-opt'; el.textContent = label; el.onclick = fn; vopts.appendChild(el); };
-  // 是否已在他家（约会地点=他的住处）；约会大多在公共地点，所以基本是"在外面"
-  const atHome = !!(locKey && /_home$/.test(locKey));
+  // 已在某人家=无需转场；destHers=今晚发生在她家（她家过夜 / 送她回家他上来）
+  const atHome = dest === 'at_his' || dest === 'at_hers';
+  const destHers = dest === 'at_hers' || dest === 'walk_hers';
   const isButler = npcKey === 'butler'; // 管家过夜：全程女主主动，他被动害羞
   // ── 第二幕：更撩，背景换床/沙发，记为过夜 → 夜幕转场进第二天 ──
   const goAct2 = async () => {
     STATE.relationships.change(npcKey, 10);
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
-    G._stayedOver = { npc: npcKey, day: G.day };
-    STATE.memory.addEvent(npcKey, (G.npcs[npcKey].nights === 1 ? 'She stayed the night with you for the FIRST time' : 'She stayed the night with you') + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
+    G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
+    STATE.memory.addEvent(npcKey,
+      (destHers
+        ? (G.npcs[npcKey].nights === 1 ? 'You stayed the night at HER place for the FIRST time' : 'You stayed the night at HER place')
+        : (G.npcs[npcKey].nights === 1 ? 'She stayed the night with you for the FIRST time' : 'She stayed the night with you'))
+      + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
     STATE.save.saveGame();
     playSound('rel-up');
     vnSpeak(null);
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
-    try { const u = await genNPCHomeActBg(npcKey, 2); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+    try { const u = destHers ? (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl || null) : await genNPCHomeActBg(npcKey, 2); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     let act2Nar = '';
-    try { act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1); } catch(e){}
+    try { act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers); } catch(e){}
     if (!act2Nar || !act2Nar.trim()) {
       act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料一件件松开，他的唇沿着你的颈线往下，每一寸都被他记在心里。你听见自己的呼吸乱了，也听见他在你耳边低低地念你的名字——然后灯光暗了下去，剩下的夜，只属于你们两个人。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens piece by piece; his mouth traces down the line of your throat, learning every inch of you. You hear your own breath break apart, his voice low against your ear saying your name — and then the light dims, and the rest of the night belongs only to the two of you.';
     }
@@ -4626,16 +4688,22 @@ async function maybeStayOver(npcKey, locKey) {
   // ── 第一幕后选择离开：来了他家但没留下，小幅好感，回家睡到第二天 ──
   const leaveAfterAct1 = async () => {
     STATE.relationships.change(npcKey, 4);
-    STATE.memory.addEvent(npcKey, 'She came up to your place but gently chose to leave before the night went further (day ' + G.day + '). The restraint left you both wanting.', G.day);
+    STATE.memory.addEvent(npcKey, destHers
+      ? 'You were at her place, and she gently drew the line before the night went further — you headed home (day ' + G.day + '). The restraint left you both wanting.'
+      : 'She came up to your place but gently chose to leave before the night went further (day ' + G.day + '). The restraint left you both wanting.', G.day);
     STATE.save.saveGame();
     vnSpeak('npc');
     document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     let resp = '';
-    try { resp = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, 'At his home she gently stopped things and chose to head home for the night. React in character as he walks her to the door — graceful, a little reluctant, respectful, no pressure (1-2 sentences, spoken words only).')); } catch(e){}
+    try { resp = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, destHers
+      ? 'At HER place she gently stopped things, and you are saying goodnight at her door before heading home. React in character — graceful, a little reluctant, respectful, no pressure (1-2 sentences, spoken words only).'
+      : 'At his home she gently stopped things and chose to head home for the night. React in character as he walks her to the door — graceful, a little reluctant, respectful, no pressure (1-2 sentences, spoken words only).')); } catch(e){}
     if (resp && resp.trim()) document.getElementById('vn-text').innerHTML = formatNPCText(resp.trim());
-    else document.getElementById('vn-text').textContent = isZh ? '他替你拉开门，笑意里有点遗憾：「路上小心。」' : 'He gets the door for you, a little reluctance under his smile. "Get home safe."';
+    else document.getElementById('vn-text').textContent = destHers
+      ? (isZh ? '他在门口回头看了你一眼，笑意里有点遗憾：「晚安。改天……再继续。」' : 'At the door he glances back, a little reluctance under his smile. "Goodnight. We\'ll… pick this up another time."')
+      : (isZh ? '他替你拉开门，笑意里有点遗憾：「路上小心。」' : 'He gets the door for you, a little reluctance under his smile. "Get home safe."');
     vopts.innerHTML = '';
     const b = document.createElement('button'); b.className='vn-next'; b.textContent = isZh?'回家':'Head home';
     b.onclick = () => { showNightTransition(); G.phase='evening'; addStress(-5); setTimeout(()=>{ G.day++; startDay(); }, 400); };
@@ -4648,13 +4716,12 @@ async function maybeStayOver(npcKey, locKey) {
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
-    const act1 = OVERNIGHT_ACT1[npcKey] || OVERNIGHT_ACT1.agent;
     if (!atHome) {
-      try { const u = await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+      try { const u = destHers ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl || null) : await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
     let act1Nar = '';
-    try { act1Nar = await genOvernightProse(npcKey, 1, firstNight); } catch(e){}
+    try { act1Nar = await genOvernightProse(npcKey, 1, firstNight, destHers); } catch(e){}
     if (!act1Nar || !act1Nar.trim()) {
       act1Nar = isZh ? '门在身后轻轻合上，屋里只剩一盏暖灯。他把酒杯递到你手里，指尖擦过你的，没有收回。「今晚，别急着走。」他的声音低下去，近得你能感觉到他呼吸里的温度——然后他停在那里，只是看着你，把接下来的一步，留给了你。' : 'The door clicks shut behind you and the room narrows to one warm lamp. He presses the glass into your hand, his fingertips grazing yours and staying there. "Don\'t rush off tonight," he murmurs, close enough that you feel the warmth of his breath — and then he stops, just looking at you, leaving the next move to you.';
     }
@@ -4663,17 +4730,21 @@ async function maybeStayOver(npcKey, locKey) {
     mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2);
     mk(isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)', leaveAfterAct1);
   };
-  // 选项：在外面=跟他走(去他家)；已在他家=直接留下
-  mk(atHome ? (isZh?'……留下':'…Stay') : (isZh?'跟他走':'…Go with him'), goHomeAndStay);
-  // 婉拒：得体拒绝反而+好感
-  mk(isZh?'今晚先回去（婉拒）':'Not tonight (gently)', async () => {
+  // 选项按场所模式：他家=留下 / 她家=让他留下 / 楼下=让他上来 / 在外面=跟他走
+  const stayLabel = dest === 'at_his' ? (isZh?'……留下':'…Stay')
+    : dest === 'at_hers' ? (isZh?'……让他留下':'…Let him stay')
+    : dest === 'walk_hers' ? (isZh?'……让他上来':'…Let him come up')
+    : (isZh?'跟他走':'…Go with him');
+  mk(stayLabel, goHomeAndStay);
+  // 婉拒：得体拒绝反而+好感（在她家/楼下=送他走；在外面/他家=自己回去）
+  mk(destHers ? (isZh?'今晚就到这里（送他走）':'Not tonight (see him off)') : (isZh?'今晚先回去（婉拒）':'Not tonight (gently)'), async () => {
     STATE.relationships.change(npcKey, 3);
-    STATE.memory.addEvent(npcKey, 'She gently declined to stay the night (day ' + G.day + '). You respected it — and want her more.', G.day);
+    STATE.memory.addEvent(npcKey, 'She gently declined to take the night further (day ' + G.day + '). You respected it — and want her more.', G.day);
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     let resp = '';
     try {
       resp = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
-        'She gently declined to stay the night. React in character — graceful, maybe a little wistful, respectful (1-2 sentences, spoken words only).'));
+        'She gently declined to take the night further' + (dest === 'walk_hers' ? ' (she did not invite you up)' : '') + '. React in character — graceful, maybe a little wistful, respectful (1-2 sentences, spoken words only).'));
     } catch(e) {}
     if (resp) document.getElementById('vn-text').innerHTML = formatNPCText(resp);
     vopts.innerHTML = '';
@@ -4692,7 +4763,28 @@ async function maybeStayOver(npcKey, locKey) {
 // ══════════════════════════════════════════════════════
 // EVENING
 // ══════════════════════════════════════════════════════
+// 被爽约的NPC当晚会主动发消息（受伤/质问/装不在乎——按性格），不再默默记进记忆完事
+function sendStoodUpMessage(npcKey, title) {
+  (async () => { try {
+    const t = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
+      'She had agreed to meet you today ("' + (title || '') + '") and never showed up — no call, no text. Text her about it now, in YOUR character\'s voice: hurt, or cold, or worried, or pretending not to care — whatever fits YOUR personality (1-2 sentences). Output only the message text.'));
+    if (t && t.trim()) {
+      if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+      G.phone.messages[G.day].push({ npc: npcKey, name: getNPCName(npcKey), text: t.trim(), isVoice: false, emoji: NPC_UI[npcKey]?.emoji||'💬', color: NPC_UI[npcKey]?.color||'#C4A882', day: G.day, time: nextMsgTime(G.day, 21 * 60 + 10) });
+      notifyNewMessage(npcKey);
+      STATE.save.saveGame();
+    }
+  } catch(e) {} })();
+}
+
 async function goEvening() {
+  // 白天已确认的约会还没赴（比如上午选了工作，工作结束不能直接入夜吞掉下午的约）→ 先去赴约，结束后会再回到这里
+  const _pendingDayInv = (G.calendar.events[getCalDateStr(G.day)] || []).find(e => e.type === 'npc_invite' && e.status === 'accepted' && invTimeMin(e) < 17 * 60);
+  if (_pendingDayInv && G._dayInvGuard !== _pendingDayInv.id) {
+    G._dayInvGuard = _pendingDayInv.id; // 防同一约会循环重入（playInviteScene 会把它标记为 completed）
+    playInviteScene(_pendingDayInv);
+    return;
+  }
   G.phase = 'evening'; // 游戏时段：手机时钟/消息时间戳都以此为准
   const _allInv = (G.calendar.events[getCalDateStr(G.day)] || []).filter(e => e.type === 'npc_invite' && e.status === 'accepted');
   // 白天的约（<17:00）应该在白天行程里赴，到晚上还没去=爽约
@@ -4701,6 +4793,7 @@ async function goEvening() {
     if (e.npcKey && G.npcs[e.npcKey]) {
       STATE.relationships.change(e.npcKey, -4);
       STATE.memory.addEvent(e.npcKey, 'She stood you up on day ' + G.day + ' (daytime plan "' + (e.title||'') + '").', G.day);
+      sendStoodUpMessage(e.npcKey, e.title);
     }
   });
   // 晚间的约（≥17:00）→ 入夜前让玩家选择赴哪个约/都不去
@@ -5642,9 +5735,10 @@ async function sendChatReply() {
       'Judge her message against your personality: rel is -3 to +3 (inappropriate/rude/needy = negative; what YOU like = positive; neutral = 0). ' +
       'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ' +
       'If it is late evening and you would naturally sign off (going to sleep, busy), say so in the reply and set "endChat": true — you will not reply again tonight.' +
-      'MEETUP RULES — distinguish carefully: if she proposes meeting TODAY and you accept, fill "meet" (instant meet-up button). If she proposes a FUTURE day (tomorrow, the 6th, this weekend...) and you accept, fill "futureInvite" instead (it goes on her calendar) — NEVER use "meet" for future plans. When you agree to a FUTURE day, your reply text must name that day explicitly by weekday/date (never just "tomorrow").' + upcomingDatesRef(G.day, 6) + ' ' +
-      'For "locationKey" pick the place that ACTUALLY matches what she proposed: magazine shoot → "magazine_shoot", recording session → "recording_studio", practice → "music_training"; otherwise the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue. ' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short meetup title in ' + G.langName + '"},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "title":"short title in ' + G.langName + '"}}');
+      'MEETUP RULES — distinguish carefully: if she proposes meeting TODAY and you accept, fill "meet" (instant meet-up button). If a FUTURE day (tomorrow, the 6th, this weekend...) is discussed, fill "futureInvite" ONLY when SHE has clearly said yes to that specific day in HER messages — if YOU are the one proposing and she has not yet agreed, fill NEITHER (wait for her answer in a later message). NEVER use "meet" for future plans. When a FUTURE day is agreed, your reply text must name that day explicitly by weekday/date (never just "tomorrow"), and "daysFromNow" MUST be computed from the DATE REFERENCE table to land exactly on the day you named — if you say Friday, daysFromNow must map to Friday, and "next evening/明晚" means daysFromNow=1.' + upcomingDatesRef(G.day, 6) + ' ' +
+      'For "locationKey" pick the place that ACTUALLY matches what was proposed: her place / you coming over to HER home → "her_home"; YOUR place → "his_home"; magazine shoot → "magazine_shoot", recording session → "recording_studio", practice → "music_training"; otherwise the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue, never "cafe" as a lazy default when she said her home. ' +
+      'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '"},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}}');
     const [raw] = await Promise.all([claude(prompt), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null;
     try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; }
@@ -5688,18 +5782,33 @@ async function sendChatReply() {
         });
         STATE.memory.addEvent(npc, 'Agreed to meet her today: "' + mTitle + '"', G.day);
       }
-      // 聊天里约好的未来约会：直接写入日历（双方已约定，状态=已确认），到那天晚上会触发赴约
+      // 聊天里谈成的未来约会：写入日历为"待确认"（玩家在日历点接受才算数——修"日历直接帮我确认了"+双约撞车）；
+      // 同一NPC同一天已有邀约 → 合并更新，不再堆重复条目（修图5同一计划出现两条）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
         const fiDay = G.day + futureInv.daysFromNow;
-        calAddEvent(getCalDateStr(fiDay), {
-          id: 'chat_invite_' + npc + '_' + fiDay,
-          type: 'npc_invite', npcKey: npc, npcName: getNPCName(npc),
-          title: (futureInv.title || '').slice(0, 40) || ((G.lang==='zh-cn'||G.lang==='zh-tw')?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc)),
-          status: 'accepted',
-          time: /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30',
-          description: reply.slice(0, 80),
-        });
-        STATE.memory.addEvent(npc, 'You two agreed over text to meet on day ' + fiDay + ': "' + (futureInv.title||'') + '"', G.day);
+        const fiDate = getCalDateStr(fiDay);
+        const fiTitle = (futureInv.title || '').slice(0, 40) || ((G.lang==='zh-cn'||G.lang==='zh-tw')?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
+        const fiTime = /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30';
+        const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training'];
+        const fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : null;
+        const existingInv = (G.calendar.events[fiDate] || []).find(e => e.type === 'npc_invite' && e.npcKey === npc && e.status !== 'declined' && e.status !== 'missed');
+        if (existingInv) {
+          existingInv.title = fiTitle; existingInv.time = fiTime; existingInv.description = reply.slice(0, 80);
+          if (fiLoc) existingInv.locKey = fiLoc;
+          existingInv._new = true;
+        } else {
+          calAddEvent(fiDate, {
+            id: 'chat_invite_' + npc + '_' + fiDay,
+            type: 'npc_invite', npcKey: npc, npcName: getNPCName(npc),
+            title: fiTitle,
+            status: 'pending',
+            time: fiTime,
+            locKey: fiLoc,
+            description: reply.slice(0, 80),
+          });
+        }
+        STATE.memory.addEvent(npc, 'Over text you two discussed meeting on day ' + fiDay + ' ("' + fiTitle + '") — plan noted on her calendar, she still confirms there.', G.day);
+        refreshCalBadge();
       }
       notifyNewMessage(npc);
     } else {
@@ -6052,7 +6161,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.91 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.92 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
