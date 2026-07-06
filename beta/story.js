@@ -701,6 +701,7 @@ const STORY = {
       location: 'agent_office',
       isWork: true,
       chapter: 1,
+      chainNext: 'd1drummer', // Day1 多场景：与经纪人会面结束后，当天下午接着去录音室见鼓手（初见）
       preText: {
         'zh-cn': '经纪人的办公室在城市高处。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你一推门，他就从桌后站了起来，\n笑着朝你走来："来了？正等你呢。"',
         'en': 'Your agent\'s office sits high above the city.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nThe moment you push the door open, he rises from behind his desk,\nwalking toward you with a smile: "There you are. I\'ve been waiting."',
@@ -720,19 +721,19 @@ const STORY = {
           relChanges: [5, 3, 8],
         },
         {
-          // Round 2: 公布首月工作计划 + 乐队 + 明天见鼓手（严禁说鼓手的名字，玩家还没见过他）
-          npcContext: 'Now the work directive, delivered like a gift you are proud of. First: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. Second, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Tomorrow, 9am, recording studio — firm on the time, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it.',
+          // Round 2: 公布首月工作计划 + 乐队 + 今天下午就见鼓手（严禁说鼓手的名字，玩家还没见过他）
+          npcContext: 'Now the work directive, delivered like a gift you are proud of. First: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. Second, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Then send her straight to him: THIS AFTERNOON, right after she leaves your office, the recording studio — she is meeting him today, not tomorrow. Be firm and clear it is this afternoon, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it.',
           playerOptions: {
-            'zh-cn': ['我明天一定去。', '他好相处吗？', '你为什么要为我组乐队？'],
-            'en': ['I will be there tomorrow.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
-            'ja': ['明日必ず行きます。', '彼と上手くやれますか？', 'なぜ私のためにバンドを？'],
-            'ko': ['내일 꼭 갈게요.', '같이 일하기 쉬운가요?', '왜 저를 위해 밴드를 만들었어요?'],
+            'zh-cn': ['我下午就过去。', '他好相处吗？', '你为什么要为我组乐队？'],
+            'en': ['I will head over this afternoon.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
+            'ja': ['午後すぐ行きます。', '彼と上手くやれますか？', 'なぜ私のためにバンドを？'],
+            'ko': ['오후에 바로 갈게요.', '같이 일하기 쉬운가요?', '왜 저를 위해 밴드를 만들었어요?'],
           },
           relChanges: [5, 8, 10],
         },
         {
           // Round 3: 热情送客
-          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — nine o\'clock tomorrow — then send her off with something personal: use her first name for the first time today, tell her to eat a real dinner tonight, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
+          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — the studio, this afternoon, the band leader is expecting her — then send her off with something personal: use her first name for the first time today, tell her to grab a real lunch first, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],
@@ -744,12 +745,13 @@ const STORY = {
       ],
     },
 
-    2: {
+    'd1drummer': {  // Day1 下午：与鼓手初见（原 Day2，现由经纪人场景 chainNext 链入）。结束后往日历排入 Day2 录音室排练
       npc: 'drummer',
       location: 'recording_studio',
       isWork: true,
       chapter: 1,
       needsOriginBefore: true,
+      addRehearsalNextDay: true,
       preText: {
         'zh-cn': '录音室里弥漫着咖啡和野心的气息。\n\n你走进来时，他坐在鼓架后面——\n没在打鼓，只是坐着，双臂交叉，\n用一种好像已经下了判断的眼神看着你。',
         'en': 'The recording studio smells like coffee and ambition.\n\nHe is behind the drum kit when you walk in —\nnot playing, just sitting, arms crossed,\nwatching you like he has already made up his mind.',
@@ -836,7 +838,7 @@ const STORY = {
       ],
     },
 
-    4: {
+    2: {  // Day2 傍晚：与管家正式初见（原 Day4 迁移到此；Day1 只有他留的欢迎消息）
       npc: 'butler',
       location: 'apartment_lobby',
       isWork: false,

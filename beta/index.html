@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.99"></script>
-<script src="state.js?v=10.99"></script>
+<script src="story.js?v=11.00"></script>
+<script src="state.js?v=11.00"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.99 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.00 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.99 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.00 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1297,19 +1297,13 @@ async function checkProactiveOnOpen() {
 function day1Intro() {
   if (G.day !== 1 || G._day1Intro) return;
   G._day1Intro = true;
-  if (G.npcs.drummer && !G.npcs.drummer.met) {
-    G.npcs.drummer.met = true;
-    (async function(){ try {
-      var t = await claudeChat(STATE.memory.buildDialoguePrompt('drummer', G.day, G.langName, G.player.name,
-        'You are the band leader her agent just bolted her onto. You have not formally met yet — that is tomorrow, 9am, the studio. Text her ONE blunt, cocky line tonight: half warning, half challenge about tomorrow. You secretly already listened to her street recordings twice, but you will NEVER admit that (1 sentence, texting style).' + earlyToneNote('drummer') + ' Output only the message text.'));
-      if (t && t.trim()) pushNpcMsg('drummer', t.trim(), 20*60);
-    } catch(e){} })();
-  }
+  // 鼓手当天下午已在录音室与她正式初见（经纪人场景 chainNext 链入），傍晚不再重复来撂狠话。
+  // 管家 Day1 只在门口留蛋糕 + 发一条欢迎短信——还没正式见面（正式初见是 Day2 傍晚的剧情）。
+  // 关键：这里【不】置 butler.met=true，否则 migrateScriptedDone 会据此把 Day2 标记完成、跳过管家初见场景。
   if (G.npcs.butler && !G.npcs.butler.met) {
-    G.npcs.butler.met = true;
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
-        'You are the young building manager of the building she just moved into today. Text her a warm, slightly shy welcome tonight — mention you left something small at her door (a pot of tea, a snack), earnest and neighbourly, the way you would casually call a new neighbour "sis" (1-2 sentences, texting style).' + earlyToneNote('butler') + ' Output only the message text.'));
+        'You are the young building manager of the building she just moved into today. You have NOT met her face to face yet. Text her a warm, shy welcome tonight — mention you left something small at her door (a homemade lemon cake, a snack), and that you would love to introduce yourself properly and say a real hello soon, maybe tomorrow. Earnest and neighbourly, the way you would text a brand-new neighbour (1-2 sentences, texting style).' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) pushNpcMsg('butler', t.trim(), 21*60);
     } catch(e){} })();
   }
@@ -2389,6 +2383,19 @@ function generateAgentMonthPlan() {
     });
   }
   G.calendar.agentPlanDone = true;
+  STATE.save.saveGame();
+}
+
+// Day1 与鼓手初见结束后调用：把"次日录音室排练"排进日历（work，与 autoAddCalendarEvents 同 id 去重）。
+// 现在 Day2 的剧情是管家（非工作），generateAgentMonthPlan 不会自动排这天的录音室，所以在这里显式补上。
+function addRehearsalNextDay(originDay) {
+  const d = (originDay || G.day) + 1;
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  calAddEvent(getCalDateStr(d), {
+    id: 'work_' + d, type: 'work', title: isZh?'录音室排练':'Recording Studio',
+    npcKey: 'drummer', npcName: '', status: 'accepted',
+    description: isZh?'今日工作安排':'Scheduled work event', time: '14:00',
+  });
   STATE.save.saveGame();
 }
 
@@ -3559,13 +3566,15 @@ function buildDayOpts() {
 function getScriptedLabel(ev, day, lang) {
   const isZh = lang==='zh-cn'||lang==='zh-tw';
   const name = getNPCName(ev.npc);
-  if (day===1) return isZh ? '去见' + name : 'Meet ' + name;
-  if (day===2) return isZh ? '去录音室' : 'Recording Studio';
-  if (day===3) return isZh ? '去杂志拍摄' : 'Magazine Shoot';
-  if (day===4) return isZh ? '回到公寓' : 'Back to the apartment';
+  // 章节里程碑按天特判优先（同一地点但要专属文案）
   if (day===12) return isZh ? '乐队首次合练' : 'First full-band rehearsal';
   if (day===22) return isZh ? '深夜的大堂' : 'The lobby, late at night';
   if (day===30) return isZh ? '深夜加练 · 那个高音' : 'Midnight practice · The note';
+  // 其余按场景内容标注（登场顺序重排后不再依赖具体日期号）
+  if (ev.location==='recording_studio') return isZh ? '去录音室' : 'Recording Studio';
+  if (ev.location==='magazine_shoot') return isZh ? '去杂志拍摄' : 'Magazine Shoot';
+  if (ev.location==='apartment_lobby') return isZh ? '回到公寓' : 'Back to the apartment';
+  if (ev.location==='agent_office' || ev.npc==='agent') return isZh ? '去见' + name : 'Meet ' + name;
   return isZh ? '今日剧情' : "Today's story";
 }
 
@@ -4363,18 +4372,23 @@ async function playScheduledEvent(dateStr, event) {
 // VISUAL NOVEL SCENE
 // ══════════════════════════════════════════════════════
 async function playScripted(day) {
-  const ev = STORY.utils.getScriptedEvent(day);
+  await runScene(STORY.utils.getScriptedEvent(day), day);
+}
+
+// 播放一个剧情场景（可以是当天日历事件，也可以是被 chainNext 链入的同日后续场景）。
+// originDay = 触发这条链的那个游戏日：scriptedDone、补见、日历都按它记，链里的所有场景共用它。
+async function runScene(ev, originDay) {
   if (!ev) return;
   // 先展示过渡独白（preText）介绍这个NPC是谁，再问族裔——不管是哪个NPC都一样，
   // 避免像鼓手那样一上来就跳出"他是哪里人"的选择框，缺少铺垫
   if (ev.needsOriginBefore && !G.npcs[ev.npc].origin) {
-    await startScriptedSceneWithLateOrigin(day, ev);
+    await startScriptedSceneWithLateOrigin(ev, originDay);
     return;
   }
-  await startScriptedScene(day, ev);
+  await startScriptedScene(ev, originDay);
 }
 
-async function startScriptedSceneWithLateOrigin(day, ev) {
+async function startScriptedSceneWithLateOrigin(ev, day) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   const preText = (ev.preText[lang] || ev.preText[isZh?'zh-cn':'en'] || ev.preText['en'] || '').replace(/\n/g, '<br>');
   go('s-scene');
@@ -4402,12 +4416,13 @@ async function startScriptedSceneWithLateOrigin(day, ev) {
   btn.className = 'vn-next';
   btn.textContent = contLabel;
   btn.onclick = () => {
-    showNPCOrigin(ev.npc, async () => await startScriptedScene(day, ev));
+    showNPCOrigin(ev.npc, async () => await startScriptedScene(ev, day));
   };
   document.getElementById('vn-opts').appendChild(btn);
 }
 
-async function startScriptedScene(day, ev) {
+async function startScriptedScene(ev, day) {
+  _curSceneEv = ev; _curSceneOriginDay = day; // 当前剧情场景（链式多场景时用它取地点/收尾，而不是按日期键回查）
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   const preText = (ev.preText[lang] || ev.preText[isZh?'zh-cn':'en'] || ev.preText['en'] || '').replace(/\n/g, '<br>');
   go('s-scene');
@@ -4427,9 +4442,11 @@ async function startScriptedScene(day, ev) {
   document.getElementById('vn-text').innerHTML = preText;
   document.getElementById('vn-opts').innerHTML = '';
   _vnEndLoc = null; // 剧情场景：结束旁白用当天剧情事件的地点（清掉可能残留的见面地点）
-  // 标记该剧情日已完成（补见机制：没玩过的剧情会一直顺延到玩家玩到为止）
+  // 标记该剧情日已完成（补见机制：没玩过的剧情会一直顺延到玩家玩到为止）。
+  // 链式场景（有 chainNext）先不标记，等链里最后一场（终场）完成再标记该 originDay，
+  // 这样万一玩家中途离开，Day1 的经纪人+鼓手整条链会顺延重来，鼓手初见不会被跳过。
   if (!G.scriptedDone) G.scriptedDone = {};
-  G.scriptedDone[day] = true;
+  if (!ev.chainNext) G.scriptedDone[day] = true;
   if (ev.isWork) { G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0; addStress(12); } else { addStress(5); }
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   // Day1 与经纪人会面：生成首月工作计划写入日历（对话里经纪人会让她今晚查日历）
@@ -4502,6 +4519,10 @@ let _vnLastReply = null;
 let _vnLastTone = null;
 // 对话结束钩子：晚间约会结束时可能触发过夜暗示（playInviteScene设置）
 let _afterDialogHook = null;
+// 当前正在播放的剧情场景对象 + 触发它的游戏日：链式多场景（如 Day1 经纪人→鼓手）用它取地点/判断收尾去向，
+// 而不是用日期键回查（链里的后续场景不占日期键）。goEvening 会清空，避免泄漏到之后的约会/闲聊场景。
+let _curSceneEv = null;
+let _curSceneOriginDay = null;
 
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   // 新场景开场：清掉可能残留的上一场景玩家回复（玩家可能中途从底部导航离开又进入别的场景）
@@ -4516,7 +4537,9 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     // Add a brief transition narration before leaving
     // 优先用本场景显式设置的地点（见面场景）；没有才回退到当天剧情事件的地点
     const isMeetup = !!_vnEndLoc;
-    const ev2 = STORY.utils.getScriptedEvent(day);
+    // 剧情场景用当前场景对象取地点/收尾去向（链式场景不占日期键，不能按 day 回查）
+    const sc = isMeetup ? null : _curSceneEv;
+    const ev2 = sc || STORY.utils.getScriptedEvent(day);
     const locKey2 = _vnEndLoc || (ev2 ? ev2.location : '');
     // 见面/约会的结束旁白按好感阶段分档（修"朋友期也'余温留在指尖'让玩家误会牵手了"）：
     // 低=普通朋友道别 / 中=暖一点 / 高=才允许暧昧余韵。每档几条随机，避免每次同一句
@@ -4541,6 +4564,12 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
       cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
       apartment_lobby: isZhEnd2?'你回到了自己的公寓。':'You head back up to your apartment.',
     }[locKey2] || (isZhEnd2?'你离开了。':'You leave.');
+      // 链式场景：不用"明天见"式收尾，改成过渡到当天的下一场（如经纪人办公室 → 下午的录音室）
+      if (sc && sc.chainNext) {
+        transitionNar = ({
+          agent_office: isZhEnd2?'你走出经纪人的办公室。下午，你按约定来到了录音室门口。':'You leave your agent\'s office. That afternoon, you arrive at the recording studio as arranged.',
+        })[locKey2] || (isZhEnd2?'你离开这里，向着当天的下一场约定走去。':'You head off toward what comes next today.');
+      }
     }
     _vnEndLoc = null; // 用完清掉，避免泄漏到下一个剧情场景
     vnSpeak(null); // 旁白：两个头像都不高亮
@@ -4549,7 +4578,12 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     const endBtn = document.createElement('button');
     endBtn.className = 'vn-next';
     endBtn.textContent = endLabel;
-    endBtn.onclick = goEvening;
+    endBtn.onclick = () => {
+      // 剧情场景收尾：需要就往日历排入次日排练；有 chainNext 则接着播当天下一场，否则入夜
+      if (sc && sc.addRehearsalNextDay) addRehearsalNextDay(_curSceneOriginDay);
+      if (sc && sc.chainNext) runScene(STORY.scriptedEvents[sc.chainNext], _curSceneOriginDay);
+      else goEvening();
+    };
     const opts = document.getElementById('vn-opts');
     opts.innerHTML = '';
     opts.appendChild(endBtn);
@@ -4585,9 +4619,10 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   }
   // 场景对话也接入真实日程，防止台词里许诺日历上不存在的"明天排练/明早九点"
   const _schedCtx = ' ' + buildScheduleContext(3) + ' Do NOT propose or mention specific work times/days that contradict this schedule.';
-  // 注入当前场景地点，防止"约在咖啡馆却聊得像在办公室"（所有NPC通用）
-  const _sceneEv = STORY.utils.getScriptedEvent(day);
-  const _locDesc = _sceneEv && STORY.locations[_sceneEv.location] ? STORY.locations[_sceneEv.location].composition : '';
+  // 注入当前场景地点，防止"约在咖啡馆却聊得像在办公室"（所有NPC通用）。
+  // 优先级：见面/约会地点(_vnEndLoc) > 当前剧情场景对象(_curSceneEv，链式场景不占日期键) > 按日期键回查
+  const _locKeyForPrompt = _vnEndLoc || (_curSceneEv ? _curSceneEv.location : (STORY.utils.getScriptedEvent(day) || {}).location);
+  const _locDesc = _locKeyForPrompt && STORY.locations[_locKeyForPrompt] ? STORY.locations[_locKeyForPrompt].composition : '';
   const _locCtx = _locDesc ? ' CURRENT SCENE LOCATION: ' + _locDesc + '. Your dialogue and any described actions MUST fit this exact place — do not talk as if you were somewhere else (e.g. your office).' : '';
   // 玩家上一轮说的话：NPC下一句必须先自然回应它，再往剧本方向推进（修"爱理不理"）
   const _toneNote = _vnLastTone ? { tease:' (her tone: playful teasing — she may have trailed off; read the mischief in it)', sincere:' (her tone: sincere and open — she may have trailed off mid-thought; take it seriously)', deflect:' (her tone: deflecting, changing the subject — let her, gracefully, or gently call it out)' }[_vnLastTone] || '' : '';
@@ -5459,7 +5494,8 @@ function sendStoodUpMessage(npcKey, title) {
 }
 
 async function goEvening() {
-  if (REALTIME) day1Intro(); // Day1傍晚：鼓手+管家来消息，让第一天就有3个人可聊
+  _curSceneEv = null; _curSceneOriginDay = null; // 一天的剧情场景链结束，清空当前场景，避免泄漏到晚间约会/闲聊
+  if (REALTIME) day1Intro(); // Day1傍晚：管家留欢迎消息（鼓手当天下午已初见，不再重复撂话）
   // 白天已确认的约会还没赴（比如上午选了工作，工作结束不能直接入夜吞掉下午的约）→ 先去赴约，结束后会再回到这里
   const _pendingDayInv = (G.calendar.events[getCalDateStr(G.day)] || []).find(e => e.type === 'npc_invite' && e.status === 'accepted' && invTimeMin(e) < 17 * 60);
   if (_pendingDayInv && G._dayInvGuard !== _pendingDayInv.id) {
@@ -6891,17 +6927,20 @@ window.addEventListener('load', () => {
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
   (function migrateScriptedDone() {
     if (!G.scriptedDone) G.scriptedDone = {};
-    var introNpc = { 1:'agent', 2:'drummer', 3:'actor', 4:'butler' };
+    // 新登场表：Day1=经纪人(下午链入鼓手)、Day2=管家、Day3=演员。已见过则回填对应剧情日为完成。
+    var introNpc = { 1:'agent', 2:'butler', 3:'actor' };
     Object.keys(introNpc).forEach(function(d) {
       if (G.npcs[introNpc[d]] && G.npcs[introNpc[d]].met) G.scriptedDone[d] = true;
     });
+    // 鼓手初见是 Day1 下午链场，见过鼓手即代表 Day1 这条链已走完
+    if (G.npcs.drummer && G.npcs.drummer.met) G.scriptedDone[1] = true;
   })();
   applyLang();
   setupTitleButtons();
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.99 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.00 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
