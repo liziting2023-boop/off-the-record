@@ -19,7 +19,8 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.00（实时化实验）。** 本会话完成了：UI批→v10.83立绘/背景/约会/过夜文案修→v10.85~90过夜两幕+参考书语感（用户提供5本书:经纪人←Bared to You/鼓手←Fifty Shades/演员←Book Lovers/管家←Beach Read/侦探←Love Hypothesis，尺度常量`HEAT_LEVEL='B'`上架安全)→v10.91对话"目的+潜台词"重构+语气镜头输入→v10.92邀约日历/女主家/名字性别校验→v10.93功能批(生日/emoji/草稿/过夜勋章🌙/售楼处/换装反馈/美容院重生成/发色/演员开衫鼓手纹身/蛋糕图/过夜邀请音效)→v10.94 Batch2过夜后关系动态(公开/低调按性格+朋友聚会+吃醋冷战)→v10.95对手歌手rival打样(宿敌变恋人,+九人相识关系网`NPC_ACQUAINTANCE`/`GROUP_CHATS`)。
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.03（实时化实验）。**
+**v11.01-11.03追加**：v11.01 `claude()` 对偶发限流退避重试（Worker/Cloudflare 会间歇 HTTP200+`{"error":"forbidden","Request not allowed"}`，与速率相关、非额度非模型；见记忆 reference_worker_api）；v11.02 修"选中文却发英文"（手机消息走 Haiku，语言指令太弱被无视→在 `buildDialoguePrompt` 首尾各强化一次）；v11.03 夜间陪伴：`NPC_SLEEP` 各NPC作息+`isNpcAsleep`（错峰睡、夜猫子鼓手/演员深夜仍在、睡着的不主动来消息也多半不回，高好感破例）+`eveningToneNote`（夜里语气随好感升温）。**Worker 仅允许 github.io 源（CORS），本地 preview 打不到 API，只能真机或 curl 直连测。** 本会话完成了：UI批→v10.83立绘/背景/约会/过夜文案修→v10.85~90过夜两幕+参考书语感（用户提供5本书:经纪人←Bared to You/鼓手←Fifty Shades/演员←Book Lovers/管家←Beach Read/侦探←Love Hypothesis，尺度常量`HEAT_LEVEL='B'`上架安全)→v10.91对话"目的+潜台词"重构+语气镜头输入→v10.92邀约日历/女主家/名字性别校验→v10.93功能批(生日/emoji/草稿/过夜勋章🌙/售楼处/换装反馈/美容院重生成/发色/演员开衫鼓手纹身/蛋糕图/过夜邀请音效)→v10.94 Batch2过夜后关系动态(公开/低调按性格+朋友聚会+吃醋冷战)→v10.95对手歌手rival打样(宿敌变恋人,+九人相识关系网`NPC_ACQUAINTANCE`/`GROUP_CHATS`)。
 
 **git结构**：`main`=线上稳定版；`main` 里的 **`beta/` 子文件夹=realtime实时化版**(独立存档键`otr_save_v2_beta`/`otr_device_id_beta`,碰不到真实存档)；`realtime`分支=实时化源；`v10.95-stable`标签=还原点。两个线上URL:根=稳定、`/beta/`=实时。
 
