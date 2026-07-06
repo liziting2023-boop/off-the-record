@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.04"></script>
-<script src="state.js?v=11.04"></script>
+<script src="story.js?v=11.05"></script>
+<script src="state.js?v=11.05"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.04 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.05 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.04 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.05 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -6979,12 +6979,14 @@ window.addEventListener('load', () => {
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
   (function migrateScriptedDone() {
     if (!G.scriptedDone) G.scriptedDone = {};
-    // 新登场表：Day1=经纪人(下午链入鼓手)、Day2=管家、Day3=演员。已见过则回填对应剧情日为完成。
-    var introNpc = { 1:'agent', 2:'butler', 3:'actor' };
+    // 新登场表：Day2=管家、Day3=演员，见过即回填对应剧情日完成。
+    // 注意：【不能】用 agent.met 回填 Day1！签约街边场景结束就把 agent.met=true 了（早于 Day1 办公室会面），
+    // 一旦据此标 scriptedDone[1]=true，重开/刷新后 Day1 经纪人+鼓手剧情会被整段跳过（老玩家实测"全新开局也没有Day1"就是这个坑）。
+    // Day1 是否真玩过，用 drummer.met 判断——鼓手只在 Day1 下午的链场里出现，是可靠信号。
+    var introNpc = { 2:'butler', 3:'actor' };
     Object.keys(introNpc).forEach(function(d) {
       if (G.npcs[introNpc[d]] && G.npcs[introNpc[d]].met) G.scriptedDone[d] = true;
     });
-    // 鼓手初见是 Day1 下午链场，见过鼓手即代表 Day1 这条链已走完
     if (G.npcs.drummer && G.npcs.drummer.met) G.scriptedDone[1] = true;
   })();
   applyLang();
@@ -6992,7 +6994,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.04 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.05 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
