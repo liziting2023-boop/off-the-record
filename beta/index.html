@@ -1178,6 +1178,8 @@ function pushNpcMsg(k, text, baseMin) {
   if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
   G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:text, isVoice:false, emoji:NPC_UI[k]?.emoji||'💬', color:NPC_UI[k]?.color||'#C4A882', day:G.day, time: nextMsgTime(G.day, baseMin||8*60, true) });
   notifyNewMessage(k);
+  // 若手机消息列表正开着，异步到达的消息即时刷新显示（不用等玩家重进）
+  try { var ph = document.getElementById('s-phone'); if (ph && ph.classList.contains('active') && typeof renderPhone === 'function') renderPhone(); } catch(e){}
 }
 
 // ── 节日（真实日历）：本地节日 + NPC家乡节日 → 聊天/主动消息话题（政治战争不碰，只留温馨/文化）──
@@ -1217,6 +1219,56 @@ function festivalChatNote(npcKey) {
 
 // ── 日常闲聊用便宜模型省钱（Haiku + 短输出）；Worker未支持model字段时自动回退sonnet（claude内部处理）──
 function claudeChat(prompt, sys) { return claude(prompt, sys, { model: CHAT_MODEL, max_tokens: 200 }); }
+
+// ── 日常内容引擎：打开游戏就检查有没有NPC该主动来消息（治"空"的主食）──
+//    按 性格频率×好感×距上次多久×时段 打分，有人忙就不发；每次打开最多来1位，不刷屏；走Haiku省钱 ──
+const GETTOKNOW_SEEDS = [
+  'ask her one genuine get-to-know-you question (a hobby, what she does on a day off, her favourite way to unwind, a food she loves)',
+  'share one small real thing about yourself or your day, the kind of thing you would text a friend',
+  'ask what her weekend looks like, or tell her a small plan of yours',
+  'mention something small and human — the weather where you are, something you saw, a song stuck in your head',
+];
+async function checkProactiveOnOpen() {
+  if (!REALTIME || !G.phone) return;
+  var now = Date.now();
+  var isEve = rtClockMin() >= 20*60, isMorning = rtClockMin() < 11*60, isNoon = rtClockMin() >= 11*60 && rtClockMin() < 14*60;
+  // 候选：已识、非侦探、非冷战、距上次主动≥5小时
+  var cands = Object.keys(G.npcs).filter(function(k){
+    if (k==='detective' || !G.npcs[k].met || npcIsCold(k)) return false;
+    var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
+    return hrs >= 5;
+  });
+  if (!cands.length) return;
+  // 打分：好感档基础概率 × 距上次越久越可能；夜猫子(鼓手/演员)夜里更活跃、经纪人白天更活跃
+  var best = null, bestP = 0;
+  cands.forEach(function(k){
+    var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
+    var base = tier==='high'?0.62: tier==='mid'?0.44: 0.26; // 早期朋友阶段也常有人来（治"空"）
+    var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
+    var recency = Math.min(1, hrs/6);
+    var timeFit = 1;
+    if ((k==='drummer'||k==='actor'||k==='rival') && isEve) timeFit = 1.3;
+    if (k==='agent' && (isMorning||isNoon)) timeFit = 1.3;
+    var p = base * recency * timeFit * (0.7 + Math.random()*0.6);
+    if (p > bestP) { bestP = p; best = k; }
+  });
+  if (!best || bestP < 0.22) return; // 门槛：不是每次打开都有人来（有人忙很正常）
+  var k = best;
+  G.npcs[k]._reachAt = now;
+  var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
+  var nights = G.npcs[k].nights || 0;
+  var timeWord = isMorning?'It is morning': isNoon?'It is around midday': isEve?'It is evening':'It is afternoon';
+  var stageCtx = nights > 0
+    ? 'You two are lovers now — text her the way a partner checks in: warm, familiar, a little intimate; ' + (isMorning?'a good-morning':isEve?'a how-was-your-day / goodnight':'a thinking-of-you') + ' beat.'
+    : tier==='high' ? 'There is a charged, flirtatious warmth between you — let it show a little.'
+    : 'You are still getting to know each other — ' + GETTOKNOW_SEEDS[Math.floor(Math.random()*GETTOKNOW_SEEDS.length)] + '.';
+  try {
+    var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
+      timeWord + ' where she is. Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + festivalChatNote(k) +
+      ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history. Output only the message text.'));
+    if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
+  } catch(e){}
+}
 
 // ── 快捷访问 STATE ──
 const G = STATE.data;
@@ -1984,6 +2036,7 @@ function goHome()       {
   if (REALTIME && G.day) {
     var r = syncRealtimeDay();
     if (r.rolled) { setABn('bn-home'); absenceReaction(r.gap); startDay(); return; }
+    checkProactiveOnOpen(); // 日常引擎：回主页时看有没有NPC该来消息
   }
   go('s-daily'); setABn('bn-home');
 }
@@ -2038,7 +2091,7 @@ function setImgOff(off, el) {
   STATE.save.saveGame();
 }
 function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
-function openPhone()    { setABn('bn-phone');     renderPhone();     go('s-phone');     }
+function openPhone()    { if (REALTIME) checkProactiveOnOpen(); setABn('bn-phone'); renderPhone(); go('s-phone'); }
 function closePhone()   { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 // ══════════════════════════════════════════════════════
 // CALENDAR SYSTEM
