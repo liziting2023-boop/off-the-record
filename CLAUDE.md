@@ -14,7 +14,15 @@
 
 **用户已做**：Cloudflare Worker `/claude` 加了model白名单(sonnet+haiku)+max_tokens封顶(网页后台改的,已验证不坏)。
 
-**待办(用户下个窗口继续提反馈)**：①实时化Stage2(约会约定时间NPC等你/追问、店铺真实营业时间夜里打烊图、NPC家常驻无限聊天到点"回家") ②落地剩3位新NPC(主厨/作曲家/保镖) ③NPC出场节奏重排(演员/管家→第2周、侦探→专辑名气小高潮、rival第3周登场) ④群聊(读NPC_ACQUAINTANCE) ⑤年末签约到期分支(自立门户/油腻老男人抢签/招男员工=新NPC)。**成本控制是一等公民**(Haiku分级+缓存+封顶+分档配额=订阅闸门)。惩罚力度=A偏B。尺度=B(上架安全)。
+**v10.96-97追加(已上beta)**：`claudeChat`便宜模型空回→自动sonnet兜底(修"经纪人不回"=之前手机缓存旧beta的锅,已确认修好)；**日常内容引擎**`checkProactiveOnOpen`(打开主页/手机按性格×好感×距上次×时段判断有没有NPC主动来消息,5h/人冷却,治"空",走Haiku)；`day1Intro`(Day1傍晚鼓手撂狠话+管家欢迎入住,各发一条+met=true,让Day1有3人可聊)；REALTIME聊天锁chatEnded只锁3真实小时。**版本号v10.97**(beta标题应显示v10.97·BETA,若还是v10.96=手机在吃缓存需清)。
+
+**🎯 下个窗口第一件(用户已明确要,规格在此)——Day1/Day2登场重排(realtime分支做→刷beta)**：
+- 现状:`scriptedEvents`一天一场(story.js)。Day1=经纪人(agent_office),Day2=鼓手(recording_studio初见),Day4=管家。goEvening已接`day1Intro()`(Day1傍晚鼓手/管家发消息+met=true)。
+- 目标:**Day1见经纪人(早)+鼓手(下午,初见场景),场景结束往日历加Day2录音室排练;管家Day1只发消息(已有)、Day2晚上正式见面(初见场景)**。
+- 要动:①引擎允许"一天多场景"(现在一天一场,需链式:agent场景结束→接drummer;可用afterDialogHook/playScripted链)②经纪人Day1 round2台词"明天9点见鼓手"→"今天下午"(story.js scriptedEvents[1].dialogRounds[1])③drummer初见Day2→Day1下午,结束加Day2 recording_studio排练日历(work)④butler初见→Day2傍晚触发⑤`day1Intro`里drummer口吻从"明天见"改"下午见"、butler保留但改"Day2来看你"⑥met=true与scriptedDone/migrateScriptedDone交互别让初见被跳过。
+- 风险:环环相扣,改错Day1-2登场就乱,逐场景本地测(otrRtSkip翻天看Day1两场+Day2两场+日历排练)。
+
+**其它待办**：①实时化Stage2(约会约定时间NPC等你/追问、店铺真实营业时间夜里打烊图、NPC家常驻无限聊天到点"回家") ②落地剩3位新NPC(主厨/作曲家/保镖) ③NPC出场节奏重排(演员/管家→第2周、侦探→专辑名气小高潮、rival第3周登场) ④群聊(读NPC_ACQUAINTANCE) ⑤年末签约到期分支(自立门户/油腻老男人抢签/招男员工=新NPC)。**成本控制是一等公民**(Haiku分级+缓存+封顶+分档配额=订阅闸门)。惩罚力度=A偏B。尺度=B(上架安全)。
 
 **大战略共识**：把游戏从"有限手写剧情"转成"无限AI日常陪伴+慢放剧情脊柱"，靠订阅(关系持续)活下去——因2小时玩1个月、一年剧情10-15h玩完、solo开发者喂不饱。实时化就是这个转型的核心。
 
