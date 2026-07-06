@@ -19,7 +19,7 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v10.96（实时化实验）。** 本会话完成了：UI批→v10.83立绘/背景/约会/过夜文案修→v10.85~90过夜两幕+参考书语感（用户提供5本书:经纪人←Bared to You/鼓手←Fifty Shades/演员←Book Lovers/管家←Beach Read/侦探←Love Hypothesis，尺度常量`HEAT_LEVEL='B'`上架安全)→v10.91对话"目的+潜台词"重构+语气镜头输入→v10.92邀约日历/女主家/名字性别校验→v10.93功能批(生日/emoji/草稿/过夜勋章🌙/售楼处/换装反馈/美容院重生成/发色/演员开衫鼓手纹身/蛋糕图/过夜邀请音效)→v10.94 Batch2过夜后关系动态(公开/低调按性格+朋友聚会+吃醋冷战)→v10.95对手歌手rival打样(宿敌变恋人,+九人相识关系网`NPC_ACQUAINTANCE`/`GROUP_CHATS`)。
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.00（实时化实验）。** 本会话完成了：UI批→v10.83立绘/背景/约会/过夜文案修→v10.85~90过夜两幕+参考书语感（用户提供5本书:经纪人←Bared to You/鼓手←Fifty Shades/演员←Book Lovers/管家←Beach Read/侦探←Love Hypothesis，尺度常量`HEAT_LEVEL='B'`上架安全)→v10.91对话"目的+潜台词"重构+语气镜头输入→v10.92邀约日历/女主家/名字性别校验→v10.93功能批(生日/emoji/草稿/过夜勋章🌙/售楼处/换装反馈/美容院重生成/发色/演员开衫鼓手纹身/蛋糕图/过夜邀请音效)→v10.94 Batch2过夜后关系动态(公开/低调按性格+朋友聚会+吃醋冷战)→v10.95对手歌手rival打样(宿敌变恋人,+九人相识关系网`NPC_ACQUAINTANCE`/`GROUP_CHATS`)。
 
 **git结构**：`main`=线上稳定版；`main` 里的 **`beta/` 子文件夹=realtime实时化版**(独立存档键`otr_save_v2_beta`/`otr_device_id_beta`,碰不到真实存档)；`realtime`分支=实时化源；`v10.95-stable`标签=还原点。两个线上URL:根=稳定、`/beta/`=实时。
 
@@ -29,11 +29,13 @@
 
 **v10.96-97追加(已上beta)**：`claudeChat`便宜模型空回→自动sonnet兜底(修"经纪人不回"=之前手机缓存旧beta的锅,已确认修好)；**日常内容引擎**`checkProactiveOnOpen`(打开主页/手机按性格×好感×距上次×时段判断有没有NPC主动来消息,5h/人冷却,治"空",走Haiku)；`day1Intro`(Day1傍晚鼓手撂狠话+管家欢迎入住,各发一条+met=true,让Day1有3人可聊)；REALTIME聊天锁chatEnded只锁3真实小时。**版本号v10.97**(beta标题应显示v10.97·BETA,若还是v10.96=手机在吃缓存需清)。
 
-**🎯 下个窗口第一件(用户已明确要,规格在此)——Day1/Day2登场重排(realtime分支做→刷beta)**：
-- 现状:`scriptedEvents`一天一场(story.js)。Day1=经纪人(agent_office),Day2=鼓手(recording_studio初见),Day4=管家。goEvening已接`day1Intro()`(Day1傍晚鼓手/管家发消息+met=true)。
-- 目标:**Day1见经纪人(早)+鼓手(下午,初见场景),场景结束往日历加Day2录音室排练;管家Day1只发消息(已有)、Day2晚上正式见面(初见场景)**。
-- 要动:①引擎允许"一天多场景"(现在一天一场,需链式:agent场景结束→接drummer;可用afterDialogHook/playScripted链)②经纪人Day1 round2台词"明天9点见鼓手"→"今天下午"(story.js scriptedEvents[1].dialogRounds[1])③drummer初见Day2→Day1下午,结束加Day2 recording_studio排练日历(work)④butler初见→Day2傍晚触发⑤`day1Intro`里drummer口吻从"明天见"改"下午见"、butler保留但改"Day2来看你"⑥met=true与scriptedDone/migrateScriptedDone交互别让初见被跳过。
-- 风险:环环相扣,改错Day1-2登场就乱,逐场景本地测(otrRtSkip翻天看Day1两场+Day2两场+日历排练)。
+**✅ 已完成(v11.00)——Day1/Day2登场重排 + 一天多场景引擎**：
+- 引擎:剧本场景支持 `chainNext` 链式播放(`runScene(ev, originDay)` 按场景对象而非日期键播放；链里所有场景共用 originDay)。当前场景用 `_curSceneEv` 追踪(取地点/收尾去向)，`goEvening` 清空。
+- 结构(`story.js scriptedEvents`):`[1]`经纪人`chainNext:'d1drummer'`→`'d1drummer'`鼓手初见(下午,`addRehearsalNextDay`)；`[2]`=管家(原[4]迁来,Day2傍晚)；`[3]`演员不变；`[12]/[22]/[30]`里程碑不动。**没有 numeric key 4/2-drummer 了**。
+- 收尾:链场结束按 `chainNext` 接下一场，终场 `addRehearsalNextDay` 往 Day2 排 `work_2` 录音室排练(`addRehearsalNextDay()`)后入夜。
+- 抗中断:`scriptedDone[originDay]` 延后到**终场**才标记(`if(!ev.chainNext)`)，中途离开整条链顺延重来，鼓手初见不被跳过。
+- 配套:经纪人 Day1 台词"明天9点"→"今天下午"；`day1Intro` 精简(鼓手已当面初见，只留管家欢迎短信且**不置met**，防 `migrateScriptedDone` 跳过Day2管家初见)；`getScriptedLabel` 改按场景内容标注；对话地点注入优先级=见面地点>当前场景>日期回查；`migrateScriptedDone` introNpc 改 `{1:agent,2:butler,3:actor}`+drummer met→scriptedDone[1]。
+- 端到端桩测通过(见 git `5ff01ab`)。**待用户真机验收**:Day1两场连播语气/转场、Day2管家傍晚初见+日历排练是否正常。
 
 **其它待办**：①实时化Stage2(约会约定时间NPC等你/追问、店铺真实营业时间夜里打烊图、NPC家常驻无限聊天到点"回家") ②落地剩3位新NPC(主厨/作曲家/保镖) ③NPC出场节奏重排(演员/管家→第2周、侦探→专辑名气小高潮、rival第3周登场) ④群聊(读NPC_ACQUAINTANCE) ⑤年末签约到期分支(自立门户/油腻老男人抢签/招男员工=新NPC)。**成本控制是一等公民**(Haiku分级+缓存+封顶+分档配额=订阅闸门)。惩罚力度=A偏B。尺度=B(上架安全)。
 
