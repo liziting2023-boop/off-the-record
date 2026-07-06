@@ -1217,8 +1217,17 @@ function festivalChatNote(npcKey) {
   return ' TODAY is ' + f.name + ' where she lives — you may naturally reference it (a greeting, a plan, a memory).';
 }
 
-// ── 日常闲聊用便宜模型省钱（Haiku + 短输出）；Worker未支持model字段时自动回退sonnet（claude内部处理）──
-function claudeChat(prompt, sys) { return claude(prompt, sys, { model: CHAT_MODEL, max_tokens: 200 }); }
+// ── 日常闲聊用便宜模型省钱（Haiku + 短输出）；便宜模型空回(账号没开该模型/Worker没透传)→自动用sonnet重试，
+//    保证聊天永不因省钱而断。连续失败2次则本会话停用Haiku(避免每条都双调浪费)。──
+let _cheapFails = 0, _cheapOff = false;
+async function claudeChat(prompt, sys) {
+  if (!_cheapOff) {
+    var r = await claude(prompt, sys, { model: CHAT_MODEL, max_tokens: 200 });
+    if (r && r.trim()) { _cheapFails = 0; return r; }
+    _cheapFails++; if (_cheapFails >= 2) { _cheapOff = true; try { console.warn('[OTR] 便宜模型(Haiku)不可用，本会话改用 sonnet。检查 Worker/账号是否支持 ' + CHAT_MODEL); } catch(e){} }
+  }
+  return claude(prompt, sys, { max_tokens: 200 }); // sonnet 兜底（若真是额度满/网络，sonnet也回空，无害）
+}
 
 // ── 日常内容引擎：打开游戏就检查有没有NPC该主动来消息（治"空"的主食）──
 //    按 性格频率×好感×距上次多久×时段 打分，有人忙就不发；每次打开最多来1位，不刷屏；走Haiku省钱 ──
