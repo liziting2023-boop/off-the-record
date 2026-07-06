@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.03"></script>
-<script src="state.js?v=11.03"></script>
+<script src="story.js?v=11.04"></script>
+<script src="state.js?v=11.04"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.03 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.04 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.03 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.04 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1661,12 +1661,13 @@ async function claude(prompt, sys = '', opts = {}) {
   // Worker/Cloudflare 偶发限流会以 HTTP 200 + {"error":{"type":"forbidden","message":"Request not allowed"}}（或网络错误）返回，
   // 和模型/参数无关、请求打得密时更容易撞上。这类"空回"自动退避重试几次，避免正常内容被一次偶发拒绝就降级成 aiFailMsg。
   // 真·限额（429）不重试，直接兜底。
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const MAX_TRIES = 5; // 限流有时连续几次 forbidden，多试几次（带退避）才能撞到放行的窗口
+  for (let attempt = 0; attempt < MAX_TRIES; attempt++) {
     let r;
     try {
       r = await fetch(WORKER + '/claude', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() }, body: JSON.stringify(body) });
     } catch (e) {
-      if (attempt < 2) { await _sleepMs(700 * (attempt + 1)); continue; } // 网络/CORS：退避重试
+      if (attempt < MAX_TRIES - 1) { await _sleepMs(600 * (attempt + 1)); continue; } // 网络/CORS：退避重试
       _aiDown = true; return '';
     }
     if (r.status === 429) { _aiDown = true; warnQuota(); return ''; } // 今日限额已满：不重试
@@ -1675,7 +1676,7 @@ async function claude(prompt, sys = '', opts = {}) {
     const text = (d && d.content && d.content[0] && d.content[0].text) ? d.content[0].text : '';
     if (text) { _aiDown = false; return text; } // 成功
     // 非ok / 解析失败 / 200但无内容（偶发 forbidden 限流）→ 退避后重试；最后一次仍失败才兜底
-    if (attempt < 2) { await _sleepMs(700 * (attempt + 1)); continue; }
+    if (attempt < MAX_TRIES - 1) { await _sleepMs(600 * (attempt + 1)); continue; }
     _aiDown = true; return '';
   }
   return '';
@@ -3512,8 +3513,9 @@ function buildDayOpts() {
   // 今日剧情 = 最早一个未完成的剧情日（错过的剧情顺延补见）
   let evDay = getPendingScriptedDay();
   let ev = evDay != null ? STORY.utils.getScriptedEvent(evDay) : null;
-  // 周末不排工作：顺延到周末的工作类剧情继续等到工作日
-  if (ev && ev.isWork && isGameWeekend(G.day)) ev = null;
+  // 剧情场景（含登场初见）是手写故事节点，任何星期几都照常播——不再被"周末不排工作"误杀。
+  // （实时版 G.day=真实日，旧代码在周末开局/周末打开会把 Day1 见经纪人等 work 类剧情整段藏掉 → 玩家以为剧情没了。
+  //   常规杂活 mandate 本就不经这条，无需在此按周末过滤。）
   // 选项区上方的提示语
   document.getElementById('d-opts-head').textContent =
     isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?';
@@ -6990,7 +6992,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.03 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.04 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
