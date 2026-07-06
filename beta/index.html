@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=10.96"></script>
-<script src="state.js?v=10.96"></script>
+<script src="story.js?v=10.97"></script>
+<script src="state.js?v=10.97"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.96 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v10.97 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.96 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v10.97 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1277,6 +1277,30 @@ async function checkProactiveOnOpen() {
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history. Output only the message text.'));
     if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
   } catch(e){}
+}
+
+// ── Day1前置：签约当天傍晚，鼓手(明天要一起工作,先撂狠话)+管家(欢迎入住)各来一条消息并成为可聊对象。
+//    让Day1就有3个人可聊、不空。正式的登场场景仍在后面的剧情日照常发生（这里只是先建立联系）──
+function day1Intro() {
+  if (G.day !== 1 || G._day1Intro) return;
+  G._day1Intro = true;
+  if (G.npcs.drummer && !G.npcs.drummer.met) {
+    G.npcs.drummer.met = true;
+    (async function(){ try {
+      var t = await claudeChat(STATE.memory.buildDialoguePrompt('drummer', G.day, G.langName, G.player.name,
+        'You are the band leader her agent just bolted her onto. You have not formally met yet — that is tomorrow, 9am, the studio. Text her ONE blunt, cocky line tonight: half warning, half challenge about tomorrow. You secretly already listened to her street recordings twice, but you will NEVER admit that (1 sentence, texting style). Output only the message text.'));
+      if (t && t.trim()) pushNpcMsg('drummer', t.trim(), 20*60);
+    } catch(e){} })();
+  }
+  if (G.npcs.butler && !G.npcs.butler.met) {
+    G.npcs.butler.met = true;
+    (async function(){ try {
+      var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
+        'You are the young building manager of the building she just moved into today. Text her a warm, slightly shy welcome tonight — mention you left something small at her door (a pot of tea, a snack), earnest and neighbourly, the way you would casually call a new neighbour "sis" (1-2 sentences, texting style). Output only the message text.'));
+      if (t && t.trim()) pushNpcMsg('butler', t.trim(), 21*60);
+    } catch(e){} })();
+  }
+  STATE.save.saveGame();
 }
 
 // ── 快捷访问 STATE ──
@@ -5392,6 +5416,7 @@ function sendStoodUpMessage(npcKey, title) {
 }
 
 async function goEvening() {
+  if (REALTIME) day1Intro(); // Day1傍晚：鼓手+管家来消息，让第一天就有3个人可聊
   // 白天已确认的约会还没赴（比如上午选了工作，工作结束不能直接入夜吞掉下午的约）→ 先去赴约，结束后会再回到这里
   const _pendingDayInv = (G.calendar.events[getCalDateStr(G.day)] || []).find(e => e.type === 'npc_invite' && e.status === 'accepted' && invTimeMin(e) < 17 * 60);
   if (_pendingDayInv && G._dayInvGuard !== _pendingDayInv.id) {
@@ -6364,9 +6389,11 @@ async function sendChatReply() {
 
   // 冷战中（因她公开了和别人的关系而生气）：不读不回，玩家发消息石沉大海（Batch2）
   if (npcIsCold(npc)) { updatePhoneBadge(); STATE.save.saveGame(); return; }
-  // NPC今天已经道过"去睡了/先忙了"→ 不再回复
+  // NPC道过"去睡/先忙"→暂不回。REALTIME下只锁约3真实小时(不锁整个真实天)；旧模式锁当天
   if (!G.phone.chatEnded) G.phone.chatEnded = {};
-  if (G.phone.chatEnded[npc] === G.day) { updatePhoneBadge(); STATE.save.saveGame(); return; }
+  if (REALTIME) {
+    if (G.phone.chatEnded[npc] && (Date.now() - G.phone.chatEnded[npc]) < 3*3600000) { updatePhoneBadge(); STATE.save.saveGame(); return; }
+  } else if (G.phone.chatEnded[npc] === G.day) { updatePhoneBadge(); STATE.save.saveGame(); return; }
 
   // ── 回复延迟：按人设习惯 + 好感度 + 时段，不再秒回 ──
   // 习惯：经纪人工作时间快、鼓手/演员夜猫子、管家早睡、侦探慢而谨慎
@@ -6431,7 +6458,7 @@ async function sendChatReply() {
       });
       STATE.memory.addEvent(npc, 'Replied: "' + reply.slice(0,60) + '"', G.day);
       if (rel !== 0) { STATE.relationships.change(npc, rel); playSound(rel > 0 ? 'rel-up' : 'rel-down'); }
-      if (endChat) G.phone.chatEnded[npc] = G.day;
+      if (endChat) G.phone.chatEnded[npc] = REALTIME ? Date.now() : G.day;
       // NPC同意今天见面 → 插入行动按钮气泡（白天/晚上都可以）
       if (meetInfo && meetInfo.locationKey) {
         const isZhM = G.lang==='zh-cn'||G.lang==='zh-tw';
@@ -6831,7 +6858,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v10.96 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v10.97 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
