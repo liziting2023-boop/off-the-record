@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.01"></script>
-<script src="state.js?v=11.01"></script>
+<script src="story.js?v=11.02"></script>
+<script src="state.js?v=11.02"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.01 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.02 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.01 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.02 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5798,6 +5798,7 @@ async function generateAffinityMessages(day) {
 
     try {
       const raw2 = await claude(
+        '⚠️ OUTPUT LANGUAGE: the "text" message MUST be written ONLY in ' + G.langName + ' — every word, never English (unless ' + G.langName + ' is English), even though these instructions are in English. ' +
         'You are ' + (npc.name||npcKey) + ', ' + (char?.age||30) + '-year-old ' + (char?.profession||npcKey) + '. ' +
         personality + '. ' + ctx +
         '\nIt is evening of Day ' + day + ' of her contract. Shared history so far: ' + (STATE.memory.getSummary(npcKey) || '(almost none yet)') + '. ' +
@@ -5806,7 +5807,7 @@ async function generateAffinityMessages(day) {
         '\nSend a text message to ' + (G.player.name||'her') + '. ' +
         (tier === 'high' ? 'You can invite her out. If you DO invite her, you are inviting her SPECIFICALLY to this place: "' + ((STORY.locations[_invSpot]||{}).composition||'').slice(0,90) + '" — word the invitation around that exact place/activity (NOT a generic dinner).' : '') +
         (tier === 'mid' ? 'Keep it casual but warm.' : '') + earlyToneNote(npcKey) +
-        '\n1-2 sentences, Western style, natural. Language: ' + G.langName + '.' +
+        '\n1-2 sentences, Western style, natural. The "text" value MUST be entirely in ' + G.langName + ' — every word, no English.' +
         '\nIt is LATE EVENING right now — NEVER invite her for tonight or today (the day is over); the earliest possible invitation is daysFromNow=1.' + upcomingDatesRef(day, 6) +
         '\nRespond with ONLY valid JSON, no markdown fences: {"text":"the message","invite": null or {"daysFromNow": <integer 1-6, 1=tomorrow, MUST match what the message text says>, "time":"HH:MM"}}. If the message proposes meeting at a specific time, you MUST fill "invite" so her calendar matches the text exactly.'
       );
@@ -6952,7 +6953,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.01 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.02 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

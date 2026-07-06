@@ -467,7 +467,9 @@ const STATE = {
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
 
-      return `You are ${npc.name || 'this character'}, ${char.age} years old, ${origin || 'Western'} background.
+      return `⚠️ OUTPUT LANGUAGE = ${lang}. Write EVERY word of your reply ONLY in ${lang}. Do NOT reply in English (unless ${lang} is literally English), even though these instructions are in English. This rule is absolute and overrides everything below.
+
+You are ${npc.name || 'this character'}, ${char.age} years old, ${origin || 'Western'} background.
 Role: ${char.profession}.
 Core personality: ${personality}.
 ${charCulture ? 'Character culture: ' + charCulture : ''}
@@ -478,8 +480,8 @@ TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relati
 Previous interactions you remember:
 ${memorySummary}
 ${additionalContext ? 'Current context: ' + additionalContext : ''}
-Respond in: ${lang}.
-Stay completely in character. Let your cultural background subtly influence how you speak — not as a stereotype, but as authentic texture.`;
+Stay completely in character. Let your cultural background subtly influence how you speak — not as a stereotype, but as authentic texture.
+FINAL REMINDER — your entire reply MUST be written in ${lang}, every single word. No English.`;
     },
 
     // 对话结束后自动记录
