@@ -59,6 +59,8 @@ const STATE = {
       livingDayUrl: null,
       livingNightUrl: null,
       bedroomNightUrl: null,  // 晚间界面用固定布局的卧室夜景（避免夜晚客厅和白天摆设不一致）
+      bedroomLayout: null,    // 玩家选的卧室布局提示词（关图/失败时晚上补生成夜图用，保持一致）
+      bedroomMood: null,      // 玩家选的卧室灯光氛围提示词
       selectedStyle: null,
       selectedLayout: null,
     },
