@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.13"></script>
-<script src="state.js?v=11.13"></script>
+<script src="story.js?v=11.14"></script>
+<script src="state.js?v=11.14"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -472,6 +472,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" id="dev-imgtoggle" onclick="devToggleImg()">生图开关：加载中…</button>
     <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
     <button class="dev-btn" onclick="otrNewQuota();closeDevPanel()">重置今日AI额度</button>
+    <button class="dev-btn" onclick="otrDiag()">诊断信息（排查存档状态）</button>
     <button class="dev-btn close" onclick="closeDevPanel()">关闭</button>
   </div>
 </div>
@@ -507,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.13 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.14 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1080,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.13 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.14 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1525,6 +1526,27 @@ window.otrNewQuota = function() {
   console.log('%c[OTR] 今日AI额度已重置为满额。','color:#4a9;font-weight:bold');
   console.log('[OTR] 新设备ID = ' + id + '（旧 = ' + old + '）');
   return id;
+};
+// otrDiag()：一键诊断存档状态（DEV面板按钮）。玩家遇到"剧情不出现/设置被跳过"时，
+// 把弹窗内容截图发回来，就能看到真实状态，不用再靠猜。
+window.otrDiag = function() {
+  var n = (G && G.npcs) || {};
+  var p = (G && G.player) || {};
+  var lines = [
+    'day=' + (G && G.day) + ' · rtStart=' + ((G && G.rtStartDate) || '-') + ' · lang=' + (G && G.lang),
+    'scriptedDone=' + JSON.stringify((G && G.scriptedDone) || {}),
+    'chainProgress=' + JSON.stringify((G && G.chainProgress) || {}),
+    'agent: met=' + !!(n.agent && n.agent.met) + ' origin=' + ((n.agent && n.agent.origin) || '-') + ' portrait=' + !!(n.agent && n.agent.portraitUrl),
+    'drummer met=' + !!(n.drummer && n.drummer.met) + ' · butler met=' + !!(n.butler && n.butler.met) + ' · actor met=' + !!(n.actor && n.actor.met),
+    'player: name=' + (p.name || '-') + ' hair=' + (p.hairColor || '-') + '/' + (p.hairStyle || '-') + ' city=' + (p.city || '-'),
+    'plannedUntil=' + ((G && G.calendar && G.calendar.plannedUntil) || '-') + ' · phase=' + (G && G.phase),
+    'localSave=' + (function(){ try { return localStorage.getItem('otr_save_v2_beta') ? 'yes' : 'no'; } catch(e){ return '?'; } })() +
+      ' · gen=' + (function(){ try { return localStorage.getItem('otr_gen') || '-'; } catch(e){ return '?'; } })(),
+  ];
+  var txt = lines.join('\n');
+  try { console.log('[OTR DIAG]\n' + txt); } catch(e){}
+  alert(txt);
+  return txt;
 };
 // otrQuota()：查看当前设备ID（额度按它在服务器端计，每日约400次对话）
 window.otrQuota = function() {
@@ -6913,6 +6935,9 @@ function startNewGame() {
   STATE.save.clearSave();
   try { localStorage.removeItem('otr_save_v1'); } catch(e){}
   try { sessionStorage.setItem('otr_start_fresh', '1'); } catch(e){}
+  // 存档"代数"+1：手机上常有另一个后台标签页还开着旧局（内存里全是旧状态），
+  // 它随时可能把旧存档写回 localStorage=旧局复活。代数变了，旧标签页会拒绝写档并自动重载。
+  try { localStorage.setItem('otr_gen', String(Date.now())); } catch(e){}
   location.reload();
 }
 
@@ -6983,10 +7008,20 @@ async function maybeRestoreCloudSave() {
 
 window.addEventListener('load', () => {
   STATE.init();
-  // 包一层 saveGame：本地保存成功后排队同步云端
+  // 本标签页的存档"代数"：开始新游戏会更新 localStorage 里的代数。仍然开着旧局的后台标签页
+  // 一旦发现代数对不上（说明用户已在别处开了新档），就拒绝写档并整页重载——堵死"旧标签页把旧存档写回来"。
+  try { window._otrGen = localStorage.getItem('otr_gen'); } catch(e) { window._otrGen = null; }
+  function _genStale() {
+    try { return (localStorage.getItem('otr_gen') || null) !== (window._otrGen || null); } catch(e) { return false; }
+  }
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden && _genStale()) location.reload(); });
+  // 包一层 saveGame：先做代数守卫（旧标签页禁止写档），本地保存成功后排队同步云端
   (function wrapSaveForCloud() {
     const _origSave = STATE.save.saveGame.bind(STATE.save);
-    STATE.save.saveGame = function () { const ok = _origSave(); if (ok) scheduleCloudSync(); return ok; };
+    STATE.save.saveGame = function () {
+      if (_genStale()) { location.reload(); return false; }
+      const ok = _origSave(); if (ok) scheduleCloudSync(); return ok;
+    };
   })();
   // "开始新游戏"清档重载后的首次加载：跳过云端恢复询问 + 清掉云端旧档。
   // 否则本地清干净了，maybeRestoreCloudSave 又弹"发现云端存档要恢复吗？"——一确认，
@@ -7032,6 +7067,15 @@ window.addEventListener('load', () => {
     });
     if (G.npcs.drummer && G.npcs.drummer.met) G.scriptedDone[1] = true;
   })();
+  // ── 存档自愈：完成标记和实际登场自相矛盾（说"这天剧情完成了"、但对应NPC根本没见过）＝
+  //    老版本 bug 留下的坏档。不管坏状态是怎么进来的（本地残留/云端复活/旧标记），一律撤掉
+  //    完成标记，让登场剧情回来。这比"追堵每一条脏数据来路"可靠——游戏自己把状态修对。──
+  (function repairScriptedDone() {
+    if (!G.scriptedDone || !G.npcs) return;
+    if (G.scriptedDone[1] && G.npcs.drummer && !G.npcs.drummer.met) { delete G.scriptedDone[1]; if (G.chainProgress) delete G.chainProgress[1]; }
+    if (G.scriptedDone[2] && G.npcs.butler && !G.npcs.butler.met) delete G.scriptedDone[2];
+    if (G.scriptedDone[3] && G.npcs.actor && !G.npcs.actor.met) delete G.scriptedDone[3];
+  })();
   applyLang();
   setupTitleButtons();
   // "开始新游戏"走的是"清档→reload→到这里"（sessionStorage 标记）：此刻已是 100% 干净状态
@@ -7040,7 +7084,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.13 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.14 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
