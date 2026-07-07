@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.14"></script>
-<script src="state.js?v=11.14"></script>
+<script src="story.js?v=11.15"></script>
+<script src="state.js?v=11.15"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -508,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.14 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.15 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1080,7 +1080,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.14 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.15 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1242,7 +1242,7 @@ const GETTOKNOW_SEEDS = [
 //    只在好感<40（相识头几周）套用，好感涨上来后交回正常好感语气。只挂在【主动消息】上，不碰回复逻辑。──
 const EARLY_TONE = {
   agent:   'You have only just started working together — professionally warm but composed and in charge, NOT personally familiar, gushing, or over-eager. Your care shows in small restrained gestures, not effusive texts.',
-  drummer: 'You barely know her and she has NOT proven herself to you yet — stay blunt, cocky and a little standoffish. You do not hand out warmth for free.',
+  drummer: 'You barely know her and she has NOT proven herself to you yet — stay blunt, cocky and a little standoffish. You do not hand out warmth for free. You NEVER whine, complain about your mood, or fish for sympathy — you are a proud musician, not a moper; if you text her it is about the music, the work, or a curt challenge.',
   actor:   'You only just met — smooth and lightly flirtatious but emotionally detached. Never earnest, eager, or clingy; you keep her at arm\'s length on purpose.',
   butler:  'You are genuinely warm and neighbourly, but you only just met — keep it light and easy, not overfamiliar or intense.',
   rival:   'You are wary rivals, not friends — cool, competitive, a little sharp.',
@@ -2151,6 +2151,9 @@ function goHome()       {
   }
   go('s-daily'); setABn('bn-home');
   applyHomeTimeOfDay(); // 没翻天也要按真实时间刷主页图（19点后自动换夜图）
+  // 重建行程按钮：状态可能已经变了（如见完经纪人、鼓手场景进行到一半），
+  // 不重建的话首页还挂着早上的旧按钮（"去见经纪人"），点开就把已看过的场景重播一遍
+  try { buildDayOpts(); } catch (e) {}
 }
 function setABn(id)     { document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active')); document.getElementById(id)?.classList.add('active'); }
 function openFame()     { setABn('bn-fame');      renderFame();      go('s-fame');      }
@@ -4526,10 +4529,11 @@ async function startScriptedScene(ev, day) {
   document.getElementById('vn-opts').innerHTML = '';
   _vnEndLoc = null; // 剧情场景：结束旁白用当天剧情事件的地点（清掉可能残留的见面地点）
   // 标记该剧情日已完成（补见机制：没玩过的剧情会一直顺延到玩家玩到为止）。
-  // 链式场景（有 chainNext）先不标记，等链里最后一场（终场）完成再标记该 originDay，
-  // 这样万一玩家中途离开，Day1 的经纪人+鼓手整条链会顺延重来，鼓手初见不会被跳过。
+  // 链式场景：链头（有 chainNext）和链的终场（chainProgress[day] 正在播的这场）都【不】在开场标记，
+  // 完成标记统一等链真正走完（advanceAfterScene 终场分支）才落——中途退出可从断点续播，不丢初见。
+  // 独立单场（管家/演员/章节里程碑）保持原行为：开场即标记。
   if (!G.scriptedDone) G.scriptedDone = {};
-  if (!ev.chainNext) G.scriptedDone[day] = true;
+  if (!ev.chainNext && !(G.chainProgress && G.chainProgress[day])) G.scriptedDone[day] = true;
   if (ev.isWork) { G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0; addStress(12); } else { addStress(5); }
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   // 注：经纪人排班改到"离开办公室之后"才发（见 advanceAfterScene），不再在场景一开始就发。
@@ -4622,8 +4626,14 @@ function advanceAfterScene(sc) {
     try { STATE.save.saveGame(); } catch (e) {}
     runScene(STORY.scriptedEvents[sc.chainNext], _curSceneOriginDay);
   } else {
-    // 终场走完：清掉这条链的续播标记
-    if (G.chainProgress) delete G.chainProgress[_curSceneOriginDay];
+    // 终场走完：这条链才算真正完成——落完成标记 + 清续播标记 + 存档
+    // （独立单场没有 chainProgress，完成标记在开场已落，这里重复置 true 无害）
+    if (G.chainProgress && G.chainProgress[_curSceneOriginDay]) {
+      delete G.chainProgress[_curSceneOriginDay];
+      if (!G.scriptedDone) G.scriptedDone = {};
+      G.scriptedDone[_curSceneOriginDay] = true;
+      try { STATE.save.saveGame(); } catch (e) {}
+    }
     goEvening();
   }
 }
@@ -7065,16 +7075,29 @@ window.addEventListener('load', () => {
     Object.keys(introNpc).forEach(function(d) {
       if (G.npcs[introNpc[d]] && G.npcs[introNpc[d]].met) G.scriptedDone[d] = true;
     });
-    if (G.npcs.drummer && G.npcs.drummer.met) G.scriptedDone[1] = true;
+    // drummer.met→Day1完成 的回填只在【链不在半途】时做：中途退出时 met 已置 true，
+    // 若无此判断，下次加载会把续播中的链误判成"已完成"，鼓手剩下的戏直接丢了
+    if (G.npcs.drummer && G.npcs.drummer.met && !(G.chainProgress && G.chainProgress[1])) G.scriptedDone[1] = true;
   })();
   // ── 存档自愈：完成标记和实际登场自相矛盾（说"这天剧情完成了"、但对应NPC根本没见过）＝
   //    老版本 bug 留下的坏档。不管坏状态是怎么进来的（本地残留/云端复活/旧标记），一律撤掉
   //    完成标记，让登场剧情回来。这比"追堵每一条脏数据来路"可靠——游戏自己把状态修对。──
   (function repairScriptedDone() {
     if (!G.scriptedDone || !G.npcs) return;
+    // 链在半途（chainProgress 有记录）＝这天一定没完成：撤掉误标的完成标记，让"续播"回来。
+    // （治老版本"终场开场即标完成"留下的坏档：中途退出后 Day1 被吞、无剧情可点）
+    Object.keys(G.chainProgress || {}).forEach(function(d) { if (G.scriptedDone[d]) delete G.scriptedDone[d]; });
     if (G.scriptedDone[1] && G.npcs.drummer && !G.npcs.drummer.met) { delete G.scriptedDone[1]; if (G.chainProgress) delete G.chainProgress[1]; }
     if (G.scriptedDone[2] && G.npcs.butler && !G.npcs.butler.met) delete G.scriptedDone[2];
     if (G.scriptedDone[3] && G.npcs.actor && !G.npcs.actor.met) delete G.scriptedDone[3];
+    // Day1 管家欢迎短信：旧会话可能把 _day1Intro=true 带进坏档，但管家一条消息都没发过、
+    // 也没见过面 → 撤掉标记，让欢迎短信当晚（goEvening）还能正常发出来
+    if (G.day === 1 && G._day1Intro && G.npcs.butler && !G.npcs.butler.met) {
+      var _hasButlerMsg = Object.values((G.phone && G.phone.messages) || {}).some(function(arr){
+        return (arr || []).some(function(m){ return m && m.npc === 'butler'; });
+      });
+      if (!_hasButlerMsg) G._day1Intro = false;
+    }
   })();
   applyLang();
   setupTitleButtons();
@@ -7084,7 +7107,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.14 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.15 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
