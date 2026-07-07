@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.06"></script>
-<script src="state.js?v=11.06"></script>
+<script src="story.js?v=11.07"></script>
+<script src="state.js?v=11.07"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.06 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.07 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.06 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.07 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1318,8 +1318,9 @@ async function checkProactiveOnOpen() {
     : tier==='high' ? 'There is a charged, flirtatious warmth between you — let it show a little.'
     : 'You are still getting to know each other — ' + GETTOKNOW_SEEDS[Math.floor(Math.random()*GETTOKNOW_SEEDS.length)] + '.';
   try {
+    var noInvite = (nights > 0 || tier === 'high') ? '' : ' Do NOT ask her out, propose a date, or suggest meeting up — you barely know each other; this is just a casual friendly text to chat, not to make plans.';
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
-      timeWord + ' where she is. Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) +
+      timeWord + ' where she is. Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history. Output only the message text.'));
     if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
   } catch(e){}
@@ -4573,6 +4574,14 @@ let _afterDialogHook = null;
 let _curSceneEv = null;
 let _curSceneOriginDay = null;
 
+// 剧情场景收尾统一走这里：需要就排次日排练；有 chainNext 接当天下一场（如经纪人→鼓手），否则入夜。
+// 正常结束和 AI 空回的"离开"都调它——保证一句台词没出来也不会把后续登场（鼓手初见）弄丢。
+function advanceAfterScene(sc) {
+  if (sc && sc.addRehearsalNextDay) addRehearsalNextDay(_curSceneOriginDay);
+  if (sc && sc.chainNext) runScene(STORY.scriptedEvents[sc.chainNext], _curSceneOriginDay);
+  else goEvening();
+}
+
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   // 新场景开场：清掉可能残留的上一场景玩家回复（玩家可能中途从底部导航离开又进入别的场景）
   if (round === 0) { setVNAvatars(npcKey); _vnLastReply = null; }
@@ -4627,12 +4636,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     const endBtn = document.createElement('button');
     endBtn.className = 'vn-next';
     endBtn.textContent = endLabel;
-    endBtn.onclick = () => {
-      // 剧情场景收尾：需要就往日历排入次日排练；有 chainNext 则接着播当天下一场，否则入夜
-      if (sc && sc.addRehearsalNextDay) addRehearsalNextDay(_curSceneOriginDay);
-      if (sc && sc.chainNext) runScene(STORY.scriptedEvents[sc.chainNext], _curSceneOriginDay);
-      else goEvening();
-    };
+    endBtn.onclick = () => advanceAfterScene(sc);
     const opts = document.getElementById('vn-opts');
     opts.innerHTML = '';
     opts.appendChild(endBtn);
@@ -4689,7 +4693,8 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     var _vo = document.getElementById('vn-opts'); _vo.innerHTML = '';
     var _eb = document.createElement('button'); _eb.className = 'vn-next';
     _eb.textContent = (G.lang==='zh-cn'||G.lang==='zh-tw')?'离开':G.lang==='ja'?'立ち去る':G.lang==='ko'?'자리를 뜨다':'Leave';
-    _eb.onclick = goEvening;
+    // 即使这句AI没出来，也按当前场景决定去向：剧情场景该接的链场（如经纪人→鼓手）不能丢
+    _eb.onclick = () => advanceAfterScene(_vnEndLoc ? null : _curSceneEv);
     _vo.appendChild(_eb);
     return;
   }
@@ -5843,7 +5848,7 @@ async function generateAffinityMessages(day) {
         ' STRICT: only reference events from that shared history — do NOT invent auditions, directors, industry contacts, or past conversations. NEVER claim she sent you a message unless it appears in the shared history.' +
         '\nSend a text message to ' + (G.player.name||'her') + '. ' +
         (tier === 'high' ? 'You can invite her out. If you DO invite her, you are inviting her SPECIFICALLY to this place: "' + ((STORY.locations[_invSpot]||{}).composition||'').slice(0,90) + '" — word the invitation around that exact place/activity (NOT a generic dinner).' : '') +
-        (tier === 'mid' ? 'Keep it casual but warm.' : '') + earlyToneNote(npcKey) + eveningToneNote(npcKey) +
+        (tier === 'mid' ? 'Keep it casual but warm.' : '') + (tier === 'high' ? '' : ' Do NOT ask her out or propose meeting up — you are still getting to know each other; just a warm little check-in, no plans.') + earlyToneNote(npcKey) + eveningToneNote(npcKey) +
         '\n1-2 sentences, Western style, natural. The "text" value MUST be entirely in ' + G.langName + ' — every word, no English.' +
         '\nIt is LATE EVENING right now — NEVER invite her for tonight or today (the day is over); the earliest possible invitation is daysFromNow=1.' + upcomingDatesRef(day, 6) +
         '\nRespond with ONLY valid JSON, no markdown fences: {"text":"the message","invite": null or {"daysFromNow": <integer 1-6, 1=tomorrow, MUST match what the message text says>, "time":"HH:MM"}}. If the message proposes meeting at a specific time, you MUST fill "invite" so her calendar matches the text exactly.'
@@ -6996,7 +7001,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.06 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.07 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
