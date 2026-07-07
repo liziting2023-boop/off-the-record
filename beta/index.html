@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.09"></script>
-<script src="state.js?v=11.09"></script>
+<script src="story.js?v=11.10"></script>
+<script src="state.js?v=11.10"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.09 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.10 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.09 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.10 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5601,10 +5601,12 @@ async function goEvening() {
     var dn2 = isZh2 ? days_zh[idx2] : days_en[idx2];
     document.getElementById('eve-date').textContent = isZh2 ? (dn2+' · '+getGameDate(G.day)+' · 第'+G.day+'天') : (dn2+' · '+getGameDate(G.day)+' · Day '+G.day);
   })();
-  // 晚间用固定布局的卧室夜景（旧存档还没有卧室图时回退客厅夜景）
-  var eveRoomUrl = G.apartment.bedroomNightUrl || G.apartment.livingNightUrl;
+  // 图跟真实时段：REALTIME 下未到19点（还在下午）仍用白天客厅图，和主页一致——别在下午就跳出夜晚卧室；
+  // 到19点/旧模式才用固定布局的卧室夜景（旧存档没卧室图时回退客厅夜景）。
+  var eveNight = isHomeNight();
+  var eveRoomUrl = eveNight ? (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl) : (G.apartment.livingDayUrl || G.apartment.bedroomNightUrl);
   if (eveRoomUrl) { setImg('eve-img','eve-ph',eveRoomUrl); }
-  else { preGenNight().then(() => { var u = G.apartment.bedroomNightUrl || G.apartment.livingNightUrl; if (u) setImg('eve-img','eve-ph',u); }); }
+  else if (eveNight) { preGenNight().then(() => { var u = G.apartment.bedroomNightUrl || G.apartment.livingNightUrl; if (u && isHomeNight()) setImg('eve-img','eve-ph',u); }); }
   const fr = getCurFame(G.fame);
   const agentMemory = STATE.memory.getSummary('agent');
   const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
@@ -7021,7 +7023,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.09 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.10 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
