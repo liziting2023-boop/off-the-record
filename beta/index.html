@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.15"></script>
-<script src="state.js?v=11.15"></script>
+<script src="story.js?v=11.16"></script>
+<script src="state.js?v=11.16"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -508,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.15 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.16 · BETA ⏱</p>
   </div>
 </div>
 
@@ -689,7 +689,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="setup-screen">
     <div class="sec-head"><h2 id="agent-origin-title">Where was he from?</h2><p id="agent-origin-sub">Something about the way he carried himself.</p></div>
     <div class="cgrid c2" id="g-aorigin" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-aorigin" onclick="genAgent()" style="visibility:hidden">I remember him</button>
+    <button class="btn-p" id="btn-aorigin" onclick="askAgentHair()" style="visibility:hidden">I remember him</button>
   </div>
 </div>
 
@@ -1080,7 +1080,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.15 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.16 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1291,6 +1291,9 @@ async function checkProactiveOnOpen() {
   var cands = Object.keys(G.npcs).filter(function(k){
     if (k==='detective' || !G.npcs[k].met || npcIsCold(k)) return false;
     if (isNpcAsleep(k)) return false; // 睡着的NPC不会主动来消息（夜里只剩夜猫子活跃，符合现实、也不打扰）
+    // 正在剧情/见面场景里的NPC不发消息——人就坐在你对面，还给你发短信就穿帮了
+    // （场景进行中 _curSceneEv 一直有值，中途切去看手机也算"会面还没结束"）
+    if (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc === k) return false;
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
     return hrs >= 5;
   });
@@ -3081,18 +3084,8 @@ async function runSigningDialog(round) {
     inp.onkeydown = function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendBtn.onclick();} };
     inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn);
     opts.appendChild(inputWrap);
-    var qlabel = document.createElement('div');
-    qlabel.className = 'vn-quick-label';
-    qlabel.textContent = isZhSign?'快捷回复':lang==='ja'?'クイック返信':lang==='ko'?'빠른 답장':'Quick replies';
-    opts.appendChild(qlabel);
-    var optTexts = dlg.options[lang] || dlg.options['en'];
-    optTexts.forEach(function(o, i) {
-      var el = document.createElement('div');
-      el.className = 'vn-opt';
-      el.textContent = o;
-      el.onclick = (function(rnd, rc, reply){return function(){chooseSigningOpt(rnd, rc, reply);};})(round, dlg.relChanges[i], o);
-      opts.appendChild(el);
-    });
+    // 签约场景同样只给"💡语气提示"，不给整句快捷回复（用户定的）
+    renderToneHints(opts, inp);
   }
 }
 
@@ -3225,37 +3218,51 @@ function selNPCOrigin(val, el) {
 // 两步选择：①族裔 ②发色（不选发型——发型跟族裔外形表走）。发色存 npc.hairColor，生图时覆盖外形表颜色
 var _nosPhase = 'origin';
 var _selectedNPCHair = null;
+// 发色第二步（族裔弹层复用；开场设置里经纪人也用它——之前只有场景NPC有发色可选，经纪人一直缺这一步）
+function showNPCHairStep() {
+  _nosPhase = 'hair'; _selectedNPCHair = null;
+  var isZhH = G.lang==='zh-cn'||G.lang==='zh-tw';
+  document.getElementById('nos-title').textContent = isZhH?'他的发色？':G.lang==='ja'?'彼の髪色は？':G.lang==='ko'?'그의 머리색은?':'His hair colour?';
+  document.getElementById('nos-sub').textContent = isZhH?'「保持本色」则跟随他的族裔气质':G.lang==='ja'?'「そのまま」で自然な色に':G.lang==='ko'?'「자연색」이면 기본 색상':'"Natural" keeps his default shade';
+  var grid = document.getElementById('nos-grid');
+  grid.innerHTML = '';
+  var colors = [
+    [null,             isZhH?'保持本色':G.lang==='ja'?'そのまま':G.lang==='ko'?'자연색':'Natural'],
+    ['jet black',      isZhH?'乌黑':G.lang==='ja'?'漆黒':G.lang==='ko'?'칠흑':'Jet black'],
+    ['dark brown',     isZhH?'深棕':G.lang==='ja'?'ダークブラウン':G.lang==='ko'?'다크브라운':'Dark brown'],
+    ['chestnut brown', isZhH?'栗棕':G.lang==='ja'?'栗色':G.lang==='ko'?'밤색':'Chestnut'],
+    ['golden blonde',  isZhH?'金发':G.lang==='ja'?'ブロンド':G.lang==='ko'?'금발':'Blonde'],
+    ['ash grey',       isZhH?'雾灰':G.lang==='ja'?'アッシュグレー':G.lang==='ko'?'애쉬그레이':'Ash grey'],
+  ];
+  colors.forEach(function(c) {
+    var el = document.createElement('div');
+    el.className = 'nos-card';
+    el.textContent = c[1];
+    el.onclick = function() {
+      document.querySelectorAll('.nos-card').forEach(x => x.classList.remove('sel'));
+      el.classList.add('sel');
+      _selectedNPCHair = c[0];
+      document.getElementById('nos-confirm').style.visibility = 'visible';
+    };
+    grid.appendChild(el);
+  });
+  document.getElementById('nos-confirm').style.visibility = 'hidden';
+  document.getElementById('npc-origin-overlay').classList.add('open');
+}
+
+// 开场设置：选完经纪人族裔 → 先选他的发色 → 再生成立绘（其他NPC初见时本来就有这一步）
+function askAgentHair() {
+  _pendingNPCKey = 'agent';
+  _selectedNPCOrigin = G.npcs.agent.origin || 'American';
+  _pendingNPCCallback = function(){ genAgent(); };
+  showNPCHairStep();
+}
+
 function confirmNPCOrigin() {
   if (_nosPhase === 'origin') {
     if (!_selectedNPCOrigin) return;
     G.npcs[_pendingNPCKey].origin = _selectedNPCOrigin;
-    _nosPhase = 'hair'; _selectedNPCHair = null;
-    var isZhH = G.lang==='zh-cn'||G.lang==='zh-tw';
-    document.getElementById('nos-title').textContent = isZhH?'他的发色？':G.lang==='ja'?'彼の髪色は？':G.lang==='ko'?'그의 머리색은?':'His hair colour?';
-    document.getElementById('nos-sub').textContent = isZhH?'「保持本色」则跟随他的族裔气质':G.lang==='ja'?'「そのまま」で自然な色に':G.lang==='ko'?'「자연색」이면 기본 색상':'"Natural" keeps his default shade';
-    var grid = document.getElementById('nos-grid');
-    grid.innerHTML = '';
-    var colors = [
-      [null,             isZhH?'保持本色':G.lang==='ja'?'そのまま':G.lang==='ko'?'자연색':'Natural'],
-      ['jet black',      isZhH?'乌黑':G.lang==='ja'?'漆黒':G.lang==='ko'?'칠흑':'Jet black'],
-      ['dark brown',     isZhH?'深棕':G.lang==='ja'?'ダークブラウン':G.lang==='ko'?'다크브라운':'Dark brown'],
-      ['chestnut brown', isZhH?'栗棕':G.lang==='ja'?'栗色':G.lang==='ko'?'밤색':'Chestnut'],
-      ['golden blonde',  isZhH?'金发':G.lang==='ja'?'ブロンド':G.lang==='ko'?'금발':'Blonde'],
-      ['ash grey',       isZhH?'雾灰':G.lang==='ja'?'アッシュグレー':G.lang==='ko'?'애쉬그레이':'Ash grey'],
-    ];
-    colors.forEach(function(c) {
-      var el = document.createElement('div');
-      el.className = 'nos-card';
-      el.textContent = c[1];
-      el.onclick = function() {
-        document.querySelectorAll('.nos-card').forEach(x => x.classList.remove('sel'));
-        el.classList.add('sel');
-        _selectedNPCHair = c[0];
-        document.getElementById('nos-confirm').style.visibility = 'visible';
-      };
-      grid.appendChild(el);
-    });
-    document.getElementById('nos-confirm').style.visibility = 'hidden';
+    showNPCHairStep();
     return; // 弹层留在第二步
   }
   // 第二步确认 → 收尾
@@ -3272,6 +3279,7 @@ function confirmNPCOrigin() {
 // ══════════════════════════════════════════════════════
 async function startDay() {
   G.today = null; // 重置今天做了什么的记录
+  _curSceneEv = null; _curSceneOriginDay = null; // 新的一天：清掉进行中场景指针（防昨天的半场景劫持"继续"入口）
   G.phase = 'morning'; // 游戏时段：手机时钟/消息时间戳都以此为准
   G.clockMin = 8 * 60 + 7; // 统一游戏时钟：新的一天从8:07开始（REALTIME下时钟走真实时间，此值仅兜底）
   if (REALTIME && !G.rtStartDate) { rtInitAnchor(); } // 首次：把"当前这一天"锚到今天（老存档也不错乱）
@@ -3571,6 +3579,15 @@ function buildDayOpts() {
       (isZh?'卧床休息（第'+sickDayNum+'/3天）':'Rest in bed (day '+sickDayNum+'/3)'),
       (isZh?'强制休养 · 恢复中':'Forced rest · recovering'), 'work', () => playSickDay());
     opts.appendChild(sickBtn);
+    for (let i = 0; i < 2; i++) { const lb = makeOpt('—','','locked',null); lb.disabled = true; opts.appendChild(lb); }
+    return;
+  }
+  // 有进行中的剧情场景（本次会话中途去看手机/回首页，场景画面原样还在）→ 给"继续"入口直接回到现场，
+  // 不重开场景（修"见经纪人到一半去看消息，回来场景没了、只能从头再见一遍"）
+  if (typeof _curSceneEv !== 'undefined' && _curSceneEv) {
+    const contLabel = (isZh?'继续 · ':'Resume · ') + getScriptedLabel(_curSceneEv, evDay || G.day, lang);
+    const contSub = isZh?'回到进行中的场面':lang==='ja'?'続きから再開':lang==='ko'?'진행 중인 장면으로':'Back to where you left off';
+    opts.appendChild(makeOpt(contLabel, contSub, 'work', () => { go('s-scene'); }));
     for (let i = 0; i < 2; i++) { const lb = makeOpt('—','','locked',null); lb.disabled = true; opts.appendChild(lb); }
     return;
   }
@@ -4638,6 +4655,56 @@ function advanceAfterScene(sc) {
   }
 }
 
+// ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
+//    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
+function renderToneHints(container, inp) {
+  var isZhOpt = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var toneLang = isZhOpt ? 'zh' : (G.lang==='ja' ? 'ja' : (G.lang==='ko' ? 'ko' : 'en'));
+  var TONES = [
+    { key:'tease',   label:{zh:'调侃他', en:'Tease him', ja:'からかう', ko:'놀리기'},
+      openers:{ zh:['你还真是……','哟，这话说得……','我要是当真了，你可……'],
+                en:["Oh, you're really… ","Careful, that almost sounded… ","If I didn't know better, I'd… "],
+                ja:['あなたって、ほんとに……','へえ、その言い方……','本気にしちゃったら……'],
+                ko:['너 정말……','어머, 그 말……','진심으로 들으면 어쩌려고……'] } },
+    { key:'sincere', label:{zh:'认真回应', en:'Be sincere', ja:'素直に', ko:'진심으로'},
+      openers:{ zh:['说实话，我……','其实我一直……','认真讲——'],
+                en:['Honestly, I… ',"Truth is, I've been… ",'I mean it — '],
+                ja:['正直に言うと、私……','実はずっと……','本音を言えば——'],
+                ko:['솔직히 말하면, 나……','사실 나 계속……','진심인데——'] } },
+    { key:'deflect', label:{zh:'转移话题', en:'Change subject', ja:'話をそらす', ko:'화제 돌리기'},
+      openers:{ zh:['先不聊这个——','话说回来……','这个待会儿再说，先……'],
+                en:["Let's not get into that — ",'Anyway… ','Hold that thought — first… '],
+                ja:['その話はまた今度——','それより……','あとで聞くから、まず……'],
+                ko:['그 얘긴 나중에——','그것보다……','잠깐, 그 전에……'] } },
+  ];
+  var hintBtn = document.createElement('div');
+  hintBtn.className = 'vn-quick-label';
+  hintBtn.style.cssText = 'cursor:pointer;user-select:none;padding:4px 0;';
+  hintBtn.textContent = '💡 ' + (isZhOpt?'需要点灵感？':G.lang==='ja'?'ヒントが欲しい？':G.lang==='ko'?'힌트가 필요해?':'Need a nudge?');
+  var toneRow = document.createElement('div');
+  toneRow.style.cssText = 'display:none;gap:6px;flex-wrap:wrap;';
+  TONES.forEach(function(t){
+    var chip = document.createElement('div');
+    chip.className = 'vn-opt';
+    chip.style.cssText = 'flex:1;justify-content:center;padding:8px 10px;min-height:36px;font-size:clamp(13px,3.8vw,15px);';
+    chip.textContent = t.label[toneLang] || t.label.en;
+    chip.onclick = function(){
+      var pool = t.openers[toneLang] || t.openers.en;
+      inp.value = pool[Math.floor(Math.random()*pool.length)];
+      _vnLastTone = t.key; // 随下一次发送带给AI，帮它读懂半句话的意图
+      inp.focus();
+      try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch(e){}
+      inp.oninput && inp.oninput.call(inp);
+      [...toneRow.children].forEach(function(c){ c.style.borderColor=''; });
+      chip.style.borderColor = 'var(--rose)';
+    };
+    toneRow.appendChild(chip);
+  });
+  hintBtn.onclick = function(){ toneRow.style.display = toneRow.style.display==='none' ? 'flex' : 'none'; };
+  container.appendChild(hintBtn);
+  container.appendChild(toneRow);
+}
+
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   // 新场景开场：清掉可能残留的上一场景玩家回复（玩家可能中途从底部导航离开又进入别的场景）
   if (round === 0) { setVNAvatars(npcKey); _vnLastReply = null; }
@@ -4815,72 +4882,8 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   inputWrap.appendChild(sendBtn);
   vopts2.appendChild(inputWrap);
 
-  if (opts) {
-    // 剧本轮：保留手写的快捷选项
-    var qlabel = document.createElement('div');
-    qlabel.className = 'vn-quick-label';
-    qlabel.textContent = isZhOpt?'快捷回复':G.lang==='ja'?'クイック返信':G.lang==='ko'?'빠른 답장':'Quick replies';
-    vopts2.appendChild(qlabel);
-    opts.forEach(function(o, i) {
-      var el = document.createElement('div');
-      el.className = 'vn-opt';
-      el.textContent = o;
-      el.onclick = (function(key, rc, reply, dlgs, d, r){
-        return function(){
-          inp.value = reply; // Fill input box
-          chooseVNOpt(key, rc, reply, dlgs, d, r);
-        };
-      })(npcKey, relChanges[i], o, dialogRounds, day, round);
-      vopts2.appendChild(el);
-    });
-  } else {
-    // ── 语气镜头（动态轮）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
-    //    玩家续写或直接发都行（悬着的开头让"补完"成为更舒服的选择，保住自由输入的独特性）──
-    var toneLang = isZhOpt ? 'zh' : (G.lang==='ja' ? 'ja' : (G.lang==='ko' ? 'ko' : 'en'));
-    var TONES = [
-      { key:'tease',   label:{zh:'调侃他', en:'Tease him', ja:'からかう', ko:'놀리기'},
-        openers:{ zh:['你还真是……','哟，这话说得……','我要是当真了，你可……'],
-                  en:["Oh, you're really… ","Careful, that almost sounded… ","If I didn't know better, I'd… "],
-                  ja:['あなたって、ほんとに……','へえ、その言い方……','本気にしちゃったら……'],
-                  ko:['너 정말……','어머, 그 말……','진심으로 들으면 어쩌려고……'] } },
-      { key:'sincere', label:{zh:'认真回应', en:'Be sincere', ja:'素直に', ko:'진심으로'},
-        openers:{ zh:['说实话，我……','其实我一直……','认真讲——'],
-                  en:['Honestly, I… ',"Truth is, I've been… ",'I mean it — '],
-                  ja:['正直に言うと、私……','実はずっと……','本音を言えば——'],
-                  ko:['솔직히 말하면, 나……','사실 나 계속……','진심인데——'] } },
-      { key:'deflect', label:{zh:'转移话题', en:'Change subject', ja:'話をそらす', ko:'화제 돌리기'},
-        openers:{ zh:['先不聊这个——','话说回来……','这个待会儿再说，先……'],
-                  en:["Let's not get into that — ",'Anyway… ','Hold that thought — first… '],
-                  ja:['その話はまた今度——','それより……','あとで聞くから、まず……'],
-                  ko:['그 얘긴 나중에——','그것보다……','잠깐, 그 전에……'] } },
-    ];
-    var hintBtn = document.createElement('div');
-    hintBtn.className = 'vn-quick-label';
-    hintBtn.style.cssText = 'cursor:pointer;user-select:none;padding:4px 0;';
-    hintBtn.textContent = '💡 ' + (isZhOpt?'需要点灵感？':G.lang==='ja'?'ヒントが欲しい？':G.lang==='ko'?'힌트가 필요해?':'Need a nudge?');
-    var toneRow = document.createElement('div');
-    toneRow.style.cssText = 'display:none;gap:6px;flex-wrap:wrap;';
-    TONES.forEach(function(t){
-      var chip = document.createElement('div');
-      chip.className = 'vn-opt';
-      chip.style.cssText = 'flex:1;justify-content:center;padding:8px 10px;min-height:36px;font-size:clamp(13px,3.8vw,15px);';
-      chip.textContent = t.label[toneLang] || t.label.en;
-      chip.onclick = function(){
-        var pool = t.openers[toneLang] || t.openers.en;
-        inp.value = pool[Math.floor(Math.random()*pool.length)];
-        _vnLastTone = t.key; // 随下一次发送带给AI，帮它读懂半句话的意图
-        inp.focus();
-        try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch(e){}
-        inp.oninput && inp.oninput.call(inp);
-        [...toneRow.children].forEach(function(c){ c.style.borderColor=''; });
-        chip.style.borderColor = 'var(--rose)';
-      };
-      toneRow.appendChild(chip);
-    });
-    hintBtn.onclick = function(){ toneRow.style.display = toneRow.style.display==='none' ? 'flex' : 'none'; };
-    vopts2.appendChild(hintBtn);
-    vopts2.appendChild(toneRow);
-  }
+  // 所有轮次统一"自由输入 + 💡语气提示"（用户定的：初见剧本轮也不再给三句整句，只给提示）
+  renderToneHints(vopts2, inp);
 
   // 长对白分页（用户需求：NPC话太长且以问句收尾时，先读前半→点"继续"→第二页问句+回复UI，防止选项在一屏放不下）。
   // 注意：台词被动作夹断的问题由 v10.77 的 OUTPUT RULES 解决（禁止动作插在两段台词中间），和这个分页不冲突。
@@ -7107,7 +7110,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.15 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.16 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
