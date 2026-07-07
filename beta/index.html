@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.10"></script>
-<script src="state.js?v=11.10"></script>
+<script src="story.js?v=11.11"></script>
+<script src="state.js?v=11.11"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.10 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.11 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.10 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.11 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2378,61 +2378,62 @@ const AGENT_PLAN_TASKS = [
   { loc:'cafe_meeting',     npc:'agent', t:{ 'zh-cn':'与制作人会面','zh-tw':'與製作人會面', en:'Producer meeting', ja:'プロデューサーとの面談', ko:'프로듀서 미팅' } },
   { loc:'music_training',   npc:null, t:{ 'zh-cn':'词曲创作课','zh-tw':'詞曲創作課', en:'Songwriting session', ja:'ソングライティング', ko:'작사·작곡 세션' } },
 ];
+// 周末的工作 = 演出（早期是小型演出/驻唱，合理发生在周末，而不是排练）
+const AGENT_PERF_TASKS = [
+  { loc:'livehouse',    npc:'drummer', t:{ 'zh-cn':'Livehouse 演出','zh-tw':'Livehouse 演出', en:'Livehouse show', ja:'ライブハウス公演', ko:'라이브하우스 공연' } },
+  { loc:'night_bar',    npc:null, t:{ 'zh-cn':'酒吧驻唱','zh-tw':'酒吧駐唱', en:'Bar residency set', ja:'バーでのライブ', ko:'바 라이브' } },
+  { loc:'livehouse',    npc:'drummer', t:{ 'zh-cn':'小型专场','zh-tw':'小型專場', en:'Small showcase', ja:'小規模ショーケース', ko:'소규모 쇼케이스' } },
+  { loc:'street_market',npc:null, t:{ 'zh-cn':'市集舞台演出','zh-tw':'市集舞台演出', en:'Market stage set', ja:'マーケットステージ', ko:'마켓 스테이지 공연' } },
+  { loc:'rooftop',      npc:null, t:{ 'zh-cn':'天台派对演出','zh-tw':'天台派對演出', en:'Rooftop party set', ja:'ルーフトップライブ', ko:'루프탑 공연' } },
+];
 
-function generateAgentMonthPlan() {
-  if (G.calendar.agentPlanDone) return;
-  // 双保险：日历里已有必须行程就不再生成（防止存档标志位意外丢失导致重复排班）
-  if (Object.values(G.calendar.events).flat().some(e => e && e.source === 'agent_mandate')) { G.calendar.agentPlanDone = true; return; }
+// ── 经纪人排班（滚动式）：给 [已排到的下一天, untilDay] 范围内排必须行程。──
+// 不再一次性发完一个月：Day1 离开办公室后先发 2 周，之后每天保证提前约 1 周有行程。
+// 工作日 = 排练/训练/拍摄；周末 = 演出（小型演出/驻唱，合理发生在周末）。用 isGameWeekend 判真实星期（实时版 Day1 不一定是周一）。
+function ensureAgentSchedule(untilDay) {
+  if (!G.calendar) return;
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  var shuffle = function(a){ return [...a].sort(function(){ return Math.random()-0.5; }); };
-  var pool = shuffle(AGENT_PLAN_TASKS);
-  var ti = 0;
-  // 剧情固定工作日也提前写入日历（id 和 autoAddCalendarEvents 一致，靠 calAddEvent 的 id 去重防止重复），
-  // 这样 Day1 晚上就能在日历里看到明天要去录音室，而不是到了当天早上才出现
+  untilDay = Math.min(untilDay, 360);
+  var from = (G.calendar.plannedUntil || 1) + 1;
+  if (from > untilDay) return;
   var scriptedTitles = {
     agent_office: isZh?'与经纪人会面':'Meeting with Agent',
     recording_studio: isZh?'录音室排练':'Recording Studio',
     magazine_shoot: isZh?'杂志拍摄':'Magazine Shoot',
   };
-  for (var sd = 2; sd <= 30; sd++) {
-    var sev = STORY.utils.getScriptedEvent(sd);
+  for (var d = from; d <= untilDay; d++) {
+    var dateStr = getCalDateStr(d);
+    var sev = STORY.utils.getScriptedEvent(d);
     if (sev && sev.isWork) {
-      calAddEvent(getCalDateStr(sd), {
-        id: 'work_' + sd, type: 'work', title: scriptedTitles[sev.location] || (isZh?'工作安排':'Work'),
+      calAddEvent(dateStr, {
+        id: 'work_' + d, type: 'work', title: scriptedTitles[sev.location] || (isZh?'工作安排':'Work'),
         npcKey: sev.npc, npcName: '', status: 'accepted',
         description: isZh?'今日工作安排':'Scheduled work event', time: '09:00',
       });
+      continue;
+    }
+    if (sev) continue; // 非工作剧情日（如管家）：不排额外工作
+    // 这天已经有工作/邀约了就跳过（去重）
+    if ((G.calendar.events[dateStr] || []).some(function(e){ return e && (e.type === 'work' || e.type === 'npc_invite'); })) continue;
+    if (isGameWeekend(d)) {
+      if (Math.random() < 0.5) addAgentMandate(d, dateStr, AGENT_PERF_TASKS, isZh, '19:30'); // 周末=演出（傍晚）
+    } else {
+      if (Math.random() < 0.45) addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '10:00'); // 工作日=排练/训练
     }
   }
-  // Day1=周一（2027-03-01），每周从 day 1+7*w 开始
-  for (var week = 0; week < 5; week++) {
-    var weekdays = [];
-    for (var d = 1 + 7*week; d <= 5 + 7*week; d++) {
-      if (d >= 2 && d <= 30) weekdays.push(d);
-    }
-    if (!weekdays.length) continue;
-    var target = 3 + Math.floor(Math.random()*2); // 每周3-4个工作日
-    var scriptedWork = weekdays.filter(function(d){ var e = STORY.utils.getScriptedEvent(d); return e && e.isWork; }).length;
-    var free = weekdays.filter(function(d){ return !STORY.utils.getScriptedEvent(d); });
-    var need = Math.max(0, target - scriptedWork);
-    shuffle(free).slice(0, need).sort(function(a,b){return a-b;}).forEach(function(d) {
-      var task = pool[ti++ % pool.length];
-      calAddEvent(getCalDateStr(d), {
-        id: 'mandate_' + d,
-        type: 'work',
-        source: 'agent_mandate',
-        npcKey: task.npc || null,
-        npcName: task.npc ? getNPCName(task.npc) : '',
-        title: task.t[G.lang] || task.t['en'],
-        locKey: task.loc,
-        status: 'accepted',
-        time: '09:00',
-        description: isZh ? '经纪人安排的必须行程' : 'Scheduled by your agent (mandatory)',
-      });
-    });
-  }
-  G.calendar.agentPlanDone = true;
+  G.calendar.plannedUntil = untilDay;
+  G.calendar.agentPlanDone = true; // 兼容旧标志
   STATE.save.saveGame();
+}
+function addAgentMandate(d, dateStr, pool, isZh, time) {
+  var task = pool[Math.floor(Math.random() * pool.length)];
+  calAddEvent(dateStr, {
+    id: 'mandate_' + d, type: 'work', source: 'agent_mandate',
+    npcKey: task.npc || null, npcName: task.npc ? getNPCName(task.npc) : '',
+    title: task.t[G.lang] || task.t['en'], locKey: task.loc,
+    status: 'accepted', time: time || '10:00',
+    description: isZh ? '经纪人安排的必须行程' : 'Scheduled by your agent (mandatory)',
+  });
 }
 
 // Day1 与鼓手初见结束后调用：把"次日录音室排练"排进日历（work，与 autoAddCalendarEvents 同 id 去重）。
@@ -3430,6 +3431,8 @@ async function startDay() {
   });
   // Auto-populate calendar for today
   autoAddCalendarEvents(G.day);
+  // 经纪人排班滚动：一旦开始排班（离开办公室后），每天保证提前约 1 周有行程
+  if (G.calendar && G.calendar.plannedUntil) ensureAgentSchedule(G.day + 7);
   go('s-daily'); setABn('bn-home');
   const days_en = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const days_zh = ['周日','周一','周二','周三','周四','周五','周六'];
@@ -4507,8 +4510,7 @@ async function startScriptedScene(ev, day) {
   if (!ev.chainNext) G.scriptedDone[day] = true;
   if (ev.isWork) { G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0; addStress(12); } else { addStress(5); }
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
-  // Day1 与经纪人会面：生成首月工作计划写入日历（对话里经纪人会让她今晚查日历）
-  if (day === 1 && ev.npc === 'agent') generateAgentMonthPlan();
+  // 注：经纪人排班改到"离开办公室之后"才发（见 advanceAfterScene），不再在场景一开始就发。
   // Day30 章末：鼓手听到了那个高音（剧情事件标记，影响后续章节对话）
   if (day === 30 && ev.npc === 'drummer') STATE.events.trigger('drummerHeardHighNote');
   // 记录今天做了什么，供晚间消息等引用，避免AI生成的内容和当天剧情对不上
@@ -4585,6 +4587,10 @@ let _curSceneOriginDay = null;
 // 剧情场景收尾统一走这里：需要就排次日排练；有 chainNext 接当天下一场（如经纪人→鼓手），否则入夜。
 // 正常结束和 AI 空回的"离开"都调它——保证一句台词没出来也不会把后续登场（鼓手初见）弄丢。
 function advanceAfterScene(sc) {
+  // 离开经纪人办公室之后才发日历（对话里他让她"今晚查日历"）：先发 2 周，之后每天滚动提前~1周（见 startDay）
+  if (sc && sc.npc === 'agent' && _curSceneOriginDay === 1 && !(G.calendar && G.calendar.plannedUntil)) {
+    ensureAgentSchedule((_curSceneOriginDay || 1) + 13);
+  }
   if (sc && sc.addRehearsalNextDay) addRehearsalNextDay(_curSceneOriginDay);
   if (sc && sc.chainNext) {
     // 这一场（链的前半，如经纪人）已看完 → 记住"下一场从鼓手继续"。万一中途离开，
@@ -7023,7 +7029,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.10 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.11 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
