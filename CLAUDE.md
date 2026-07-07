@@ -19,7 +19,8 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.16（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.17（实时化实验）。**
+**v11.17（用户睡前反馈批，一次做10项）**：美容院图带族裔(spa prompt缺heritage致白人化)；消息时间戳不给未来(nextMsgTime回溯批随机+1~5后再按真实时钟封顶，修23:05>23:03倒序)；NPC下线推迟2-3h(agent凌晨0:30/夜猫子4点，23:33全员在线)；聊天注入当前时钟(gameClockStr，修"你那几点"不懂)；**日程隐私** scheduleCtxFor(经纪人全知、其他NPC只知自己参与的+明示"不知道她日历"，修管家知道行程吓人)；经纪人禁编造试镜(STRICT加audition/casting)；语气提示轮换+去尾部省略号+扩池；刚见完面_reachAt重置(修鼓手秒发嘘寒问暖)+晚间好感消息带"今天见过面"上下文；**goEvening白天早退回主页**(REALTIME<19点做完事回主页继续过日子，晚间内容改由goHome入夜后触发day1Intro/generateAffinityMessages；顺带交付"工作后仍可休息")；店铺营业时间PLACE_HOURS(深夜美容院打烊alert，超市24h)；D1-3主动消息更频繁(冷却2.5h/概率0.42)+偏工作话题EARLYWORK_SEEDS；设置页显示城市/族裔/发色。
 **v11.01-11.16 变更摘要（2026-07-06/07 大轮迭代，用户边玩边报）**：
 - **API/Worker**：v11.01 `claude()` 退避重试；根治=Worker 端 `callAnthropic()` 服务端重试4次+透传真实状态码（上游 Anthropic 间歇 403 "Request not allowed"与速率相关，非额度；`otrNewQuota` 对它无效）。**Worker 源码备份在 `repo/worker.js`**（改它不自动部署，要在 Cloudflare 后台贴+Deploy）。客户端重试降为2次（Worker 每请求 bumpQuota 一次，客户端多试烧额度）。Worker 仅允许 github.io 源（CORS）→ 本地 preview 打不到 API，只能 curl 直连或真机测。
 - **语言**：v11.02 修"选中文发英文"——Haiku 无视弱语言指令，`buildDialoguePrompt` 首（⚠️OUTPUT LANGUAGE）尾（FINAL REMINDER）双强化；`generateAffinityMessages` 同。
