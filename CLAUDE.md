@@ -19,8 +19,15 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.03（实时化实验）。**
-**v11.01-11.03追加**：v11.01 `claude()` 对偶发限流退避重试（Worker/Cloudflare 会间歇 HTTP200+`{"error":"forbidden","Request not allowed"}`，与速率相关、非额度非模型；见记忆 reference_worker_api）；v11.02 修"选中文却发英文"（手机消息走 Haiku，语言指令太弱被无视→在 `buildDialoguePrompt` 首尾各强化一次）；v11.03 夜间陪伴：`NPC_SLEEP` 各NPC作息+`isNpcAsleep`（错峰睡、夜猫子鼓手/演员深夜仍在、睡着的不主动来消息也多半不回，高好感破例）+`eveningToneNote`（夜里语气随好感升温）。**Worker 仅允许 github.io 源（CORS），本地 preview 打不到 API，只能真机或 curl 直连测。** 本会话完成了：UI批→v10.83立绘/背景/约会/过夜文案修→v10.85~90过夜两幕+参考书语感（用户提供5本书:经纪人←Bared to You/鼓手←Fifty Shades/演员←Book Lovers/管家←Beach Read/侦探←Love Hypothesis，尺度常量`HEAT_LEVEL='B'`上架安全)→v10.91对话"目的+潜台词"重构+语气镜头输入→v10.92邀约日历/女主家/名字性别校验→v10.93功能批(生日/emoji/草稿/过夜勋章🌙/售楼处/换装反馈/美容院重生成/发色/演员开衫鼓手纹身/蛋糕图/过夜邀请音效)→v10.94 Batch2过夜后关系动态(公开/低调按性格+朋友聚会+吃醋冷战)→v10.95对手歌手rival打样(宿敌变恋人,+九人相识关系网`NPC_ACQUAINTANCE`/`GROUP_CHATS`)。
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.16（实时化实验）。**
+**v11.01-11.16 变更摘要（2026-07-06/07 大轮迭代，用户边玩边报）**：
+- **API/Worker**：v11.01 `claude()` 退避重试；根治=Worker 端 `callAnthropic()` 服务端重试4次+透传真实状态码（上游 Anthropic 间歇 403 "Request not allowed"与速率相关，非额度；`otrNewQuota` 对它无效）。**Worker 源码备份在 `repo/worker.js`**（改它不自动部署，要在 Cloudflare 后台贴+Deploy）。客户端重试降为2次（Worker 每请求 bumpQuota 一次，客户端多试烧额度）。Worker 仅允许 github.io 源（CORS）→ 本地 preview 打不到 API，只能 curl 直连或真机测。
+- **语言**：v11.02 修"选中文发英文"——Haiku 无视弱语言指令，`buildDialoguePrompt` 首（⚠️OUTPUT LANGUAGE）尾（FINAL REMINDER）双强化；`generateAffinityMessages` 同。
+- **夜间陪伴**：v11.03 `NPC_SLEEP` 错峰作息+`isNpcAsleep`（夜猫子鼓手/演员/侦探深夜在，20:00-02:30 总有人可聊；睡着不主动发、多半不回，高好感破例晚睡）+`eveningToneNote`（夜里语气随好感升温）。
+- **登场链修复群**（Day1经纪人→鼓手链的一串坑，按修复顺序）：v11.04 剧情不再被"周末不排工作"误杀+`getScriptedLabel`按场景内容标注；v11.05 `migrateScriptedDone` 不能用 agent.met 回填 Day1（签约就置 met）；v11.07 AI空回的"离开"也走 `advanceAfterScene`（不丢链）+早期主动消息禁止约会邀约；v11.08 `G.chainProgress` 链式续播；v11.15 **完成标记时机重构**：链头+链终场都不在开场标 scriptedDone，统一 `advanceAfterScene` 终场分支落；migrate 回填仅在链不在半途时做；goHome 重建 buildDayOpts（修首页旧按钮）。
+- **"新游戏不干净"三层防御**（v11.12/13/14，用户连续踩坑后换思路）：v11.12 startNewGame=清档+整页reload+sessionStorage标记自动进设置（模块级JS变量必须随reload复位）；v11.13 fresh首次加载跳过云端恢复+PUT{}清云档（云存档会复活旧局）；v11.14 **存档自愈**（load时检测"标完成但NPC没见过"等矛盾状态一律修复——治本）+存档代数`otr_gen`（后台旧标签页拒绝写档自动重载）+DEV面板`otrDiag()`诊断按钮（玩家截图弹窗即可看真实状态）。
+- **玩法/节奏**（用户反馈批）：v11.09 约会地点修复（`_home`地点被误判成咖啡馆；管家默认约公寓大厅）；v11.10 晚间画面图也走 `isHomeNight()`（19点前白天客厅）；v11.11 经纪人日历滚动式（离开办公室后才发、先2周、`ensureAgentSchedule` 每天保持提前1周；周末=演出 `AGENT_PERF_TASKS`，工作日=排练训练；用 isGameWeekend 真实星期）；v11.16 初见/签约统一"自由输入+💡语气提示 `renderToneHints`"（不再三句整句，用户拍板）+开场经纪人补发色步骤（`askAgentHair`/`showNPCHairStep`）+正在场景中的NPC不发主动消息（`_curSceneEv` 排除）+首页"继续·场景"入口回现场（DOM原样）。
+- **用户待办队列（未做）**：管家D1约出=完整初见（选长相+初见对话，现在约出来不像第一次见）；D1主动消息更频繁+工作相关；工作日做完工作仍可选1个休息/手机；手机图标窗口选完自动合上（待用户截图说明是哪个UI）；次要NPC休息行程偶遇（待设计）；管家立绘改健壮（并入改图批）；见面后文案（用户测完再提）；写歌/出专辑（等游戏火了再做）；推送通知（等Capacitor打包做原生）。 本会话完成了：UI批→v10.83立绘/背景/约会/过夜文案修→v10.85~90过夜两幕+参考书语感（用户提供5本书:经纪人←Bared to You/鼓手←Fifty Shades/演员←Book Lovers/管家←Beach Read/侦探←Love Hypothesis，尺度常量`HEAT_LEVEL='B'`上架安全)→v10.91对话"目的+潜台词"重构+语气镜头输入→v10.92邀约日历/女主家/名字性别校验→v10.93功能批(生日/emoji/草稿/过夜勋章🌙/售楼处/换装反馈/美容院重生成/发色/演员开衫鼓手纹身/蛋糕图/过夜邀请音效)→v10.94 Batch2过夜后关系动态(公开/低调按性格+朋友聚会+吃醋冷战)→v10.95对手歌手rival打样(宿敌变恋人,+九人相识关系网`NPC_ACQUAINTANCE`/`GROUP_CHATS`)。
 
 **git结构**：`main`=线上稳定版；`main` 里的 **`beta/` 子文件夹=realtime实时化版**(独立存档键`otr_save_v2_beta`/`otr_device_id_beta`,碰不到真实存档)；`realtime`分支=实时化源；`v10.95-stable`标签=还原点。两个线上URL:根=稳定、`/beta/`=实时。
 
