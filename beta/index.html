@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.12"></script>
-<script src="state.js?v=11.12"></script>
+<script src="story.js?v=11.13"></script>
+<script src="state.js?v=11.13"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.12 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.13 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.12 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.13 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -6988,7 +6988,16 @@ window.addEventListener('load', () => {
     const _origSave = STATE.save.saveGame.bind(STATE.save);
     STATE.save.saveGame = function () { const ok = _origSave(); if (ok) scheduleCloudSync(); return ok; };
   })();
-  maybeRestoreCloudSave();
+  // "开始新游戏"清档重载后的首次加载：跳过云端恢复询问 + 清掉云端旧档。
+  // 否则本地清干净了，maybeRestoreCloudSave 又弹"发现云端存档要恢复吗？"——一确认，
+  // 上一局整个复活（经纪人已认识/发色已选/Day1已完成），这就是"新游戏还是旧状态"的最后一个漏洞。
+  var _freshStart = false;
+  try { _freshStart = !!sessionStorage.getItem('otr_start_fresh'); } catch(e){}
+  if (_freshStart) {
+    try { fetch(WORKER + '/save', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() }, body: '{}' }).catch(function(){}); } catch(e){}
+  } else {
+    maybeRestoreCloudSave();
+  }
   // 旧存档日历键迁移：起始年份从2024改成2027后，旧存档里 '2024-xx-xx' 的日历事件键
   // 不迁移的话会变成永远无法处理的孤儿事件（待处理邀约的角标永远清不掉）
   (function migrateCalendarDates() {
@@ -7026,12 +7035,12 @@ window.addEventListener('load', () => {
   applyLang();
   setupTitleButtons();
   // "开始新游戏"走的是"清档→reload→到这里"（sessionStorage 标记）：此刻已是 100% 干净状态
-  // （无存档、所有模块级JS变量随整页重载复位），直接进设置流程，避免上一局状态漏进新游戏。
-  try { if (sessionStorage.getItem('otr_start_fresh')) { sessionStorage.removeItem('otr_start_fresh'); go('s-lang'); } } catch(e){}
+  // （无存档、所有模块级JS变量随整页重载复位、云端恢复已跳过），直接进设置流程。
+  try { if (_freshStart) { sessionStorage.removeItem('otr_start_fresh'); go('s-lang'); } } catch(e){}
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.12 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.13 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
