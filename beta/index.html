@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.07"></script>
-<script src="state.js?v=11.07"></script>
+<script src="story.js?v=11.08"></script>
+<script src="state.js?v=11.08"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -507,7 +507,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.07 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.08 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1079,7 +1079,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:8px">生日当天会发生一些特别的事 · Something special happens on your day</p>
     </div>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.07 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.08 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3516,6 +3516,10 @@ function buildDayOpts() {
   // 今日剧情 = 最早一个未完成的剧情日（错过的剧情顺延补见）
   let evDay = getPendingScriptedDay();
   let ev = evDay != null ? STORY.utils.getScriptedEvent(evDay) : null;
+  // 链式登场续播：这天登场链玩到一半（已见经纪人）→ 用"下一场（鼓手）"来显示标签，避免又标"去见经纪人"
+  if (evDay != null && G.chainProgress && G.chainProgress[evDay] && STORY.scriptedEvents[G.chainProgress[evDay]]) {
+    ev = STORY.scriptedEvents[G.chainProgress[evDay]];
+  }
   // 剧情场景（含登场初见）是手写故事节点，任何星期几都照常播——不再被"周末不排工作"误杀。
   // （实时版 G.day=真实日，旧代码在周末开局/周末打开会把 Day1 见经纪人等 work 类剧情整段藏掉 → 玩家以为剧情没了。
   //   常规杂活 mandate 本就不经这条，无需在此按周末过滤。）
@@ -4422,6 +4426,10 @@ async function playScheduledEvent(dateStr, event) {
 // VISUAL NOVEL SCENE
 // ══════════════════════════════════════════════════════
 async function playScripted(day) {
+  // 链式登场续播：这天的登场链若上次玩到一半就离开了（如见完经纪人、还没走完鼓手初见），
+  // 从记住的"下一场"继续，而不是从头重播已看过的前一场。
+  var resumeKey = G.chainProgress && G.chainProgress[day];
+  if (resumeKey && STORY.scriptedEvents[resumeKey]) { await runScene(STORY.scriptedEvents[resumeKey], day); return; }
   await runScene(STORY.utils.getScriptedEvent(day), day);
 }
 
@@ -4578,8 +4586,18 @@ let _curSceneOriginDay = null;
 // 正常结束和 AI 空回的"离开"都调它——保证一句台词没出来也不会把后续登场（鼓手初见）弄丢。
 function advanceAfterScene(sc) {
   if (sc && sc.addRehearsalNextDay) addRehearsalNextDay(_curSceneOriginDay);
-  if (sc && sc.chainNext) runScene(STORY.scriptedEvents[sc.chainNext], _curSceneOriginDay);
-  else goEvening();
+  if (sc && sc.chainNext) {
+    // 这一场（链的前半，如经纪人）已看完 → 记住"下一场从鼓手继续"。万一中途离开，
+    // 下次点"今日剧情"从鼓手接着走、不重播经纪人（scriptedDone 仍等终场开始时才标记）。
+    G.chainProgress = G.chainProgress || {};
+    G.chainProgress[_curSceneOriginDay] = sc.chainNext;
+    try { STATE.save.saveGame(); } catch (e) {}
+    runScene(STORY.scriptedEvents[sc.chainNext], _curSceneOriginDay);
+  } else {
+    // 终场走完：清掉这条链的续播标记
+    if (G.chainProgress) delete G.chainProgress[_curSceneOriginDay];
+    goEvening();
+  }
 }
 
 async function runVNDialog(dialogRounds, npcKey, day, round) {
@@ -7001,7 +7019,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.07 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.08 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
