@@ -243,6 +243,11 @@ const STORY = {
       isPublic: true,
       composition: 'intimate café, sitting alone at a small table with a coffee cup, soft warm lighting, solo portrait, NO other people in frame, NO other customers visible',
     },
+    convenience_store: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a small 24-hour convenience store late at night, bright fluorescent lighting, rows of snacks and a fridge wall glowing, quiet empty aisles, the counter by the window with dark street outside',
+    },
     art_gallery: {
       isOutdoor: false,
       isPublic: true,
@@ -360,6 +365,37 @@ const STORY = {
       profession: 'Singer-songwriter, newly signed artist',
       background: 'Was busking on the streets for tips before being discovered. Talented but raw. Still adjusting to the industry.',
       // 外形由玩家选择，存在 G.player 里
+    },
+
+    // ══ 二线 NPC（tier 2）：生活场景里遇到的人，独立好感、不进主线、无结局。能暧昧能推倒。 ══
+    // 定位：日常陪伴的质感。语气比五位主NPC松弛、真实、生活化，不谈事业野心那一套。
+    coffee: {
+      age: 29,
+      secondary: true,
+      profession: 'Barista who runs the little café under her apartment building',
+      culture: 'Western, indie/artsy. Low-key, unhurried, the kind of quiet cool that never performs. He curates the café playlist himself.',
+      corePersonality: [
+        'Says little, but remembers everything — knew her usual order by the third visit without being told',
+        'Sometimes writes a single line on the paper cup instead of talking',
+        'A serious music lover; lights up, briefly, when someone recognizes an obscure song on his playlist',
+        'Gentle and self-contained — never oversteps, but occasionally lets one extra sentence slip',
+        'Reads people quietly; when she looks low he just slides the coffee over and says "on the house today", no explanation',
+        'His warmth is in small acts, not words; his texts are short, dry, a little wry',
+      ],
+    },
+    clerk: {
+      age: 26,
+      secondary: true,
+      profession: 'Night-shift clerk at the 24-hour convenience store near her place (urban-sociology grad student by day)',
+      culture: 'Western. A nocturnal creature — the frank, unguarded honesty that only exists at 3am when one person is minding an empty store.',
+      corePersonality: [
+        'Works the graveyard shift alone; the late hour makes him candid in a way daylight people never are',
+        'Always mid-something when she walks in — a paperback face-down on the counter, one earbud in',
+        'Studies urban sociology; half-jokingly treats the late-night customers as his fieldwork',
+        'Warm without being pushy, and completely non-judgmental — nothing you buy at 2am surprises him',
+        'Once handed a falling-apart late-night customer a hot towel and chips: "this is the best thing for when you feel like shit"',
+        'Texts like he talks — unhurried, a little philosophical, never needy',
+      ],
     },
 
     agent: {

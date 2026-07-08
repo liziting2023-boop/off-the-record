@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.32"></script>
-<script src="state.js?v=11.32"></script>
+<script src="story.js?v=11.34"></script>
+<script src="state.js?v=11.34"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.32 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.34 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.32 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.34 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1458,7 +1458,14 @@ const NPC_UI = {
   detective:{ emoji:'🕵️', color:'#6b8cba' },
   butler:   { emoji:'🎂', color:'#7ec48a' },
   rival:    { emoji:'🎤', color:'#d98cae' },
+  coffee:   { emoji:'☕', color:'#b89a7a' },
+  clerk:    { emoji:'🌙', color:'#7a8cba' },
 };
+// 主线五（+侦探）NPC 集合。二线/三线/特级只进 G.npcs 复用聊天·立绘·好感，但要挡在"主线专属"循环外
+// （早间群发、生日、剧情推进）。isMainNpc() 就是那道守卫。
+const MAIN_NPCS = { agent:1, drummer:1, actor:1, detective:1, butler:1, rival:1 };
+function isMainNpc(k) { return !!MAIN_NPCS[k]; }
+function npcTier(k) { return (G.npcs[k] && G.npcs[k].tier) || 1; }
 
 // ── 九人相识关系网（用于将来"群聊"分组 + 影响对话/吃醋）──
 // 关系性质：professional/friendly/rivalry/disdain/frenemy/industry/local；侦探=谁都认识但没人知道他在盯
@@ -1491,6 +1498,8 @@ const NPC_ROLES = {
   detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
   butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Building Manager' },
   rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
+  coffee:   { 'zh-cn':'咖啡师','zh-tw':'咖啡師',ja:'バリスタ',ko:'바리스타',en:'Barista' },
+  clerk:    { 'zh-cn':'便利店员','zh-tw':'便利店員',ja:'コンビニ店員',ko:'편의점 직원',en:'Store Clerk' },
 };
 function getNPCRole(key, lang) {
   const r = NPC_ROLES[key];
@@ -1830,6 +1839,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
+  if (npcTier(npcKey) === 2) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
 
   if (detShadow) prompt += detShadow;
 
@@ -1907,6 +1917,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
+  if (npcTier(npcKey) === 2) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day);
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
@@ -3960,6 +3971,104 @@ function placeClosedMsg(key, label) {
     : label + ' is closed (open ' + hh(ph[0]) + '–' + hh(ph[1]) + '). Still open at this hour: bars, the livehouse — or head home and text someone.';
 }
 
+// ══ 二线 NPC 相遇（tier 2）：固定地点+满足时段时，playFree 里给一个"搭话"入口 ══
+// coffee=楼下咖啡馆(白天)；clerk=深夜便利店(夜里)。第一次=相识(生成名字+立绘、加为联系人)，之后=偶尔小聚。
+const SECONDARY_SPOTS = {
+  cafe:        { npc: 'coffee', when: function(){ return rtClockMin() < 19*60; }, loc: 'cafe' },
+  supermarket: { npc: 'clerk',  when: function(){ return rtClockMin() >= 21*60 || rtClockMin() < 6*60; }, loc: 'convenience_store' },
+};
+const SECONDARY_NAMES = {
+  coffee: ['Elias','Noah','Jonah','Theo','Milo','Caleb','Rowan','Felix'],
+  clerk:  ['Sam','Isaac','Leo','Julian','Aaron','Nico','Dylan','Owen'],
+};
+function ensureSecondaryName(npcKey) {
+  var n = G.npcs[npcKey];
+  if (n && !n.name) { var pool = SECONDARY_NAMES[npcKey] || ['Alex']; n.name = pool[Math.floor(Math.random()*pool.length)]; }
+}
+// 这个地点此刻有没有可搭话的二线？返回配置或 null（REALTIME 才做精确时段判定）。
+function secondaryEncounterAt(key) {
+  var s = SECONDARY_SPOTS[key];
+  if (!s || !G.npcs[s.npc]) return null;
+  if (REALTIME && s.when && !s.when()) return null;
+  return s;
+}
+// 在 playFree 的"继续"按钮前插一个"搭话"入口（若该地点此刻有二线）
+function appendSecondaryEncounterBtn(key) {
+  var s = secondaryEncounterAt(key);
+  if (!s) return;
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var npc = G.npcs[s.npc];
+  var firstTime = !npc.met;
+  if (!firstTime && Math.random() > 0.6) return; // 已认识：不是每次都硬碰面
+  var label = s.npc === 'coffee'
+    ? (firstTime ? (isZh?'☕ 吧台后的人似乎在等你开口':'☕ The guy behind the counter waits for your order') : (isZh?'☕ 又是他，那杯已经在做了':'☕ Him again — your cup is already going'))
+    : (firstTime ? (isZh?'🌙 值夜班的店员抬起头看你':'🌙 The night clerk looks up at you') : (isZh?'🌙 熟悉的夜班店员':'🌙 The familiar night clerk'));
+  var btn = document.createElement('button');
+  btn.className = 'vn-next';
+  btn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose)';
+  btn.innerHTML = '<span>'+label+'</span><span class="opt-sub" style="display:block;font-size:11px;opacity:.7">'+(isZh?'和他聊两句 · 不占行程':'Say hi · free')+'</span>';
+  btn.onclick = function(){ startSecondaryMeet(s.npc, s.loc, firstTime); };
+  document.getElementById('vn-opts').appendChild(btn);
+}
+// 二线相遇场景（独立于 runMeetupScene：措辞是"偶遇/相识"，不是"你俩短信约好的"）
+function startSecondaryMeet(npcKey, locKey, firstTime) {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  var npc = G.npcs[npcKey];
+  if (firstTime) {
+    ensureSecondaryName(npcKey);
+    npc.met = true;
+    if (npc.portraitSeed == null) npc.portraitSeed = Math.floor(Math.random()*1000000);
+    STATE.relationships.change(npcKey, 3);
+    STATE.memory.addEvent(npcKey, 'She became a regular — this was the first time they actually spoke, not just an order.', G.day);
+    try { STATE.save.saveGame(); } catch(e){}
+  }
+  var title = npcKey === 'coffee' ? (isZh?'楼下咖啡馆':'the café downstairs') : (isZh?'深夜便利店':'the late-night store');
+  go('s-scene');
+  document.getElementById('vn-loading').style.display = 'none';
+  document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none';
+  document.getElementById('vn-npc-card').style.display = 'none';
+  document.getElementById('vn-avatars').style.display = 'none';
+  document.getElementById('npc-trio').style.display = 'none';
+  document.getElementById('vn-overlay').style.display = 'block';
+  document.getElementById('vn-content').style.display = 'flex';
+  document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = firstTime
+    ? (isZh ? '你在'+title+'，他就在柜台后。' : 'You are at ' + title + '; he is right there behind the counter.')
+    : (isZh ? '又见到了他。' : 'You run into him again.');
+  document.getElementById('vn-opts').innerHTML = '';
+  resolveSceneBg(locKey, npcKey).then(function(url){
+    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none';
+      if (pushGalleryUnique(url, title + ' · Day ' + G.day)) STATE.save.saveGame(); }
+  });
+  G.today = { label: title, isWork: false, npc: npcKey };
+  _curSceneEv = { npc: npcKey, location: locKey, _meetup: title };
+  _curSceneOriginDay = G.day;
+  npc._reachAt = Date.now();
+  addStress(-8);
+  var locDesc = homeLocDesc(locKey, npcKey);
+  var _mrel = npc.relationship;
+  var meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + submissiveHomeHint(npcKey, locKey);
+  var whereWord = npcKey === 'coffee' ? 'his café counter (he works here; she just came in)' : 'his convenience-store counter at this late hour (he is on the night shift; she just came in)';
+  var firstCtx = firstTime
+    ? ' This is essentially the FIRST time you two really talk — you know her only as the regular who comes in. No shared history, no texts, do NOT reference past plans. Break the ice in your own understated way.'
+    : ' She is a regular you have come to look forward to; pick up with the easy familiarity you two have built.';
+  const rounds = [
+    { npcContext: 'She just walked into ' + whereWord + '. LOCATION: ' + locDesc + '.' + firstCtx + ' Open in character, low-key and real — you are not chasing her, you are just genuinely present.' + lookChangeNote(npcKey) + meetStyle },
+    { npcContext: 'The exchange continues — you two are the only real people in this quiet moment. Follow HER lead if she gave you a thread; otherwise let one small honest thing surface. Same location.' + meetStyle },
+    { npcContext: 'This is the FINAL beat — CLOSE it warmly without forcing a plan or promising to take her somewhere "right now" (the scene ends after this line). Leave her with something small that stays with her. Same location.' + meetStyle },
+  ];
+  STATE.memory.addEvent(npcKey, 'Saw her at ' + title + ' on day ' + G.day + '.', G.day);
+  try { STATE.save.saveGame(); } catch(e){}
+  const _eve = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
+  if (_eve && (npc.relationship || 0) >= STAYOVER_MIN[npcKey]) { _afterDialogHook = function(){ maybeStayOver(npcKey, locKey); }; }
+  const startBtn = document.createElement('button');
+  startBtn.className = 'vn-next';
+  startBtn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+  startBtn.onclick = function(){ _vnEndLoc = locKey; runVNDialog(rounds, npcKey, G.day, 0); };
+  document.getElementById('vn-opts').appendChild(startBtn);
+}
+
 // ── 自由选择日的活动（非剧情固定天）──
 // kind: 'career'（职业投资 +2知名度+8压力）| 'leisure'（休息 -15/-20压力）| 其他默认
 async function playFree(key, label, isWork, thenScripted, kind) {
@@ -4029,6 +4138,8 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   } else if (key === 'shopping_mall') {
     renderShoppingOpts(thenScripted);
   } else {
+    // 二线相遇：在咖啡馆/便利店且时段满足时，先给"搭话"入口（自由日才给，顺路剧情日不打断）
+    if (!thenScripted) appendSecondaryEncounterBtn(key);
     const btn = document.createElement('button');
     btn.className = 'vn-next';
     btn.textContent = contLabel;
@@ -4891,7 +5002,8 @@ function advanceAfterScene(sc) {
 // 且在【场景收尾】也要调用（最后一轮才点"更进一步"时，轮间路径不会再跑）。
 // 推倒（性行为）门槛（用户定稿的到达天数：经纪人~2周、其余~2天）。初始好感 agent15/drummer12/actor8/butler10/rival5。
 // 每日增长上限见 REL_DAILY_CAP（默认8）；经纪人单独放慢日增速(REL_DAILY_CAP_NPC.agent=5)把他拉到2周。都是可调数值。
-const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60 };
+// 二线（咖啡师/便利店员，初始好感5）：能推倒但比主线慢些，定位"生活里的暧昧"而非大事件，门槛设中高。
+const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 48, clerk: 48 };
 function evalIntimacyTone(npcKey, day) {
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   var rel = G.npcs[npcKey].relationship || 0;
@@ -5436,6 +5548,17 @@ const DATE_INTENTS = {
     low:  { want:"win this round — get under her skin and see if she gives as good as she gets", sub:"the competition IS the flirtation; he is rattled that she does not fold, and cannot stop poking to find out why" },
     mid:  { want:"figure out whether she is the real thing he suspects she is", sub:"he keeps score out loud to hide that he already lost — he heard her music before they ever met and never got over it" },
     high: { want:"drop the rivalry for once and let her see the man under the act", sub:"being un-armored scares him more than losing a chart; the banter is the last thing he has to hide behind" },
+  },
+  // 二线：松弛、生活化，不谈事业野心；魅力在于"不索取的陪伴"
+  coffee: {
+    low:  { want:"quietly make her day a little softer without making it a thing", sub:"he noticed her before she noticed him; he'd never say so, so he says it in a coffee" },
+    mid:  { want:"get one real sentence out of her past the small talk", sub:"he's slow to want anything, and it unsettles him that he's started looking for her at the door" },
+    high: { want:"let the counter between them stop being an excuse", sub:"he's careful and unhurried by nature, but with her he keeps almost saying the thing" },
+  },
+  clerk: {
+    low:  { want:"keep her talking a little longer in the empty 3am store", sub:"the night makes him honest; he likes that she doesn't perform for him" },
+    mid:  { want:"be the one place she doesn't have to hold it together", sub:"he treats the lonely ones gently — but with her it stopped being detached observation a while ago" },
+    high: { want:"admit the late shift got better the nights she comes in", sub:"he's used to watching from behind the counter; wanting to be seen back is new and it shows" },
   },
 };
 function sceneIntent(npcKey, rel) {
@@ -7543,7 +7666,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.32 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.34 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

@@ -138,6 +138,15 @@ const STATE = {
         memory: [],
         currentMood: 'competitive',
       },
+      // ── 二线 NPC（tier 2）：地点触发相遇，独立好感，不进主线。met 前不出现在任何列表里。──
+      coffee: {
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'quiet', tier: 2,
+      },
+      clerk: {
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'mellow', tier: 2,
+      },
     },
 
     // 剧情事件追踪（哪些关键事件已发生）
@@ -395,6 +404,33 @@ const STATE = {
         `wearing only a simple neat polo work shirt with a small staff badge`,
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
         `warm genuine smile, kind earnest expression`,
+        scene,
+      ].filter(Boolean).join(', ');
+    },
+
+    // ── 二线 NPC 生图（tier 2：咖啡师 / 便利店员）──
+    // 二线不给玩家选形象，用固定默认族裔 + 角色化外形。写实成人、耐看但不做主NPC那种极致偶像感。
+    secondaryLooks: {
+      coffee: {
+        origin: 'American',
+        line: 'Attractive 29-year-old man, realistic adult proportions, lean and easy build, warm approachable good looks with a low-key indie charm, light stubble, calm friendly eyes, tousled natural hair, wearing a plain tee under a canvas barista apron, sleeves pushed up, relaxed unhurried presence behind a small café counter',
+      },
+      clerk: {
+        origin: 'British',
+        line: 'Attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple convenience-store staff shirt, leaning on the counter of a brightly lit 24-hour store late at night',
+      },
+    },
+    buildSecondaryPrompt(G, npcKey, scene, day = 1) {
+      const look = STATE.imagePrompts.secondaryLooks[npcKey];
+      if (!look) return scene;
+      const npc = (G.npcs && G.npcs[npcKey]) || STATE.data.npcs[npcKey] || {};
+      const origin = npc.origin || look.origin;
+      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'] || {};
+      return [
+        look.line,
+        app.features,
+        app.skin ? `${app.skin} skin` : '',
+        'natural realistic lighting, cinematic photographic quality, not cartoon, not anime',
         scene,
       ].filter(Boolean).join(', ');
     },
