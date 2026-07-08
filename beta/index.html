@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.20"></script>
-<script src="state.js?v=11.20"></script>
+<script src="story.js?v=11.21"></script>
+<script src="state.js?v=11.21"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -508,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.20 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.21 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1081,7 +1081,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.20 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.21 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2388,7 +2388,10 @@ function renderCalDayEvents(dateStr) {
       accepted: isZh?'✓ 已确认':'✓ Accepted',
       declined: isZh?'✗ 已拒绝':'✗ Declined',
       conflict: isZh?'⚠️ 冲突':'⚠️ Conflict',
+      completed: isZh?'✅ 已完成':'✅ Done',
+      missed: isZh?'✗ 错过了':'✗ Missed',
     }[ev.status] || '';
+    if (ev.status === 'completed') card.style.opacity = '0.6'; // 做完的行程弱化显示（修"做完了日历还像没发生"）
 
     var typeEmoji = {work:'💼',npc_invite:'💌',player_birthday:'🎂',npc_birthday:'🎂',holiday:'🎉'}[ev.type] || '📌';
 
@@ -3313,6 +3316,16 @@ function confirmNPCOrigin() {
 async function startDay() {
   G.today = null; // 重置今天做了什么的记录
   _curSceneEv = null; _curSceneOriginDay = null; // 新的一天：清掉进行中场景指针（防昨天的半场景劫持"继续"入口）
+  // REALTIME"错过"结算：昨天的工作/必须行程到今天还没做 → 标记错过 + 记进经纪人记忆
+  // （当天任何时候都可补做不惩罚；跨了真实天才算真的错过）
+  if (REALTIME && G.day > 1 && G.calendar && G.calendar.events) {
+    (G.calendar.events[getCalDateStr(G.day - 1)] || []).forEach(function(e) {
+      if (e && e.type === 'work' && e.status === 'accepted') {
+        e.status = 'missed';
+        try { STATE.memory.addEvent('agent', 'She skipped the scheduled work "' + (e.title||'') + '" on day ' + (G.day - 1) + ' — as her agent you noticed and are not pleased.', G.day); } catch (err) {}
+      }
+    });
+  }
   G.phase = 'morning'; // 游戏时段：手机时钟/消息时间戳都以此为准
   G.clockMin = 8 * 60 + 7; // 统一游戏时钟：新的一天从8:07开始（REALTIME下时钟走真实时间，此值仅兜底）
   if (REALTIME && !G.rtStartDate) { rtInitAnchor(); } // 首次：把"当前这一天"锚到今天（老存档也不错乱）
@@ -3636,7 +3649,11 @@ function buildDayOpts() {
     const _todayStr = getCalDateStr(G.day);
     const _workEv = (G.calendar.events[_todayStr] || []).find(e => e.type === 'work' && e.status === 'accepted' && !e.source);
     if (_workEv && !ev.isWork) {
-      opts.appendChild(makeOpt(_workEv.title + (_workEv.time ? ' · ' + _workEv.time : ''), isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today', 'work', () => playScheduledEvent(_todayStr, _workEv)));
+      if (workNotYet(_workEv)) {
+        opts.appendChild(makeOpt(_workEv.title + ' · ' + _workEv.time, isZh?'还没到时间 · 到点解锁':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Starts at ' + _workEv.time, 'locked', () => alert(workNotYetMsg(_workEv))));
+      } else {
+        opts.appendChild(makeOpt(_workEv.title + (_workEv.time ? ' · ' + _workEv.time : ''), isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today', 'work', () => playScheduledEvent(_todayStr, _workEv)));
+      }
     }
     if (!ev.isWork) {
       // 非工作剧情日（如Day4回公寓）：给1-2个顺路小活动，逛完后仍然会进今天的剧情
@@ -3660,14 +3677,19 @@ function buildDayOpts() {
     // 除了NPC消息里约定的活动，日历上的普通工作（如剧情排入的录音室排练）也算"今日剧情"入口
     const scheduled = !hasPendingInvite && todayCalEvents.find(e => e.status === 'accepted' && (e.source === 'npc_message' || (e.type === 'work' && !e.source)));
     if (scheduled) {
-      const schedSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
-      opts.appendChild(makeOpt(scheduled.title, schedSub, 'work', () => playScheduledEvent(todayDateStr, scheduled)));
-      for (let i = 0; i < 2; i++) {
-        const lockedBtn = makeOpt('—', '', 'locked', null);
-        lockedBtn.disabled = true;
-        opts.appendChild(lockedBtn);
+      if (workNotYet(scheduled)) {
+        // 还没到点（提前2小时解锁）：显示灰色占位制造期待，但当天其余选项照常可选
+        opts.appendChild(makeOpt(scheduled.title + ' · ' + scheduled.time, isZh?'还没到时间 · 到点解锁':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Starts at ' + scheduled.time, 'locked', () => alert(workNotYetMsg(scheduled))));
+      } else {
+        const schedSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
+        opts.appendChild(makeOpt(scheduled.title, schedSub, 'work', () => playScheduledEvent(todayDateStr, scheduled)));
+        for (let i = 0; i < 2; i++) {
+          const lockedBtn = makeOpt('—', '', 'locked', null);
+          lockedBtn.disabled = true;
+          opts.appendChild(lockedBtn);
+        }
+        return;
       }
-      return;
     }
     const shuffle = a => [...a].sort(() => Math.random()-0.5);
     // 三段式选项：①必须行程（日历）②职业投资（+知名度+压力）③休息（-压力）
@@ -3683,8 +3705,13 @@ function buildDayOpts() {
     // 经纪人安排的必须行程：第一个选项；可以翘掉但晚上会被质问（见 playFree/goEvening）
     const mandate = !hasPendingInvite && todayCalEvents.find(e => e.source === 'agent_mandate' && e.status === 'accepted');
     if (mandate) {
-      const mSub = isZh?'必须行程 · 经纪人安排':lang==='ja'?'必須スケジュール':lang==='ko'?'필수 일정':'Mandatory · Set by your agent';
-      opts.appendChild(makeOpt(mandate.title, mSub, 'work', () => playScheduledEvent(todayDateStr, mandate)));
+      if (workNotYet(mandate)) {
+        // 还没到点（如周末19:30的演出）：灰色占位，其余选项照常
+        opts.appendChild(makeOpt(mandate.title + ' · ' + mandate.time, isZh?'还没到时间 · 到点解锁':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Starts at ' + mandate.time, 'locked', () => alert(workNotYetMsg(mandate))));
+      } else {
+        const mSub = isZh?'必须行程 · 经纪人安排':lang==='ja'?'必須スケジュール':lang==='ko'?'필수 일정':'Mandatory · Set by your agent';
+        opts.appendChild(makeOpt(mandate.title, mSub, 'work', () => playScheduledEvent(todayDateStr, mandate)));
+      }
       opts.appendChild(dayInvOpt || careerOpt());
       opts.appendChild(leisureOpt(0));
       return;
@@ -3815,6 +3842,20 @@ function todWord() {
   return 'late at night';
 }
 
+// 日历工作到点解锁（用户定的方案A+提前解锁）：排定时间前2小时可开始；更早显示"还没到时间"；
+// 过了点当天仍可补做（晚上才有空的玩家不被惩罚）
+function workNotYet(ev) {
+  if (!REALTIME || !ev || !ev.time) return false;
+  var p = String(ev.time).split(':'); var t = (+p[0]) * 60 + (+p[1] || 0);
+  return rtClockMin() < t - 120;
+}
+function workNotYetMsg(ev) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  return isZh
+    ? '还没到时间（' + ev.time + ' 开始）。先干点别的？给谁发个消息，或者出去走走。'
+    : 'Not time yet (starts at ' + ev.time + '). Text someone or take a walk first.';
+}
+
 function placeClosedMsg(key, label) {
   if (!REALTIME || !PLACE_HOURS[key]) return null;
   var h = rtClockMin() / 60, ph = PLACE_HOURS[key];
@@ -3857,9 +3898,9 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   else if (isWork) { addStress(12); }
   // 记录今天做了什么，供晚间消息等引用，避免AI生成内容和当天剧情对不上
   G.today = { label, isWork, npc: null };
-  // 今天有经纪人安排的必须行程却选了别的 → 标记为翘掉，晚上经纪人会发消息质问
-  // （thenScripted=顺路小活动，之后还会进今天的剧情，不算翘）
-  if (!thenScripted) (G.calendar.events[getCalDateStr(G.day)] || []).forEach(e => {
+  // 旧模式：今天有必须行程却选了别的 → 标记翘掉（晚上被质问）。
+  // REALTIME 不在这里标——一天能做多件事、行程过点当天可补做，"错过"改在跨天时结算（见 startDay）
+  if (!REALTIME && !thenScripted) (G.calendar.events[getCalDateStr(G.day)] || []).forEach(e => {
     if (e.source === 'agent_mandate' && e.status === 'accepted') { e.status = 'missed'; G.today.skippedMandate = e.title; }
   });
 
@@ -7233,7 +7274,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.20 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.21 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
