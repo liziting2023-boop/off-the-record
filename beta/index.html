@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.23"></script>
-<script src="state.js?v=11.23"></script>
+<script src="story.js?v=11.24"></script>
+<script src="state.js?v=11.24"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -473,6 +473,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
     <button class="dev-btn" onclick="otrNewQuota();closeDevPanel()">重置今日AI额度</button>
     <button class="dev-btn" onclick="otrDiag()">诊断信息（排查存档状态）</button>
+    <button class="dev-btn" onclick="closeDevPanel();otrNewLook('butler')">重抽管家形象（按新画风重生成）</button>
     <button class="dev-btn close" onclick="closeDevPanel()">关闭</button>
   </div>
 </div>
@@ -508,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.23 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.24 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1081,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.23 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.24 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1565,6 +1566,26 @@ window.otrDiag = function() {
   try { console.log('[OTR DIAG]\n' + txt); } catch(e){}
   alert(txt);
   return txt;
+};
+// otrNewLook('butler')：重抽某NPC的形象——清旧图+旧seed，按当前最新的外形prompt重新生成并全屏展示。
+// 用途：改了外形prompt（如v11.18管家改健壮写实）后，老存档里的旧立绘不会自动刷新，用它立刻看新画风。
+window.otrNewLook = async function(npcKey) {
+  npcKey = npcKey || 'butler';
+  if (!G.npcs || !G.npcs[npcKey]) { alert('NPC不存在: ' + npcKey); return; }
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  G.npcs[npcKey].portraitUrl = null;
+  G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
+  try {
+    var url = await genNPCPortraitPlain(npcKey, G.day || 1, 'facing the camera directly', null);
+    if (url) {
+      G.npcs[npcKey].portraitUrl = url;
+      STATE.save.saveGame();
+      showPortraitFull(url, isZh, function(){});
+      console.log('[OTR] ' + npcKey + ' 新形象已生成并保存。不满意可再跑一次 otrNewLook("' + npcKey + '")');
+    } else {
+      alert(isZh ? '生成失败（关图模式/网络），稍后再试。' : 'Generation failed (img off / network).');
+    }
+  } catch (e) { alert('生成出错: ' + e); }
 };
 // otrQuota()：查看当前设备ID（额度按它在服务器端计，每日约400次对话）
 window.otrQuota = function() {
@@ -7386,7 +7407,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.23 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.24 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
