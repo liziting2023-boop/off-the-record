@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.26"></script>
-<script src="state.js?v=11.26"></script>
+<script src="story.js?v=11.27"></script>
+<script src="state.js?v=11.27"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.26 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.27 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.26 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.27 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5057,14 +5057,17 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   const _replyCtx = _vnLastReply
     ? ' IMPORTANT — she JUST said to you: "' + _vnLastReply + '"' + _toneNote + '. Your line MUST first respond to that naturally and specifically (answer it, react to it, or acknowledge it in character — NEVER ignore it or talk past it; if her sentence trails off unfinished, respond to the unfinished thought itself), and only THEN steer toward the direction below.'
     : '';
-  // 玩家主动"邀请过夜"（语气镜头）：晚间的见面/约会 + 好感≥60 → 场景结尾进入过夜流程
-  // （他主动暗示的门槛是75；她开口邀请时降到60——你都开口了，他更容易点头）
+  // 玩家主动"邀请过夜"（语气镜头）：晚间的见面/约会 + 好感≥该NPC的门槛 → 场景结尾进入过夜流程。
+  // 门槛按人设分档（他主动暗示统一75）：演员50=花花公子最容易；鼓手/宿敌55=吃"大胆"这套；
+  // 管家65=害羞男孩过夜是大事；经纪人70=职业边界最重；侦探70=疏离谨慎
+  var STAYOVER_MIN = { actor: 50, drummer: 55, rival: 55, butler: 65, agent: 70, detective: 70 };
   if (_vnLastTone === 'stayover' && G.npcs[npcKey]) {
     var _soRel = G.npcs[npcKey].relationship || 0;
+    var _soMin = STAYOVER_MIN[npcKey] || 60;
     var _soEve = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
-    if (_soEve && _soRel >= 60 && _vnEndLoc && !_afterDialogHook) {
+    if (_soEve && _soRel >= _soMin && _vnEndLoc && !_afterDialogHook) {
       _afterDialogHook = () => maybeStayOver(npcKey, _vnEndLoc);
-    } else if (_soRel < 60) {
+    } else if (_soRel < _soMin) {
       // 好感不够就发暧昧过夜邀请＝有分量的冒进：按人设结算好感 + 记进他的记忆（下次见面他记得）。
       // 关键词打分对这种话不可靠（"好不好"会被当正面词加分），所以这里显式结算。
       // 鼓手/宿敌欣赏大胆(+2)、演员被逗乐且来了兴趣(+3)；经纪人职业边界(-3)、管家吓到(-2)、侦探退避(-3)
@@ -7439,7 +7442,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.26 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.27 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
