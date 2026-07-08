@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.17"></script>
-<script src="state.js?v=11.17"></script>
+<script src="story.js?v=11.18"></script>
+<script src="state.js?v=11.18"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -508,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.17 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.18 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1081,7 +1081,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.17 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.18 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1296,7 +1296,7 @@ async function checkProactiveOnOpen() {
     // （场景进行中 _curSceneEv 一直有值，中途切去看手机也算"会面还没结束"）
     if (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc === k) return false;
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
-    return hrs >= (G.day <= 3 ? 2.5 : 5); // 头几天联系更勤（用户要D1消息更频繁），之后回落到5小时
+    return hrs >= (G.day <= 3 ? 1.5 : 5); // 头几天联系更勤（用户两轮反馈：还要再频繁），之后回落到5小时
   });
   if (!cands.length) return;
   // 打分：好感档基础概率 × 距上次越久越可能；夜猫子(鼓手/演员)夜里更活跃、经纪人白天更活跃
@@ -1304,7 +1304,7 @@ async function checkProactiveOnOpen() {
   cands.forEach(function(k){
     var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
     var base = tier==='high'?0.62: tier==='mid'?0.44: 0.26; // 早期朋友阶段也常有人来（治"空"）
-    if (G.day <= 3) base = Math.max(base, 0.42); // 头几天大家都对新签的她有话说（用户要D1更频繁）
+    if (G.day <= 3) base = Math.max(base, 0.55); // 头几天大家都对新签的她有话说（用户两轮反馈：再频繁些）
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
     var recency = Math.min(1, hrs/6);
     var timeFit = 1;
@@ -1313,7 +1313,7 @@ async function checkProactiveOnOpen() {
     var p = base * recency * timeFit * (0.7 + Math.random()*0.6);
     if (p > bestP) { bestP = p; best = k; }
   });
-  if (!best || bestP < 0.22) return; // 门槛：不是每次打开都有人来（有人忙很正常）
+  if (!best || bestP < (G.day <= 3 ? 0.15 : 0.22)) return; // 门槛：不是每次打开都有人来（有人忙很正常）；头几天门槛放低
   var k = best;
   G.npcs[k]._reachAt = now;
   var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
@@ -1335,6 +1335,7 @@ async function checkProactiveOnOpen() {
     var noInvite = (nights > 0 || tier === 'high') ? '' : ' Do NOT ask her out, propose a date, or suggest meeting up — you barely know each other; this is just a casual friendly text to chat, not to make plans.';
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
       timeWord + ' where she is (current local time: ' + rtClockStr() + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
+      ' The message MUST fit the CURRENT time of day — never tell her to sleep or say goodnight in the morning/afternoon, never say good-morning at night. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history. Output only the message text.'));
     if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
   } catch(e){}
@@ -2167,6 +2168,8 @@ function goHome()       {
     checkProactiveOnOpen(); // 日常引擎：回主页时看有没有NPC该来消息
   }
   go('s-daily'); setABn('bn-home');
+  // 场景里弹出的族裔/发色选择层如果还开着，先收起来（否则会盖在主页上；点"继续"回场景时会重新弹）
+  try { var _nov = document.getElementById('npc-origin-overlay'); if (_nov) _nov.classList.remove('open'); } catch (e) {}
   applyHomeTimeOfDay(); // 没翻天也要按真实时间刷主页图（19点后自动换夜图）
   // 重建行程按钮：状态可能已经变了（如见完经纪人、鼓手场景进行到一半），
   // 不重建的话首页还挂着早上的旧按钮（"去见经纪人"），点开就把已看过的场景重播一遍
@@ -3625,9 +3628,16 @@ function buildDayOpts() {
       ? (isZh?'今日剧情 · 补上错过的':lang==='ja'?'今日のストーリー · 補完':lang==='ko'?'오늘의 이야기 · 보충':"Today's story · catching up")
       : (isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story");
     opts.appendChild(makeOpt(actLabel, actSub, 'work', () => playScripted(evDay)));
+    // 日历上今天已排的普通工作（如 Day1 鼓手初见后排入的次日录音室排练）也要给入口——
+    // 之前只有剧情场景占位，玩家日历里看得到排练、首页却没有可点的行程（用户实测D2）
+    const _todayStr = getCalDateStr(G.day);
+    const _workEv = (G.calendar.events[_todayStr] || []).find(e => e.type === 'work' && e.status === 'accepted' && !e.source);
+    if (_workEv && !ev.isWork) {
+      opts.appendChild(makeOpt(_workEv.title + (_workEv.time ? ' · ' + _workEv.time : ''), isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today', 'work', () => playScheduledEvent(_todayStr, _workEv)));
+    }
     if (!ev.isWork) {
-      // 非工作剧情日（如Day4回公寓）：给2个顺路小活动，逛完后仍然会进今天的剧情
-      const soc2 = [...getSocOps(lang)].sort(() => Math.random()-0.5).slice(0,2);
+      // 非工作剧情日（如Day4回公寓）：给1-2个顺路小活动，逛完后仍然会进今天的剧情
+      const soc2 = [...getSocOps(lang)].sort(() => Math.random()-0.5).slice(0, _workEv ? 1 : 2);
       const sSub2 = isZh?'顺路逛逛 · 之后回来':lang==='ja'?'寄り道 · その後戻る':lang==='ko'?'들렀다 가기':'Stop by first · then continue';
       soc2.forEach(s => opts.appendChild(makeOpt(s.label, sSub2, '', () => playFree(s.key, s.label, false, evDay))));
     } else {
@@ -3644,7 +3654,8 @@ function buildDayOpts() {
     const todayCalEvents = G.calendar.events[todayDateStr] || [];
     // 如果今天还有等玩家处理的邀约（pending），先别用自动安排的活动把它挤掉，避免玩家漏掉需要决定的事项
     const hasPendingInvite = todayCalEvents.some(e => e.type === 'npc_invite' && e.status === 'pending');
-    const scheduled = !hasPendingInvite && todayCalEvents.find(e => e.source === 'npc_message' && e.status === 'accepted');
+    // 除了NPC消息里约定的活动，日历上的普通工作（如剧情排入的录音室排练）也算"今日剧情"入口
+    const scheduled = !hasPendingInvite && todayCalEvents.find(e => e.status === 'accepted' && (e.source === 'npc_message' || (e.type === 'work' && !e.source)));
     if (scheduled) {
       const schedSub = isZh?'今日剧情':lang==='ja'?'今日のストーリー':lang==='ko'?'오늘의 이야기':"Today's story";
       opts.appendChild(makeOpt(scheduled.title, schedSub, 'work', () => playScheduledEvent(todayDateStr, scheduled)));
@@ -3789,6 +3800,18 @@ const PLACE_HOURS = {
   cafe:[7,22], realty:[9,18],
   // supermarket 不在表里 = 24小时便利店：深夜也能去（孤独的深夜总得有地方买点吃的）
 };
+// 当前真实时段词（喂给旁白/文案，修"早上9点去书店却写'消磨了一个下午'"）
+function todWord() {
+  var m = REALTIME ? rtClockMin() : (G.clockMin || 8 * 60);
+  var h = m / 60;
+  if (h < 5)  return 'late at night';
+  if (h < 11) return 'in the morning';
+  if (h < 14) return 'around midday';
+  if (h < 18) return 'in the afternoon';
+  if (h < 22) return 'in the evening';
+  return 'late at night';
+}
+
 function placeClosedMsg(key, label) {
   if (!REALTIME || !PLACE_HOURS[key]) return null;
   var h = rtClockMin() / 60, ph = PLACE_HOURS[key];
@@ -3848,8 +3871,9 @@ async function playFree(key, label, isWork, thenScripted, kind) {
 
   // 生成一小段今日活动独白
   const narration = await claude(
-    'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' spending part of Day ' + G.day + ' ' +
+    'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' spending part of Day ' + G.day + ', ' + todWord() + ', ' +
     (isWork ? 'working at' : 'spending time at') + ' "' + label + '" in ' + (G.player.city||'the city') + '. ' +
+    'The time of day MUST match (' + todWord() + ' — do NOT write about an afternoon if it is morning). ' +
     'Grounded, evocative, not melodramatic. Focus on atmosphere, senses and her inner feelings — do NOT describe specific physical actions, poses or gestures in visual detail (the illustration is generated separately and may not match). Start with "You" / "你". Language: ' + G.langName + '.'
   );
   document.getElementById('vn-text').textContent = (narration || '').trim();
@@ -4470,6 +4494,7 @@ async function playScheduledEvent(dateStr, event) {
   G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0;
   addStress(12); // 工作日累压力
   G.today = { label: event.title, isWork: true, npc: event.npcKey || null };
+  event.status = 'completed'; STATE.save.saveGame(); // 做过的行程标记完成，首页不再重复出现
 
   const locKey = event.locKey || 'music_training';
   if (event.npcKey && G.npcs[event.npcKey]) {
@@ -4499,8 +4524,8 @@ async function playScheduledEvent(dateStr, event) {
   window._schedChatCtx = { title: event.title, locKey };
 
   const narration = await claude(
-    'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' on Day ' + G.day + ', attending "' + event.title + '"' +
-    (event.npcName ? ' with ' + event.npcName : '') + ' in ' + (G.player.city||'the city') + '. Grounded, evocative, not melodramatic. Focus on atmosphere, senses and her inner feelings — do NOT describe specific physical actions, poses or gestures in visual detail (the illustration is generated separately and may not match). Start with "You" / "你". Language: ' + G.langName + '.'
+    'Write a short (2-3 sentence) second-person narration of ' + (G.player.name||'her') + ' on Day ' + G.day + ', ' + todWord() + ', attending "' + event.title + '"' +
+    (event.npcName ? ' with ' + event.npcName : '') + ' in ' + (G.player.city||'the city') + '. The time of day MUST match (' + todWord() + '). Grounded, evocative, not melodramatic. Focus on atmosphere, senses and her inner feelings — do NOT describe specific physical actions, poses or gestures in visual detail (the illustration is generated separately and may not match). Start with "You" / "你". Language: ' + G.langName + '.'
   );
   document.getElementById('vn-text').textContent = (narration || '').trim();
 
@@ -4542,6 +4567,7 @@ async function runScene(ev, originDay) {
 }
 
 async function startScriptedSceneWithLateOrigin(ev, day) {
+  _curSceneEv = ev; _curSceneOriginDay = day; // 族裔/发色选择阶段也算"场景进行中"——中途退出后首页给"继续"入口，不再从头重播（用户实测管家）
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   const preText = (ev.preText[lang] || ev.preText[isZh?'zh-cn':'en'] || ev.preText['en'] || '').replace(/\n/g, '<br>');
   go('s-scene');
@@ -7181,7 +7207,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.17 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.18 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

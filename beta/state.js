@@ -381,18 +381,20 @@ const STATE = {
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['Korean'];
       // ⚠️ 生图经验：不要在提示词里出现"backpack/glasses"等物体词（哪怕是 NO backpack 的否定式）——
       // flux 对否定词无效甚至反向诱导。这里只做正向描述：光洁无须的脸、双手空垂、只穿polo工作衫
+      // ⚠️ 措辞经验：boyish/college-age/innocent/slim youthful 这类词堆起来会把画风推向卡通
+      // （用户实测管家出图像皮克斯、和经纪人/鼓手不一致且太瘦弱）。改成写实成人化描述+健壮体格。
       return [
-        `Boyishly handsome 20-year-old ${origin} young man, fresh youthful college-age big-boy look`,
+        `Handsome 20-year-old ${origin} young man, realistic adult proportions`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
-        `clean-shaven smooth boyish face, completely beardless, bare face with clear bright eyes`,
-        `172cm slim youthful build`,
+        `clean-shaven smooth face, completely beardless, clear bright eyes`,
+        `sturdy athletic build with broad shoulders, fit and strong from hands-on building maintenance work`,
         `building manager`,
         `${STATE.imagePrompts.applyHair(app, npc)} clean and neat`,
         `${app.skin} skin`,
         `wearing only a simple neat polo work shirt with a small staff badge`,
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
-        `clean-cut innocent features, slightly flushed cheeks, delighted joyful expression, eyes lighting up with surprise and fondness, bright warm smile`,
+        `warm genuine smile, kind earnest expression`,
         scene,
       ].filter(Boolean).join(', ');
     },
