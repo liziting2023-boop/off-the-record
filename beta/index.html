@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.21"></script>
-<script src="state.js?v=11.21"></script>
+<script src="story.js?v=11.22"></script>
+<script src="state.js?v=11.22"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -508,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.21 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.22 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1081,7 +1081,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.21 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.22 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1319,11 +1319,12 @@ async function checkProactiveOnOpen() {
   var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
   var nights = G.npcs[k].nights || 0;
   var timeWord = isMorning?'It is morning': isNoon?'It is around midday': isEve?'It is evening':'It is afternoon';
-  // 头几天（刚签约）：话题偏工作/安顿——像刚认识的同事，不像老朋友闲聊（用户定的分寸）
+  // 头几天（刚签约）：话题偏工作/安顿——像刚认识的同事，不像老朋友闲聊（用户定的分寸）。
+  // 只许问"你的角色能合理知道的事"：同事问工作状态，邻居/楼管问安顿生活——管家不该像看过她日程表
   var EARLYWORK_SEEDS = [
-    'mention one concrete work-related thing (the studio, the schedule, the rehearsal room, the neighbourhood around the office) and ask how she is settling in',
-    'give her one small practical tip a colleague would give someone new to this work (nothing preachy, one line)',
-    'ask one simple work-adjacent question — how the first days of the contract feel, whether the schedule looks manageable',
+    'ask how she is settling in — pick an angle YOUR role would genuinely know about (a colleague: the work pace, the studio; a neighbour/building manager: the apartment, the neighbourhood, whether she is eating properly). NEVER reference her schedule or calendar unless you are her agent',
+    'give her one small practical tip that fits YOUR role (a colleague: something about this line of work; a neighbour: something about the building or the area) — one line, nothing preachy',
+    'ask one simple getting-started question that fits YOUR role — a colleague asks how the first days of the contract feel; a neighbour asks how the new place is treating her',
   ];
   var stageCtx = nights > 0
     ? 'You two are lovers now — text her the way a partner checks in: warm, familiar, a little intimate; ' + (isMorning?'a good-morning':isEve?'a how-was-your-day / goodnight':'a thinking-of-you') + ' beat.'
@@ -3631,7 +3632,7 @@ function buildDayOpts() {
   // 有进行中的剧情场景（本次会话中途去看手机/回首页，场景画面原样还在）→ 给"继续"入口直接回到现场，
   // 不重开场景（修"见经纪人到一半去看消息，回来场景没了、只能从头再见一遍"）
   if (typeof _curSceneEv !== 'undefined' && _curSceneEv) {
-    const contLabel = (isZh?'继续 · ':'Resume · ') + getScriptedLabel(_curSceneEv, evDay || G.day, lang);
+    const contLabel = (isZh?'继续 · ':'Resume · ') + (_curSceneEv._meetup || getScriptedLabel(_curSceneEv, evDay || G.day, lang));
     const contSub = isZh?'回到进行中的场面':lang==='ja'?'続きから再開':lang==='ko'?'진행 중인 장면으로':'Back to where you left off';
     opts.appendChild(makeOpt(contLabel, contSub, 'work', () => { go('s-scene'); }));
     for (let i = 0; i < 2; i++) { const lb = makeOpt('—','','locked',null); lb.disabled = true; opts.appendChild(lb); }
@@ -3656,8 +3657,8 @@ function buildDayOpts() {
       }
     }
     if (!ev.isWork) {
-      // 非工作剧情日（如Day4回公寓）：给1-2个顺路小活动，逛完后仍然会进今天的剧情
-      const soc2 = [...getSocOps(lang)].sort(() => Math.random()-0.5).slice(0, _workEv ? 1 : 2);
+      // 非工作剧情日（如Day4回公寓）：给1-2个顺路小活动，逛完后仍然会进今天的剧情（自由活动限次内）
+      const soc2 = freeActsToday() >= 3 ? [] : [...getSocOps(lang)].sort(() => Math.random()-0.5).slice(0, _workEv ? 1 : 2);
       const sSub2 = isZh?'顺路逛逛 · 之后回来':lang==='ja'?'寄り道 · その後戻る':lang==='ko'?'들렀다 가기':'Stop by first · then continue';
       soc2.forEach(s => opts.appendChild(makeOpt(s.label, sSub2, '', () => playFree(s.key, s.label, false, evDay))));
     } else {
@@ -3699,6 +3700,9 @@ function buildDayOpts() {
     const lPicks = shuffle(getLeisureOps(lang));
     const careerOpt = () => makeOpt(cPick.label, cSub, 'work', () => playFree(cPick.key, cPick.label, false, false, 'career'));
     const leisureOpt = (i) => makeOpt(lPicks[i].label, lSub, '', () => playFree(lPicks[i].key, lPicks[i].label, false, false, 'leisure'));
+    // 每天自由活动限3次：满了以后不再给职业/休息选项（工作/约会/聊天照常）
+    const actsUsedUp = freeActsToday() >= 3;
+    const tiredOpt = () => { const b = makeOpt(isZh?'今天在外面跑得够多了':lang==='ja'?'今日は十分出かけた':lang==='ko'?'오늘은 충분히 다녔어':'You have been out enough today', isZh?'歇一歇 · 刷刷手机、找人聊聊':'Rest up · check your phone', 'locked', null); b.disabled = true; return b; };
     // 白天的私人约会（<17:00，如12:30午餐）：占用白天行程，作为选项显示
     const dayInv = todayCalEvents.find(e => e.type === 'npc_invite' && e.status === 'accepted' && invTimeMin(e) < 17 * 60);
     const dayInvOpt = dayInv ? makeOpt('💌 ' + dayInv.title + ' · ' + (dayInv.time||''), (isZh?'赴约 · 和':'Date with ') + (dayInv.npcName||getNPCName(dayInv.npcKey)), 'work', () => playInviteScene(dayInv)) : null;
@@ -3712,12 +3716,15 @@ function buildDayOpts() {
         const mSub = isZh?'必须行程 · 经纪人安排':lang==='ja'?'必須スケジュール':lang==='ko'?'필수 일정':'Mandatory · Set by your agent';
         opts.appendChild(makeOpt(mandate.title, mSub, 'work', () => playScheduledEvent(todayDateStr, mandate)));
       }
-      opts.appendChild(dayInvOpt || careerOpt());
-      opts.appendChild(leisureOpt(0));
+      opts.appendChild(dayInvOpt || (actsUsedUp ? tiredOpt() : careerOpt()));
+      if (!actsUsedUp) opts.appendChild(leisureOpt(0));
       return;
     }
-    // 无必须行程（含周末）：白天约会优先占一个槽，其余=职业投资+休息
-    if (dayInvOpt) {
+    // 无必须行程（含周末）：白天约会优先占一个槽，其余=职业投资+休息（自由活动限次内）
+    if (actsUsedUp) {
+      if (dayInvOpt) opts.appendChild(dayInvOpt);
+      opts.appendChild(tiredOpt());
+    } else if (dayInvOpt) {
       opts.appendChild(dayInvOpt);
       opts.appendChild(careerOpt());
       opts.appendChild(leisureOpt(0));
@@ -3830,6 +3837,10 @@ const PLACE_HOURS = {
   cafe:[7,22], realty:[9,18],
   // supermarket 不在表里 = 24小时便利店：深夜也能去（孤独的深夜总得有地方买点吃的）
 };
+// 每天自由活动（休息/职业投资/顺路逛）限 3 次——无限逛会把节奏和API成本都打乱；
+// 工作行程/约会/聊天不占次数（陪伴是主食，不限）
+function freeActsToday() { return (G.actDone && G.actDone.day === G.day) ? (G.actDone.n || 0) : 0; }
+
 // 当前真实时段词（喂给旁白/文案，修"早上9点去书店却写'消磨了一个下午'"）
 function todWord() {
   var m = REALTIME ? rtClockMin() : (G.clockMin || 8 * 60);
@@ -3875,6 +3886,7 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   // 打烊检查放在一切状态变更之前：不进场景、不扣行程、不标翘班、不生图
   var _closed = placeClosedMsg(key, label);
   if (_closed) { alert(_closed); return; }
+  G.actDone = { day: G.day, n: freeActsToday() + 1 }; // 计入今日自由活动次数（每天限3次）
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -4247,7 +4259,14 @@ function renderHairSalonOpts(thenScripted) {
       vopts.innerHTML = '<div class="gt" style="margin:6px auto">Styling<span class="loading-dots"></span></div>';
       const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
       const url = await img(base + ', ' + MIRRORS[0], 'New look', false, 2, G.player.portraitSeed, true);
-      if (url) { G.player.portraitUrl = url; G.gallery.push({ url, label: (G.lang==='zh-cn'||G.lang==='zh-tw')?('新造型 · 第'+G.day+'天'):('New look · Day '+G.day) }); G._lookChange = { day: G.day, desc: 'a brand-new hairstyle (' + (selStyle||'') + ', ' + (selColor||'') + ')', seen: {} }; }
+      if (url) {
+        G.player.portraitUrl = url; G.gallery.push({ url, label: (G.lang==='zh-cn'||G.lang==='zh-tw')?('新造型 · 第'+G.day+'天'):('New look · Day '+G.day) });
+        G._lookChange = { day: G.day, desc: 'a brand-new hairstyle (' + (selStyle||'') + ', ' + (selColor||'') + ')', seen: {} };
+        STATE.save.saveGame();
+        // 全屏展示新造型（之前默默存进回忆就走了，玩家根本没看到——用户实测）
+        showPortraitFull(url, isZh, contAfter);
+        return;
+      }
       STATE.save.saveGame();
     }
     contAfter();
@@ -4328,7 +4347,7 @@ function endCall() {
 //    她家用公寓已有图（零生图成本），他家用 genNPCHomeBg；对话上下文给对应场景描述 ──
 async function resolveSceneBg(locKey, npcKey) {
   if (locKey === 'her_home') {
-    const night = G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60;
+    const night = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
     return (night ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl) : (G.apartment.livingDayUrl || G.apartment.livingNightUrl)) || null;
   }
   if (/_home$/.test(locKey || '')) return await genNPCHomeBg(npcKey);
@@ -4368,6 +4387,9 @@ function runMeetupScene(npcKey, locKey, title) {
     }
   });
   G.today = { label: title, isWork: false, npc: npcKey };
+  // 见面也算"进行中的场景"：中途切走（看好感/回主页）后首页给"继续"入口，不再整场消失
+  _curSceneEv = { npc: npcKey, location: locKey, _meetup: title };
+  _curSceneOriginDay = G.day;
   if (G.npcs[npcKey]) G.npcs[npcKey]._reachAt = Date.now(); // 见面=近期接触，主动消息冷却重置
   addStress(-5); // 和喜欢的人见面也解压
   const locDesc = homeLocDesc(locKey, npcKey);
@@ -4391,7 +4413,8 @@ function runMeetupScene(npcKey, locKey, title) {
   startBtn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   // 见面场景：结束旁白用实际见面地点，不借用当天剧情事件（否则约吃饭却显示"拍摄结束"）
   // 晚间见面 + 好感≥75 → 和正式约会一样能触发过夜暗示（修"用信息约见面不能触发过夜"）
-  const _meetIsEvening = G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60;
+  // REALTIME 按真实时钟判晚间（G.phase 白天恒为 morning，旧判法在实时版永远不触发过夜）
+  const _meetIsEvening = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
   if (_meetIsEvening && (G.npcs[npcKey].relationship || 0) >= 75) {
     _afterDialogHook = () => maybeStayOver(npcKey, locKey);
   }
@@ -4866,15 +4889,34 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     let transitionNar;
     if (isMeetup) {
       const _endRel = (npcKey && G.npcs[npcKey]) ? (G.npcs[npcKey].relationship || 0) : 0;
-      const _endPool = _endRel >= 70 ? (isZhEnd2
-          ? ['你们道了别，各自离开。今晚的余温还留在指尖。','走出好远，你还能感觉到他目送你的视线。','道别之后，你走在夜色里，嘴角一直没压下去。']
-          : ['You say your goodbyes and part ways. The warmth of the evening still lingers on your skin.','Long after you walk away, you can still feel him watching you go.','You head off into the night, and the smile refuses to leave your face.'])
-        : _endRel >= 40 ? (isZhEnd2
-          ? ['你们道了别，各自回去。今天聊得很尽兴。','道别时他挥了挥手。回去的路上，你想起某句话，笑了一下。','你们在路口分开。晚风正好。']
-          : ['You say your goodbyes and head off. Good company, good talk.','He gives a small wave as you part. On the way back, one of his lines makes you smile again.','You part ways at the corner. The evening air feels just right.'])
-        : (isZhEnd2
-          ? ['你们道了别，各自回去。','聊完正事，你们就散了。','你们在门口道别，各走各的方向。']
-          : ['You say your goodbyes and head your separate ways.','The conversation winds down, and you both head off.','You part at the door, each going your own way.']);
+      let _endPool;
+      if (_vnEndLoc === 'her_home') {
+        // 在她家：是"送他走"，不是"各自回去"（用户实测文案穿帮）
+        _endPool = _endRel >= 70 ? (isZhEnd2
+            ? ['你送他到门口。关上门以后，屋子里好像还留着他的温度。','他在门口回头看了你一眼才走。你靠着门站了一会儿。','门关上了。你回到沙发上，发现自己还在笑。']
+            : ['You walk him to the door. After it closes, the room still feels a little like him.','At the door he glances back once before leaving. You lean against it for a moment.','The door clicks shut. Back on the couch, you notice you are still smiling.'])
+          : (isZhEnd2
+            ? ['你送他到门口，他挥挥手下楼了。','他走后，屋子安静下来。今天还不错。','你在门口道了别，回屋收拾茶杯。']
+            : ['You see him to the door; he waves and heads down.','After he leaves, the apartment goes quiet. Not a bad day.','You say goodbye at the door and go collect the mugs.']);
+      } else if (/_home$/.test(_vnEndLoc || '')) {
+        // 在他家：是"你离开他家"
+        _endPool = _endRel >= 70 ? (isZhEnd2
+            ? ['他送你到楼下，看着你上了车才转身。','离开他家好几条街了，你还想着刚才那句话。','他倚在门框上目送你走进电梯。']
+            : ['He walks you down and does not turn away until you are in the car.','Blocks away from his place, that one line is still replaying.','He leans on the doorframe, watching until the elevator closes.'])
+          : (isZhEnd2
+            ? ['你离开他家，晚风正好。','他送你到门口。回去的路上你想起某句话，笑了一下。','你道了别，自己回去了。']
+            : ['You leave his place; the evening air feels just right.','He sees you to the door. On the way back, one of his lines makes you smile.','You say goodbye and head home.']);
+      } else {
+        _endPool = _endRel >= 70 ? (isZhEnd2
+            ? ['你们道了别，各自离开。今晚的余温还留在指尖。','走出好远，你还能感觉到他目送你的视线。','道别之后，你走在夜色里，嘴角一直没压下去。']
+            : ['You say your goodbyes and part ways. The warmth of the evening still lingers on your skin.','Long after you walk away, you can still feel him watching you go.','You head off into the night, and the smile refuses to leave your face.'])
+          : _endRel >= 40 ? (isZhEnd2
+            ? ['你们道了别，各自回去。今天聊得很尽兴。','道别时他挥了挥手。回去的路上，你想起某句话，笑了一下。','你们在路口分开。晚风正好。']
+            : ['You say your goodbyes and head off. Good company, good talk.','He gives a small wave as you part. On the way back, one of his lines makes you smile again.','You part ways at the corner. The evening air feels just right.'])
+          : (isZhEnd2
+            ? ['你们道了别，各自回去。','聊完正事，你们就散了。','你们在门口道别，各走各的方向。']
+            : ['You say your goodbyes and head your separate ways.','The conversation winds down, and you both head off.','You part at the door, each going your own way.']);
+      }
       transitionNar = _endPool[Math.floor(Math.random() * _endPool.length)];
     } else {
       transitionNar = {
@@ -5309,7 +5351,7 @@ const DATE_ACTION_HINTS = {
   street_market:      'paying for the little thing she lingered on before she can refuse, guiding her by the hand through the crowd, holding a bite up for her to try',
   farmers_market:     'carrying whatever she picks, holding a strawberry up for her to taste, wiping a smudge from her cheek with his thumb',
   shopping_mall:      'holding the door, taking the bags from her hand without asking, waiting outside the fitting room and reacting when she steps out',
-  her_home:           'looking at her books and photos a beat too long, handing her the mug he just washed, standing at her window taking in her view, careful and a little reverent in HER space',
+  her_home:           'standing at her window taking in the city lights, accepting the tea she hands him and warming his hands on the cup, settling onto her couch a careful distance away, noticing her guitar and asking about it, rolling up his sleeves to actually fix the thing she mentioned, glancing at a photo on the shelf a beat too long — VARY these across rounds, never repeat the same beat (especially not the bookshelf) twice, careful and a little reverent in HER space',
   his_home:           'moving around his own kitchen with easy familiarity, pouring her a drink without asking how she takes it — because he remembers, dropping onto the couch closer than strictly necessary',
   // 工作场地的"来看你"式见面（聊天meet可以约在拍摄/录音/训练现场）：动作要克制、有分寸
   magazine_shoot:     'bringing her a coffee between takes and staying out of the crew\'s way, holding her jacket while she is under the lights, a quiet thumbs-up from behind the photographers',
@@ -5358,6 +5400,10 @@ async function playInviteScene(inv) {
   STATE.memory.addEvent(npcKey, 'She came to your evening invitation on day ' + G.day + ' (' + locKey + ').', G.day);
   inv.status = 'completed';
   G.today = { label: (isZh?'和':'Evening with ') + getNPCName(npcKey) + (isZh?'的晚间约会':''), isWork: false, npc: npcKey };
+  // 约会也算"进行中的场景"：中途切走后首页给"继续"入口
+  _curSceneEv = { npc: npcKey, location: locKey, _meetup: inv.title || (isZh?'约会':'Date') };
+  _curSceneOriginDay = G.day;
+  if (G.npcs[npcKey]) G.npcs[npcKey]._reachAt = Date.now();
   STATE.save.saveGame();
   // 三轮约会对话：随机话题种子（兴趣/展现自己/透露隐私）+ 贴合场合的动作 + 按好感度分寸的暧昧张力
   const locDesc = homeLocDesc(locKey, npcKey);
@@ -6644,12 +6690,17 @@ function renderChatMsgs(npc, dividerIdx) {
       ibubble.appendChild(pim);
       col.appendChild(ibubble);
     } else if (m.meet) {
-      // NPC同意见面 → 行动按钮气泡
+      // NPC同意见面 → 行动按钮气泡；见过面后变灰不可再点（修"午餐结束还能再来一遍午餐"）
       var mbtn = document.createElement('div');
       mbtn.className = 'wc-bubble';
-      mbtn.style.cssText = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
-      mbtn.textContent = '🤝 ' + m.text;
-      mbtn.onclick = (function(mm){ return function(){ runMeetupScene(mm.npc, mm.meet.locationKey, mm.meet.title); }; })(m);
+      if (m.meet.used) {
+        mbtn.style.cssText = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
+        mbtn.textContent = '✅ ' + m.text + ((G.lang==='zh-cn'||G.lang==='zh-tw') ? ' · 已见面' : ' · Done');
+      } else {
+        mbtn.style.cssText = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
+        mbtn.textContent = '🤝 ' + m.text;
+        mbtn.onclick = (function(mm){ return function(){ mm.meet.used = true; try { STATE.save.saveGame(); } catch(e){} runMeetupScene(mm.npc, mm.meet.locationKey, mm.meet.title); }; })(m);
+      }
       col.appendChild(mbtn);
     } else {
       var bubble = document.createElement('div');
@@ -7274,7 +7325,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.21 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.22 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
