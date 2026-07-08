@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.28"></script>
-<script src="state.js?v=11.28"></script>
+<script src="story.js?v=11.29"></script>
+<script src="state.js?v=11.29"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.28 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.29 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.28 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.29 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4864,6 +4864,34 @@ function advanceAfterScene(sc) {
   }
 }
 
+// ── 玩家发起亲密（"更进一步"）/"表白"的统一判定（用户定稿的性行为触发逻辑）──
+// · 在外面约会："更进一步"→ 好感≥门槛 → 场景收尾他询问要不要去他家（询问流程）
+// · 已在他家/她家："更进一步"或"表白"→ 好感≥门槛 → 对话结束【直接】进第一幕（不询问），
+//   且第一幕衔接他此刻的动作续写（不写"刚进门/打量房间"）
+// 必须能【覆盖】场景开场预设的询问钩子（≥75时已预设ask版——她都开口了还让他"询问"就穿帮了），
+// 且在【场景收尾】也要调用（最后一轮才点"更进一步"时，轮间路径不会再跑）。
+const STAYOVER_MIN = { actor: 50, drummer: 55, rival: 55, butler: 65, agent: 70, detective: 70 };
+function evalIntimacyTone(npcKey, day) {
+  if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
+  var rel = G.npcs[npcKey].relationship || 0;
+  var min = STAYOVER_MIN[npcKey] || 60;
+  var eve = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
+  var inHome = !!(_vnEndLoc && /_home$/.test(_vnEndLoc));
+  if (eve && rel >= min && _vnEndLoc && (_vnLastTone === 'stayover' || inHome)) {
+    var loc = _vnEndLoc;
+    _afterDialogHook = inHome
+      ? function(){ maybeStayOver(npcKey, loc, { direct: true, seamlessFrom: (window._vnLastNpcLine || '') }); }
+      : function(){ maybeStayOver(npcKey, loc); }; // 在外面：走"去他家？"询问流程
+  } else if (_vnLastTone === 'stayover' && rel < min) {
+    // 好感不够就发起亲密＝有分量的冒进：按人设结算好感 + 记进他的记忆（表白不算冒进，只走对话回应）。
+    // 鼓手/宿敌欣赏大胆(+2)、演员被逗乐且来了兴趣(+3)；经纪人职业边界(-3)、管家吓到(-2)、侦探退避(-3)
+    var d = { drummer: 2, rival: 2, actor: 3, agent: -3, butler: -2, detective: -3 }[npcKey] || 0;
+    if (d) { STATE.relationships.change(npcKey, d); playSound(d > 0 ? 'rel-up' : 'rel-down'); }
+    STATE.memory.addEvent(npcKey, 'On day ' + day + ' she invited you to take things further — way too soon for where you two stood. You turned it down in your own way, but it left a mark: bold, reckless, impossible to forget.', day);
+  }
+  _vnLastTone = null; // 消费掉：收尾和轮间不会重复结算
+}
+
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
 function renderToneHints(container, inp) {
@@ -4945,7 +4973,9 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   if (round === 0) { setVNAvatars(npcKey); _vnLastReply = null; }
   if (round >= dialogRounds.length) {
     _vnLastReply = null; // 场景收尾（最后一轮的回应已在 chooseVNOpt 里处理过），不带进下一个场景
-    // 约会等场景可挂结束钩子（如过夜暗示），优先于标准离场
+    // 玩家在最后一轮才点"更进一步/表白"：轮间路径不会再跑，收尾这里必须补判定（可覆盖预设的询问钩子）
+    try { evalIntimacyTone(npcKey, day); } catch (e) {}
+    // 约会等场景可挂结束钩子（如亲密暗示），优先于标准离场
     if (_afterDialogHook) { const h = _afterDialogHook; _afterDialogHook = null; h(); return; }
     const isZhEnd = G.lang==='zh-cn'||G.lang==='zh-tw';
     const endLabel = isZhEnd?'离开':G.lang==='ja'?'立ち去る':G.lang==='ko'?'자리를 뜨다':'Leave';
@@ -5059,36 +5089,14 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     tease:' (her tone: playful teasing — she may have trailed off; read the mischief in it)',
     sincere:' (her tone: sincere and open — she may have trailed off mid-thought; take it seriously)',
     deflect:' (her tone: deflecting, changing the subject — let her, gracefully, or gently call it out)',
-    confess:' (her tone: a REAL romantic confession — she means it. Do NOT read it as a joke or deflect it. Respond according to your true feelings and current affinity: if she has your heart, let it show; if you are not there yet, be honest but gentle — this moment matters to her either way)',
+    confess:' (her tone: a REAL romantic confession — she means it. Do NOT read it as a joke or deflect it. PHYSICAL BEAT RULE: the instant she says it, his ENTIRE attention snaps to her — he sets down whatever he holds, turns to fully face her, eyes locked on hers. NEVER write him gazing out a window, pausing distractedly, or looking at anything but her — a confession deserves his whole presence. Respond according to your true feelings and current affinity: if she has your heart, let it show; if you are not there yet, be honest but gentle — this moment matters to her either way)',
     stayover:' (her tone: she is inviting you to STAY THE NIGHT — an intimate, suggestive invitation, and she knows exactly what she is implying. Do NOT misread it as literal hospitality. Respond in character per your desire and current affinity: accept with heat, hesitate honestly, or decline gently — tasteful and implicit, never crude. If your affinity with her is still LOW, this is TOO FAST — turn it down in YOUR own way: flustered and overwhelmed, a firm professional boundary, an amused teasing dodge, or a blunt "not yet — earn it" — never cruel, and never pretend she did not say it)',
   }[_vnLastTone] || '' : '';
   const _replyCtx = _vnLastReply
     ? ' IMPORTANT — she JUST said to you: "' + _vnLastReply + '"' + _toneNote + '. Your line MUST first respond to that naturally and specifically (answer it, react to it, or acknowledge it in character — NEVER ignore it or talk past it; if her sentence trails off unfinished, respond to the unfinished thought itself), and only THEN steer toward the direction below.'
     : '';
-  // 玩家主动发起亲密（"更进一步"）或"表白"（语气镜头）——性行为触发逻辑（用户定稿）：
-  // · 在外面约会："更进一步"→ 好感≥门槛 → 场景结尾他询问要不要去他家（原询问流程）
-  // · 已在他家/她家："更进一步"或"表白"→ 好感≥门槛 → 3轮对话结束【直接】进第一幕，
-  //   不再询问，且第一幕衔接他此刻的动作续写（不写"刚进门/打量房间"）
-  // 门槛按人设分档（他主动暗示统一75）：演员50最易；鼓手/宿敌55吃"大胆"；管家65害羞；经纪人/侦探70最难
-  var STAYOVER_MIN = { actor: 50, drummer: 55, rival: 55, butler: 65, agent: 70, detective: 70 };
-  if ((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey]) {
-    var _soRel = G.npcs[npcKey].relationship || 0;
-    var _soMin = STAYOVER_MIN[npcKey] || 60;
-    var _soEve = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
-    var _soInHome = !!(_vnEndLoc && /_home$/.test(_vnEndLoc));
-    if (_soEve && _soRel >= _soMin && _vnEndLoc && !_afterDialogHook && (_vnLastTone === 'stayover' || _soInHome)) {
-      var _soLoc = _vnEndLoc;
-      _afterDialogHook = _soInHome
-        ? () => maybeStayOver(npcKey, _soLoc, { direct: true, seamlessFrom: (window._vnLastNpcLine || '') })
-        : () => maybeStayOver(npcKey, _soLoc); // 在外面：走"去他家？"询问流程
-    } else if (_vnLastTone === 'stayover' && _soRel < _soMin) {
-      // 好感不够就发起亲密＝有分量的冒进：按人设结算好感 + 记进他的记忆（表白不算冒进，只走对话回应）。
-      // 鼓手/宿敌欣赏大胆(+2)、演员被逗乐且来了兴趣(+3)；经纪人职业边界(-3)、管家吓到(-2)、侦探退避(-3)
-      var _soDelta = { drummer: 2, rival: 2, actor: 3, agent: -3, butler: -2, detective: -3 }[npcKey] || 0;
-      if (_soDelta) { STATE.relationships.change(npcKey, _soDelta); playSound(_soDelta > 0 ? 'rel-up' : 'rel-down'); }
-      STATE.memory.addEvent(npcKey, 'On day ' + day + ' she invited you to take things further — way too soon for where you two stood. You turned it down in your own way, but it left a mark: bold, reckless, impossible to forget.', day);
-    }
-  }
+  // 玩家发起亲密/表白的判定：轮间和【场景收尾】都要跑（修"最后一轮才点'更进一步'不生效"）
+  evalIntimacyTone(npcKey, day);
   _vnLastReply = null; _vnLastTone = null;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, _replyCtx + ' ' + dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
   const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
@@ -5865,8 +5873,10 @@ async function maybeStayOver(npcKey, locKey, opts) {
       try { const u = destHers ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl || null) : await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
+    // 衔接来源：玩家直入=他刚才的台词；询问路径且本来就在家=他刚说的暗示台词（他们已聊了半晚，不是刚进门）
+    const _seamFrom = (opts && opts.seamlessFrom) || (atHome ? (line || '') : '');
     let act1Nar = '';
-    try { act1Nar = await genOvernightProse(npcKey, 1, firstNight, destHers, (opts && opts.seamlessFrom) || ''); } catch(e){}
+    try { act1Nar = await genOvernightProse(npcKey, 1, firstNight, destHers, _seamFrom); } catch(e){}
     if (!act1Nar || !act1Nar.trim()) {
       act1Nar = isZh ? '门在身后轻轻合上，屋里只剩一盏暖灯。他把酒杯递到你手里，指尖擦过你的，没有收回。「今晚，别急着走。」他的声音低下去，近得你能感觉到他呼吸里的温度——然后他停在那里，只是看着你，把接下来的一步，留给了你。' : 'The door clicks shut behind you and the room narrows to one warm lamp. He presses the glass into your hand, his fingertips grazing yours and staying there. "Don\'t rush off tonight," he murmurs, close enough that you feel the warmth of his breath — and then he stops, just looking at you, leaving the next move to you.';
     }
@@ -7485,7 +7495,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.28 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.29 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
