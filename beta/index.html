@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.19"></script>
-<script src="state.js?v=11.19"></script>
+<script src="story.js?v=11.20"></script>
+<script src="state.js?v=11.20"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -508,7 +508,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.19 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.20 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1081,7 +1081,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.19 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.20 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1296,7 +1296,7 @@ async function checkProactiveOnOpen() {
     // （场景进行中 _curSceneEv 一直有值，中途切去看手机也算"会面还没结束"）
     if (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc === k) return false;
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
-    return hrs >= (G.day <= 3 ? 1.5 : 5); // 头几天联系更勤（用户两轮反馈：还要再频繁），之后回落到5小时
+    return hrs >= (G.day <= 3 ? 0.75 : 5); // 头几天联系很勤（用户三轮反馈逐步加码到45分钟），之后回落到5小时
   });
   if (!cands.length) return;
   // 打分：好感档基础概率 × 距上次越久越可能；夜猫子(鼓手/演员)夜里更活跃、经纪人白天更活跃
@@ -1304,7 +1304,7 @@ async function checkProactiveOnOpen() {
   cands.forEach(function(k){
     var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
     var base = tier==='high'?0.62: tier==='mid'?0.44: 0.26; // 早期朋友阶段也常有人来（治"空"）
-    if (G.day <= 3) base = Math.max(base, 0.55); // 头几天大家都对新签的她有话说（用户两轮反馈：再频繁些）
+    if (G.day <= 3) base = Math.max(base, 0.65); // 头几天大家都对新签的她有话说（用户三轮反馈逐步加码）
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
     var recency = Math.min(1, hrs/6);
     var timeFit = 1;
@@ -1313,7 +1313,7 @@ async function checkProactiveOnOpen() {
     var p = base * recency * timeFit * (0.7 + Math.random()*0.6);
     if (p > bestP) { bestP = p; best = k; }
   });
-  if (!best || bestP < (G.day <= 3 ? 0.15 : 0.22)) return; // 门槛：不是每次打开都有人来（有人忙很正常）；头几天门槛放低
+  if (!best || bestP < (G.day <= 3 ? 0.1 : 0.22)) return; // 门槛：不是每次打开都有人来（有人忙很正常）；头几天门槛很低=基本每次打开都有人
   var k = best;
   G.npcs[k]._reachAt = now;
   var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
@@ -4334,10 +4334,14 @@ function runMeetupScene(npcKey, locKey, title) {
   const seeds = pickSeeds(2);
   const _mrel = (G.npcs[npcKey]||{}).relationship;
   const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey);
+  // 她主动约的见面：话题以【她】为主——她抛什么就接什么、往深聊，绝不硬转到自己的话题
+  // （用户实测：她让管家评价身材，管家应付半句就硬拐去"带你去天文台"，像完成任务）。
+  // seeds 只在她没给话题（沉默/一个字）时才作为救场备选。
+  const followHer = ' TOPIC PRIORITY: SHE invited you, so follow HER lead. If her last line carries any topic, question, tease or flirtation — stay ON it, take it seriously, go one layer deeper in your own voice. Do NOT pivot to your own topic while hers is alive; changing the subject on her reads as dismissive.';
   const rounds = [
-    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective; maybe tease about the texts.' + lookChangeNote(npcKey) + meetStyle },
-    { npcContext: 'The meetup continues — press toward what you want, let a little of your subtext show. A topic to draw on if useful: ' + seeds[0] + '. Keep it true to your personality and current affinity, with a light flirtatious undertone. Same location.' + meetStyle },
-    { npcContext: 'The meetup is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective so it stays with her tonight. A topic if useful: ' + seeds[1] + '. Same location.' + meetStyle },
+    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective; maybe tease about the texts.' + lookChangeNote(npcKey) + followHer + meetStyle },
+    { npcContext: 'The meetup continues — press toward what you want, let a little of your subtext show.' + followHer + ' ONLY IF she gave you nothing to work with (silence, one word), you may open this fallback topic: ' + seeds[0] + '. Keep it true to your personality and current affinity, with a light flirtatious undertone. Same location.' + meetStyle },
+    { npcContext: 'The meetup is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective so it stays with her tonight.' + followHer + ' Fallback topic ONLY if she gave you nothing: ' + seeds[1] + '. Same location.' + meetStyle },
   ];
   STATE.memory.addEvent(npcKey, 'Met up with her ("' + title + '") after texting, day ' + G.day + '.', G.day);
   STATE.save.saveGame();
@@ -4375,7 +4379,7 @@ async function runQuickNPCChat(npcKey, ctx, onDone) {
   let line = '';
   try {
     line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
-      (ctx.custom || _workCtx) + ' ' + buildScheduleContext(3) +
+      (ctx.custom || _workCtx) + ' ' + scheduleCtxFor(npcKey, 3) +
       ' Any non-spoken action of yourself must be in THIRD person. Spoken words in 「」 for Chinese or quotes otherwise. Plain text only.'));
   } catch(e) {}
   if (!line || !line.trim()) {
@@ -4420,8 +4424,7 @@ async function runQuickNPCChat(npcKey, ctx, onDone) {
   sendBtn.onclick = function(){ var r = inp.value.trim(); if (r) finish(r, Math.max(-5, Math.min(8, judgeRelChange(npcKey, r)))); else finish(isZh?'……':'...', 0); };
   inp.onkeydown = function(e){ if (e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); sendBtn.onclick(); } };
   inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn); vopts.appendChild(inputWrap);
-  var quicks = isZh?[['很高兴在这遇到你',5],['……你也在。',3],['我先忙了，回头聊。',0]]:[['Good to see you here',5],['...You are here too.',3],['I should get back to it.',0]];
-  quicks.forEach(function(q){ var el=document.createElement('div'); el.className='vn-opt'; el.textContent=q[0]; el.onclick=function(){finish(q[0],q[1]);}; vopts.appendChild(el); });
+  renderToneHints(vopts, inp); // 统一"自由输入+💡语气提示"，不再给三句整句（用户定的）
 }
 
 // ── 生病休养日：卧床 + 按好感度轮流有NPC上门探望 ──
@@ -4772,12 +4775,23 @@ function renderToneHints(container, inp) {
     chip.onclick = function(){
       var pool = t.openers[toneLang] || t.openers.en;
       _ti++;
-      // 半句结尾不带"……/——"，玩家直接续写、不用手动删标点（英文补个空格）
+      // 半句带"……"悬着（看得出是提示）；玩家【点输入框】时省略号自动消失、直接续写（用户定的交互）。
+      // 所以这里不自动 focus——否则省略号立刻被清掉，玩家看不到提示形态。
       var opener = pool[_ti % pool.length];
-      inp.value = opener + (/[A-Za-z]$/.test(opener) ? ' ' : '');
+      inp.value = opener + (/[A-Za-z]$/.test(opener) ? '… ' : '……');
+      inp._hintFilled = true;
+      if (!inp._hintStripBound) {
+        inp._hintStripBound = true;
+        inp.addEventListener('focus', function(){
+          if (inp._hintFilled) {
+            inp._hintFilled = false;
+            inp.value = inp.value.replace(/[…]+\s*$/, '') + (/[A-Za-z]$/.test(inp.value.replace(/[…]+\s*$/, '')) ? ' ' : '');
+            try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch(e){}
+            inp.oninput && inp.oninput.call(inp);
+          }
+        });
+      }
       _vnLastTone = t.key; // 随下一次发送带给AI，帮它读懂半句话的意图
-      inp.focus();
-      try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch(e){}
       inp.oninput && inp.oninput.call(inp);
       [...toneRow.children].forEach(function(c){ c.style.borderColor=''; });
       chip.style.borderColor = 'var(--rose)';
@@ -5323,10 +5337,12 @@ async function playInviteScene(inv) {
       { npcContext: 'Late in the night, a quieter corner away from the noise. Tell her what it means that she showed up tonight — that she let this be real in front of everyone. FINAL beat: close the scene, no new plans.' + gCtx },
     ];
   } else {
+    // 话题以她为先：她抛的话题必须接住往深聊，seeds 只在她冷场时救场（修"话题硬转像完成任务"）
+    const followHer2 = ' TOPIC PRIORITY: if her last line carries any topic, question, tease or flirtation — stay ON it and go one layer deeper in your own voice. Do NOT pivot to your own topic while hers is alive; changing the subject on her reads as dismissive.';
     rounds = [
     { npcContext: 'Your date with her just began at this place: ' + locDesc + '. Open in character, already quietly pursuing your objective. Let a topic surface naturally if it helps: ' + seeds[0] + '.' + lookChangeNote(npcKey) + flirt },
-    { npcContext: 'The date deepens — press toward what you want and let a little of your subtext show through. A topic to draw on if useful: ' + seeds[1] + '. Stay in this location.' + flirt },
-    { npcContext: 'The date is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective in a way that leaves her replaying it at home tonight. A topic if useful: ' + seeds[2] + '. Stay in this location.' + flirt },
+    { npcContext: 'The date deepens — press toward what you want and let a little of your subtext show through.' + followHer2 + ' Fallback topic ONLY if she gave you nothing: ' + seeds[1] + '. Stay in this location.' + flirt },
+    { npcContext: 'The date is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective in a way that leaves her replaying it at home tonight.' + followHer2 + ' Fallback topic ONLY if she gave you nothing: ' + seeds[2] + '. Stay in this location.' + flirt },
     ];
   }
   _vnEndLoc = locKey; // 结束旁白用约会地点
@@ -7217,7 +7233,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.19 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.20 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
