@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.30"></script>
-<script src="state.js?v=11.30"></script>
+<script src="story.js?v=11.31"></script>
+<script src="state.js?v=11.31"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.30 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.31 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.30 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.31 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1107,6 +1107,9 @@ window.AFFINITY_PACE = AFFINITY_PACE;
 // "慢炖的期待"是留存本体（用户实测1天推倒3个NPC，节奏崩了）。修后≈鼓手3天/演员经纪人5天/管家6天到亲密门槛
 const REL_DAILY_CAP = 8;
 window.REL_DAILY_CAP = REL_DAILY_CAP;
+// 单NPC每日增长上限覆盖（默认用 REL_DAILY_CAP=8）：经纪人日增速放慢到5→配合门槛78拉到"~2周"
+const REL_DAILY_CAP_NPC = { agent: 5 };
+window.REL_DAILY_CAP_NPC = REL_DAILY_CAP_NPC;
 
 // ── 实时化（realtime分支·Stage1）：游戏时间跟随玩家真实时区/日历，拆掉"入睡"按钮，天随真实日历翻。
 //    关掉(false)则回退旧的手动"入睡换天"流程。故事日历锚到真实起始日期，节日/星期/时钟全部对齐现实。──
@@ -1119,6 +1122,7 @@ function rtDaysBetween(fromKey, toKey) { return Math.round((rtParse(toKey) - rtP
 // 故事日历起始锚点：REALTIME=玩家真实开始那天；否则回退旧的固定2027-03-01
 function rtStartDate() {
   if (REALTIME && G.rtStartDate) { const p = G.rtStartDate.split('-'); return new Date(+p[0], (+p[1])-1, +p[2]); }
+  if (REALTIME) return new Date(); // 锚点还没落时回退"今天"，别先闪一下 2027-03-01（用户实测日历先显示3月1日）
   return new Date(2027, 2, 1);
 }
 // 真实时钟：状态栏/实时消息时间戳跟随设备时间
@@ -1307,15 +1311,15 @@ async function checkProactiveOnOpen() {
     // （场景进行中 _curSceneEv 一直有值，中途切去看手机也算"会面还没结束"）
     if (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc === k) return false;
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
-    return hrs >= (G.day <= 3 ? 0.75 : 5); // 头几天联系很勤（用户三轮反馈逐步加码到45分钟），之后回落到5小时
+    return hrs >= (G.day <= 3 ? 0.75 : 3.5); // 头几天很勤(45分钟)；之后3.5小时冷却（用户再次反馈发信息太慢，从5h调到3.5h）
   });
   if (!cands.length) return;
   // 打分：好感档基础概率 × 距上次越久越可能；夜猫子(鼓手/演员)夜里更活跃、经纪人白天更活跃
   var best = null, bestP = 0;
   cands.forEach(function(k){
     var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
-    var base = tier==='high'?0.62: tier==='mid'?0.44: 0.26; // 早期朋友阶段也常有人来（治"空"）
-    if (G.day <= 3) base = Math.max(base, 0.65); // 头几天大家都对新签的她有话说（用户三轮反馈逐步加码）
+    var base = tier==='high'?0.7: tier==='mid'?0.52: 0.34; // 早期朋友阶段也常有人来（治"空"，用户反馈太慢再上调）
+    if (G.day <= 3) base = Math.max(base, 0.65); // 头几天大家都对新签的她有话说
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
     var recency = Math.min(1, hrs/6);
     var timeFit = 1;
@@ -1324,7 +1328,7 @@ async function checkProactiveOnOpen() {
     var p = base * recency * timeFit * (0.7 + Math.random()*0.6);
     if (p > bestP) { bestP = p; best = k; }
   });
-  if (!best || bestP < (G.day <= 3 ? 0.1 : 0.22)) return; // 门槛：不是每次打开都有人来（有人忙很正常）；头几天门槛很低=基本每次打开都有人
+  if (!best || bestP < (G.day <= 3 ? 0.1 : 0.16)) return; // 门槛：不是每次打开都有人来；常规门槛 0.22→0.16（用户反馈太慢）
   var k = best;
   G.npcs[k]._reachAt = now;
   var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
@@ -1349,7 +1353,9 @@ async function checkProactiveOnOpen() {
       timeWord + ' where she is (current local time: ' + rtClockStr() + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
       ' The message MUST fit the CURRENT time of day — never tell her to sleep or say goodnight in the morning/afternoon, never say good-morning at night. ' +
-      ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). Output only the message text.'));
+      ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
+      ' Do NOT open a random hyper-specific technical complaint or nitpick out of nowhere (e.g. "the studio soundproofing", "your breath control on bar 12") that she has no context for — it reads as a bizarre non-sequitur. Keep the opening topic something she can naturally understand and respond to. ' +
+      'Output only the message text.'));
     if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
   } catch(e){}
 }
@@ -3741,9 +3747,18 @@ function buildDayOpts() {
     const cSub = isZh?'职业投资 · +知名度 +压力':lang==='ja'?'自己投資 · +知名度':lang==='ko'?'자기계발 · +인지도':'Career · +Fame +Stress';
     const lSub = isZh?'休息放松 · -压力':lang==='ja'?'リラックス · -ストレス':lang==='ko'?'휴식 · -스트레스':'Rest · -Stress';
     const cPick = shuffle(getCareerOps(lang))[0];
-    const lPicks = shuffle(getLeisureOps(lang));
+    // 晚上7点后：不再给白天类休息（咖啡馆/公园/逛街/理发美容/书店/市集…）——那时段不合理（用户反馈）。
+    // 夜里合理的"出门"= 酒吧/livehouse/深夜便利店；再加"回家歇着"，其余靠手机陪伴。
+    var _leisureNight = REALTIME && rtClockMin() >= 19 * 60;
+    var _nightOK = { night_bar: 1, livehouse: 1, supermarket: 1 };
+    var _lPool = getLeisureOps(lang);
+    if (_leisureNight) {
+      _lPool = _lPool.filter(function(o){ return _nightOK[o.key]; });
+      if (!_lPool.some(function(o){ return o.key === 'night_bar'; })) _lPool.unshift({ key:'night_bar', label:isZh?'夜间酒吧':lang==='ja'?'ナイトバー':lang==='ko'?'나이트바':'Night Bar' });
+    }
+    const lPicks = shuffle(_lPool);
     const careerOpt = () => makeOpt(cPick.label, cSub, 'work', () => playFree(cPick.key, cPick.label, false, false, 'career'));
-    const leisureOpt = (i) => makeOpt(lPicks[i].label, lSub, '', () => playFree(lPicks[i].key, lPicks[i].label, false, false, 'leisure'));
+    const leisureOpt = (i) => { const p = lPicks[i % Math.max(1, lPicks.length)]; return p ? makeOpt(p.label, lSub, '', () => playFree(p.key, p.label, false, false, 'leisure')) : null; };
     // 每天自由活动限3次：满了以后不再给职业/休息选项（工作/约会/聊天照常）
     const actsUsedUp = freeActsToday() >= 3;
     const tiredOpt = () => { const b = makeOpt(isZh?'今天在外面跑得够多了':lang==='ja'?'今日は十分出かけた':lang==='ko'?'오늘은 충분히 다녔어':'You have been out enough today', isZh?'歇一歇 · 刷刷手机、找人聊聊':'Rest up · check your phone', 'locked', null); b.disabled = true; return b; };
@@ -4462,7 +4477,7 @@ function runMeetupScene(npcKey, locKey, title) {
   // 三轮临场对话（复用剧情对话引擎，选项由AI动态生成）
   const seeds = pickSeeds(2);
   const _mrel = (G.npcs[npcKey]||{}).relationship;
-  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey);
+  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey);
   // 她主动约的见面：话题以【她】为主——她抛什么就接什么、往深聊，绝不硬转到自己的话题
   // （用户实测：她让管家评价身材，管家应付半句就硬拐去"带你去天文台"，像完成任务）。
   // seeds 只在她没给话题（沉默/一个字）时才作为救场备选。
@@ -4874,7 +4889,9 @@ function advanceAfterScene(sc) {
 //   且第一幕衔接他此刻的动作续写（不写"刚进门/打量房间"）
 // 必须能【覆盖】场景开场预设的询问钩子（≥75时已预设ask版——她都开口了还让他"询问"就穿帮了），
 // 且在【场景收尾】也要调用（最后一轮才点"更进一步"时，轮间路径不会再跑）。
-const STAYOVER_MIN = { actor: 50, drummer: 55, rival: 55, butler: 65, agent: 70, detective: 70 };
+// 推倒（性行为）门槛（用户定稿的到达天数：经纪人~2周、其余~2天）。初始好感 agent15/drummer12/actor8/butler10/rival5。
+// 每日增长上限见 REL_DAILY_CAP（默认8）；经纪人单独放慢日增速(REL_DAILY_CAP_NPC.agent=5)把他拉到2周。都是可调数值。
+const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60 };
 function evalIntimacyTone(npcKey, day) {
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   var rel = G.npcs[npcKey].relationship || 0;
@@ -5487,6 +5504,14 @@ function homeNoticeHint(npcKey, locKey) {
   if (locKey !== 'her_home' || !HOME_NOTICE[npcKey]) return '';
   return ' In HER home, ' + HOME_NOTICE[npcKey] + ' — use YOUR angle, not a generic look at her bookshelf; never repeat the same observation twice in one scene.';
 }
+// 管家（已过第一夜）在【私密的家中】对她言听计从：她要他做什么/主导亲密，他照做——脸红、慌乱却渴望，绝不推拒或转移。
+// 只在她家/他家；在外面/公开场合绝不这样（用户定稿）。尺度仍遵守全局 HEAT_LEVEL（含蓄、点到即止、淡出，不露骨）。
+function submissiveHomeHint(npcKey, locKey) {
+  var inHome = locKey === 'her_home' || /_home$/.test(locKey || '');
+  var nights = (G.npcs[npcKey] && G.npcs[npcKey].nights) || 0;
+  if (npcKey !== 'butler' || nights < 1 || !inHome) return '';
+  return ' INTIMATE OBEDIENCE (private home only): you two are already lovers and completely alone here. You are utterly devoted and yielding to HER in private — if she leads, teases, or gives you an intimate instruction, you FOLLOW it, flushed and eager, doing exactly as she asks; you never resist, refuse, redirect, or turn shy-and-change-the-subject. She sets the pace and you are hers to direct. (Keep it within the scene\'s heat ceiling — suggestive and implicit, fading out on the sharpest beat; never crude or explicit.) In public you would be far too proper for any of this — but here, behind a closed door, you belong to her.';
+}
 
 function dateActionHint(locKey) {
   if (DATE_ACTION_HINTS[locKey]) return DATE_ACTION_HINTS[locKey];
@@ -5542,7 +5567,7 @@ async function playInviteScene(inv) {
   const _rel = G.npcs[npcKey].relationship;
   const flirt = ' Keep a romantic, gently flirtatious undertone with real tension — calibrate boldness to affinity (' + tier + '): high = openly charged, mid = testing the waters, low = restrained sparks. It is a ' + (isDayDate ? 'relaxed daytime DATE' : 'evening DATE') + ', not a work meeting.' +
     ' THIS IS PERSONAL TIME — do NOT talk shop no matter your profession: no recording studio, band, drummer, rehearsals, set lists, contracts, gigs, castings, agency business or career logistics. You are here as a man interested in HER, not as her agent/colleague. Talk about her as a person, this place, small human things, and the pull between you.' +
-    intentBlock(npcKey, _rel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey);
+    intentBlock(npcKey, _rel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey);
   let rounds;
   if (inv.gathering) {
     // 朋友聚会（Batch2）：他把你介绍给他的圈子=关系公开。三轮=进门介绍→融入笑闹→角落里的真心话
@@ -6845,7 +6870,28 @@ function renderChatMsgs(npc, dividerIdx) {
       var greyCss = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
       var activeCss = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
       var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(m.day)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
-      if (mInv) {
+      if (m.meet.pending && !m.meet.invId) {
+        // 定时约会待你答应（用户定稿：同意后才进日历）：给"接受/婉拒"，接受才写日历
+        mbtn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center;padding-bottom:6px';
+        mbtn.innerHTML = '<div style="margin-bottom:6px">💌 ' + m.text + '</div>';
+        var acc = document.createElement('button'); acc.className='cal-btn-accept'; acc.style.cssText='margin-right:8px'; acc.textContent = isZhMb?'接受':'Accept';
+        var dec = document.createElement('button'); dec.className='cal-btn-decline'; dec.textContent = isZhMb?'婉拒':'Decline';
+        acc.onclick = (function(mm){ return function(){
+          var id = 'chat_meet_' + mm.npc + '_' + mm.day + '_' + String(mm.meet.time).replace(':','');
+          calAddEvent(getCalDateStr(mm.day), { id:id, type:'npc_invite', npcKey:mm.npc, npcName:getNPCName(mm.npc), title:mm.meet.title, status:'accepted', time:mm.meet.time, locKey:mm.meet.locationKey, description:mm.meet.desc||'' });
+          mm.meet.invId = id; mm.meet.pending = false;
+          STATE.memory.addEvent(mm.npc, 'She said yes — you two are on for ' + mm.meet.time + ' today ("' + mm.meet.title + '").', mm.day);
+          refreshCalBadge(); try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
+        }; })(m);
+        dec.onclick = (function(mm){ return function(){
+          mm.meet.pending = false; mm.meet.declined = true;
+          STATE.memory.addEvent(mm.npc, 'She declined the ' + mm.meet.time + ' plan ("' + mm.meet.title + '") — turned you down gently.', mm.day);
+          try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
+        }; })(m);
+        mbtn.appendChild(acc); mbtn.appendChild(dec);
+      } else if (m.meet.declined) {
+        mbtn.style.cssText = greyCss; mbtn.textContent = '✗ ' + m.text + (isZhMb?' · 已婉拒':' · Declined');
+      } else if (mInv) {
         if (mInv.status === 'completed') { mbtn.style.cssText = greyCss; mbtn.textContent = '✅ ' + m.text + (isZhMb?' · 已见面':' · Done'); }
         else if (mInv.status !== 'accepted') { mbtn.style.cssText = greyCss; mbtn.textContent = '⌛ ' + m.text + (isZhMb?' · 已过期':' · Expired'); }
         else {
@@ -7031,24 +7077,14 @@ async function sendChatReply() {
         // 家地点(her_home/his_home)不在 STORY.locations 里（单独处理）；没给有效地点时管家默认公寓大厅，其余咖啡馆
         const mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : (npc === 'butler' ? 'apartment_lobby' : 'cafe');
         const mTime = (meetInfo.time && /^\d{1,2}:\d{2}$/.test(meetInfo.time)) ? meetInfo.time : null;
-        let mInvId = null;
-        if (mTime) {
-          // 约了今天具体时间（用户定稿）：答应即进日历（accepted），三入口（聊天/首页/日历）共用这条事件；
-          // 提前30分钟解锁、过点30分钟过期（buildDayOpts sweep 统一结算爽约）
-          mInvId = 'chat_meet_' + npc + '_' + G.day + '_' + mTime.replace(':','');
-          calAddEvent(getCalDateStr(G.day), {
-            id: mInvId, type: 'npc_invite', npcKey: npc, npcName: getNPCName(npc),
-            title: mTitle, status: 'accepted', time: mTime, locKey: mLoc,
-            description: reply.slice(0, 80),
-          });
-          refreshCalBadge();
-        }
+        // 约了具体时间的见面：不再直接进日历（用户定稿）——聊天里出现"接受/婉拒"按钮，玩家接受后才进日历。
+        // 马上见的(无time)保持原样：直接可点进见面。
         G.phone.messages[G.day].push({
           npc, name: getNPCName(npc), day: G.day, time: getPhoneClockTime(), read: true,
           text: (isZhM ? '与' + getNPCName(npc) + '见面 · ' : 'Meet ' + getNPCName(npc) + ' · ') + mTitle + (mTime ? ' · ' + mTime : ''),
-          meet: { locationKey: mLoc, title: mTitle, time: mTime, invId: mInvId },
+          meet: { locationKey: mLoc, title: mTitle, time: mTime, invId: null, pending: !!mTime, desc: reply.slice(0, 80) },
         });
-        STATE.memory.addEvent(npc, 'Agreed to meet her today' + (mTime ? ' at ' + mTime : '') + ': "' + mTitle + '"', G.day);
+        STATE.memory.addEvent(npc, (mTime ? 'Proposed meeting her today at ' + mTime + ' (awaiting her yes)' : 'Agreed to meet her right now') + ': "' + mTitle + '"', G.day);
       }
       // 聊天里谈成的未来约会：写入日历为"待确认"（玩家在日历点接受才算数——修"日历直接帮我确认了"+双约撞车）；
       // 同一NPC同一天已有邀约 → 合并更新，不再堆重复条目（修图5同一计划出现两条）
@@ -7499,7 +7535,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.30 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.31 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

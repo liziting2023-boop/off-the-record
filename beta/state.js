@@ -510,7 +510,8 @@ FINAL REMINDER — your entire reply MUST be written in ${lang}, every single wo
         // 每NPC每天好感正向增长上限（REL_DAILY_CAP，index.html 顶部可调）：
         // 刷再多见面/聊天，一天最多涨这么多——"慢炖的期待"是留存的本体（用户实测1天推倒3个NPC，节奏崩了）。
         // 负向不设限：作死照样掉。
-        const cap = (typeof window !== 'undefined' && window.REL_DAILY_CAP) || 8;
+        const capMap = (typeof window !== 'undefined' && window.REL_DAILY_CAP_NPC) || {};
+        const cap = capMap[npcKey] || (typeof window !== 'undefined' && window.REL_DAILY_CAP) || 8;
         const d = STATE.data.day || 1;
         if (!npc._relGain || npc._relGain.day !== d) npc._relGain = { day: d, n: 0 };
         const room = cap - npc._relGain.n;
