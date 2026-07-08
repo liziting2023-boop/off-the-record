@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.31"></script>
-<script src="state.js?v=11.31"></script>
+<script src="story.js?v=11.32"></script>
+<script src="state.js?v=11.32"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.31 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.32 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.31 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.32 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5510,7 +5510,15 @@ function submissiveHomeHint(npcKey, locKey) {
   var inHome = locKey === 'her_home' || /_home$/.test(locKey || '');
   var nights = (G.npcs[npcKey] && G.npcs[npcKey].nights) || 0;
   if (npcKey !== 'butler' || nights < 1 || !inHome) return '';
-  return ' INTIMATE OBEDIENCE (private home only): you two are already lovers and completely alone here. You are utterly devoted and yielding to HER in private — if she leads, teases, or gives you an intimate instruction, you FOLLOW it, flushed and eager, doing exactly as she asks; you never resist, refuse, redirect, or turn shy-and-change-the-subject. She sets the pace and you are hers to direct. (Keep it within the scene\'s heat ceiling — suggestive and implicit, fading out on the sharpest beat; never crude or explicit.) In public you would be far too proper for any of this — but here, behind a closed door, you belong to her.';
+  return ' INTIMATE OBEDIENCE (private home only): you two are already lovers and completely alone here. You are utterly devoted and yielding to HER in private — if she leads, teases, or gives you an instruction, you FOLLOW it, flushed and eager, doing exactly as she asks; you never resist, refuse, redirect, or turn shy-and-change-the-subject. She sets the pace and you are hers to direct. (Keep it within the scene\'s heat ceiling — suggestive and implicit, fading out on the sharpest beat; never crude or explicit.) In public you would be far too proper for any of this — but here, behind a closed door, you belong to her.';
+}
+// 短信里的服从（用户定稿）：管家过第一夜后，她隔着短信让他做亲密的事，他也照做并回她——
+// 但他必须把自己放在【私密的地方】。若她问你在哪，答一个私密处（你的房间/家里/僻静角落），绝不能说大厅/公共场所；
+// 若人在外面，先自然地借口挪到私密处再照做。只有管家、只在过夜之后。尺度仍守全局 HEAT_LEVEL。
+function butlerTextObeyHint(npcKey) {
+  var nights = (G.npcs[npcKey] && G.npcs[npcKey].nights) || 0;
+  if (npcKey !== 'butler' || nights < 1) return '';
+  return ' INTIMATE-BY-TEXT (you two are lovers now): if she teases you or gives you an intimate/undressing instruction over text, you COMPLY and tell her you are doing it — flustered, devoted, hers — never refuse or dodge. BUT you must be somewhere PRIVATE for it: if you are out in public you first slip away to a private spot (your room / home / a quiet corner behind a closed door), and if she asks where you are you name that private place — you would NEVER place yourself in a lobby/hall/public room while this is happening. Keep it suggestive and implicit, fading before anything explicit.';
 }
 
 function dateActionHint(locKey) {
@@ -7033,7 +7041,7 @@ async function sendChatReply() {
       (isNpcAsleep(npc)
         ? 'It is past YOUR usual bedtime — you may naturally say you are heading to sleep and set "endChat": true (you will not reply again tonight); but if you two are close, you can choose to stay up a little longer for her instead. '
         : 'You are awake and around right now — do NOT claim you are going to sleep or too busy to talk; keep the conversation going naturally. ') +
-      eveningToneNote(npc) + ' ' +
+      eveningToneNote(npc) + butlerTextObeyHint(npc) + ' ' +
       'MEETUP RULES — distinguish carefully: if she proposes meeting TODAY and you accept, fill "meet". If you two agree to meet TODAY at a SPECIFIC LATER TIME (e.g. 3pm rehearsal, dinner at 7), fill meet.time with that "HH:MM" — if meeting right now, meet.time=null. If a FUTURE day (tomorrow, the 6th, this weekend...) is discussed, fill "futureInvite" ONLY when SHE has clearly said yes to that specific day in HER messages — if YOU are the one proposing and she has not yet agreed, fill NEITHER (wait for her answer in a later message). NEVER use "meet" for future plans. When a FUTURE day is agreed, your reply text must name that day explicitly by weekday/date (never just "tomorrow"), and "daysFromNow" MUST be computed from the DATE REFERENCE table to land exactly on the day you named — if you say Friday, daysFromNow must map to Friday, and "next evening/明晚" means daysFromNow=1.' + upcomingDatesRef(G.day, 6) + ' ' +
       'For "locationKey" pick the place that ACTUALLY matches what was proposed — READ WHOSE HOME CAREFULLY: if SHE says 去你家/到你那/"your place"/"come to yours" → she is visiting YOU → "his_home". If she says 来我家/我家/"my place"/"come over (to mine)" or YOU are going to HER → "her_home". Getting this backwards ruins the scene. Magazine shoot → "magazine_shoot", recording session → "recording_studio", practice → "music_training"; otherwise the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue, never "cafe" as a lazy default when she said a home. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
@@ -7535,7 +7543,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.31 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.32 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
