@@ -501,11 +501,26 @@ FINAL REMINDER — your entire reply MUST be written in ${lang}, every single wo
     change(npcKey, delta) {
       const npc = STATE.data.npcs[npcKey];
       if (!npc) return;
+      if (delta === 0) return;
       // 全局好感度增速放缓：所有来源统一×0.6（用户反馈涨太快；负值同样温和化）
       // 再乘 AFFINITY_PACE（index.html 顶部常量，收集真人数据后调节奏用；默认1.0=无变化）
       const pace = (typeof window !== 'undefined' && window.AFFINITY_PACE) || 1;
       const scaled = delta > 0 ? Math.max(1, Math.round(delta * 0.6 * pace)) : Math.min(-1, Math.round(delta * 0.6 * pace));
-      npc.relationship = Math.max(0, Math.min(100, npc.relationship + (delta === 0 ? 0 : scaled)));
+      if (scaled > 0) {
+        // 每NPC每天好感正向增长上限（REL_DAILY_CAP，index.html 顶部可调）：
+        // 刷再多见面/聊天，一天最多涨这么多——"慢炖的期待"是留存的本体（用户实测1天推倒3个NPC，节奏崩了）。
+        // 负向不设限：作死照样掉。
+        const cap = (typeof window !== 'undefined' && window.REL_DAILY_CAP) || 8;
+        const d = STATE.data.day || 1;
+        if (!npc._relGain || npc._relGain.day !== d) npc._relGain = { day: d, n: 0 };
+        const room = cap - npc._relGain.n;
+        if (room <= 0) return; // 今天的心动额度用完了
+        const inc = Math.min(scaled, room);
+        npc._relGain.n += inc;
+        npc.relationship = Math.min(100, npc.relationship + inc);
+      } else {
+        npc.relationship = Math.max(0, npc.relationship + scaled);
+      }
     },
 
     get(npcKey) {

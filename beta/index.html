@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.29"></script>
-<script src="state.js?v=11.29"></script>
+<script src="story.js?v=11.30"></script>
+<script src="state.js?v=11.30"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.29 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.30 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.29 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.30 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1103,6 +1103,10 @@ const HEAT_LEVEL = 'B';
 // 好感涨速全局倍率（收集真人留存数据后再拧）：1.0=现状；1.5=快50%；0.7=更慢。只影响增减幅度，不改任何门槛
 const AFFINITY_PACE = 1.0;
 window.AFFINITY_PACE = AFFINITY_PACE;
+// 每NPC每天好感正向增长上限（负向不受限）：刷再多见面/聊天一天也只涨这么多——
+// "慢炖的期待"是留存本体（用户实测1天推倒3个NPC，节奏崩了）。修后≈鼓手3天/演员经纪人5天/管家6天到亲密门槛
+const REL_DAILY_CAP = 8;
+window.REL_DAILY_CAP = REL_DAILY_CAP;
 
 // ── 实时化（realtime分支·Stage1）：游戏时间跟随玩家真实时区/日历，拆掉"入睡"按钮，天随真实日历翻。
 //    关掉(false)则回退旧的手动"入睡换天"流程。故事日历锚到真实起始日期，节日/星期/时钟全部对齐现实。──
@@ -6083,10 +6087,10 @@ async function goEvening() {
 
 // ── AI judges relationship change from free text ──
 function judgeRelChange(npcKey, reply) {
-  // Base change per NPC personality
+  // Base change per NPC personality（8→3：单条回复不再是好感喷泉——配合 REL_DAILY_CAP 控节奏）
   var base = {
-    agent: 8, drummer: 8, actor: 8, detective: 8, butler: 8
-  }[npcKey] || 8;
+    agent: 3, drummer: 3, actor: 3, detective: 3, butler: 3
+  }[npcKey] || 3;
 
   var lower = reply.toLowerCase();
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
@@ -7495,7 +7499,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.29 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.30 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
