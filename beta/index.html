@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.34"></script>
-<script src="state.js?v=11.34"></script>
+<script src="story.js?v=11.35"></script>
+<script src="state.js?v=11.35"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.34 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.35 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.34 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.35 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5002,8 +5002,9 @@ function advanceAfterScene(sc) {
 // 且在【场景收尾】也要调用（最后一轮才点"更进一步"时，轮间路径不会再跑）。
 // 推倒（性行为）门槛（用户定稿的到达天数：经纪人~2周、其余~2天）。初始好感 agent15/drummer12/actor8/butler10/rival5。
 // 每日增长上限见 REL_DAILY_CAP（默认8）；经纪人单独放慢日增速(REL_DAILY_CAP_NPC.agent=5)把他拉到2周。都是可调数值。
-// 二线（咖啡师/便利店员，初始好感5）：能推倒但比主线慢些，定位"生活里的暧昧"而非大事件，门槛设中高。
-const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 48, clerk: 48 };
+// 二线（咖啡师/便利店员，初始好感5）：比一线【更容易】推倒——一线都是工作关系、有职业底线，
+// 二线是生活里认识的、没那层顾虑（用户定稿）。门槛设得比一线最低(rival26)还低，走轻松随性路线。
+const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 20, clerk: 20 };
 function evalIntimacyTone(npcKey, day) {
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   var rel = G.npcs[npcKey].relationship || 0;
@@ -7666,7 +7667,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.34 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.35 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
