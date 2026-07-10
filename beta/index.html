@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.35"></script>
-<script src="state.js?v=11.35"></script>
+<script src="story.js?v=11.36"></script>
+<script src="state.js?v=11.36"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.35 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.36 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.35 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.36 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2425,7 +2425,7 @@ function renderCalDayEvents(dateStr) {
   if (hasConflict) {
     var warn = document.createElement('div');
     warn.style.cssText = 'background:rgba(220,100,60,0.1);border:1px solid rgba(220,100,60,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#c04020;text-align:center;';
-    warn.textContent = isZh ? '⚠️ 时间冲突！你答应了两个约会' : '⚠️ Conflict! You accepted two invitations';
+    warn.textContent = isZh ? '⚠️ 时间冲突！你答应了' + acceptedInvites.length + '个约会，小心赶场' : '⚠️ Conflict! You accepted ' + acceptedInvites.length + ' invitations';
     container.appendChild(warn);
   }
 
@@ -2473,7 +2473,17 @@ function renderCalDayEvents(dateStr) {
       var acceptBtn = document.createElement('button');
       acceptBtn.className = 'cal-btn-accept';
       acceptBtn.textContent = isZh?'接受':'Accept';
-      acceptBtn.onclick = (function(e, ds) { return function() { e.status='accepted'; STATE.save.saveGame(); renderCalendar(); renderCalDayEvents(ds); refreshCalBadge(); try{buildDayOpts();}catch(x){} }; })(ev, dateStr);
+      acceptBtn.onclick = (function(e, ds) { return function() {
+        // 接受时冲突提醒（提醒不禁止：周旋是玩法，爽约有后果）——90分钟内已有确认的约会就问一句
+        try {
+          var near = (G.calendar.events[ds] || []).find(function(x){ return x !== e && x.type === 'npc_invite' && x.status === 'accepted' && x.time && e.time && Math.abs(parseHM(x.time) - parseHM(e.time)) <= 90; });
+          if (near) {
+            var isZhC = G.lang==='zh-cn'||G.lang==='zh-tw';
+            if (!confirm(isZhC ? '这和「' + near.title + ' · ' + near.time + '」只差不到一个半小时。都答应的话很可能赶不过去，爽约会伤感情。还要接受吗？'
+              : 'This is within 90 minutes of "' + near.title + ' · ' + near.time + '". Standing someone up hurts. Accept anyway?')) return;
+          }
+        } catch(err) {}
+        e.status='accepted'; STATE.save.saveGame(); renderCalendar(); renderCalDayEvents(ds); refreshCalBadge(); try{buildDayOpts();}catch(x){} }; })(ev, dateStr);
       var declineBtn = document.createElement('button');
       declineBtn.className = 'cal-btn-decline';
       declineBtn.textContent = isZh?'拒绝':'Decline';
@@ -2977,7 +2987,8 @@ async function preGenNight() {
 // ── 主页图/时段随真实时间切换：REALTIME 下晚上19点起自动换卧室夜景图 + "夜晚"标签，之前用白天客厅图 + "早晨"。
 //    夜图还没生成好（关图/首夜）→ preGenNight 补生成后再贴上。非 REALTIME 回退到看 G.phase。──
 function isHomeNight() {
-  return REALTIME ? (rtClockMin() >= 19 * 60) : (G.phase === 'evening');
+  // 凌晨0-5点也是夜（修0:04首页显示"早晨"+白天客厅图）
+  return REALTIME ? (rtClockMin() >= 19 * 60 || rtClockMin() < 5 * 60) : (G.phase === 'evening');
 }
 function applyHomeTimeOfDay() {
   const lang = G.lang, isZh = lang === 'zh-cn' || lang === 'zh-tw';
@@ -2991,7 +3002,10 @@ function applyHomeTimeOfDay() {
     if (phEl) phEl.style.display = 'none';
   }
   const clk = document.getElementById('d-clock');
-  if (clk) clk.textContent = night
+  const lateNight = REALTIME && rtClockMin() < 5 * 60; // 凌晨单独标"深夜"（用户实测0:04显示"早晨"）
+  if (clk) clk.textContent = lateNight
+    ? (isZh ? '深夜' : lang === 'ja' ? '深夜' : lang === 'ko' ? '깊은 밤' : 'Late night')
+    : night
     ? (isZh ? '夜晚' : lang === 'ja' ? '夜' : lang === 'ko' ? '밤' : 'Evening')
     : (isZh ? '早晨' : lang === 'ja' ? '朝' : lang === 'ko' ? '아침' : 'Morning');
   // 夜晚但夜图还没生成 → 补生成后再贴上（仍在夜里才贴，避免玩家已跨到白天）
@@ -3188,7 +3202,7 @@ async function runSigningDialog(round) {
     inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn);
     opts.appendChild(inputWrap);
     // 签约场景同样只给"💡语气提示"，不给整句快捷回复（用户定的）
-    renderToneHints(opts, inp);
+    renderToneHints(opts, inp, 'agent');
   }
 }
 
@@ -3760,14 +3774,23 @@ function buildDayOpts() {
     const cPick = shuffle(getCareerOps(lang))[0];
     // 晚上7点后：不再给白天类休息（咖啡馆/公园/逛街/理发美容/书店/市集…）——那时段不合理（用户反馈）。
     // 夜里合理的"出门"= 酒吧/livehouse/深夜便利店；再加"回家歇着"，其余靠手机陪伴。
-    var _leisureNight = REALTIME && rtClockMin() >= 19 * 60;
-    var _nightOK = { night_bar: 1, livehouse: 1, supermarket: 1 };
+    // 凌晨0-5点也算夜（修0:04还给白天休闲）；夜里可选=酒吧/livehouse/24h便利店/夜跑
+    var _leisureNight = REALTIME && (rtClockMin() >= 19 * 60 || rtClockMin() < 5 * 60);
+    var _nightOK = { night_bar: 1, livehouse: 1, supermarket: 1, night_run: 1 };
     var _lPool = getLeisureOps(lang);
     if (_leisureNight) {
       _lPool = _lPool.filter(function(o){ return _nightOK[o.key]; });
       if (!_lPool.some(function(o){ return o.key === 'night_bar'; })) _lPool.unshift({ key:'night_bar', label:isZh?'夜间酒吧':lang==='ja'?'ナイトバー':lang==='ko'?'나이트바':'Night Bar' });
+      if (!_lPool.some(function(o){ return o.key === 'livehouse'; })) _lPool.push({ key:'livehouse', label:isZh?'去livehouse听现场':lang==='ja'?'ライブハウス':lang==='ko'?'라이브하우스':'Livehouse' });
+      _lPool.push({ key:'night_run', label:isZh?'夜跑':lang==='ja'?'ナイトラン':lang==='ko'?'야간 러닝':'Night run' });
     }
     const lPicks = shuffle(_lPool);
+    // 当地节日：白天/夜里都给"参加节日活动"入口，且放最前不被洗走（用户要求）
+    try {
+      var _fests = (typeof todaysFestivals === 'function') ? todaysFestivals() : [];
+      var _cityFest = _fests.filter(function(f){ return !f.forNpc; })[0];
+      if (_cityFest) lPicks.unshift({ key:'festival_event', label:'🎉 ' + (isZh?'节日活动 · ':'') + _cityFest.name });
+    } catch(e) {}
     const careerOpt = () => makeOpt(cPick.label, cSub, 'work', () => playFree(cPick.key, cPick.label, false, false, 'career'));
     const leisureOpt = (i) => { const p = lPicks[i % Math.max(1, lPicks.length)]; return p ? makeOpt(p.label, lSub, '', () => playFree(p.key, p.label, false, false, 'leisure')) : null; };
     // 每天自由活动限3次：满了以后不再给职业/休息选项（工作/约会/聊天照常）
@@ -3801,9 +3824,11 @@ function buildDayOpts() {
     if (room > 0) {
       if (actsUsedUp) { opts.appendChild(tiredOpt()); }
       else {
-        const fills = [careerOpt(), leisureOpt(0), leisureOpt(1)];
+        // 夜里9点后/凌晨6点前不给职业课（形体课/声乐课凌晨0点出现不合理——用户实测截图）
+        const _careerNight = REALTIME && (rtClockMin() >= 21 * 60 || rtClockMin() < 6 * 60);
+        const fills = _careerNight ? [leisureOpt(0), leisureOpt(1), leisureOpt(2)] : [careerOpt(), leisureOpt(0), leisureOpt(1)];
         const n = Math.min(room, slots.length ? 2 : 3);
-        for (let i = 0; i < n; i++) opts.appendChild(fills[i]);
+        for (let i = 0; i < n; i++) { if (fills[i]) opts.appendChild(fills[i]); }
       }
     }
   }
@@ -3895,6 +3920,8 @@ function getLeisureOps(lang) {
     { key:'hair_salon',    label:isZh?'美发店':lang==='ja'?'ヘアサロン':lang==='ko'?'미용실':'Hair Salon' },
     { key:'bookshop',      label:isZh?'书店':lang==='ja'?'書店':lang==='ko'?'서점':'Bookshop' },
     { key:'furniture_store',label:isZh?'逛家具店':lang==='ja'?'家具店':lang==='ko'?'가구점':'Furniture Store' },
+    { key:'art_gallery',   label:isZh?'看画展':lang==='ja'?'ギャラリー':lang==='ko'?'갤러리':'Art Gallery' },
+    { key:'record_store',  label:isZh?'逛唱片行':lang==='ja'?'レコード店':lang==='ko'?'레코드샵':'Record Store' },
   ].concat(
     // 名气≥50 且还没换过房：解锁"售楼处看房"（换更宽敞豪华的家）
     (G.fame >= 50 && !(G.apartment && G.apartment.upgraded))
@@ -3907,7 +3934,7 @@ function getLeisureOps(lang) {
 const PLACE_HOURS = {
   beauty_salon:[10,20], hair_salon:[10,20], shopping_mall:[10,22], bookshop:[9,21],
   furniture_store:[10,20], farmers_market:[6,14], street_market:[8,22],
-  cafe:[7,22], realty:[9,18],
+  cafe:[7,22], realty:[9,18], art_gallery:[10,18], record_store:[11,21],
   // supermarket 不在表里 = 24小时便利店：深夜也能去（孤独的深夜总得有地方买点吃的）
 };
 // 每天自由活动（休息/职业投资/顺路逛）限 3 次——无限逛会把节奏和API成本都打乱；
@@ -4022,6 +4049,16 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     STATE.memory.addEvent(npcKey, 'She became a regular — this was the first time they actually spoke, not just an order.', G.day);
     try { STATE.save.saveGame(); } catch(e){}
   }
+  // 二线立绘：不选形象，初见后台自动生成一张锁定（聊天头像/好感页用；已有就不重生成）
+  if (!npc.portraitUrl) {
+    genNPCPortraitPlain(npcKey, G.day, 'facing the camera with a natural relaxed expression').then(function(u){
+      if (u && !npc.portraitUrl) {
+        npc.portraitUrl = u;
+        if (pushGalleryUnique(u, getNPCName(npcKey))) {}
+        try { STATE.save.saveGame(); } catch(e){}
+      }
+    }).catch(function(){});
+  }
   var title = npcKey === 'coffee' ? (isZh?'楼下咖啡馆':'the café downstairs') : (isZh?'深夜便利店':'the late-night store');
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
@@ -4060,7 +4097,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
   ];
   STATE.memory.addEvent(npcKey, 'Saw her at ' + title + ' on day ' + G.day + '.', G.day);
   try { STATE.save.saveGame(); } catch(e){}
-  const _eve = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
+  const _eve = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
   if (_eve && (npc.relationship || 0) >= STAYOVER_MIN[npcKey]) { _afterDialogHook = function(){ maybeStayOver(npcKey, locKey); }; }
   const startBtn = document.createElement('button');
   startBtn.className = 'vn-next';
@@ -4539,7 +4576,7 @@ function endCall() {
 //    她家用公寓已有图（零生图成本），他家用 genNPCHomeBg；对话上下文给对应场景描述 ──
 async function resolveSceneBg(locKey, npcKey) {
   if (locKey === 'her_home') {
-    const night = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
+    const night = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 5 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
     return (night ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl) : (G.apartment.livingDayUrl || G.apartment.livingNightUrl)) || null;
   }
   if (/_home$/.test(locKey || '')) return await genNPCHomeBg(npcKey);
@@ -4606,7 +4643,8 @@ function runMeetupScene(npcKey, locKey, title) {
   // 见面场景：结束旁白用实际见面地点，不借用当天剧情事件（否则约吃饭却显示"拍摄结束"）
   // 晚间见面 + 好感≥75 → 和正式约会一样能触发过夜暗示（修"用信息约见面不能触发过夜"）
   // REALTIME 按真实时钟判晚间（G.phase 白天恒为 morning，旧判法在实时版永远不触发过夜）
-  const _meetIsEvening = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
+  // 凌晨0-4点也算"晚间"（修：好感100+已过夜，0:11发"更进一步"三轮后直接结束没触发——过了午夜被当成白天）
+  const _meetIsEvening = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
   if (_meetIsEvening && (G.npcs[npcKey].relationship || 0) >= 75) {
     _afterDialogHook = () => maybeStayOver(npcKey, locKey);
   }
@@ -4680,7 +4718,7 @@ async function runQuickNPCChat(npcKey, ctx, onDone) {
   sendBtn.onclick = function(){ var r = inp.value.trim(); if (r) finish(r, Math.max(-5, Math.min(8, judgeRelChange(npcKey, r)))); else finish(isZh?'……':'...', 0); };
   inp.onkeydown = function(e){ if (e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); sendBtn.onclick(); } };
   inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn); vopts.appendChild(inputWrap);
-  renderToneHints(vopts, inp); // 统一"自由输入+💡语气提示"，不再给三句整句（用户定的）
+  renderToneHints(vopts, inp, npcKey); // 统一"自由输入+💡语气提示"，不再给三句整句（用户定的）
 }
 
 // ── 生病休养日：卧床 + 按好感度轮流有NPC上门探望 ──
@@ -5005,11 +5043,13 @@ function advanceAfterScene(sc) {
 // 二线（咖啡师/便利店员，初始好感5）：比一线【更容易】推倒——一线都是工作关系、有职业底线，
 // 二线是生活里认识的、没那层顾虑（用户定稿）。门槛设得比一线最低(rival26)还低，走轻松随性路线。
 const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 20, clerk: 20 };
+// 表白解锁线 = 过夜线的75%（用户定稿）：表白永远先于性行为解锁，是独立的中间里程碑
+function confessMin(npcKey) { return Math.ceil((STAYOVER_MIN[npcKey] || 60) * 0.75); }
 function evalIntimacyTone(npcKey, day) {
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   var rel = G.npcs[npcKey].relationship || 0;
   var min = STAYOVER_MIN[npcKey] || 60;
-  var eve = REALTIME ? (rtClockMin() >= 17 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
+  var eve = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
   var inHome = !!(_vnEndLoc && /_home$/.test(_vnEndLoc));
   if (eve && rel >= min && _vnEndLoc && (_vnLastTone === 'stayover' || inHome)) {
     var loc = _vnEndLoc;
@@ -5028,8 +5068,10 @@ function evalIntimacyTone(npcKey, day) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-function renderToneHints(container, inp) {
+function renderToneHints(container, inp, npcKey) {
   var isZhOpt = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // 表白灰锁判定用的NPC：调用方传入优先，否则取进行中场景的NPC
+  var _toneNpc = npcKey || (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc) || null;
   var toneLang = isZhOpt ? 'zh' : (G.lang==='ja' ? 'ja' : (G.lang==='ko' ? 'ko' : 'en'));
   var TONES = [
     { key:'tease',   label:{zh:'调侃他', en:'Tease him', ja:'からかう', ko:'놀리기'},
@@ -5047,18 +5089,24 @@ function renderToneHints(container, inp) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
+    // "挑逗他"（用户定稿 v11.36：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
+    { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
+      openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
+                en:["We don't have to behave tonight",'You can come closer',"We… don't have to stop here","I don't want tonight to end like this","Don't say goodnight yet",'Do that look again — the one just now'],
+                ja:['今夜は、行儀よくしなくていい','もっと近くに来ても、いいよ','私たち……ここで止まらなくても','今夜はまだ終わらせたくない'],
+                ko:['오늘 밤은, 얌전할 필요 없어','더 가까이 와도 돼','우리……여기서 멈추지 않아도 돼','오늘 밤을 이렇게 끝내고 싶지 않아'] } },
+    // "表白"（合并了旧"更进一步"的升级路径：好感≥过夜线+在家+晚上时表白会自然进入夜里；
+    //  否则就是一次浪漫告白。好感<confessMin 时灰锁不可选——差一点就能说出口，就是期待感）
     { key:'confess', label:{zh:'表白', en:'Confess', ja:'告白する', ko:'고백하기'},
       openers:{ zh:['其实，我喜欢你','我对你，好像不只是','认真的——我心里有你','跟你在一起的时候，我总是'],
                 en:['Truth is, I like you',"What I feel for you isn't just","I mean it — you're on my mind",'When I am with you, I keep'],
                 ja:['実は、あなたが好き','あなたへの気持ちは、ただの','本気だよ——ずっと想ってた','あなたといると、私'],
                 ko:['사실, 나 너 좋아해','너한테 느끼는 건 그냥','진심이야——계속 마음에 있었어','너랑 있으면 자꾸'] } },
-    // "更进一步"＝发起亲密（内部键名沿用 stayover，语义=性行为邀请，勿按字面"过夜"理解）
-    { key:'stayover', label:{zh:'更进一步', en:'Take it further', ja:'その先へ', ko:'더 가까이'},
-      openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安'],
-                en:["We don't have to behave tonight",'You can come closer',"We… don't have to stop here","I don't want tonight to end like this","Don't say goodnight yet"],
-                ja:['今夜は、行儀よくしなくていい','もっと近くに来ても、いいよ','私たち……ここで止まらなくても','今夜はまだ終わらせたくない'],
-                ko:['오늘 밤은, 얌전할 필요 없어','더 가까이 와도 돼','우리……여기서 멈추지 않아도 돼','오늘 밤을 이렇게 끝내고 싶지 않아'] } },
   ];
+  // 顺序按用户定稿：调侃他、挑逗他、认真回应、转移话题、表白
+  var _TONE_ORDER = { tease:0, stayover:1, sincere:2, deflect:3, confess:4 };
+  TONES.sort(function(a,b){ return (_TONE_ORDER[a.key]||0) - (_TONE_ORDER[b.key]||0); });
   var hintBtn = document.createElement('div');
   hintBtn.className = 'vn-quick-label';
   hintBtn.style.cssText = 'cursor:pointer;user-select:none;padding:4px 0;';
@@ -5070,6 +5118,20 @@ function renderToneHints(container, inp) {
     chip.className = 'vn-opt';
     chip.style.cssText = 'flex:1;justify-content:center;padding:8px 10px;min-height:36px;font-size:clamp(13px,3.8vw,15px);';
     chip.textContent = t.label[toneLang] || t.label.en;
+    // 表白灰锁（用户定稿）：好感 < confessMin（=过夜线75%）时不可选——看得见、够不着，制造期待
+    if (t.key === 'confess' && _toneNpc && G.npcs[_toneNpc] && (G.npcs[_toneNpc].relationship || 0) < confessMin(_toneNpc)) {
+      chip.style.opacity = '0.4';
+      chip.style.borderStyle = 'dashed';
+      chip.textContent = '🔒 ' + chip.textContent;
+      chip.onclick = function(){
+        alert(isZhOpt ? '现在说这句话还太早——他还没准备好听。再熟一点吧。'
+          : G.lang==='ja' ? 'まだ早い——もう少し親しくなってから。'
+          : G.lang==='ko' ? '아직 일러요——조금 더 가까워진 후에.'
+          : "Too soon for those words — he isn't ready to hear them yet.");
+      };
+      toneRow.appendChild(chip);
+      return;
+    }
     var _ti = Math.floor(Math.random() * 99); // 起点随机，此后每次点击轮换下一条（不再重复同一句）
     chip.onclick = function(){
       var pool = t.openers[toneLang] || t.openers.en;
@@ -5310,7 +5372,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   vopts2.appendChild(inputWrap);
 
   // 所有轮次统一"自由输入 + 💡语气提示"（用户定的：初见剧本轮也不再给三句整句，只给提示）
-  renderToneHints(vopts2, inp);
+  renderToneHints(vopts2, inp, npcKey);
 
   // 长对白分页（用户需求：NPC话太长且以问句收尾时，先读前半→点"继续"→第二页问句+回复UI，防止选项在一屏放不下）。
   // 注意：台词被动作夹断的问题由 v10.77 的 OUTPUT RULES 解决（禁止动作插在两段台词中间），和这个分页不冲突。
@@ -5585,7 +5647,8 @@ function lookChangeNote(npcKey) {
 // 动作规则：动作从"他此刻想要什么+他是谁"长出来，透出意图，贴合场地(地点表只作场地灵感)，而非随机手势
 function intentActionRule(locKey) {
   return ' ACTION RULE: include ONE brief physical action in third person that ARISES from what he wants right now and who he is — it should quietly reveal his intent or subtext, and fit THIS place (loose inspiration for what is physically available here, do NOT just copy: ' + dateActionHint(locKey) + '). Never a generic decorative gesture, never the same one twice.' +
-    ' BANNED CLICHÉS (wildly overused, find something fresher): pushing/sliding a cup or glass toward her; tucking or brushing a strand of her hair. ' +
+    ' MOMENT-FIT RULE: the action must also fit what is happening RIGHT NOW in the scene — someone who just arrived at her door acts like an arriving guest (greeting her, stepping in, handing her something he brought), NEVER self-grooming rituals like crouching to re-tie his shoelaces or fixing his own clothes at her doorstep (real users flagged this as bizarre).' +
+    ' BANNED CLICHÉS (wildly overused, find something fresher): pushing/sliding a cup or glass toward her; tucking or brushing a strand of her hair; re-tying shoelaces. ' +
     'PRONOUN RULE: in action narration SHE is always "你"/"you" (second person) — NEVER call her "她"/"her". HE is "他"/"he". ' +
     'FACT RULE: never reference concerts, shows, performances, songs or shared moments that are not explicitly in "Previous interactions" above — do not invent history. ' +
     'NO inner thoughts or naming of feelings — only what can be seen and heard, but let the action carry the meaning.';
@@ -7009,6 +7072,15 @@ function renderChatMsgs(npc, dividerIdx) {
         var acc = document.createElement('button'); acc.className='cal-btn-accept'; acc.style.cssText='margin-right:8px'; acc.textContent = isZhMb?'接受':'Accept';
         var dec = document.createElement('button'); dec.className='cal-btn-decline'; dec.textContent = isZhMb?'婉拒':'Decline';
         acc.onclick = (function(mm){ return function(){
+          // 和日历接受同一套冲突提醒：90分钟内已有确认约会就问一句（提醒不禁止）
+          try {
+            var nearC = (G.calendar.events[getCalDateStr(mm.day)] || []).find(function(x){ return x && x.type === 'npc_invite' && x.status === 'accepted' && x.time && mm.meet.time && Math.abs(parseHM(x.time) - parseHM(mm.meet.time)) <= 90; });
+            if (nearC) {
+              var isZhC2 = G.lang==='zh-cn'||G.lang==='zh-tw';
+              if (!confirm(isZhC2 ? '这和「' + nearC.title + ' · ' + nearC.time + '」只差不到一个半小时，爽约会伤感情。还要接受吗？'
+                : 'This is within 90 minutes of "' + nearC.title + ' · ' + nearC.time + '". Accept anyway?')) return;
+            }
+          } catch(err) {}
           var id = 'chat_meet_' + mm.npc + '_' + mm.day + '_' + String(mm.meet.time).replace(':','');
           calAddEvent(getCalDateStr(mm.day), { id:id, type:'npc_invite', npcKey:mm.npc, npcName:getNPCName(mm.npc), title:mm.meet.title, status:'accepted', time:mm.meet.time, locKey:mm.meet.locationKey, description:mm.meet.desc||'' });
           mm.meet.invId = id; mm.meet.pending = false;
@@ -7667,7 +7739,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.35 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.36 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

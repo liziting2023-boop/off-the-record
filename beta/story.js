@@ -248,6 +248,21 @@ const STORY = {
       isPublic: true,
       composition: 'a small 24-hour convenience store late at night, bright fluorescent lighting, rows of snacks and a fridge wall glowing, quiet empty aisles, the counter by the window with dark street outside',
     },
+    night_run: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'a riverside running path at night, string of warm street lamps reflecting on dark water, city skyline glowing across the river, empty path with soft pools of light, cool night air atmosphere',
+    },
+    record_store: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a cozy independent record store, wooden crates full of vinyl records, walls covered in album art and band posters, warm tungsten lighting, a vintage turntable spinning by the register',
+    },
+    festival_event: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'a lively city street festival, strings of colorful lights and bunting overhead, food stalls and market stands glowing warmly, confetti in the air, festive crowd blurred in the background',
+    },
     art_gallery: {
       isOutdoor: false,
       isPublic: true,
