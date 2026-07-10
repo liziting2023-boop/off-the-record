@@ -889,7 +889,10 @@ const STORY = {
       ],
     },
 
-    2: {  // Day2 傍晚：与管家正式初见（原 Day4 迁移到此；Day1 只有他留的欢迎消息）
+    // 管家降二线（2026-07 用户定稿）：不再有保底初见剧情日。key 从数字 2 改成字符串＝退出剧情日程，
+    // 内容保留备用（大堂蛋糕场景很好，将来可作二线首遇彩蛋复用）。他的入口=Day1欢迎短信+大堂偶遇。
+    // "他是经纪人弟弟"的秘密保留（hiddenTruths 未动），深挖经纪人线时仍会撞见。
+    butlerIntroRetired: {
       npc: 'butler',
       location: 'apartment_lobby',
       isWork: false,

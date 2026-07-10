@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.36"></script>
-<script src="state.js?v=11.36"></script>
+<script src="story.js?v=11.37"></script>
+<script src="state.js?v=11.37"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.36 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.37 · BETA ⏱</p>
   </div>
 </div>
 
@@ -770,7 +770,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <div class="prow"><span class="pk" id="lbl-agent-key">Agent</span><span class="pv" id="ch-agent">—</span></div>
       <div class="prow"><span class="pk" id="lbl-fame-key">Fame</span><span class="pv" id="ch-fame">⭐ —</span></div>
     </div>
-    <button class="btn-p" onclick="startDay()" id="btn-wakeup">Day 1</button>
+    <button class="btn-p" onclick="startPrologue()" id="btn-wakeup">Day 1</button>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.36 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.37 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1366,13 +1366,17 @@ function day1Intro() {
   if (G.day !== 1 || G._day1Intro) return;
   G._day1Intro = true;
   // 鼓手当天下午已在录音室与她正式初见（经纪人场景 chainNext 链入），傍晚不再重复来撂狠话。
-  // 管家 Day1 只在门口留蛋糕 + 发一条欢迎短信——还没正式见面（正式初见是 Day2 傍晚的剧情）。
-  // 关键：这里【不】置 butler.met=true，否则 migrateScriptedDone 会据此把 Day2 标记完成、跳过管家初见场景。
+  // 管家已降二线（无保底剧情日）：Day1 门口留蛋糕 + 欢迎短信就是他的入口——收到短信即算认识（met=true），
+  // 可以直接回消息聊天；之后白天在公寓大堂还会偶遇（buildDayOpts 的大堂卡）。
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
-        'You are the young building manager of the building she just moved into today. You have NOT met her face to face yet. Text her a warm, shy welcome tonight — mention you left something small at her door (a homemade lemon cake, a snack), and that you would love to introduce yourself properly and say a real hello soon, maybe tomorrow. Earnest and neighbourly, the way you would text a brand-new neighbour (1-2 sentences, texting style).' + earlyToneNote('butler') + ' Output only the message text.'));
-      if (t && t.trim()) pushNpcMsg('butler', t.trim(), 21*60);
+        'You are the young building manager of the building she just moved into today. You have NOT met her face to face yet. Text her a warm, shy welcome tonight — mention you left something small at her door (a homemade lemon cake, a snack), and that you are around the building anytime she needs anything. Earnest and neighbourly, the way you would text a brand-new neighbour (1-2 sentences, texting style).' + earlyToneNote('butler') + ' Output only the message text.'));
+      if (t && t.trim()) {
+        pushNpcMsg('butler', t.trim(), 21*60);
+        ensureSecondaryName('butler');
+        G.npcs.butler.met = true; // 二线：接触即认识（migrateScriptedDone 已不再按 butler.met 回填剧情日）
+      }
     } catch(e){} })();
   }
   STATE.save.saveGame();
@@ -1839,7 +1843,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
-  if (npcTier(npcKey) === 2) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
+  if (npcTier(npcKey) === 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day); // 管家虽降二线但有专属buildButlerPrompt，不走通用二线生图
 
   if (detShadow) prompt += detShadow;
 
@@ -1917,7 +1921,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
-  if (npcTier(npcKey) === 2) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day);
+  if (npcTier(npcKey) === 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 管家例外：仍用 buildButlerPrompt
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
@@ -3394,6 +3398,15 @@ function confirmNPCOrigin() {
 // ══════════════════════════════════════════════════════
 // DAILY SCREEN
 // ══════════════════════════════════════════════════════
+// ── 序章（用户定稿 2026-07）：签约后点"Day 1"立即连播"上午见经纪人 → 下午见鼓手"登场链，
+//    不看真实时钟（修"23:30开新局，经纪人鼓手都没出来"——之前登场靠玩家在首页点"今日剧情"）。
+//    链播完 advanceAfterScene 终场分支照旧标 scriptedDone[1]+排Day2排练 → 回首页时两人已认识，直接能聊。──
+function startPrologue() {
+  startDay();
+  if (!(G.scriptedDone && G.scriptedDone[1])) {
+    setTimeout(function(){ try { playScripted(1); } catch(e){} }, 200);
+  }
+}
 async function startDay() {
   G.today = null; // 重置今天做了什么的记录
   _curSceneEv = null; _curSceneOriginDay = null; // 新的一天：清掉进行中场景指针（防昨天的半场景劫持"继续"入口）
@@ -3668,7 +3681,12 @@ function isGameWeekend(day) {
 function getPendingScriptedDay() {
   if (!G.scriptedDone) G.scriptedDone = {};
   for (var d = 1; d <= Math.min(G.day, 30); d++) {
-    if (STORY.scriptedEvents[d] && !G.scriptedDone[d]) return d;
+    if (STORY.scriptedEvents[d] && !G.scriptedDone[d]) {
+      // 二线NPC（如降级后的管家）的剧情日：还没认识就不排——他们没有保底登场，剧情是认识之后的奖励
+      var _se = STORY.scriptedEvents[d];
+      if (_se.npc && npcTier(_se.npc) === 2 && !(G.npcs[_se.npc] && G.npcs[_se.npc].met)) continue;
+      return d;
+    }
   }
   return null;
 }
@@ -3818,6 +3836,21 @@ function buildDayOpts() {
         slots.push(makeOpt('💌 ' + inv.title + (inv.time ? ' · ' + inv.time : ''), (isZh?'赴约 · 和':'Date with ') + (inv.npcName||getNPCName(inv.npcKey)), 'work', () => playInviteScene(inv)));
       }
     });
+    // 管家（二线）大堂偶遇卡：白天有概率出现（每天掷一次，防重渲染闪烁）。这是他降级后的见面入口
+    try {
+      var _bm = G.npcs.butler;
+      var _bmDaytime = !REALTIME || (rtClockMin() >= 8 * 60 && rtClockMin() < 22 * 60);
+      if (_bm && npcTier('butler') === 2 && _bmDaytime && !G.sick) {
+        if (!G._lobbyRoll || G._lobbyRoll.day !== G.day) G._lobbyRoll = { day: G.day, hit: Math.random() < (_bm.met ? 0.3 : 0.6), used: false };
+        if (G._lobbyRoll.hit && !G._lobbyRoll.used && slots.length < 5) {
+          slots.push(makeOpt(
+            _bm.met ? (isZh ? '🔧 大堂碰到管家' : 'Run into the building manager')
+                    : (isZh ? '🔧 大堂里的年轻楼管在看你' : 'The young building manager looks up at you'),
+            isZh ? '和他聊两句 · 不占行程' : 'Say hi · free', '',
+            function(){ G._lobbyRoll.used = true; STATE.save.saveGame(); startSecondaryMeet('butler', 'apartment_lobby', !_bm.met); }));
+        }
+      }
+    } catch(e) {}
     slots.slice(0, 5).forEach(b => opts.appendChild(b));
     // ③ 剩余槽位用随机职业/休息补足（最多5个总量；有工作/约会时随机项减到2个，全空闲给3个）
     let room = 5 - Math.min(slots.length, 5);
@@ -4007,6 +4040,7 @@ const SECONDARY_SPOTS = {
 const SECONDARY_NAMES = {
   coffee: ['Elias','Noah','Jonah','Theo','Milo','Caleb','Rowan','Felix'],
   clerk:  ['Sam','Isaac','Leo','Julian','Aaron','Nico','Dylan','Owen'],
+  butler: ['Eli','Toby','Finn','Charlie','Henry','Jamie'], // 管家降二线后首遇不再走AI起名流程
 };
 function ensureSecondaryName(npcKey) {
   var n = G.npcs[npcKey];
@@ -4059,7 +4093,9 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
       }
     }).catch(function(){});
   }
-  var title = npcKey === 'coffee' ? (isZh?'楼下咖啡馆':'the café downstairs') : (isZh?'深夜便利店':'the late-night store');
+  var title = npcKey === 'coffee' ? (isZh?'楼下咖啡馆':'the café downstairs')
+    : npcKey === 'butler' ? (isZh?'公寓大堂':'the apartment lobby')
+    : (isZh?'深夜便利店':'the late-night store');
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -4086,9 +4122,13 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
   var locDesc = homeLocDesc(locKey, npcKey);
   var _mrel = npc.relationship;
   var meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + submissiveHomeHint(npcKey, locKey);
-  var whereWord = npcKey === 'coffee' ? 'his café counter (he works here; she just came in)' : 'his convenience-store counter at this late hour (he is on the night shift; she just came in)';
+  var whereWord = npcKey === 'coffee' ? 'his café counter (he works here; she just came in)'
+    : npcKey === 'butler' ? 'the lobby of the building he manages (he lives and works here; she is the resident he cannot help noticing)'
+    : 'his convenience-store counter at this late hour (he is on the night shift; she just came in)';
   var firstCtx = firstTime
-    ? ' This is essentially the FIRST time you two really talk — you know her only as the regular who comes in. No shared history, no texts, do NOT reference past plans. Break the ice in your own understated way.'
+    ? (npcKey === 'butler'
+      ? ' This is the first time you two actually talk face to face — you are the shy 20-year-old building manager; you left a homemade lemon cake at her door when she moved in, and now that she is actually talking to you, you are caught off guard, flushed and earnest. Introduce yourself in a slightly tumbling rush.'
+      : ' This is essentially the FIRST time you two really talk — you know her only as the regular who comes in. No shared history, no texts, do NOT reference past plans. Break the ice in your own understated way.')
     : ' She is a regular you have come to look forward to; pick up with the easy familiarity you two have built.';
   const rounds = [
     { npcContext: 'She just walked into ' + whereWord + '. LOCATION: ' + locDesc + '.' + firstCtx + ' Open in character, low-key and real — you are not chasing her, you are just genuinely present.' + lookChangeNote(npcKey) + meetStyle },
@@ -5089,7 +5129,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.36：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.37：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -7690,13 +7730,20 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.37）→ 补上 ──
+  (function ensureSecondaryNpcs() {
+    if (!G.npcs) return;
+    var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
+    ['coffee','clerk'].forEach(function(k){ if (!G.npcs[k]) G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); if (G.npcs[k].tier == null) G.npcs[k].tier = 2; });
+    if (G.npcs.butler && G.npcs.butler.tier == null) G.npcs.butler.tier = 2;
+  })();
   (function migrateScriptedDone() {
     if (!G.scriptedDone) G.scriptedDone = {};
-    // 新登场表：Day2=管家、Day3=演员，见过即回填对应剧情日完成。
+    // 新登场表：Day3=演员，见过即回填对应剧情日完成。（管家已降二线，Day2 保底剧情退役）
     // 注意：【不能】用 agent.met 回填 Day1！签约街边场景结束就把 agent.met=true 了（早于 Day1 办公室会面），
     // 一旦据此标 scriptedDone[1]=true，重开/刷新后 Day1 经纪人+鼓手剧情会被整段跳过（老玩家实测"全新开局也没有Day1"就是这个坑）。
     // Day1 是否真玩过，用 drummer.met 判断——鼓手只在 Day1 下午的链场里出现，是可靠信号。
-    var introNpc = { 2:'butler', 3:'actor' };
+    var introNpc = { 3:'actor' };
     Object.keys(introNpc).forEach(function(d) {
       if (G.npcs[introNpc[d]] && G.npcs[introNpc[d]].met) G.scriptedDone[d] = true;
     });
@@ -7713,7 +7760,6 @@ window.addEventListener('load', () => {
     // （治老版本"终场开场即标完成"留下的坏档：中途退出后 Day1 被吞、无剧情可点）
     Object.keys(G.chainProgress || {}).forEach(function(d) { if (G.scriptedDone[d]) delete G.scriptedDone[d]; });
     if (G.scriptedDone[1] && G.npcs.drummer && !G.npcs.drummer.met) { delete G.scriptedDone[1]; if (G.chainProgress) delete G.chainProgress[1]; }
-    if (G.scriptedDone[2] && G.npcs.butler && !G.npcs.butler.met) delete G.scriptedDone[2];
     if (G.scriptedDone[3] && G.npcs.actor && !G.npcs.actor.met) delete G.scriptedDone[3];
     // Day1 管家欢迎短信：旧会话可能把 _day1Intro=true 带进坏档，但管家一条消息都没发过、
     // 也没见过面 → 撤掉标记，让欢迎短信当晚（goEvening）还能正常发出来
@@ -7739,7 +7785,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.36 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.37 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
