@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.38"></script>
-<script src="state.js?v=11.38"></script>
+<script src="story.js?v=11.39"></script>
+<script src="state.js?v=11.39"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.38 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.39 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.38 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.39 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1306,6 +1306,7 @@ async function checkProactiveOnOpen() {
   // 候选：已识、非侦探、非冷战、距上次主动≥5小时
   var cands = Object.keys(G.npcs).filter(function(k){
     if (k==='detective' || !G.npcs[k].met || npcIsCold(k)) return false;
+    if (npcTier(k) >= 3) return false; // 三线（反面）不主动发消息骚扰玩家——只有玩家自己去找他们
     if (isNpcAsleep(k)) return false; // 睡着的NPC不会主动来消息（夜里只剩夜猫子活跃，符合现实、也不打扰）
     // 正在剧情/见面场景里的NPC不发消息——人就坐在你对面，还给你发短信就穿帮了
     // （场景进行中 _curSceneEv 一直有值，中途切去看手机也算"会面还没结束"）
@@ -1464,6 +1465,9 @@ const NPC_UI = {
   rival:    { emoji:'🎤', color:'#d98cae' },
   coffee:   { emoji:'☕', color:'#b89a7a' },
   clerk:    { emoji:'🌙', color:'#7a8cba' },
+  sleaze:   { emoji:'🥃', color:'#8a7a5a' },
+  fboy:     { emoji:'🕶️', color:'#7a6a8a' },
+  thief:    { emoji:'🧢', color:'#6a6f6a' },
 };
 // 主线五（+侦探）NPC 集合。二线/三线/特级只进 G.npcs 复用聊天·立绘·好感，但要挡在"主线专属"循环外
 // （早间群发、生日、剧情推进）。isMainNpc() 就是那道守卫。
@@ -1504,6 +1508,9 @@ const NPC_ROLES = {
   rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
   coffee:   { 'zh-cn':'咖啡师','zh-tw':'咖啡師',ja:'バリスタ',ko:'바리스타',en:'Barista' },
   clerk:    { 'zh-cn':'便利店员','zh-tw':'便利店員',ja:'コンビニ店員',ko:'편의점 직원',en:'Store Clerk' },
+  sleaze:   { 'zh-cn':'油腻中年男','zh-tw':'油膩中年男',ja:'中年のナンパ男',ko:'느끼한 중년남',en:'Bar Creep' },
+  fboy:     { 'zh-cn':'搭讪渣男','zh-tw':'搭訕渣男',ja:'チャラ男',ko:'작업남',en:'Pickup Artist' },
+  thief:    { 'zh-cn':'可疑男人','zh-tw':'可疑男人',ja:'怪しい男',ko:'수상한 남자',en:'Shady Guy' },
 };
 function getNPCRole(key, lang) {
   const r = NPC_ROLES[key];
@@ -1843,7 +1850,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
-  if (npcTier(npcKey) === 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day); // 管家虽降二线但有专属buildButlerPrompt，不走通用二线生图
+  if (npcTier(npcKey) >= 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day); // 二线/三线走 secondaryLooks；管家例外（有专属buildButlerPrompt）
 
   if (detShadow) prompt += detShadow;
 
@@ -1921,7 +1928,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
-  if (npcTier(npcKey) === 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 管家例外：仍用 buildButlerPrompt
+  if (npcTier(npcKey) >= 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 二线/三线走 secondaryLooks；管家例外：仍用 buildButlerPrompt
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
@@ -3458,6 +3465,40 @@ async function startDay() {
       } catch(e) {}
     })();
   }
+  // ══ 三线（反面）后果结算：昨天跟反面NPC走了 → ②一线知道后掉好感+最高好感者发受伤消息 ③油腻男/渣男→小报绯闻伤事业 ══
+  if (G._t3After && G.day > G._t3After.day) {
+    var _t3 = G._t3After; G._t3After = null;
+    var _t3Name = getNPCRole(_t3.npc, G.lang) || _t3.npc;
+    var _t3Hurt = Object.keys(G.npcs).filter(function(k){ return isMainNpc(k) && k !== 'detective' && G.npcs[k].met && (G.npcs[k].relationship || 0) >= 40; })
+      .sort(function(a, b){ return (G.npcs[b].relationship || 0) - (G.npcs[a].relationship || 0); });
+    _t3Hurt.forEach(function(k){
+      STATE.relationships.change(k, -4);
+      STATE.memory.addEvent(k, 'Word got around that she left with a sketchy guy (' + _t3Name + ') the other night. It stung more than you let on.', G.day);
+    });
+    if (_t3Hurt[0]) {
+      (function(topK){ (async function(){ try {
+        var t = await claudeChat(STATE.memory.buildDialoguePrompt(topK, G.day, G.langName, G.player.name,
+          'You heard she went off with a sketchy guy (' + _t3Name + ') the other night. Text her ONE short message in YOUR character\'s voice — hurt but restrained, never preachy or controlling; closer to "you deserve better than that" than jealousy (1-2 sentences). Output only the message text.'));
+        if (t && t.trim()) { pushNpcMsg(topK, t.trim(), 9 * 60); notifyNewMessage(topK); STATE.save.saveGame(); }
+      } catch(e){} })(); })(_t3Hurt[0]);
+    }
+    if (_t3.npc === 'sleaze' || _t3.npc === 'fboy') {
+      G.fame = Math.max(0, G.fame - 6);
+      STATE.memory.addEvent('agent', 'A gossip blog ran a blurry photo of her leaving with a sleazy-looking man. You made calls to bury it — furious, and worried about her.', G.day);
+      (async function(){ try {
+        var t2 = await claudeChat(STATE.memory.buildDialoguePrompt('agent', G.day, G.langName, G.player.name,
+          'A gossip blog ran a blurry night photo of her leaving a venue with a sleazy-looking man. As her agent, text her about it — controlled damage-control tone with real worry underneath; you buried the story this time; no lecture, one clear ask to be careful (1-2 sentences). Output only the message text.'));
+        if (t2 && t2.trim()) { pushNpcMsg('agent', t2.trim(), 8 * 60 + 30); notifyNewMessage('agent'); STATE.save.saveGame(); }
+      } catch(e){} })();
+    }
+    STATE.save.saveGame();
+  }
+  // ④ 手机失而复得：被小偷偷走的第二天新机到手，恢复收发
+  if (G._phoneStolen && G.day > G._phoneStolen.day) {
+    G._phoneStolen = null;
+    try { STATE.memory.addEvent('agent', 'Her phone got stolen that night; she sorted out a replacement the next day.', G.day); } catch(e){}
+    STATE.save.saveGame();
+  }
   // ══ Batch2 过夜后关系动态 ══
   // ① 立场消息（第一夜次日）：鼓手=想公开,邀你进他的朋友圈(聚会邀约,去=公开)；经纪人/演员/管家/侦探=按各自理由求低调
   Object.keys(G.npcs).forEach(function(k) {
@@ -3559,7 +3600,7 @@ async function startDay() {
       G._bdayCelebrated = G.day;
       var isZhB2 = G.lang==='zh-cn'||G.lang==='zh-tw';
       calAddEvent(_bds, { id:'pbday_'+G.day, type:'player_birthday', title:isZhB2?'🎂 我的生日':'🎂 My Birthday', status:'accepted', time:'', description:isZhB2?'今天是你的日子。':'Today is yours.' });
-      var _bdayMet = Object.keys(G.npcs).filter(function(k){return G.npcs[k].met;}).sort(function(a,b){return (G.npcs[b].relationship||0)-(G.npcs[a].relationship||0);});
+      var _bdayMet = Object.keys(G.npcs).filter(function(k){return G.npcs[k].met && npcTier(k) < 3;}).sort(function(a,b){return (G.npcs[b].relationship||0)-(G.npcs[a].relationship||0);});
       // 好感前3的NPC发生日祝福（按性格，各写各的）
       _bdayMet.slice(0,3).forEach(function(k) {
         (async function(){ try {
@@ -3843,13 +3884,16 @@ function buildDayOpts() {
       var _bm = G.npcs.butler;
       var _bmDaytime = !REALTIME || (rtClockMin() >= 8 * 60 && rtClockMin() < 22 * 60);
       if (_bm && npcTier('butler') === 2 && _bmDaytime && !G.sick) {
-        if (!G._lobbyRoll || G._lobbyRoll.day !== G.day) G._lobbyRoll = { day: G.day, hit: Math.random() < (_bm.met ? 0.3 : 0.6), used: false };
+        // 按"见过脸"判首遇：欢迎短信会置 met=true，但大堂第一次照面才算真正初见（弹三选一立绘+蛋糕慌张开场）。
+        // 老档在旧剧情里见过（有立绘）也算见过脸。
+        var _bmKnown = !!(_bm._faceMet || _bm.portraitUrl);
+        if (!G._lobbyRoll || G._lobbyRoll.day !== G.day) G._lobbyRoll = { day: G.day, hit: Math.random() < (_bmKnown ? 0.3 : 0.6), used: false };
         if (G._lobbyRoll.hit && !G._lobbyRoll.used && slots.length < 5) {
           slots.push(makeOpt(
-            _bm.met ? (isZh ? '🔧 大堂碰到管家' : 'Run into the building manager')
+            _bmKnown ? (isZh ? '🔧 大堂碰到管家' : 'Run into the building manager')
                     : (isZh ? '🔧 大堂里的年轻楼管在看你' : 'The young building manager looks up at you'),
             isZh ? '和他聊两句 · 不占行程' : 'Say hi · free', '',
-            function(){ G._lobbyRoll.used = true; STATE.save.saveGame(); startSecondaryMeet('butler', 'apartment_lobby', !_bm.met); }));
+            function(){ G._lobbyRoll.used = true; STATE.save.saveGame(); startSecondaryMeet('butler', 'apartment_lobby', !_bmKnown); }));
         }
       }
     } catch(e) {}
@@ -4043,6 +4087,9 @@ const SECONDARY_NAMES = {
   coffee: ['Elias','Noah','Jonah','Theo','Milo','Caleb','Rowan','Felix'],
   clerk:  ['Sam','Isaac','Leo','Julian','Aaron','Nico','Dylan','Owen'],
   butler: ['Eli','Toby','Finn','Charlie','Henry','Jamie'], // 管家降二线后首遇不再走AI起名流程
+  sleaze: ['Barry','Ron','Marv','Gerald'],
+  fboy:   ['Chad','Blake','Tyler','Jax'],
+  thief:  ['Denny','Vic','Lou'],
 };
 function ensureSecondaryName(npcKey) {
   var n = G.npcs[npcKey];
@@ -4085,8 +4132,12 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     STATE.memory.addEvent(npcKey, 'She became a regular — this was the first time they actually spoke, not just an order.', G.day);
     try { STATE.save.saveGame(); } catch(e){}
   }
-  // 二线立绘：不选形象，初见后台自动生成一张锁定（聊天头像/好感页用；已有就不重生成）
-  if (!npc.portraitUrl) {
+  npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
+  // 二线立绘（用户定稿 v11.39 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 老档已认识但没图的，静默补生成一张
+  if (firstTime && !npc.portraitUrl) {
+    setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
+  } else if (!npc.portraitUrl) {
     genNPCPortraitPlain(npcKey, G.day, 'facing the camera with a natural relaxed expression').then(function(u){
       if (u && !npc.portraitUrl) {
         npc.portraitUrl = u;
@@ -4146,6 +4197,174 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
   startBtn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   startBtn.onclick = function(){ _vnEndLoc = locKey; runVNDialog(rounds, npcKey, G.day, 0); };
   document.getElementById('vn-opts').appendChild(startBtn);
+}
+
+// ══ 三线（反面）NPC 相遇：他们主动凑过来，开口就是带性意味的挑逗/骚扰——台词必须写得油腻讨厌，绝不诱人。
+// 设计红线（用户定稿）：玩家【永远】可一键怼回（爽感+减压+零惩罚）；继续接触=玩家自己清醒的坏选择；
+// 上钩后果="清醒懊悔非被害"四件套：①事后空虚(+压力/冷文案) ②一线知道后掉好感+受伤消息 ③绯闻伤事业 ④小偷偷手机（实际损失一天）。
+// 全程不露骨、硬淡出；绝不写任何违背她意愿发生的事。──
+const TIER3_SPOTS = {
+  night_bar:     { npc:'sleaze', when: function(){ return !REALTIME || rtClockMin() >= 18*60 || rtClockMin() < 4*60; } },
+  livehouse:     { npc:'sleaze', when: function(){ return !REALTIME || rtClockMin() >= 18*60 || rtClockMin() < 4*60; } },
+  shopping_mall: { npc:'fboy',   when: function(){ return true; } },
+  street_market: { npc:'fboy',   when: function(){ return true; } },
+  night_run:     { npc:'thief',  when: function(){ return true; } },
+  supermarket:   { npc:'thief',  when: function(){ return !REALTIME || rtClockMin() >= 22*60 || rtClockMin() < 5*60; } },
+};
+function appendTier3EncounterBtn(key) {
+  var s = TIER3_SPOTS[key];
+  if (!s || !G.npcs[s.npc] || npcTier(s.npc) < 3) return;
+  if (s.when && !s.when()) return;
+  var npc = G.npcs[s.npc];
+  if (Math.random() > (npc.met ? 0.22 : 0.42)) return; // 恶心人的桥段要稀，不然变成骚扰玩家
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var labels = {
+    sleaze: isZh ? '🥃 一个油腻的中年男人凑了过来' : '🥃 A greasy middle-aged man slides over',
+    fboy:   isZh ? '🕶️ 一个精心打扮过头的男人拦住你' : '🕶️ An over-groomed guy steps into your path',
+    thief:  isZh ? '🧢 一个站得太近的男人跟你套近乎' : '🧢 A man standing too close strikes up "small talk"',
+  };
+  var btn = document.createElement('button');
+  btn.className = 'vn-next';
+  btn.style.cssText = 'border:1.5px dashed rgba(138,128,120,0.55);color:var(--text-mid)';
+  btn.innerHTML = '<span>' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:11px;opacity:.7">' + (isZh?'理他，或者当场怼回去':'Engage — or shut him down on the spot') + '</span>';
+  btn.onclick = function(){ startTier3Meet(s.npc, key, !npc.met); };
+  document.getElementById('vn-opts').appendChild(btn);
+}
+// 三线相遇场景：3轮对话（AI按人设写油腻/做作/瘆人的搭讪），每轮都有常驻"怼回去"（renderToneHints 注入）
+function startTier3Meet(npcKey, locKey, firstTime) {
+  const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  var npc = G.npcs[npcKey];
+  if (firstTime) {
+    ensureSecondaryName(npcKey);
+    npc.met = true;
+    if (npc.portraitSeed == null) npc.portraitSeed = Math.floor(Math.random()*1000000);
+    try { STATE.save.saveGame(); } catch(e){}
+  }
+  // 三线不选形象：静默生成一张（外形表就是故意不帅的）
+  if (!npc.portraitUrl) {
+    genNPCPortraitPlain(npcKey, G.day, 'facing the camera, unflattering candid angle').then(function(u){
+      if (u && !npc.portraitUrl) { npc.portraitUrl = u; try { STATE.save.saveGame(); } catch(e){} }
+    }).catch(function(){});
+  }
+  var title = getNPCRole(npcKey, lang) || (isZh?'陌生男人':'a stranger');
+  go('s-scene');
+  document.getElementById('vn-loading').style.display = 'none';
+  document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none';
+  document.getElementById('vn-npc-card').style.display = 'none';
+  document.getElementById('vn-avatars').style.display = 'none';
+  document.getElementById('npc-trio').style.display = 'none';
+  document.getElementById('vn-overlay').style.display = 'block';
+  document.getElementById('vn-content').style.display = 'flex';
+  document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = isZh ? '他自顾自地凑了过来，热情得让人起鸡皮疙瘩。' : 'He invites himself over, friendly in a way that makes your skin crawl.';
+  document.getElementById('vn-opts').innerHTML = '';
+  resolveSceneBg(locKey, npcKey).then(function(url){
+    if (url) { document.getElementById('vn-bg').src = url; document.getElementById('vn-bg').style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+  });
+  G.today = { label: title, isWork: false, npc: npcKey };
+  _curSceneEv = { npc: npcKey, location: locKey, _meetup: title };
+  _curSceneOriginDay = G.day;
+  npc._reachAt = Date.now();
+  var locDesc = homeLocDesc(locKey, npcKey);
+  var meetStyle = intentBlock(npcKey, npc.relationship) + intentActionRule(locKey) +
+    ' SAFETY REGISTER (absolute, overrides everything): his advances are suggestive but NEVER explicit; he NEVER touches her without her clearly inviting it; NOTHING happens to her against her will — if she is cold or dismissive he only talks, and backs off. His lines must read OFF-PUTTING (greasy / rehearsed / unsettling per your character), never genuinely attractive or romantic.';
+  const rounds = [
+    { npcContext: 'You just cornered her attention at this place: ' + locDesc + '. Open EXACTLY in your character\'s off-putting register — a too-forward, suggestive come-on with zero self-awareness.' + meetStyle },
+    { npcContext: 'Keep working your angle — escalate your agenda one notch (per your SCENE INTENT), still transparently self-serving.' + meetStyle },
+    { npcContext: 'FINAL beat: make your real ask outright (per your intent) — somewhere more private, said in your character\'s graceless way. The scene ends after this line.' + meetStyle },
+  ];
+  STATE.memory.addEvent(npcKey, 'He hit on her at ' + title + ' (day ' + G.day + ').', G.day);
+  _afterDialogHook = function(){ tier3SceneEnd(npcKey, locKey); };
+  const startBtn = document.createElement('button');
+  startBtn.className = 'vn-next';
+  startBtn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
+  startBtn.onclick = function(){ _vnEndLoc = locKey; runVNDialog(rounds, npcKey, G.day, 0); };
+  document.getElementById('vn-opts').appendChild(startBtn);
+}
+// 一键怼回：爽感文案 + 减压 + 记进他的记忆，零惩罚。这是面对三线的"正确答案"，要奖励
+function tier3Clapback(npcKey) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  addStress(-6);
+  STATE.memory.addEvent(npcKey, 'She shut him down flat in public and walked away (day ' + G.day + '). He backed right off.', G.day);
+  _afterDialogHook = null; _vnLastTone = null;
+  var pool = isZh ? [
+    '你把话撂得又平又稳，看着他的笑僵在脸上。转身走的时候，风都是顺的。',
+    '「到此为止。」你说完就走，没有回头。出了口气，心情居然不错。',
+    '你一句话把他钉在原地，他端着的那套瞬间碎了。你走出去，脚步很轻。',
+  ] : [
+    'You say it flat and even, and watch the grin die on his face. Walking away, even the wind feels on your side.',
+    '"We\'re done here." You leave without looking back — and honestly, it feels great.',
+    'One sentence pins him where he stands; the whole act crumbles. You walk out light on your feet.',
+  ];
+  vnSpeak(null);
+  document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = pool[Math.floor(Math.random()*pool.length)];
+  var vopts = document.getElementById('vn-opts'); vopts.innerHTML = '';
+  var b = document.createElement('button'); b.className='vn-next'; b.textContent = isZh?'走人':'Leave';
+  b.onclick = function(){ _curSceneEv = null; _curSceneOriginDay = null; goEvening(); };
+  vopts.appendChild(b);
+  playSound('rel-up');
+  try { STATE.save.saveGame(); } catch(e){}
+}
+// 三线场景收尾：给明确的三选（跟他走【标注坏主意】/回家/怼回去）——上钩必须是清醒的主动选择
+function tier3SceneEnd(npcKey, locKey) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var npc = G.npcs[npcKey];
+  var vopts = document.getElementById('vn-opts'); if (!vopts) return;
+  vopts.innerHTML = '';
+  vnSpeak(null); document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = isZh
+    ? '他等着你的答复，眼神里的算计藏都不藏。'
+    : 'He waits for your answer, the calculation in his eyes not even hidden.';
+  if ((npc.relationship || 0) >= (STAYOVER_MIN[npcKey] || 12)) {
+    var go1 = document.createElement('div'); go1.className = 'vn-opt';
+    go1.innerHTML = (isZh?'跟他走':'Go with him') + '<span style="display:block;font-size:11px;opacity:.65">' + (isZh?'你很清楚这不是个好主意……':'You know exactly how bad an idea this is…') + '</span>';
+    go1.onclick = function(){ tier3Night(npcKey, locKey); };
+    vopts.appendChild(go1);
+  }
+  var no = document.createElement('div'); no.className = 'vn-opt';
+  no.textContent = isZh ? '就到这里，回家' : "That's enough — head home";
+  no.onclick = function(){ STATE.memory.addEvent(npcKey, 'She brushed him off and went home (day ' + G.day + ').', G.day); _curSceneEv = null; _curSceneOriginDay = null; goEvening(); };
+  vopts.appendChild(no);
+  var cb = document.createElement('div'); cb.className = 'vn-opt';
+  cb.textContent = isZh ? '😤 怼回去，转身走人' : '😤 Shut him down and walk away';
+  cb.onclick = function(){ tier3Clapback(npcKey); };
+  vopts.appendChild(cb);
+}
+// 三线"跟他走"：不走浪漫过夜（不用genOvernightProse），硬淡出 + 清醒懊悔的固定文案 + 负反馈落账。
+// 基调红线：她全程是主动清醒的选择者；写"空虚/不值得"，绝不写受害。小偷线根本没到那一步——东西先没了。
+function tier3Night(npcKey, locKey) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var npc = G.npcs[npcKey];
+  npc._t3nights = (npc._t3nights || 0) + 1;
+  G._t3After = { npc: npcKey, day: G.day };
+  addStress(15); // 事后空虚：压力上头
+  STATE.memory.addEvent(npcKey, npcKey === 'thief'
+    ? 'She let him walk her somewhere dark — and he vanished with her phone and cash (day ' + G.day + ').'
+    : 'She actually went with him (day ' + G.day + '). It meant nothing to him.', G.day);
+  var prose = {
+    sleaze: {
+      zh: '灯光很暗，酒见底得很快。之后的事像隔着一层毛玻璃。凌晨，他已经在给别人发消息了，连装一装都懒得。你自己叫的车。车窗外的城市很亮，你只觉得累，和一种说不出口的空。',
+      en: 'The lights are dim and the drinks go fast. What follows blurs like frosted glass. By small hours he is already texting someone else, not even pretending. You call your own ride. The city outside the window is bright; all you feel is tired, and hollow in a way you can\'t say out loud.',
+    },
+    fboy: {
+      zh: '他的公寓干净得像样板间，墙上挂的是他自己的照片。之后的事潦草得可笑。你走的时候他头也没抬，正同时回三个人的消息。电梯镜子里的自己看起来没什么不同——可你知道差了点什么。不值得，你想。真的不值得。',
+      en: 'His apartment is showroom-clean, his own photos on the wall. What follows is laughably careless. He doesn\'t look up when you leave — three chats open on his phone. In the elevator mirror you look the same as ever, but you know something\'s missing. Not worth it, you think. Really not worth it.',
+    },
+    thief: {
+      zh: '拐进暗巷口他忽然凑得太近，你才反应过来手包轻了。人早没影了——手机、现金，一起没的。深夜的街上你站了一会儿，又气又想笑：这一晚从头到尾，就是一个局。',
+      en: 'At the mouth of the dark alley he leans in too close — and only then do you feel your bag go light. He\'s long gone, phone and cash with him. You stand in the late-night street, furious and almost laughing: the whole evening was a setup, start to finish.',
+    },
+  };
+  if (npcKey === 'thief') { G._phoneStolen = { day: G.day }; try { updatePhoneBadge(); } catch(e){} }
+  vnSpeak(null); document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = (prose[npcKey] || prose.sleaze)[isZh ? 'zh' : 'en'];
+  var vopts = document.getElementById('vn-opts'); vopts.innerHTML = '';
+  var b = document.createElement('button'); b.className = 'vn-next'; b.textContent = isZh ? '回家' : 'Head home';
+  b.onclick = function(){ _curSceneEv = null; _curSceneOriginDay = null; showNightTransition(); G.phase = 'evening'; addStress(0); setTimeout(function(){ if (REALTIME) { endNightTransition(''); goEvening(); } else { G.day++; startDay(); } }, 400); };
+  vopts.appendChild(b);
+  try { STATE.save.saveGame(); } catch(e){}
 }
 
 // ── 自由选择日的活动（非剧情固定天）──
@@ -4219,6 +4438,8 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   } else {
     // 二线相遇：在咖啡馆/便利店且时段满足时，先给"搭话"入口（自由日才给，顺路剧情日不打断）
     if (!thenScripted) appendSecondaryEncounterBtn(key);
+    // 三线（反面）相遇：夜店油腻男/商场渣男/深夜小偷，低概率出现
+    if (!thenScripted) { try { appendTier3EncounterBtn(key); } catch(e){} }
     const btn = document.createElement('button');
     btn.className = 'vn-next';
     btn.textContent = contLabel;
@@ -4687,7 +4908,7 @@ function runMeetupScene(npcKey, locKey, title) {
   // REALTIME 按真实时钟判晚间（G.phase 白天恒为 morning，旧判法在实时版永远不触发过夜）
   // 凌晨0-4点也算"晚间"（修：好感100+已过夜，0:11发"更进一步"三轮后直接结束没触发——过了午夜被当成白天）
   const _meetIsEvening = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
-  if (_meetIsEvening && (G.npcs[npcKey].relationship || 0) >= 75) {
+  if (_meetIsEvening && (G.npcs[npcKey].relationship || 0) >= 75 && npcTier(npcKey) < 3) {
     _afterDialogHook = () => maybeStayOver(npcKey, locKey);
   }
   startBtn.onclick = () => { _vnEndLoc = locKey; runVNDialog(rounds, npcKey, G.day, 0); };
@@ -5090,10 +5311,12 @@ function advanceAfterScene(sc) {
 // 每日增长上限见 REL_DAILY_CAP（默认8）；经纪人单独放慢日增速(REL_DAILY_CAP_NPC.agent=5)把他拉到2周。都是可调数值。
 // 二线（咖啡师/便利店员，初始好感5）：比一线【更容易】推倒——一线都是工作关系、有职业底线，
 // 二线是生活里认识的、没那层顾虑（用户定稿）。门槛设得比一线最低(rival26)还低，走轻松随性路线。
-const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 20, clerk: 20 };
+// 三线（反面）门槛极低（"很好推倒"是设计的一部分）——但走的是 tier3Night 负反馈流程，不是浪漫过夜
+const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 20, clerk: 20, sleaze: 12, fboy: 10, thief: 12 };
 // 表白解锁线 = 过夜线的75%（用户定稿）：表白永远先于性行为解锁，是独立的中间里程碑
 function confessMin(npcKey) { return Math.ceil((STAYOVER_MIN[npcKey] || 60) * 0.75); }
 function evalIntimacyTone(npcKey, day) {
+  if (npcTier(npcKey) >= 3) { _vnLastTone = null; return; } // 三线走 tier3SceneEnd 的明确选择，绝不进浪漫亲密流程
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   var rel = G.npcs[npcKey].relationship || 0;
   var min = STAYOVER_MIN[npcKey] || 60;
@@ -5137,7 +5360,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.38：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.39：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5217,6 +5440,15 @@ function renderToneHints(container, inp, npcKey) {
   hintBtn.onclick = function(){ toneRow.style.display = toneRow.style.display==='none' ? 'flex' : 'none'; };
   container.appendChild(hintBtn);
   container.appendChild(toneRow);
+  // 三线（反面）NPC：每一轮都常驻"怼回去"按钮——任何时候一键终止，爽感+零惩罚（用户定稿的安全阀）
+  if (_toneNpc && npcTier(_toneNpc) >= 3) {
+    var cbBtn = document.createElement('button');
+    cbBtn.className = 'vn-next';
+    cbBtn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose);margin-top:6px';
+    cbBtn.textContent = isZhOpt ? '😤 怼回去，转身走人' : '😤 Shut him down and walk away';
+    cbBtn.onclick = function(){ tier3Clapback(_toneNpc); };
+    container.appendChild(cbBtn);
+  }
 }
 
 async function runVNDialog(dialogRounds, npcKey, day, round) {
@@ -5674,6 +5906,22 @@ const DATE_INTENTS = {
     low:  { want:"keep her talking a little longer in the empty 3am store", sub:"the night makes him honest; he likes that she doesn't perform for him" },
     mid:  { want:"be the one place she doesn't have to hold it together", sub:"he treats the lonely ones gently — but with her it stopped being detached observation a while ago" },
     high: { want:"admit the late shift got better the nights she comes in", sub:"he's used to watching from behind the counter; wanting to be seen back is new and it shows" },
+  },
+  // 三线：目的赤裸、潜台词自私——他们的每句话都该让玩家闻到"这人不对劲"
+  sleaze: {
+    low:  { want:"corner her attention with drinks and name-drops before she can politely escape", sub:"he sized her up as young, new in town, and impressable — everything he offers has a hook in it" },
+    mid:  { want:"parlay her tolerance into somewhere more private on the promise of 'connections'", sub:"the industry talk is bait; the entitlement underneath is the whole man" },
+    high: { want:"close the deal tonight while she's still amused by him", sub:"he cannot believe his luck and is trying not to spook it" },
+  },
+  fboy: {
+    low:  { want:"run the routine — neg, love-bomb, number, next", sub:"she is a checkbox; he is already drafting the story he'll tell about her" },
+    mid:  { want:"fast-track her to 'his place nearby' before the mask needs maintenance", sub:"depth is expensive; he has three other chats open" },
+    high: { want:"cash in the charm before she looks too closely", sub:"even now, half his attention is on his phone" },
+  },
+  thief: {
+    low:  { want:"keep her talking and off-balance while he maps her pockets and bag", sub:"the friendliness is choreography; every question buys his hands another second" },
+    mid:  { want:"steer the night somewhere dark and unwatched", sub:"she is a mark warming up nicely; he almost feels bad about it" },
+    high: { want:"get what he came for and evaporate", sub:"he has one exit picked out already" },
   },
 };
 function sceneIntent(npcKey, rel) {
@@ -6476,7 +6724,7 @@ async function generateAffinityMessages(day) {
 
   // Get met NPCs sorted by relationship
   const metNPCs = Object.entries(G.npcs)
-    .filter(([k, n]) => n.met && k !== 'detective') // detective is mystery
+    .filter(([k, n]) => n.met && k !== 'detective' && npcTier(k) < 3) // detective is mystery; 三线不进晚间消息
     .sort(([,a],[,b]) => b.relationship - a.relationship);
 
   for (const [npcKey, npc] of metNPCs) {
@@ -6639,6 +6887,7 @@ async function generatePhoneContent() {
   // 不是每个NPC每天都发消息：按好感度分层决定（高=大概率，中=偶尔，低=很少）
   const senders = Object.keys(G.npcs).filter(k => {
     if (!G.npcs[k].met || k === 'detective') return false;
+    if (npcTier(k) >= 3) return false; // 三线不进早晨批次
     if (npcIsCold(k)) return false; // 冷战中不主动发消息（Batch2）
     // 昨晚过夜的NPC今早只发"晨后消息"那一条，不再进常规早晨批次（避免两条消息位置逻辑互相矛盾）
     if (G._morningAfterMark && G._morningAfterMark.day === G.day && G._morningAfterMark.npc === k) return false;
@@ -6744,6 +6993,12 @@ function showWCTab(tab) {
   document.getElementById('wct-'+tab)?.classList.add('active');
   const content = document.getElementById('wc-content');
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  // 手机被偷（三线小偷的实际损失）：当天整机不可用，明天新机自动恢复
+  if (G._phoneStolen && G._phoneStolen.day === G.day) {
+    content.innerHTML = '<div style="padding:70px 26px;text-align:center;color:var(--text-mid);font-size:14px;line-height:2">📵<br>' +
+      (isZh ? '手机被偷了。<br>新机明天才能到——今天谁也联系不上你。' : 'Your phone was stolen.<br>The replacement arrives tomorrow — no one can reach you today.') + '</div>';
+    return;
+  }
   if (tab === 'chats') {
     const allMsgs = {};
     try { Object.values(G.phone.messages||{}).flat().filter(Boolean).forEach(m => { if(m&&m.npc) allMsgs[m.npc] = m; }); } catch(e){}
@@ -7183,6 +7438,11 @@ function renderChatMsgs(npc, dividerIdx) {
 }
 
 function openWCChat(npc) {
+  // 手机被偷当天：聊天入口也堵上（日历"发消息说明"等旁路入口）
+  if (G._phoneStolen && G._phoneStolen.day === G.day) {
+    alert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '手机被偷了——今天联系不上任何人，新机明天到。' : 'Your phone was stolen — you can\'t reach anyone today. Replacement arrives tomorrow.');
+    return;
+  }
   // 先记下第一条未读的位置（用于"以下是新消息"分隔线），再标记已读
   var thread = Object.values(G.phone.messages||{}).flat().filter(m => m && m.npc === npc);
   var firstUnread = thread.findIndex(m => !m.read && !m.mine);
@@ -7742,7 +8002,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.38）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.39）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -7788,7 +8048,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.38 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.39 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -7805,7 +8065,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.38 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.39 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

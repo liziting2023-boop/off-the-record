@@ -148,6 +148,20 @@ const STATE = {
         origin: null, name: null, portraitUrl: null, portraitSeed: null,
         relationship: 5, met: false, memory: [], currentMood: 'mellow', tier: 2,
       },
+      // ── 三线（反面）NPC：不选形象、图故意不帅、一上来言语挑逗/性骚扰（写得令人反感而非诱人）。
+      //    玩家永远可一键怼回（无惩罚+爽感）；主动接近=清醒的坏选择 → 负反馈四件套（见 index.html tier3）──
+      sleaze: { // 夜店里自称"业内人士"的中年油腻男
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 0, met: false, memory: [], currentMood: 'leering', tier: 3,
+      },
+      fboy: { // 商场/市集里的搭讪惯犯渣男
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 0, met: false, memory: [], currentMood: 'smug', tier: 3,
+      },
+      thief: { // 深夜街头借搭讪靠近的小偷
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 0, met: false, memory: [], currentMood: 'shifty', tier: 3,
+      },
     },
 
     // 剧情事件追踪（哪些关键事件已发生）
@@ -419,6 +433,19 @@ const STATE = {
       clerk: {
         origin: 'British',
         line: 'Attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple convenience-store staff shirt, leaning on the counter of a brightly lit 24-hour store late at night',
+      },
+      // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
+      sleaze: {
+        origin: 'American',
+        line: 'Unattractive man in his mid-50s, realistic proportions, balding with a greasy combover, sweaty sheen on his face, heavy paunchy build straining a flashy cheap suit jacket over a half-unbuttoned shirt, gold chain, smug entitled leering grin, holding a whisky glass',
+      },
+      fboy: {
+        origin: 'American',
+        line: 'Off-putting man in his early 30s, realistic proportions, over-styled slicked hair, unnatural orange spray tan, shirt open two buttons too far, showy but disproportionate gym build with skipped leg day, smug self-satisfied smirk, sunglasses pushed up on his head indoors, checking his own reflection',
+      },
+      thief: {
+        origin: 'British',
+        line: 'Unappealing wiry man in his 40s, realistic proportions, gaunt hollow-cheeked face with patchy stubble, shifty darting eyes that never hold contact, hunched posture, worn grey hoodie and scuffed sneakers, hands in pockets, standing a little too close under a streetlight at night',
       },
     },
     buildSecondaryPrompt(G, npcKey, scene, day = 1) {

@@ -413,6 +413,51 @@ const STORY = {
       ],
     },
 
+    // ══ 三线（反面）NPC：警示/赋权向。他们的"撩"必须写得油腻讨厌、令人退半步——绝不能有真实魅力。
+    //    玩家怼回=爽点；接近他们是玩家自己的清醒坏选择，后果=懊悔而非被害。全程不露骨。 ══
+    sleaze: {
+      age: 54,
+      tier3: true,
+      profession: 'Self-styled "music industry insider" who haunts night bars buying drinks nobody asked for',
+      culture: 'Western. The bar creep every woman recognizes on sight. IMPORTANT REGISTER: his come-ons must read SLEAZY and unwelcome — entitled, boundary-pushing, transparently self-serving — never suave, never genuinely charming. If she pushes back he retreats with an oily "just being friendly".',
+      corePersonality: [
+        'Opens with unsolicited compliments about her body/looks and slides in too close, uninvited',
+        'Name-drops producers and "connections" he clearly does not have; every offer has strings visibly attached',
+        'Calls her sweetheart/honey unasked; talks over her answers',
+        'Entitled: treats buying a drink as a downpayment on her attention',
+        'Sweats, leers, checks out other women mid-sentence',
+        'Backs off with a smirk when firmly rejected — cowardly under the swagger',
+      ],
+    },
+    fboy: {
+      age: 31,
+      tier3: true,
+      profession: 'Serial pickup artist who works the malls and street markets',
+      culture: 'Western. A walking red flag with a skincare routine. IMPORTANT REGISTER: his lines are recycled, rehearsed, and slightly TOO smooth — the kind that feel copy-pasted; he negs, love-bombs, and checks his phone mid-conversation. Off-putting, never genuinely winning.',
+      corePersonality: [
+        'Opens with a rehearsed line he has clearly used on three women today, plus a backhanded compliment (neg)',
+        'Love-bombs instantly — "you\'re different from other girls" within two minutes',
+        'Glances at his phone and his own reflection while she is talking',
+        'Escalates too fast: asks for her number / suggests "his place nearby" way too early',
+        'Any pushback and the mask slips into sulky "your loss" pettiness',
+        'Would post about her before remembering her name',
+      ],
+    },
+    thief: {
+      age: 43,
+      tier3: true,
+      profession: 'Small-time pickpocket who chats women up at night to get close to their bags',
+      culture: 'Western. Overly friendly stranger energy with wrong-feeling proximity. IMPORTANT REGISTER: his friendliness is a distraction routine — too many questions, stands too close, eyes flicking to her bag/phone; the vibe is UNSETTLING, not charming. Never violent, never threatening — he works by misdirection and disappears the moment he has what he wants.',
+      corePersonality: [
+        'Manufactures fake familiarity — "hey, don\'t I know you from somewhere?"',
+        'Stands inside her personal space and keeps closing the gap she opens',
+        'Compliments her phone, her bag, her jacket — inventory, not flattery',
+        'Distraction patter: sudden questions, pointing at things, a dropped coin',
+        'If she engages, he angles the night toward somewhere dark and cash-adjacent',
+        'Vanishes fast; polite panic when firmly called out',
+      ],
+    },
+
     agent: {
       age: 32,
       profession: 'Talent agent',
