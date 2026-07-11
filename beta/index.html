@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.39"></script>
-<script src="state.js?v=11.39"></script>
+<script src="story.js?v=11.40"></script>
+<script src="state.js?v=11.40"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.39 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.40 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.39 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.40 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1181,7 +1181,7 @@ function absenceReaction(gap) {
     } catch(e){} })();
   }
   // 其余已识、好感≥40的NPC里挑1-2个按性格"想你了"
-  var others = Object.keys(G.npcs).filter(function(k){ return k!=='agent' && k!=='detective' && G.npcs[k].met && (G.npcs[k].relationship||0) >= 40 && !npcIsCold(k); });
+  var others = Object.keys(G.npcs).filter(function(k){ return k!=='agent' && k!=='detective' && npcTier(k) < 3 && G.npcs[k].met && (G.npcs[k].relationship||0) >= 40 && !npcIsCold(k); });
   others.sort(function(a,b){ return (G.npcs[b].relationship||0)-(G.npcs[a].relationship||0); }).slice(0,2).forEach(function(k){
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
@@ -4133,7 +4133,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.39 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.40 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5331,7 +5331,7 @@ function evalIntimacyTone(npcKey, day) {
     // 好感不够就发起亲密＝有分量的冒进：按人设结算好感 + 记进他的记忆（表白不算冒进，只走对话回应）。
     // 鼓手/宿敌欣赏大胆(+2)、演员被逗乐且来了兴趣(+3)；经纪人职业边界(-3)、管家吓到(-2)、侦探退避(-3)
     var d = { drummer: 2, rival: 2, actor: 3, agent: -3, butler: -2, detective: -3 }[npcKey] || 0;
-    if (d) { STATE.relationships.change(npcKey, d); playSound(d > 0 ? 'rel-up' : 'rel-down'); }
+    if (d) { STATE.relationships.change(npcKey, d); playSound(d >= 6 ? 'rel-up' : 'rel-neutral'); } // 音效只报喜：扣分也轻ping（用户定稿）
     STATE.memory.addEvent(npcKey, 'On day ' + day + ' she invited you to take things further — way too soon for where you two stood. You turned it down in your own way, but it left a mark: bold, reckless, impossible to forget.', day);
   }
   _vnLastTone = null; // 消费掉：收尾和轮间不会重复结算
@@ -5360,7 +5360,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.39：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.40：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5685,9 +5685,8 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
 
 async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, round) {
   // 好感反馈音效（唯一播放点）：≥6=上扬三和弦(明显加分)、<0=下行低音(减分)、其余=中性轻ping
-  // （旧阈值>8配合基础分3几乎永远只有轻ping，加分档听不到——降到6让"答对了"有声音反馈）
+  // （用户定稿：只有明显加分(≥6)响上扬三和弦，扣分和普通一律轻ping——音效只报喜不报忧）
   if (relChange >= 6) playSound('rel-up');
-  else if (relChange < 0) playSound('rel-down');
   else playSound('rel-neutral');
   STATE.relationships.change(npcKey, relChange);
   const npcText = document.getElementById('vn-text').textContent;
@@ -5725,8 +5724,8 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
 }
 
 async function quickResp(npcKey, relChange, reply) {
-  if (relChange > 8) playSound('rel-up');
-  else if (relChange < 0) playSound('rel-down');
+  // 同 chooseVNOpt：只有明显加分响和弦，其余轻ping（用户定稿）
+  if (relChange >= 6) playSound('rel-up');
   else playSound('rel-neutral');
   STATE.relationships.change(npcKey, relChange);
   const npcText = document.getElementById('vn-text').textContent;
@@ -6688,7 +6687,7 @@ async function endNightTransition(txt) {
     await new Promise(r => setTimeout(r, 1100));
   }
   nt.classList.remove('show');
-  playSound('new-day');
+  // 晨钟已停用（用户定稿：不要了）。音效定义保留在 playSound 里备用
   await new Promise(r => setTimeout(r, 650));
   nt.style.display = 'none';
   _ntActive = false;
@@ -8002,7 +8001,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.39）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.40）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8048,7 +8047,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.39 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.40 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8065,7 +8064,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.39 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.40 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
