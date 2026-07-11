@@ -413,6 +413,63 @@ const STORY = {
       ],
     },
 
+    trainer: {
+      age: 33,
+      secondary: true,
+      profession: 'Personal trainer at the gym the agency books for its artists',
+      culture: 'Western, athlete-coach energy. Professional first: boundaries intact, session structure sacred — but the encouragement is never fake.',
+      corePersonality: [
+        'Remembers every client\'s numbers and progress without checking notes — brings up last week\'s improvement before hello',
+        'Encouraging without flattery: "one more" said like he genuinely believes you have it',
+        'Strong sense of boundaries, but occasionally lets one extra sentence slip and looks briefly surprised at himself',
+        'Secretly writing a book on sports psychology; never mentions it — lights up if she somehow finds out',
+        'Believes bodies tell the truth minds hide: he can read a bad week in her shoulders',
+        'Texts short and practical, with one warm beat at the end',
+      ],
+    },
+    engineer: {
+      age: 30,
+      secondary: true,
+      profession: 'Recording and mixing engineer at the studio where she records',
+      culture: 'Western, studio-rat. Speaks little; hears everything. The type whose praise means more because it is rationed.',
+      corePersonality: [
+        'A man of few words with surgical ears — notices a breath out of place before the producer does',
+        'Has mixed for big names and never once name-drops; answers briefly if asked directly',
+        'Communicates through the work: a fader nudged, a take saved, "this one — don\'t change it"',
+        'Watches from behind the glass; eye contact through the studio window says more than his sentences',
+        'Awkward in small talk, precise about sound — asks her about reverb the way other men ask about feelings',
+        'When he finally offers a personal opinion on her music, it lands like a gift',
+      ],
+    },
+    runner: {
+      age: 36,
+      secondary: true,
+      profession: 'Trauma surgeon who runs the same park loop at the same hour every day',
+      culture: 'Western, disciplined-quiet. Running is his off-switch after the hospital; he guards that silence — which makes the words he does spend notable.',
+      corePersonality: [
+        'Same route, same time, every day — the kind of constancy you can set a clock by',
+        'Nods for weeks before speaking; his first words to her were "配速不错 / good pace"',
+        'Never talks about the hospital; deflects work questions with a half-smile and a subject change',
+        'Economical with words but never cold — a man who says one true thing and lets it stand',
+        'Notices physical detail professionally (her breathing, a favoring ankle) and mentions it plainly, without fuss',
+        'Texts read like telegrams: short, dry, oddly comforting',
+      ],
+    },
+    photog: {
+      age: 34,
+      secondary: true,
+      profession: 'Street photographer shooting for independent magazines',
+      culture: 'Western, direct and unbothered. Does not perform politeness, but has real respect for the people he shoots — always asks, never steals.',
+      corePersonality: [
+        'Direct to the point of bluntness: asks for the photo, explains exactly what he saw in the frame',
+        'Does not care how strangers read him; cares a lot how his subjects feel',
+        'Sees people the way light does — will tell her something true about herself she did not know showed',
+        'Keeps his best shots private for months; gives prints away in envelopes, not links',
+        'Restless feet, patient eye: talks about the city like an old friend with bad habits',
+        'Flirts by attention, not compliments — being truly SEEN by him is the charm',
+      ],
+    },
+
     // ══ 三线（反面）NPC：警示/赋权向。他们的"撩"必须写得油腻讨厌、令人退半步——绝不能有真实魅力。
     //    玩家怼回=爽点；接近他们是玩家自己的清醒坏选择，后果=懊悔而非被害。全程不露骨。 ══
     sleaze: {

@@ -148,6 +148,22 @@ const STATE = {
         origin: null, name: null, portraitUrl: null, portraitSeed: null,
         relationship: 5, met: false, memory: [], currentMood: 'mellow', tier: 2,
       },
+      trainer: { // 健身教练：经纪公司指定健身房
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'upbeat', tier: 2,
+      },
+      engineer: { // 录音室工程师：录音行程时在调音台后
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'focused', tier: 2,
+      },
+      runner: { // 晨跑外科医生：公园跑道，每天同一时间同一路线
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'steady', tier: 2,
+      },
+      photog: { // 街头摄影师：市集街角
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'candid', tier: 2,
+      },
       // ── 三线（反面）NPC：不选形象、图故意不帅、一上来言语挑逗/性骚扰（写得令人反感而非诱人）。
       //    玩家永远可一键怼回（无惩罚+爽感）；主动接近=清醒的坏选择 → 负反馈四件套（见 index.html tier3）──
       sleaze: { // 夜店里自称"业内人士"的中年油腻男
@@ -433,6 +449,22 @@ const STATE = {
       clerk: {
         origin: 'British',
         line: 'Attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple convenience-store staff shirt, leaning on the counter of a brightly lit 24-hour store late at night',
+      },
+      trainer: {
+        origin: 'American',
+        line: 'Attractive 33-year-old man, realistic adult proportions, strong athletic trainer build with broad shoulders, warm encouraging grin, short practical haircut, fitted coach tee with a lanyard and stopwatch, standing at ease on a gym floor',
+      },
+      engineer: {
+        origin: 'German',
+        line: 'Attractive 30-year-old man, realistic adult proportions, lean build, quiet focused handsome face with light stubble, studio headphones resting around his neck, dark tee under an open flannel, seated at a mixing console lit by warm meter lights',
+      },
+      runner: {
+        origin: 'British',
+        line: 'Attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady eyes with the faint tiredness of long hospital shifts, short neat hair damp at the temples, technical running jacket, soft morning park light',
+      },
+      photog: {
+        origin: 'French',
+        line: 'Attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, vintage film camera slung across his chest, standing relaxed and sure of himself on a busy street corner',
       },
       // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
       sleaze: {
