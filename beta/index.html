@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.49"></script>
-<script src="state.js?v=11.49"></script>
+<script src="story.js?v=11.50"></script>
+<script src="state.js?v=11.50"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.49 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.50 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1085,7 +1085,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.49 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.50 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3908,9 +3908,11 @@ function buildDayOpts() {
   //   常规杂活 mandate 本就不经这条，无需在此按周末过滤。）
   // 选项区上方的提示语 + 自由活动余量（用户实测：不显示的话选项凭空消失，玩家不知道是打烊还是次数用完）
   var _actsLeft = Math.max(0, 3 - freeActsToday());
+  var _isNightW = isNightActWindow();
+  var _slotWord = isZh ? (_isNightW ? '夜间' : '白天') : lang==='ja' ? (_isNightW ? '夜' : '昼') : lang==='ko' ? (_isNightW ? '밤' : '낮') : (_isNightW ? 'tonight' : 'today');
   document.getElementById('d-opts-head').textContent =
     (isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?') +
-    (isZh ? '（自由活动还剩 ' + _actsLeft + ' 次）' : lang==='ja' ? '（自由行動あと' + _actsLeft + '回）' : lang==='ko' ? '（자유 활동 ' + _actsLeft + '회 남음）' : ' (' + _actsLeft + ' free activities left)');
+    (isZh ? '（' + _slotWord + '自由活动还剩 ' + _actsLeft + ' 次）' : lang==='ja' ? '（' + _slotWord + 'の自由行動あと' + _actsLeft + '回）' : lang==='ko' ? '（' + _slotWord + ' 자유 활동 ' + _actsLeft + '회 남음）' : ' (' + _actsLeft + ' free activities left ' + _slotWord + ')');
   const phoneLabel = isZh?'查看手机':lang==='ja'?'スマホを確認':lang==='ko'?'휴대폰 확인':'Check phone';
   const phoneSub = isZh?'消息 · 朋友圈 · 行业资讯':'Messages · Moments · Industry';
   const makeOpt = (label, sub, cls, onclick) => {
@@ -4004,9 +4006,13 @@ function buildDayOpts() {
     const leisureOpt = (i) => { const p = lPicks[i % Math.max(1, lPicks.length)]; return p ? makeOpt(p.label, lSub, '', () => playFree(p.key, p.label, false, false, 'leisure')) : null; };
     // 每天自由活动限3次：满了以后不再给职业/休息选项（工作/约会/聊天照常）
     const actsUsedUp = freeActsToday() >= 3;
-    const tiredOpt = () => { const b = makeOpt(
-      isZh?'今日 3 次自由活动已用完':lang==='ja'?'今日の自由行動3回を使い切った':lang==='ko'?'오늘 자유 활동 3회를 다 썼어':'All 3 free activities used today',
-      isZh?'明天恢复 · 工作/约会/聊天不受限':lang==='ja'?'明日回復 · 仕事/デート/チャットは無制限':lang==='ko'?'내일 회복 · 일/데이트/채팅은 무제한':'Resets tomorrow · work/dates/chat unlimited',
+    const tiredOpt = () => {
+      const _nw = isNightActWindow();
+      const b = makeOpt(
+      _nw ? (isZh?'今晚 3 次自由活动已用完':lang==='ja'?'今夜の自由行動3回を使い切った':lang==='ko'?'오늘 밤 자유 활동 3회를 다 썼어':'All 3 free activities used tonight')
+          : (isZh?'白天 3 次自由活动已用完':lang==='ja'?'昼の自由行動3回を使い切った':lang==='ko'?'낮 자유 활동 3회를 다 썼어':'All 3 daytime free activities used'),
+      _nw ? (isZh?'明天恢复 · 工作/约会/聊天不受限':lang==='ja'?'明日回復 · 仕事/デート/チャットは無制限':lang==='ko'?'내일 회복 · 일/데이트/채팅은 무제한':'Resets tomorrow · work/dates/chat unlimited')
+          : (isZh?'晚上7点后另有3次 · 工作/约会/聊天不受限':lang==='ja'?'19時以降さらに3回 · 仕事/デート/チャットは無制限':lang==='ko'?'저녁 7시 이후 3회 추가 · 일/데이트/채팅은 무제한':'3 more after 7pm · work/dates/chat unlimited'),
       'locked', null); b.disabled = true; return b; };
     const slots = [];
     // ① 日历工作（含必须行程 + npc_message 类活动）
@@ -4167,9 +4173,17 @@ const PLACE_HOURS = {
   cafe:[7,22], realty:[9,18], art_gallery:[10,18], record_store:[11,21],
   // supermarket 不在表里 = 24小时便利店：深夜也能去（孤独的深夜总得有地方买点吃的）
 };
-// 每天自由活动（休息/职业投资/顺路逛）限 3 次——无限逛会把节奏和API成本都打乱；
-// 工作行程/约会/聊天不占次数（陪伴是主食，不限）
-function freeActsToday() { return (G.actDone && G.actDone.day === G.day) ? (G.actDone.n || 0) : 0; }
+// 自由活动限额（用户定稿 3+3）：白天3次 + 晚上19:00起另有3次，分开计数——
+// 晚上才上线的玩家不再吃白天用剩的份额。工作行程/约会/聊天不占次数（陪伴是主食，不限）。
+function isNightActWindow() { return REALTIME ? (rtClockMin() >= 19 * 60 || rtClockMin() < 5 * 60) : (G.phase === 'evening'); }
+function freeActsToday() {
+  var rec = isNightActWindow() ? G.actNight : G.actDone;
+  return (rec && rec.day === G.day) ? (rec.n || 0) : 0;
+}
+function bumpFreeAct() {
+  if (isNightActWindow()) G.actNight = { day: G.day, n: freeActsToday() + 1 };
+  else G.actDone = { day: G.day, n: freeActsToday() + 1 };
+}
 
 // 当前真实时段词（喂给旁白/文案，修"早上9点去书店却写'消磨了一个下午'"）
 function todWord() {
@@ -4299,7 +4313,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.49 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.50 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -4561,7 +4575,7 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   // 打烊检查放在一切状态变更之前：不进场景、不扣行程、不标翘班、不生图
   var _closed = placeClosedMsg(key, label);
   if (_closed) { alert(_closed); return; }
-  G.actDone = { day: G.day, n: freeActsToday() + 1 }; // 计入今日自由活动次数（每天限3次）
+  bumpFreeAct(); // 计入当前时段（白天/夜间各3次）的自由活动次数
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -5562,7 +5576,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.49：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.50：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -8307,7 +8321,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.49）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.50）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8357,7 +8371,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.49 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.50 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8375,7 +8389,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.49 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.50 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
