@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.48"></script>
-<script src="state.js?v=11.48"></script>
+<script src="story.js?v=11.49"></script>
+<script src="state.js?v=11.49"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.48 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.49 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1085,7 +1085,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.48 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.49 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3383,7 +3383,8 @@ function showSigningAuto(round) {
   const btn = document.createElement('button'); btn.className = 'vn-next'; btn.textContent = contLabel;
   // Mark agent as met after signing
   G.npcs.agent.met = true;
-  btn.onclick = () => { playChapterSound(); setTimeout(() => go('s-ch1'), 300); };
+  // 签约后直接进序章（用户实测定稿：不先弹"第一章/第1天"页——那页挪到序章播完、真正进入第1天时）
+  btn.onclick = () => startPrologue();
   opts.innerHTML = ''; opts.appendChild(btn);
 }
 
@@ -4281,7 +4282,7 @@ function appendSecondaryEncounterBtn(key) {
   var btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose)';
-  btn.innerHTML = '<span>'+label+'</span><span class="opt-sub" style="display:block;font-size:11px;opacity:.7">'+(isZh?'和他聊两句 · 不占行程':'Say hi · free')+'</span>';
+  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">'+label+'</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">'+(isZh?'和他聊两句 · 不占行程':'Say hi · free')+'</span>'; // 字号加大（用户实测太小）
   btn.onclick = function(){ startSecondaryMeet(s.npc, s.loc, firstTime); };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -4298,7 +4299,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.48 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.49 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -4411,7 +4412,7 @@ function appendTier3EncounterBtn(key) {
   var btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.style.cssText = 'border:1.5px dashed rgba(138,128,120,0.55);color:var(--text-mid)';
-  btn.innerHTML = '<span>' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:11px;opacity:.7">' + (isZh?'理他，或者当场怼回去':'Engage — or shut him down on the spot') + '</span>';
+  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">' + (isZh?'理他，或者当场怼回去':'Engage — or shut him down on the spot') + '</span>';
   btn.onclick = function(){ startTier3Meet(s.npc, key, !npc.met); };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -5490,6 +5491,14 @@ function advanceAfterScene(sc) {
       var _wDone = (G.calendar.events[getCalDateStr(_curSceneOriginDay)] || []).find(function(e){ return e && e.id === 'work_' + _curSceneOriginDay; });
       if (_wDone && _wDone.status === 'accepted') { _wDone.status = 'completed'; STATE.save.saveGame(); }
     } catch (e) {}
+    // 序章链播完 → 这时才展示"第一章 · 起点"页（用户定稿：签约后直接进序章，章节页挪到序章结束）
+    if (_curSceneOriginDay === 1 && !G._ch1Shown) {
+      G._ch1Shown = true;
+      try { STATE.save.saveGame(); } catch (e) {}
+      playChapterSound();
+      go('s-ch1'); // 按钮=startPrologue：scriptedDone[1]已标，会直接落到 startDay 进入第1天
+      return;
+    }
     goEvening();
   }
 }
@@ -5553,7 +5562,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.48：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.49：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5647,7 +5656,12 @@ function renderToneHints(container, inp, npcKey) {
     inp.oninput && inp.oninput.call(inp);
   };
   toneRow.appendChild(actChip);
-  hintBtn.onclick = function(){ toneRow.style.display = toneRow.style.display==='none' ? 'flex' : 'none'; };
+  hintBtn.onclick = function(){
+    var show = toneRow.style.display === 'none';
+    toneRow.style.display = show ? 'flex' : 'none';
+    // 长台词把提示挤到屏幕外（用户实测"点了没反应"其实是展开在下面）：展开时滚到可见
+    if (show) { try { toneRow.scrollIntoView({ block: 'nearest' }); } catch(e) {} }
+  };
   container.appendChild(hintBtn);
   container.appendChild(toneRow);
   // 三线（反面）NPC：每一轮都常驻"怼回去"按钮——任何时候一键终止，爽感+零惩罚（用户定稿的安全阀）
@@ -7141,6 +7155,8 @@ function upcomingDatesRef(fromDay, n) {
 
 async function generatePhoneContent() {
   const isZhPhone = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // 序章还没走完不发早晨消息（用户实测：见经纪人半场手机角标+2，经纪人人在对面还发短信穿帮）
+  if (G.day === 1 && !(G.scriptedDone && G.scriptedDone[1])) return;
   // 今天的NPC消息已经生成过就不再重复生成（"继续游戏"恢复到同一天、或startDay重复调用时）
   if ((G.phone.messages[G.day]||[]).some(m => m && !m.mine)) { updatePhoneBadge(); return; }
   const msgs = [];
@@ -7155,6 +7171,7 @@ async function generatePhoneContent() {
   const senders = Object.keys(G.npcs).filter(k => {
     if (!G.npcs[k].met || k === 'detective') return false;
     if (npcTier(k) >= 3) return false; // 三线不进早晨批次
+    if (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc === k) return false; // 人在对面场景里，不发短信
     if (npcIsCold(k)) return false; // 冷战中不主动发消息（Batch2）
     // 昨晚过夜的NPC今早只发"晨后消息"那一条，不再进常规早晨批次（避免两条消息位置逻辑互相矛盾）
     if (G._morningAfterMark && G._morningAfterMark.day === G.day && G._morningAfterMark.npc === k) return false;
@@ -7886,6 +7903,18 @@ async function sendChatReply() {
     catch (e) { reply = (raw||'').trim(); }
     // 露骨词闸（上架合规）：被诱导越界的回复换成含蓄搪塞，顺带丢弃同条里的约见字段
     if (reply && !heatOK(reply)) { reply = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '这个话题……见了面再说。' : "That's… a conversation for in person."; meetInfo = null; futureInv = null; }
+    // AI失败（额度满/网络）以前是无声的——玩家以为NPC下线了（用户23:05实测）。改成聊天内可见提示
+    if (!reply || !reply.trim()) {
+      var _tf = document.getElementById('chat-typing'); if (_tf) _tf.remove();
+      if (_openChatNpc === npc) {
+        var failEl = document.createElement('div');
+        failEl.style.cssText = 'text-align:center;font-size:11px;color:var(--text-mid);padding:6px 12px;';
+        failEl.textContent = aiFailMsg();
+        document.getElementById('chat-msgs').appendChild(failEl);
+        try { document.getElementById('chat-msgs').scrollTop = 1e6; } catch(e){}
+      }
+      return;
+    }
     if (reply && wantsCall) {
       // NPC决定打电话：弹来电界面，不走文字气泡
       var t1c = document.getElementById('chat-typing'); if (t1c) t1c.remove();
@@ -8278,7 +8307,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.48）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.49）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8328,7 +8357,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.48 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.49 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8346,7 +8375,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.48 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.49 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

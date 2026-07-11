@@ -443,42 +443,44 @@ const STATE = {
     // ── 二线 NPC 生图（tier 2：咖啡师 / 便利店员）──
     // 二线不给玩家选形象，用固定默认族裔 + 角色化外形。写实成人、耐看但不做主NPC那种极致偶像感。
     secondaryLooks: {
+      // ⚠️ 外形行只写【人】：衣着/体格/表情可以，不写场地环境（"柜台后/店里/健身房"会把背景带进
+      // 纯净底立绘——用户实测三选一头像出现了店铺背景）。场景环境由调用方的 scene 参数负责。
       coffee: {
         origin: 'American',
-        line: 'Attractive 29-year-old man, realistic adult proportions, lean and easy build, warm approachable good looks with a low-key indie charm, light stubble, calm friendly eyes, tousled natural hair, wearing a plain tee under a canvas barista apron, sleeves pushed up, relaxed unhurried presence behind a small café counter',
+        line: 'Attractive 29-year-old man, realistic adult proportions, lean and easy build, warm approachable good looks with a low-key indie charm, light stubble, calm friendly eyes, tousled natural hair, wearing a plain tee under a canvas barista apron, sleeves pushed up, relaxed unhurried presence',
       },
       clerk: {
         origin: 'British',
-        line: 'Attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple convenience-store staff shirt, leaning on the counter of a brightly lit 24-hour store late at night',
+        line: 'Attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple staff polo shirt',
       },
       trainer: {
         origin: 'American',
-        line: 'Attractive 33-year-old man, realistic adult proportions, strong athletic trainer build with broad shoulders, warm encouraging grin, short practical haircut, fitted coach tee with a lanyard and stopwatch, standing at ease on a gym floor',
+        line: 'Attractive 33-year-old man, realistic adult proportions, strong athletic trainer build with broad shoulders, warm encouraging grin, short practical haircut, fitted coach tee with a lanyard and stopwatch',
       },
       engineer: {
         origin: 'German',
-        line: 'Attractive 30-year-old man, realistic adult proportions, lean build, quiet focused handsome face with light stubble, studio headphones resting around his neck, dark tee under an open flannel, seated at a mixing console lit by warm meter lights',
+        line: 'Attractive 30-year-old man, realistic adult proportions, lean build, quiet focused handsome face with light stubble, studio headphones resting around his neck, dark tee under an open flannel',
       },
       runner: {
         origin: 'British',
-        line: 'Attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady eyes with the faint tiredness of long hospital shifts, short neat hair damp at the temples, technical running jacket, soft morning park light',
+        line: 'Attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady eyes with the faint tiredness of long hospital shifts, short neat hair damp at the temples, technical running jacket',
       },
       photog: {
         origin: 'French',
-        line: 'Attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, vintage film camera slung across his chest, standing relaxed and sure of himself on a busy street corner',
+        line: 'Attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, vintage film camera slung across his chest, relaxed sure-of-himself posture',
       },
       // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
       sleaze: {
         origin: 'American',
-        line: 'Unattractive man in his mid-50s, realistic proportions, balding with a greasy combover, sweaty sheen on his face, heavy paunchy build straining a flashy cheap suit jacket over a half-unbuttoned shirt, gold chain, smug entitled leering grin, holding a whisky glass',
+        line: 'Unattractive man in his mid-50s, realistic proportions, balding with a greasy combover, sweaty sheen on his face, heavy paunchy build straining a flashy cheap suit jacket over a half-unbuttoned shirt, gold chain, smug entitled leering grin',
       },
       fboy: {
         origin: 'American',
-        line: 'Off-putting man in his early 30s, realistic proportions, over-styled slicked hair, unnatural orange spray tan, shirt open two buttons too far, showy but disproportionate gym build with skipped leg day, smug self-satisfied smirk, sunglasses pushed up on his head indoors, checking his own reflection',
+        line: 'Off-putting man in his early 30s, realistic proportions, over-styled slicked hair, unnatural orange spray tan, shirt open two buttons too far, showy but disproportionate gym build with skipped leg day, smug self-satisfied smirk, sunglasses pushed up on his head',
       },
       thief: {
         origin: 'British',
-        line: 'Unappealing wiry man in his 40s, realistic proportions, gaunt hollow-cheeked face with patchy stubble, shifty darting eyes that never hold contact, hunched posture, worn grey hoodie and scuffed sneakers, hands in pockets, standing a little too close under a streetlight at night',
+        line: 'Unappealing wiry man in his 40s, realistic proportions, gaunt hollow-cheeked face with patchy stubble, shifty darting eyes that never hold contact, hunched posture, worn grey hoodie and scuffed sneakers, hands in pockets',
       },
     },
     buildSecondaryPrompt(G, npcKey, scene, day = 1) {

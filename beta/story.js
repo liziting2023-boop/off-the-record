@@ -875,8 +875,19 @@ const STORY = {
           relChanges: [5, 3, 8],
         },
         {
-          // Round 2: 公布首月工作计划 + 乐队 + 今天下午就见鼓手（严禁说鼓手的名字，玩家还没见过他）
-          npcContext: 'Now the work directive, delivered like a gift you are proud of. First: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. Second, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Then send her straight to him: THIS AFTERNOON, right after she leaves your office, the recording studio — she is meeting him today, not tomorrow. Be firm and clear it is this afternoon, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it.',
+          // Round 2a: 只讲首月日历（用户定稿：原来日历+乐队一口气说完太长，提示被挤出屏幕——拆成两页）
+          npcContext: 'Now the work directive, PART ONE only — her first month, delivered like a gift you are proud of: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. STOP THERE — do NOT mention the band or the drummer yet, that comes next. Keep it SHORT: 2-3 sentences maximum.',
+          playerOptions: {
+            'zh-cn': ['日程我今晚就看。', '听起来很满……我可以的。', '临时加班会很多吗？'],
+            'en': ['I will check the calendar tonight.', 'That sounds packed... I can handle it.', 'Will there be a lot of last-minute work?'],
+            'ja': ['スケジュールは今夜見ます。', '忙しそう……でも大丈夫です。', '急な仕事は多いですか？'],
+            'ko': ['일정은 오늘 밤에 볼게요.', '빡빡하네요……할 수 있어요.', '갑작스러운 일이 많을까요?'],
+          },
+          relChanges: [5, 5, 8],
+        },
+        {
+          // Round 2b: 乐队 + 今天下午就见鼓手（严禁说鼓手的名字，玩家还没见过他）
+          npcContext: 'PART TWO, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Then send her straight to him: THIS AFTERNOON, right after she leaves your office, the recording studio — she is meeting him today, not tomorrow. Be firm and clear it is this afternoon, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it. Keep it SHORT: 2-3 sentences maximum.',
           playerOptions: {
             'zh-cn': ['我下午就过去。', '他好相处吗？', '你为什么要为我组乐队？'],
             'en': ['I will head over this afternoon.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
