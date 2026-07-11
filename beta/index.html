@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.41"></script>
-<script src="state.js?v=11.41"></script>
+<script src="story.js?v=11.42"></script>
+<script src="state.js?v=11.42"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.41 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.42 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.41 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.42 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1523,6 +1523,59 @@ const NPC_ROLES = {
 function getNPCRole(key, lang) {
   const r = NPC_ROLES[key];
   return r ? (r[lang] || r['zh-cn'] || r.en) : '';
+}
+
+// ── NPC 公开信息卡（用户定稿）：聊天窗口点名字/头像打开——帮玩家记住"他是谁、在哪认识的"。
+//    只放玩家理应知道的公开信息：职业·年龄·相遇·一句简介·好感。二线/三线的相遇地点在初见时动态记录（_metWhere/_metDay），
+//    主线NPC用下表的固定出身句兜底。──
+const NPC_BIO = {
+  agent:    { zh:'在街头发掘你、签下你的人。要求高，但比谁都信你。', en:'The man who found you busking and signed you. Demanding — and your biggest believer.', metZh:'雨夜的街头，他听完了你整场', metEn:'A rainy street at night — he stayed for your whole set' },
+  drummer:  { zh:'你乐队的主心骨。嘴硬，耳朵毒，从不说软话。', en:'The backbone of your band. Sharp tongue, sharper ears, allergic to flattery.', metZh:'签约当天下午的录音室', metEn:'The studio, the afternoon you signed' },
+  actor:    { zh:'当红演员。撩人是他的呼吸，真心藏在玩笑里。', en:'A rising actor. Flirting is how he breathes; the truth hides in his jokes.', metZh:'共用场地的杂志拍摄', metEn:'A shared magazine shoot' },
+  butler:   { zh:'来做一个月实习管家的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A university student on a one-month trainee placement managing your building. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
+  rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
+  detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
+  coffee:   { zh:'楼下咖啡馆的咖啡师。话不多，记性好——第三次来他就记住了你的单。', en:'The barista downstairs. Few words, long memory — he knew your order by the third visit.', metZh:'楼下咖啡馆', metEn:'The café downstairs' },
+  clerk:    { zh:'便利店的夜班店员，白天读研究生。凌晨的坦诚只有他那里有。', en:'The night clerk at the 24h store, grad student by day. 3am honesty lives behind his counter.', metZh:'深夜便利店', metEn:'The late-night store' },
+  trainer:  { zh:'经纪公司指定健身房的教练。不看表也记得你每一组数据。', en:'Your trainer at the agency gym. Remembers your numbers without checking.', metZh:'健身房', metEn:'The gym' },
+  engineer: { zh:'录音室的调音师。话少，但他留下的每一句都算数。', en:'The studio engineer. Speaks little; everything he says counts.', metZh:'录音室', metEn:'The recording studio' },
+  runner:   { zh:'每天同一时间出现在公园的跑者。据说是位外科医生。', en:'The runner on the park loop, same hour every day. A surgeon, apparently.', metZh:'公园跑道', metEn:'The park loop' },
+  photog:   { zh:'街头摄影师。他不夸你——他只是真的看见你。', en:'A street photographer. He doesn\'t compliment you — he just truly sees you.', metZh:'街边市集', metEn:'The street market' },
+  sleaze:   { zh:'夜店里自称"业内人士"的中年男人。离他远点。', en:'A middle-aged "industry insider" who haunts night bars. Keep your distance.', metZh:'夜间酒吧', metEn:'A night bar' },
+  fboy:     { zh:'商场里的搭讪惯犯。台词是背好的。', en:'A serial pickup artist working the mall. The lines are rehearsed.', metZh:'商场', metEn:'The mall' },
+  thief:    { zh:'深夜街头凑得太近的男人。看好你的包。', en:'The man who stands too close on late-night streets. Watch your bag.', metZh:'深夜街头', metEn:'A late-night street' },
+};
+function openNpcProfile(npcKey) {
+  if (!npcKey || !G.npcs[npcKey]) return;
+  var npc = G.npcs[npcKey];
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var bio = NPC_BIO[npcKey] || {};
+  var ch = (typeof STORY !== 'undefined' && STORY.characters && STORY.characters[npcKey]) || {};
+  var ov = document.getElementById('npc-profile');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'npc-profile';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:95;background:rgba(15,8,12,0.88);display:flex;align-items:center;justify-content:center;padding:26px;';
+    ov.onclick = function(){ ov.style.display = 'none'; };
+    document.body.appendChild(ov);
+  }
+  var met = npc._metDay
+    ? ((isZh ? '第' + npc._metDay + '天' : 'Day ' + npc._metDay) + (npc._metWhere ? ' · ' + npc._metWhere : ''))
+    : (isZh ? (bio.metZh || '—') : (bio.metEn || '—'));
+  var rel = Math.round(npc.relationship || 0);
+  var hearts = '♥'.repeat(Math.max(1, Math.min(5, Math.ceil(rel / 20))));
+  ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 18px 60px rgba(0,0,0,.45)" onclick="event.stopPropagation()">' +
+    (npc.portraitUrl
+      ? '<img src="' + npc.portraitUrl + '" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block">'
+      : '<div style="height:110px;display:flex;align-items:center;justify-content:center;font-size:50px;background:rgba(196,96,122,0.08)">' + ((NPC_UI[npcKey] || {}).emoji || '💬') + '</div>') +
+    '<div style="padding:14px 18px 18px">' +
+    '<div style="font-size:19px;font-weight:700;color:#3a2e33">' + getNPCName(npcKey) + '</div>' +
+    '<div style="font-size:13px;color:#8a8078;margin-top:2px">' + getNPCRole(npcKey, G.lang) + (ch.age ? ' · ' + ch.age + (isZh ? '岁' : '') : '') + '</div>' +
+    '<div style="font-size:12px;color:#8a8078;margin-top:10px">' + (isZh ? '相遇' : 'Met') + '：' + met + '</div>' +
+    '<div style="font-size:13px;color:#3a2e33;line-height:1.7;margin-top:8px">' + (isZh ? (bio.zh || '') : (bio.en || '')) + '</div>' +
+    '<div style="font-size:13px;color:#C4607A;margin-top:10px">' + hearts + ' ' + rel + '/100' + ((npc.nights || 0) > 0 ? ' 🌙' : '') + '</div>' +
+    '</div></div>';
+  ov.style.display = 'flex';
 }
 function getNPCName(key) {
   const npc = G.npcs[key];
@@ -4156,7 +4209,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.41 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.42 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -4179,6 +4232,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     photog:   isZh?'街角':'the street corner',
   };
   var title = _t2titles[npcKey] || (isZh?'街上':'around town');
+  if (firstTime && !npc._metWhere) { npc._metWhere = title; npc._metDay = G.day; } // 信息卡"相遇"字段
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -4289,6 +4343,7 @@ function startTier3Meet(npcKey, locKey, firstTime) {
     }).catch(function(){});
   }
   var title = getNPCRole(npcKey, lang) || (isZh?'陌生男人':'a stranger');
+  if (firstTime && !npc._metWhere) { npc._metWhere = (NPC_BIO[npcKey] && (isZh ? NPC_BIO[npcKey].metZh : NPC_BIO[npcKey].metEn)) || ''; npc._metDay = G.day; } // 信息卡"相遇"字段
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -5404,7 +5459,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.41：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.42：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -7387,6 +7442,7 @@ function renderChatMsgs(npc, dividerIdx) {
     var avUrl = m.mine ? G.player.portraitUrl : (G.npcs[npc] && G.npcs[npc].portraitUrl);
     if (avUrl) avatar.innerHTML = '<img src="' + avUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:5px">';
     else avatar.textContent = m.mine ? '🎤' : npcEmoji;
+    if (!m.mine) { avatar.style.cursor = 'pointer'; avatar.onclick = function(){ openNpcProfile(npc); }; } // 点NPC头像→信息卡
     wrap.appendChild(avatar);
     var col = document.createElement('div');
     col.className = 'wc-bubble-col';
@@ -7515,7 +7571,10 @@ function openWCChat(npc) {
   STATE.save.saveGame();
   _openChatNpc = npc;
   const npcName = getNPCName(npc);
-  document.getElementById('chat-name').textContent = npcName;
+  var _cnEl = document.getElementById('chat-name');
+  _cnEl.textContent = npcName + ' ⓘ'; // ⓘ提示可点：打开NPC信息卡（他是谁/在哪认识的）
+  _cnEl.style.cursor = 'pointer';
+  _cnEl.onclick = function(){ openNpcProfile(npc); };
   document.getElementById('chat-wc-time').textContent = getPhoneStatusClock();
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var input = document.getElementById('chat-input');
@@ -8065,7 +8124,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.41）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.42）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8112,7 +8171,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.41 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.42 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8129,7 +8188,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.41 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.42 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
