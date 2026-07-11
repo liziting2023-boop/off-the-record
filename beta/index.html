@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.37"></script>
-<script src="state.js?v=11.37"></script>
+<script src="story.js?v=11.38"></script>
+<script src="state.js?v=11.38"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.37 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.38 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.37 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.38 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1260,7 +1260,7 @@ const EARLY_TONE = {
   agent:   'You have only just started working together — professionally warm but composed and in charge, NOT personally familiar, gushing, or over-eager. Your care shows in small restrained gestures, not effusive texts.',
   drummer: 'You barely know her and she has NOT proven herself to you yet — stay blunt, cocky and a little standoffish. You do not hand out warmth for free. You NEVER whine, complain about your mood, or fish for sympathy — you are a proud musician, not a moper; if you text her it is about the music, the work, or a curt challenge.',
   actor:   'You only just met — smooth and lightly flirtatious but emotionally detached. Never earnest, eager, or clingy; you keep her at arm\'s length on purpose.',
-  butler:  'You are genuinely warm and neighbourly, but you only just met — keep it light and easy, not overfamiliar or intense.',
+  butler:  'You are the building\'s TRAINEE manager on a one-month placement and she is a resident — text like STAFF, not like a friend: polite, concise, service-oriented notices and reminders (maintenance, packages, building matters), respectful register. NO chummy openers, no nicknames, no personal chit-chat unless SHE opens that door first.',
   rival:   'You are wary rivals, not friends — cool, competitive, a little sharp.',
   detective:'Reserved and businesslike; you keep your distance.',
 };
@@ -1371,7 +1371,7 @@ function day1Intro() {
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
-        'You are the young building manager of the building she just moved into today. You have NOT met her face to face yet. Text her a warm, shy welcome tonight — mention you left something small at her door (a homemade lemon cake, a snack), and that you are around the building anytime she needs anything. Earnest and neighbourly, the way you would text a brand-new neighbour (1-2 sentences, texting style).' + earlyToneNote('butler') + ' Output only the message text.'));
+        'You are the building\'s NEW trainee manager (a university student on a one-month working placement) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new trainee building manager who will be serving the building for the next month, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome from the building was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) {
         pushNpcMsg('butler', t.trim(), 21*60);
         ensureSecondaryName('butler');
@@ -2584,7 +2584,9 @@ function addAgentMandate(d, dateStr, pool, isZh, time, timeEnd) {
 // Day1 与鼓手初见结束后调用：把"次日录音室排练"排进日历（work，与 autoAddCalendarEvents 同 id 去重）。
 // 现在 Day2 的剧情是管家（非工作），generateAgentMonthPlan 不会自动排这天的录音室，所以在这里显式补上。
 function addRehearsalNextDay(originDay) {
-  const d = (originDay || G.day) + 1;
+  // 周末不排练（用户定稿的铁律；实时锚定后 Day2 可能落在周六/周日）：顺延到下一个工作日
+  let d = (originDay || G.day) + 1;
+  while (isGameWeekend(d)) d++;
   const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   calAddEvent(getCalDateStr(d), {
     id: 'work_' + d, type: 'work', title: isZh?'录音室排练':'Recording Studio',
@@ -5068,6 +5070,12 @@ function advanceAfterScene(sc) {
       G.scriptedDone[_curSceneOriginDay] = true;
       try { STATE.save.saveGame(); } catch (e) {}
     }
+    // 剧情工作做完 → 把日历里对应的 work_N 标完成（修"见完经纪人日历还显示11日要见经纪人"，
+    // 且不修的话第二天会被跨天结算标成"错过"、被写进经纪人记忆"她翘班"）
+    try {
+      var _wDone = (G.calendar.events[getCalDateStr(_curSceneOriginDay)] || []).find(function(e){ return e && e.id === 'work_' + _curSceneOriginDay; });
+      if (_wDone && _wDone.status === 'accepted') { _wDone.status = 'completed'; STATE.save.saveGame(); }
+    } catch (e) {}
     goEvening();
   }
 }
@@ -5129,7 +5137,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.37：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.38：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5196,6 +5204,13 @@ function renderToneHints(container, inp, npcKey) {
       inp.oninput && inp.oninput.call(inp);
       [...toneRow.children].forEach(function(c){ c.style.borderColor=''; });
       chip.style.borderColor = 'var(--rose)';
+      // 填充要看得见（用户实测"点提示没反应"——半句其实填进了下方输入框但不显眼）：滚入视野+闪一圈粉边
+      try {
+        inp.scrollIntoView({ block: 'nearest' });
+        inp.style.transition = 'box-shadow .15s';
+        inp.style.boxShadow = '0 0 0 2px var(--rose)';
+        setTimeout(function(){ inp.style.boxShadow = ''; }, 650);
+      } catch(e) {}
     };
     toneRow.appendChild(chip);
   });
@@ -5394,15 +5409,11 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     // 空发送 = 无言地划过（沉默回应），不加不减好感
     if(!reply) {
       var silent = isZhOpt?'……':'...';
-      playSound('rel-neutral');
       chooseVNOpt(npcKey, 0, silent, dialogRounds, day, round);
       return;
     }
     var rc = judgeRelChange(npcKey, reply);
-    // Play preview sound before sending (judged from text)
-    if (rc > 8) playSound('rel-up');
-    else if (rc < 0) playSound('rel-down');
-    else playSound('rel-neutral');
+    // 好感音效由 chooseVNOpt 统一播（这里不再预播——之前同一声连响两遍）
     chooseVNOpt(npcKey, rc, reply, dialogRounds, day, round);
   };
   // Send on Enter (not Shift+Enter)
@@ -5441,8 +5452,9 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
 }
 
 async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, round) {
-  // Play relationship feedback sound
-  if (relChange > 8) playSound('rel-up');
+  // 好感反馈音效（唯一播放点）：≥6=上扬三和弦(明显加分)、<0=下行低音(减分)、其余=中性轻ping
+  // （旧阈值>8配合基础分3几乎永远只有轻ping，加分档听不到——降到6让"答对了"有声音反馈）
+  if (relChange >= 6) playSound('rel-up');
   else if (relChange < 0) playSound('rel-down');
   else playSound('rel-neutral');
   STATE.relationships.change(npcKey, relChange);
@@ -7730,7 +7742,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.37）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.38）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -7776,6 +7788,14 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
+    // 序章见面被误标"错过/待办"（v11.38 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    try {
+      Object.keys(G.scriptedDone || {}).forEach(function(sd) {
+        if (!/^\d+$/.test(String(sd))) return;
+        var _wf = (G.calendar.events[getCalDateStr(+sd)] || []).find(function(e){ return e && e.id === 'work_' + sd; });
+        if (_wf && (_wf.status === 'missed' || _wf.status === 'accepted')) _wf.status = 'completed';
+      });
+    } catch (e) {}
   })();
   applyLang();
   setupTitleButtons();
@@ -7785,7 +7805,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.37 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.38 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

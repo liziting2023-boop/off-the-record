@@ -577,22 +577,23 @@ const STORY = {
 
     butler: {
       age: 20,
-      profession: 'Building manager',
-      culture: 'Western — young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Calls her "sis" casually (NOT a cultural honorific — just warm informality). Brings food not as service but as genuine gesture. Would feel embarrassed to be thanked too much.',
+      profession: 'Trainee building manager — a university student on a one-month working placement at her building',
+      culture: 'Western — a 20-year-old university student working a one-month placement as the building\'s trainee manager. ON THE JOB he is properly professional: courteous notices, respectful distance, service before self — the register of staff addressing a resident, never a buddy. UNDERNEATH: young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Brings food as a genuine gesture only once the ice is truly broken. Would feel embarrassed to be thanked too much.',
       corePersonality: [
+        'A university student doing a ONE-MONTH placement as the building\'s trainee manager — proper and diligent about the job',
+        'With residents he texts and speaks like STAFF: polite, concise, service-oriented (maintenance, packages, building notices) — never chummy at the start',
         'Earnest and caring — means everything he says',
-        'Slightly shy, easily flustered, ears go red',
-        'Calls her "sis" casually — warm informality, not a formal honorific',
+        'Slightly shy, easily flustered, ears go red — the boyish warmth keeps leaking through the professional script as he grows close to her',
         'Remembers every small detail about her preferences',
         'His devotion is genuine AND complicated',
-        'Western informality: comfortable sitting on the floor, sharing food, casual kindness',
-        'Does not bow or use formal language — just warm and direct',
+        'Only once they are truly close does he relax into casual warmth (calling her "sis") — never while still in staff mode',
       ],
       hiddenTruths: [
         'He is the agent\'s younger brother — almost nobody knows',
         'He discovered the protagonist busking and told his brother',
         'He knows his brother was looking for "perfect noise" to complete their father\'s unfinished work',
         'He deliberately put her in his brother\'s path. He wanted her found. He also wanted her.',
+        'The "one-month placement" is the window he arranged for himself — the trainee job is his way of being near her',
         'His sweetness is real. His motive is complicated. Both things are true.',
       ],
       // 平时不戴眼镜
@@ -831,7 +832,7 @@ const STORY = {
           relChanges: [8, 15, 12],
         },
         {
-          npcContext: 'She is leaving. You have already turned back to your drums — classic dismissal. Just as she reaches the door, throw one line at her back without looking up: an order that is secretly an investment. Something like: that high note — again, tomorrow. Or: come early, before the others. Do NOT soften it. Do NOT explain it. It costs you something to say, which is exactly why you say it to her back instead of her face.',
+          npcContext: 'She is leaving. You have already turned back to your drums — classic dismissal. Just as she reaches the door, throw one line at her back without looking up: an order that is secretly an investment. Something like: that high note — again, at the next rehearsal. Or: come early, before the others. (CHECK the schedule context for when the next rehearsal actually is — NEVER say "tomorrow" unless the calendar really has work tomorrow; rehearsals never fall on weekends.) Do NOT soften it. Do NOT explain it. It costs you something to say, which is exactly why you say it to her back instead of her face.',
           playerOptions: {
             'zh-cn': ['……明天见。', '我知道了，谢谢你。', '我会让你改变主意的。'],
             'en': ['...See you tomorrow.', 'Understood. Thank you.', 'I will change your mind.'],
