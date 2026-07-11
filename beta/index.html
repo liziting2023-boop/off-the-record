@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.44"></script>
-<script src="state.js?v=11.44"></script>
+<script src="story.js?v=11.45"></script>
+<script src="state.js?v=11.45"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.44 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.45 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1051,13 +1051,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
       </div>
     </div>
-    <div>
-      <div class="settings-section-title" id="lbl-quality-setting">PORTRAIT QUALITY 人物图质量</div>
-      <div class="settings-style">
-        <div class="s-style-card sel" id="hq-off-card" onclick="setHQPortraits(false,this)"><span class="s-style-name">标准 Fast</span><span class="s-style-sub">flux/schnell · 快速省钱</span></div>
-        <div class="s-style-card" id="hq-on-card" onclick="setHQPortraits(true,this)"><span class="s-style-name">高质量 HQ</span><span class="s-style-sub">flux/dev · 更听话更精细（需Worker支持）</span></div>
-      </div>
-    </div>
+    <!-- 人物图质量开关已移除（用户定稿：一律 flux/dev，设置页太长）-->
     <div>
       <div class="settings-section-title" id="lbl-sound-setting">SOUND EFFECTS</div>
       <div class="settings-style">
@@ -1088,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.44 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.45 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1906,7 +1900,7 @@ async function img(prompt, label = '', save = false, retries = 2, seed = null, h
   const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
   // 人物图高质量模式：立绘走 flux/dev（提示词服从度高），背景仍走 schnell 省钱。
   // Worker 未更新时 model 字段会被忽略（仍走 schnell），安全向后兼容
-  const useDev = hq && G.hqPortraits;
+  const useDev = hq; // 人物图一律 flux/dev（用户定稿，设置开关已移除；背景/场景仍 schnell 省钱）
   if (useDev) console.log('[IMG] HQ flux/dev 28steps →', label); // 调试：确认高质量模式实际生效
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -2378,9 +2372,6 @@ function openSettings() {
   document.querySelectorAll('.s-style-card[onclick^="selStyle"]').forEach(c => {
     c.classList.toggle('sel', c.getAttribute('onclick') === "selStyle('" + G.imgStyle + "',this)");
   });
-  // 人物图质量开关选中态
-  document.getElementById('hq-off-card').classList.toggle('sel', !G.hqPortraits);
-  document.getElementById('hq-on-card').classList.toggle('sel', !!G.hqPortraits);
   // 图片生成开关选中态
   document.getElementById('img-on-card').classList.toggle('sel', !G.imgOff);
   document.getElementById('img-off-card').classList.toggle('sel', !!G.imgOff);
@@ -2404,13 +2395,7 @@ function setBirthday() {
   STATE.save.saveGame();
 }
 
-// 人物图质量：true=人物立绘用 flux/dev（Worker需支持model字段，未支持时静默回落schnell）
-function setHQPortraits(on, el) {
-  G.hqPortraits = !!on;
-  document.getElementById('hq-off-card').classList.toggle('sel', !on);
-  document.getElementById('hq-on-card').classList.toggle('sel', on);
-  STATE.save.saveGame();
-}
+// 人物图质量开关已移除（用户定稿）：人物图一律 flux/dev，见 img() 里的 useDev
 // 图片生成开关：G.imgOff=true 时 img() 直接返回 null（不请求生图，省钱，测剧情用）。已生成缓存的图不受影响。
 function setImgOff(off, el) {
   G.imgOff = !!off;
@@ -3294,7 +3279,9 @@ async function runSigningDialog(round) {
     try {
       gen = await claude(STATE.memory.buildDialoguePrompt('agent', 0, G.langName, G.player.name,
         'This is the very first meeting, on the street where she busks — moments ago you approached her, gave her your card, and said you have been listening for three nights. She just replied: "' + _signingLastReply + '". ' +
-        'FIRST respond to what she actually said, genuinely and specifically (never ignore it or talk past it). THEN, warmly and confidently (you are a warm, encouraging agent, NOT cold or aloof), make clear you do not do this for just anyone and you mean it, and tell her to call you when she is ready so you two can sit down and talk properly — no pressure, but you hope she will not wait too long. 2-4 short sentences. Spoken words in 「」 for Chinese or quotes otherwise; any action of yourself in THIRD person. Plain text only.'));
+        'FIRST respond to what she actually said, genuinely and specifically (never ignore it or talk past it). THEN, warmly and confidently (you are a warm, encouraging agent, NOT cold or aloof), make clear you do not do this for just anyone and you mean it, and tell her to call you when she is ready so you two can sit down and talk properly — no pressure, but you hope she will not wait too long. ' +
+        'ABSOLUTE REGISTER (real players flagged this scene going cold): he is warm, genuinely moved by her talent, and lets it show — eyes bright, a real smile. BANNED beats: flicking/tossing the card at her or her guitar case (he already handed it gently — do NOT re-describe giving the card); any "no warmth in his eyes"; telling her she is "wasting her time"; aloof talent-scout clichés. ' +
+        '2-4 short sentences. Spoken words in 「」 for Chinese or quotes otherwise; any action of yourself in THIRD person. Plain text only.'));
     } catch(e) {}
     text.innerHTML = (gen && gen.trim()) ? formatNPCText(gen) : dlg.getNPCLine(G.npcs.agent.name, lang).replace(/\n/g, '<br>');
   } else {
@@ -3765,7 +3752,15 @@ async function startDay() {
   autoAddCalendarEvents(G.day);
   // 经纪人排班滚动：一旦开始排班（离开办公室后），每天保证提前约 1 周有行程
   if (G.calendar && G.calendar.plannedUntil) ensureAgentSchedule(G.day + 7);
-  go('s-daily'); setABn('bn-home');
+  // 场景进行中不抢屏（修"新开局没有序章"）：startPrologue 先开 startDay 再进经纪人场景，
+  // startDay 的异步收尾若在场景开始后才跑到这里，会把玩家从序章里拽回首页——有场景就不导航
+  if (!(typeof _curSceneEv !== 'undefined' && _curSceneEv)) { go('s-daily'); setABn('bn-home'); }
+  // 序章兜底：Day1 且登场链没完成（比如设置流程中刷新、之后走"继续游戏"绕过了 s-ch1 的按钮）→ 自动进序章/续播
+  if (G.day === 1 && !(G.scriptedDone && G.scriptedDone[1])) {
+    setTimeout(function(){
+      try { if (!_curSceneEv && !(G.scriptedDone && G.scriptedDone[1])) playScripted(1); } catch(e) {}
+    }, 300);
+  }
   const days_en = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const days_zh = ['周日','周一','周二','周三','周四','周五','周六'];
   const days_ja = ['日','月','火','水','木','金','土'];
@@ -4264,7 +4259,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.44 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.45 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5514,7 +5509,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.44：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.45：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5736,7 +5731,12 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   evalIntimacyTone(npcKey, day);
   _vnLastReply = null; _vnLastTone = null;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, _replyCtx + ' ' + dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
-  let npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
+  // 动作节奏（用户定稿）：第1轮可用一个动作定场；第2/3轮宁可没动作——若有，必须延续第1轮那个动作，
+  // 不再新起无关小动作（修"NPC一边讲话一边不停做各种小动作"）
+  const _actRule = round === 0
+    ? '\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).'
+    : '\n- This is round ' + (round + 1) + ' of this scene: PREFER NO action beat — pure spoken dialogue is ideal now. Only include an action if it directly CONTINUES or completes an action already established earlier in THIS scene (e.g. setting down the coffee he poured earlier); NEVER start a new unrelated gesture or fidget. (This overrides any earlier instruction asking to include an action.)';
+  let npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.' + _actRule + '\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
   if (!npcLine || !npcLine.trim()) {
     // AI 不可用（额度满/网络）：明确告知玩家 + 给出离开出口，不再空白卡住（模拟真实玩家看到的降级）
     vnSpeak(null);
@@ -8149,7 +8149,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.44）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.45）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8196,7 +8196,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.44 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.45 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8214,7 +8214,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.44 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.45 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
