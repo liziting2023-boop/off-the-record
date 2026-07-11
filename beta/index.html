@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.46"></script>
-<script src="state.js?v=11.46"></script>
+<script src="story.js?v=11.47"></script>
+<script src="state.js?v=11.47"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.46 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.47 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.46 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.47 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2164,20 +2164,43 @@ async function genProtagonistScene(locKey, day) {
     if (!spaUrl) spaUrl = await img('serene spa facial treatment, young woman lying with eyes closed, masked aesthetician massaging her face, dim warm lighting with string lights', locKey + '-fallback', false, 1, G.player.portraitSeed, true);
     return spaUrl;
   }
-  // 普通行程用中远景抓拍感：人物在环境中自然做事、不看镜头（不再是半身近景对视）
-  const candid = ', medium-wide candid shot, she is naturally engaged in the activity of this place, NOT looking at the camera, environmental storytelling, cinematic composition';
-  // 拍摄类行程（定妆/杂志/品牌/颁奖）：舞台感妆造+编辑大片感，不再像生活照
-  const glam = (locKey === 'magazine_shoot' || locKey === 'brand_event' || locKey === 'award_ceremony')
+  // ── 女主活动图构图定稿（用户参考图：逛市集自然端详物品、健身房做动作，都是中远景抓拍）──
+  // 镜头指令放【最前】（flux前部权重高，旧版挂尾部压不住地点描述的近景倾向）+ 逐地点"她在做什么"动作表。
+  // 动作表只用于女主活动图，不进 STORY.locations（那份还要给约会的无人背景图用，不能带人物动作）。
+  const PROTAG_SCENE_ACTION = {
+    street_market:  'browsing the stalls, holding up a small handmade trinket to look at it closely',
+    farmers_market: 'picking over fresh fruit at a stand, weighing one in her hand',
+    supermarket:    'reaching for something on a shelf, basket on her arm',
+    gym:            'mid-set at a cable machine, pulling the handle down with focused form',
+    dance_studio:   'mid-movement in front of the mirror wall, caught between steps',
+    park:           'walking the tree-lined path, glancing aside at the green',
+    night_run:      'running along the riverside path, mid-stride',
+    bookshop:       'pulling a book from a high shelf, eyes on its spine',
+    cafe:           'at a small table across the room, stirring her coffee while reading something',
+    shopping_mall:  'holding a hanger up against herself in front of a boutique rack',
+    record_store:   'flipping through a crate of vinyl records, one pulled halfway out',
+    night_bar:      'at the bar with a drink, turned toward the glowing bottle shelf',
+    livehouse:      'in the standing crowd, face lit by the stage lights, watching the band',
+    festival_event: 'examining a little ornament at a festival stall, half-smiling at it',
+    art_gallery:    'standing before a large artwork, seen from behind at a distance',
+    music_training: 'at the piano mid-phrase, eyes on the sheet music',
+    recording_studio: 'in the vocal booth at the microphone, headphones on, mid-note',
+  };
+  const _act = PROTAG_SCENE_ACTION[locKey] || 'naturally engaged in the activity of this place, absorbed in her own moment';
+  const candidHead = 'candid documentary-style photo taken from a distance, medium-long shot, her figure seen small within the wide environment, she is ' + _act + ', eyes on what she is doing, face in profile or three-quarter view, NOT looking at the camera, unposed natural body language, ';
+  // 拍摄类行程（定妆/杂志/品牌/颁奖）：舞台感妆造+编辑大片感，不走抓拍构图
+  const isGlam = (locKey === 'magazine_shoot' || locKey === 'brand_event' || locKey === 'award_ceremony');
+  const glam = isGlam
     ? ', bold glamorous stage makeup with dramatic smoky eyes and glossy lips, editorial styled hair, striking designer statement outfit, confident fierce model pose energy, glossy magazine editorial aesthetic'
     : '';
-  const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, sceneComp + glam + (seasonDesc ? ', ' + seasonDesc : '') + candid) + (detShadow || '');
+  const prompt = STATE.imagePrompts.buildProtagonistPrompt(G, (isGlam ? '' : candidHead) + sceneComp + glam + (seasonDesc ? ', ' + seasonDesc : '')) + (detShadow || '');
   // 复用玩家确认头像时的 seed，让女主在不同场景里的形象尽量保持一致
   // 注意：不能用 || null，seed 恰好是 0 时会被误判成没设置，默认值本身就是 null 所以直接传即可
   // 女主的独自行程图也走高质量开关（开HQ时用flux/dev）
   let url = await img(prompt, locKey, false, 2, G.player.portraitSeed, true);
   // 个别地点（市集/酒吧等）完整prompt容易生成失败：降级为纯地点+人物简述再试一次
   if (!url) {
-    url = await img('young woman spending time at ' + sceneComp + ', medium-wide candid shot, not looking at camera', locKey + '-fallback', false, 1, G.player.portraitSeed, true);
+    url = await img('candid photo from a distance, medium-long shot, young woman ' + _act + ' at ' + sceneComp + ', not looking at camera, unposed', locKey + '-fallback', false, 1, G.player.portraitSeed, true);
   }
   return url;
 }
@@ -4261,7 +4284,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.46 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.47 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5511,7 +5534,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.46：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.47：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -8151,7 +8174,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.46）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.47）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8198,7 +8221,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.46 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.47 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8216,7 +8239,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.46 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.47 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
