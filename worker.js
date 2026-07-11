@@ -138,6 +138,24 @@ export default {
       return new Response(JSON.stringify(data), { status: response.status, headers: cors() });
     }
 
+    // AI内容举报（上架合规·Google Play AI生成内容政策要求）：留档KV，开发者用 dashboard 查 report: 前缀键核查。
+    // 每设备限频（复用 bumpQuota 的 claude 计数就够，不单独开表）；正文截断防刷。
+    if (path === '/report' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const rec = {
+          did: did,
+          npc: String(body.npc || '').slice(0, 24),
+          text: String(body.text || '').slice(0, 500),
+          day: parseInt(body.day) || 0,
+          ts: Date.now(),
+        };
+        // 键含时间戳避免覆盖；保留60天足够核查
+        await env.OTR_KV.put('report:' + new Date().toISOString().slice(0, 10) + ':' + did + ':' + rec.ts, JSON.stringify(rec), { expirationTtl: 60 * 86400 });
+      } catch (e) {}
+      return new Response(JSON.stringify({ ok: true }), { headers: cors() });
+    }
+
     // 云存档：按设备ID存取（匿名；上架后可升级为绑定账号）
     if (path === '/save') {
       const key = 'save:' + did;

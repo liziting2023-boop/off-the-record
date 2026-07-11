@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.42"></script>
-<script src="state.js?v=11.42"></script>
+<script src="story.js?v=11.43"></script>
+<script src="state.js?v=11.43"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <button class="btn-p" id="btn-slots" onclick="showSlotPicker()" style="display:none;opacity:0.8;font-size:12px;padding:10px 24px">读取备份</button>
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.42 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.43 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1082,7 +1082,13 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.42 · BETA (realtime)</p>
+    <!-- 上架合规：隐私政策 + 反馈/举报入口（商店审核要求可发现的路径） -->
+    <div style="text-align:center;margin-top:18px;font-size:12px">
+      <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">隐私政策 · Privacy Policy</a>
+      <span style="color:rgba(138,128,120,0.4)"> | </span>
+      <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
+    </div>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.43 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1093,6 +1099,12 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 // ══════════════════════════════════════════════════════
 
 const WORKER = 'https://off-the-record-api.liziting2023.workers.dev';
+
+// ── 输出过滤（上架合规·四件套之一）：HEAT_LEVEL='B' 之外的露骨词硬闸。
+//    本地正则=0耗时、不追加AI调用；命中→调用处用含蓄兜底文案替换（不会变慢，用户关心过）。
+//    词表刻意保守（只收无歧义的露骨词），避免误伤正常言情文案。──
+const HEAT_BLOCKLIST = /阴茎|阴道|阴蒂|龟头|肉棒|抽插|射精|精液|乳头|奶头|口交|肛交|自慰|\bpenis\b|\bvagina\b|\bclitoris\b|\bnipples?\b|\bblowjob\b|\bhandjob\b|\banal sex\b|\bejaculat\w*|\bcum\b|\bcumming\b|\bmasturbat\w*/i;
+function heatOK(text) { return !HEAT_BLOCKLIST.test(text || ''); }
 const DEV_MODE_IMG = false; // true = 跳过图片生成（省钱）
 const DEV_MODE_TXT = false; // true = 跳过Claude对话（用占位文字）
 // 过夜/亲密文案尺度等级（改这一个常量即可整体切换）：
@@ -1576,6 +1588,49 @@ function openNpcProfile(npcKey) {
     '<div style="font-size:13px;color:#C4607A;margin-top:10px">' + hearts + ' ' + rel + '/100' + ((npc.nights || 0) > 0 ? ' 🌙' : '') + '</div>' +
     '</div></div>';
   ov.style.display = 'flex';
+}
+
+// ── 年龄门（上架合规·四件套之一）：首次启动确认18+，设备级记录（localStorage，独立于存档）──
+function ensureAgeGate() {
+  try { if (localStorage.getItem('otr_age_ok') === '1') return; } catch(e) { return; }
+  var ov = document.createElement('div');
+  ov.id = 'age-gate';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99;background:rgba(15,8,12,0.96);display:flex;align-items:center;justify-content:center;padding:28px;';
+  ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;padding:26px 22px;text-align:center">' +
+    '<div style="font-size:34px">🔞</div>' +
+    '<div style="font-size:16px;font-weight:700;color:#3a2e33;margin-top:10px;line-height:1.6">本游戏含成人向情感内容<br><span style="font-size:13px;font-weight:400">This game contains mature romantic content.</span></div>' +
+    '<div style="font-size:13px;color:#8a8078;margin-top:8px;line-height:1.7">仅适合 18 岁及以上玩家。<br>For players 18 and over only.</div>' +
+    '<button id="age-yes" style="margin-top:16px;width:100%;padding:13px;border:none;border-radius:10px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">我已年满 18 岁 · I am 18 or older</button>' +
+    '<button id="age-no" style="margin-top:8px;width:100%;padding:10px;border:1.5px solid rgba(138,128,120,.4);border-radius:10px;background:none;color:#8a8078;font-size:13px;cursor:pointer">未满 18 岁 · Under 18</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('age-yes').onclick = function(){ try { localStorage.setItem('otr_age_ok', '1'); } catch(e){} ov.remove(); };
+  document.getElementById('age-no').onclick = function(){
+    ov.innerHTML = '<div style="color:#fff;text-align:center;font-size:15px;line-height:2.2;padding:0 20px">这个故事要等你长大一点再来读。🌙<br>Come back when you\'re a little older.</div>';
+  };
+}
+
+// ── AI内容举报（上架合规·四件套之一，Google Play 对AI生成内容的硬性要求）：
+//    长按聊天里NPC的任何一条消息→举报。上报 Worker /report（KV留档），失败也本地留底并致谢。──
+function addLongPress(el, fn) {
+  var t = null;
+  el.addEventListener('touchstart', function(){ t = setTimeout(fn, 600); }, { passive: true });
+  el.addEventListener('touchend', function(){ clearTimeout(t); }, { passive: true });
+  el.addEventListener('touchmove', function(){ clearTimeout(t); }, { passive: true });
+  el.addEventListener('contextmenu', function(e){ e.preventDefault(); fn(); }); // 桌面右键等价长按
+}
+function reportAIContent(npcKey, text) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  if (!confirm(isZh ? '举报这条AI生成的内容不当？' : 'Report this AI-generated content as inappropriate?')) return;
+  var payload = { npc: npcKey, text: String(text || '').slice(0, 500), day: G.day, ts: Date.now() };
+  try {
+    fetch(WORKER + '/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': (typeof getDeviceId === 'function' ? getDeviceId() : '') }, body: JSON.stringify(payload) }).catch(function(){});
+  } catch(e) {}
+  try {
+    var r = JSON.parse(localStorage.getItem('otr_reports') || '[]');
+    r.push(payload); localStorage.setItem('otr_reports', JSON.stringify(r.slice(-50)));
+  } catch(e) {}
+  alert(isZh ? '已收到举报，感谢反馈，我们会尽快核查。' : 'Report received — thank you. We will review it.');
 }
 function getNPCName(key) {
   const npc = G.npcs[key];
@@ -4209,7 +4264,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.42 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.43 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5459,7 +5514,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.42：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.43：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5681,7 +5736,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   evalIntimacyTone(npcKey, day);
   _vnLastReply = null; _vnLastTone = null;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, _replyCtx + ' ' + dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
-  const npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
+  let npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
   if (!npcLine || !npcLine.trim()) {
     // AI 不可用（额度满/网络）：明确告知玩家 + 给出离开出口，不再空白卡住（模拟真实玩家看到的降级）
     vnSpeak(null);
@@ -5695,6 +5750,10 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     _vo.appendChild(_eb);
     return;
   }
+  // 露骨词闸（上架合规）：AI被诱导越界时用含蓄的收话替换，场景不中断、不追加AI调用
+  if (!heatOK(npcLine)) npcLine = (G.lang==='zh-cn'||G.lang==='zh-tw')
+    ? '他看着你，眼神暗了一瞬，最后只是笑了笑，没把那句话说完。'
+    : 'He holds your gaze a beat too long, then just smiles and leaves the sentence unfinished.';
   document.getElementById('vn-speaker').textContent = getNPCName(npcKey);
   // Format speech vs action
   document.getElementById('vn-text').innerHTML = formatNPCText(npcLine);
@@ -6393,7 +6452,8 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom) 
       'Write it like the hottest scene in a bestselling romance: vivid, sensual, physical, in the heightened evocative register of the genre (sensation and desire, the poetry of bodies), NOT clinical or crude anatomy. His specific manner above must drive every beat — a possessive man, a commanding one, a playful one, a shy one and a respectful one must each read completely differently here. 4-6 sentences, breathless and building. ' + ceil + ' ' +
       'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(2) + '"';
   }
-  return await claude(user, sys);
+  var _prose = await claude(user, sys);
+  return heatOK(_prose) ? _prose : ''; // 露骨词闸：命中→返回空，调用处自动落到含蓄兜底文案
 }
 // opts.direct=true：玩家在"家场景"里主动发起（表白/更进一步）→ 跳过他的询问，直接进第一幕；
 // opts.seamlessFrom=他刚才的台词 → 第一幕衔接当下动作续写，不写"刚进门/打量房间"（用户定稿）
@@ -6410,6 +6470,8 @@ async function maybeStayOver(npcKey, locKey, opts) {
   const dest = _atHers0 ? 'at_hers' : (_atHis0 ? 'at_his' : (Math.random() < 0.5 ? 'go_his' : 'walk_hers'));
   // 二次过夜邀请：已过夜后不再用"再喝一杯"这类初次借口，措辞更亲密直接（但仍含蓄）
   const _nightsSoFar = G.npcs[npcKey].nights || 0;
+  // 两幕预生成句柄（性能，用户反馈两幕慢）：邀请台词一亮出来就后台先跑，点按钮时基本秒出
+  let _pre1 = null, _pre1Bg = null, _pre2 = null, _pre2Bg = null;
   const _stayCtx =
     dest === 'at_hers'
     ? 'You are at HER apartment and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle to NOT leave tonight — to stay here, at her place — tasteful, implicit, deniable (a reason to linger, an unfinished sentence, "外面太晚了……"). One or two sentences, spoken words only.'
@@ -6429,6 +6491,13 @@ async function maybeStayOver(npcKey, locKey, opts) {
     document.getElementById('vn-text').innerHTML = formatNPCText(line);
     playSound('stay-invite'); // 亲密邀请专属音效：提醒玩家这不是普通对话
     vopts.innerHTML = '';
+    // 第一幕预生成：玩家在读邀请台词的这几秒，后台先把散文+他家背景跑起来
+    try {
+      const _pFn = (G.npcs[npcKey].nights || 0) === 0;
+      const _pSf = (dest === 'at_his' || dest === 'at_hers') ? (line || '') : '';
+      _pre1 = genOvernightProse(npcKey, 1, _pFn, (dest === 'at_hers' || dest === 'walk_hers'), _pSf).catch(function(){ return ''; });
+      if (dest === 'go_his') _pre1Bg = genNPCHomeActBg(npcKey, 1).catch(function(){ return null; });
+    } catch(e) {}
   }
   const mk = (label, fn) => { const el = document.createElement('div'); el.className = 'vn-opt'; el.textContent = label; el.onclick = fn; vopts.appendChild(el); };
   // 已在某人家=无需转场；destHers=今晚发生在她家（她家过夜 / 送她回家他上来）
@@ -6453,9 +6522,9 @@ async function maybeStayOver(npcKey, locKey, opts) {
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
-    try { const u = destHers ? (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl || null) : await genNPCHomeActBg(npcKey, 2); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+    try { const u = destHers ? (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl || null) : await (_pre2Bg || genNPCHomeActBg(npcKey, 2)); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     let act2Nar = '';
-    try { act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers); } catch(e){}
+    try { act2Nar = await (_pre2 || genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers)); } catch(e){}
     if (!act2Nar || !act2Nar.trim()) {
       act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料一件件松开，他的唇沿着你的颈线往下，每一寸都被他记在心里。你听见自己的呼吸乱了，也听见他在你耳边低低地念你的名字——然后灯光暗了下去，剩下的夜，只属于你们两个人。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens piece by piece; his mouth traces down the line of your throat, learning every inch of you. You hear your own breath break apart, his voice low against your ear saying your name — and then the light dims, and the rest of the night belongs only to the two of you.';
     }
@@ -6512,13 +6581,13 @@ async function maybeStayOver(npcKey, locKey, opts) {
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     if (!atHome) {
-      try { const u = destHers ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl || null) : await genNPCHomeActBg(npcKey, 1); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+      try { const u = destHers ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl || null) : await (_pre1Bg || genNPCHomeActBg(npcKey, 1)); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
     // 衔接来源：玩家直入=他刚才的台词；询问路径且本来就在家=他刚说的暗示台词（他们已聊了半晚，不是刚进门）
     const _seamFrom = (opts && opts.seamlessFrom) || (atHome ? (line || '') : '');
     let act1Nar = '';
-    try { act1Nar = await genOvernightProse(npcKey, 1, firstNight, destHers, _seamFrom); } catch(e){}
+    try { act1Nar = await (_pre1 || genOvernightProse(npcKey, 1, firstNight, destHers, _seamFrom)); } catch(e){}
     if (!act1Nar || !act1Nar.trim()) {
       act1Nar = isZh ? '门在身后轻轻合上，屋里只剩一盏暖灯。他把酒杯递到你手里，指尖擦过你的，没有收回。「今晚，别急着走。」他的声音低下去，近得你能感觉到他呼吸里的温度——然后他停在那里，只是看着你，把接下来的一步，留给了你。' : 'The door clicks shut behind you and the room narrows to one warm lamp. He presses the glass into your hand, his fingertips grazing yours and staying there. "Don\'t rush off tonight," he murmurs, close enough that you feel the warmth of his breath — and then he stops, just looking at you, leaving the next move to you.';
     }
@@ -6526,6 +6595,11 @@ async function maybeStayOver(npcKey, locKey, opts) {
     vopts.innerHTML = '';
     mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2);
     mk(isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)', leaveAfterAct1);
+    // 第二幕预生成：第一幕一显示就后台先跑（此时 nights 还没+1，nights===0 等价于进幕后的 <=1）
+    try {
+      _pre2 = genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) === 0, destHers).catch(function(){ return ''; });
+      if (!destHers) _pre2Bg = genNPCHomeActBg(npcKey, 2).catch(function(){ return null; });
+    } catch(e) {}
   };
   // 玩家主动发起（表白/更进一步）且已在家场景：跳过他的询问，直接进第一幕（衔接当下，用户定稿）
   if (opts && opts.direct) { goHomeAndStay(); return; }
@@ -7543,6 +7617,7 @@ function renderChatMsgs(npc, dividerIdx) {
       var bubble = document.createElement('div');
       bubble.className = 'wc-bubble' + (m.mine ? ' mine' : '');
       bubble.textContent = m.text;
+      if (!m.mine) addLongPress(bubble, function(){ reportAIContent(npc, m.text); }); // 长按举报AI内容（上架合规）
       col.appendChild(bubble);
     }
     var timeEl = document.createElement('div');
@@ -7680,6 +7755,8 @@ async function sendChatReply() {
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null;
     try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; }
     catch (e) { reply = (raw||'').trim(); }
+    // 露骨词闸（上架合规）：被诱导越界的回复换成含蓄搪塞，顺带丢弃同条里的约见字段
+    if (reply && !heatOK(reply)) { reply = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '这个话题……见了面再说。' : "That's… a conversation for in person."; meetInfo = null; futureInv = null; }
     if (reply && wantsCall) {
       // NPC决定打电话：弹来电界面，不走文字气泡
       var t1c = document.getElementById('chat-typing'); if (t1c) t1c.remove();
@@ -8124,7 +8201,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.42）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.43）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8171,7 +8248,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.42 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.43 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8182,13 +8259,14 @@ window.addEventListener('load', () => {
   })();
   applyLang();
   setupTitleButtons();
+  ensureAgeGate(); // 年龄门（上架合规）：首次启动18+确认
   // "开始新游戏"走的是"清档→reload→到这里"（sessionStorage 标记）：此刻已是 100% 干净状态
   // （无存档、所有模块级JS变量随整页重载复位、云端恢复已跳过），直接进设置流程。
   try { if (_freshStart) { sessionStorage.removeItem('otr_start_fresh'); go('s-lang'); } } catch(e){}
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.42 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.43 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
