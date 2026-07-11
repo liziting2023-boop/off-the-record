@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.47"></script>
-<script src="state.js?v=11.47"></script>
+<script src="story.js?v=11.48"></script>
+<script src="state.js?v=11.48"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -372,7 +372,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 /* ── SETTINGS (one screen) ── */
 #s-settings{padding:0;}
-.settings-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:52px 14px max(64px,env(safe-area-inset-bottom));gap:10px;overflow:hidden;}
+.settings-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:52px 14px max(64px,env(safe-area-inset-bottom));gap:10px;overflow-y:auto;-webkit-overflow-scrolling:touch;} /* 原overflow:hidden导致设置页滚不到底（用户看不到版本号/保存按钮） */
 .settings-section-title{font-size:9px;letter-spacing:3px;color:var(--rose);text-transform:uppercase;opacity:0.9;margin-bottom:6px;}
 .settings-lang{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
 .settings-style{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.47 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.48 · BETA ⏱</p>
   </div>
 </div>
 
@@ -984,7 +984,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <!-- emoji选择行：点😊展开，点表情追加进输入框 -->
     <div id="chat-emoji-row" style="display:none;flex-wrap:wrap;gap:2px;padding:6px 10px;background:rgba(255,255,255,0.92);border-top:1px solid rgba(196,96,122,0.12)"></div>
+    <!-- 话题提示行：点💡给3个贴合这个NPC身份的话题开头（不熟时玩家没话题聊——用户反馈） -->
+    <div id="chat-topic-row" style="display:none;flex-wrap:wrap;gap:6px;padding:6px 10px;background:rgba(255,255,255,0.92);border-top:1px solid rgba(196,96,122,0.12)"></div>
     <div class="wc-input-bar">
+      <button id="chat-topic-btn" onclick="toggleChatTopics()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 2px;flex-shrink:0">💡</button>
       <button id="chat-emoji-btn" onclick="toggleChatEmoji()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:0 4px;flex-shrink:0">😊</button>
       <input id="chat-input" type="text" maxlength="300" placeholder="输入消息…" oninput="saveChatDraft()" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendChatReply()">
       <button id="chat-send-btn" onclick="sendChatReply()">发送</button>
@@ -1082,7 +1085,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.47 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.48 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1570,7 +1573,9 @@ function openNpcProfile(npcKey) {
     : (isZh ? (bio.metZh || '—') : (bio.metEn || '—'));
   var rel = Math.round(npc.relationship || 0);
   var hearts = '♥'.repeat(Math.max(1, Math.min(5, Math.ceil(rel / 20))));
-  ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 18px 60px rgba(0,0,0,.45)" onclick="event.stopPropagation()">' +
+  // 点哪里都能关（手机实测 stopPropagation 后关不掉）；右上角再给一个明确的✕
+  ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 18px 60px rgba(0,0,0,.45);position:relative">' +
+    '<div style="position:absolute;top:8px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.35);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;z-index:2">✕</div>' +
     (npc.portraitUrl
       ? '<img src="' + npc.portraitUrl + '" style="width:100%;aspect-ratio:3/4;object-fit:cover;display:block">'
       : '<div style="height:110px;display:flex;align-items:center;justify-content:center;font-size:50px;background:rgba(196,96,122,0.08)">' + ((NPC_UI[npcKey] || {}).emoji || '💬') + '</div>') +
@@ -2367,6 +2372,10 @@ function goHome()       {
     checkProactiveOnOpen(); // 日常引擎：回主页时看有没有NPC该来消息
   }
   go('s-daily'); setABn('bn-home');
+  // 序章兜底第二道（用户实测新开局仍没序章）：Day1 回主页时登场链还没完成 → 自动进序章/续播
+  if (G.day === 1 && !(G.scriptedDone && G.scriptedDone[1]) && !(typeof _curSceneEv !== 'undefined' && _curSceneEv)) {
+    setTimeout(function(){ try { if (!_curSceneEv && !(G.scriptedDone && G.scriptedDone[1])) playScripted(1); } catch(e){} }, 300);
+  }
   // 场景里弹出的族裔/发色选择层如果还开着，先收起来（否则会盖在主页上；点"继续"回场景时会重新弹）
   try { var _nov = document.getElementById('npc-origin-overlay'); if (_nov) _nov.classList.remove('open'); } catch (e) {}
   applyHomeTimeOfDay(); // 没翻天也要按真实时间刷主页图（19点后自动换夜图）
@@ -3896,9 +3905,11 @@ function buildDayOpts() {
   // 剧情场景（含登场初见）是手写故事节点，任何星期几都照常播——不再被"周末不排工作"误杀。
   // （实时版 G.day=真实日，旧代码在周末开局/周末打开会把 Day1 见经纪人等 work 类剧情整段藏掉 → 玩家以为剧情没了。
   //   常规杂活 mandate 本就不经这条，无需在此按周末过滤。）
-  // 选项区上方的提示语
+  // 选项区上方的提示语 + 自由活动余量（用户实测：不显示的话选项凭空消失，玩家不知道是打烊还是次数用完）
+  var _actsLeft = Math.max(0, 3 - freeActsToday());
   document.getElementById('d-opts-head').textContent =
-    isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?';
+    (isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?') +
+    (isZh ? '（自由活动还剩 ' + _actsLeft + ' 次）' : lang==='ja' ? '（自由行動あと' + _actsLeft + '回）' : lang==='ko' ? '（자유 활동 ' + _actsLeft + '회 남음）' : ' (' + _actsLeft + ' free activities left)');
   const phoneLabel = isZh?'查看手机':lang==='ja'?'スマホを確認':lang==='ko'?'휴대폰 확인':'Check phone';
   const phoneSub = isZh?'消息 · 朋友圈 · 行业资讯':'Messages · Moments · Industry';
   const makeOpt = (label, sub, cls, onclick) => {
@@ -3992,7 +4003,10 @@ function buildDayOpts() {
     const leisureOpt = (i) => { const p = lPicks[i % Math.max(1, lPicks.length)]; return p ? makeOpt(p.label, lSub, '', () => playFree(p.key, p.label, false, false, 'leisure')) : null; };
     // 每天自由活动限3次：满了以后不再给职业/休息选项（工作/约会/聊天照常）
     const actsUsedUp = freeActsToday() >= 3;
-    const tiredOpt = () => { const b = makeOpt(isZh?'今天在外面跑得够多了':lang==='ja'?'今日は十分出かけた':lang==='ko'?'오늘은 충분히 다녔어':'You have been out enough today', isZh?'歇一歇 · 刷刷手机、找人聊聊':'Rest up · check your phone', 'locked', null); b.disabled = true; return b; };
+    const tiredOpt = () => { const b = makeOpt(
+      isZh?'今日 3 次自由活动已用完':lang==='ja'?'今日の自由行動3回を使い切った':lang==='ko'?'오늘 자유 활동 3회를 다 썼어':'All 3 free activities used today',
+      isZh?'明天恢复 · 工作/约会/聊天不受限':lang==='ja'?'明日回復 · 仕事/デート/チャットは無制限':lang==='ko'?'내일 회복 · 일/데이트/채팅은 무제한':'Resets tomorrow · work/dates/chat unlimited',
+      'locked', null); b.disabled = true; return b; };
     const slots = [];
     // ① 日历工作（含必须行程 + npc_message 类活动）
     todayCalEvents.filter(e => e && e.status === 'accepted' && (e.type === 'work' || e.source === 'npc_message')).forEach(w => {
@@ -4284,7 +4298,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.47 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.48 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5060,13 +5074,18 @@ function runMeetupScene(npcKey, locKey, title) {
   // 三轮临场对话（复用剧情对话引擎，选项由AI动态生成）
   const seeds = pickSeeds(2);
   const _mrel = (G.npcs[npcKey]||{}).relationship;
-  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey);
+  // 在他自己的店/工作场地见面：他在上班，不是客人（用户实测：咖啡师坐自己店靠窗位像客人）
+  const WORKPLACE_OF = { coffee: 'cafe', trainer: 'gym', engineer: 'recording_studio', clerk: 'supermarket', drummer: 'recording_studio' };
+  const workNote = (WORKPLACE_OF[npcKey] === locKey) ? ' NOTE: this place is YOUR OWN workplace and you are on duty here — receive her at the counter/your station, or step aside for a short break with her; you would NEVER sit down at a table like a customer in your own shop.' : '';
+  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey) + workNote;
+  // 带情绪奔赴的见面（用户实测：倾诉创伤后他上门却先翻唱片/看纸条）：第一拍必须先接住情绪
+  const emoNote = ' FIRST CHECK the recent interactions above: if the texts that led to this meetup carried heavy emotion (grief, loneliness, she asked for comfort or for you to come be with her), your FIRST beat must meet that emotion directly — arrive attending to HER, warm and fully present, words and body language both matching what she told you; NO teasing about the texts, NO prop business (flipping records, glancing at her notes), NO browsing the room.';
   // 她主动约的见面：话题以【她】为主——她抛什么就接什么、往深聊，绝不硬转到自己的话题
   // （用户实测：她让管家评价身材，管家应付半句就硬拐去"带你去天文台"，像完成任务）。
   // seeds 只在她没给话题（沉默/一个字）时才作为救场备选。
   const followHer = ' TOPIC PRIORITY: SHE invited you, so follow HER lead. If her last line carries any topic, question, tease or flirtation — stay ON it, take it seriously, go one layer deeper in your own voice. Do NOT pivot to your own topic while hers is alive; changing the subject on her reads as dismissive.';
   const rounds = [
-    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective; maybe tease about the texts.' + lookChangeNote(npcKey) + followHer + meetStyle },
+    { npcContext: 'You two arranged this casual meetup ("' + title + '") over text today, and she just arrived. CURRENT SCENE LOCATION: ' + locDesc + '. Greet her in character, already quietly pursuing your objective.' + emoNote + lookChangeNote(npcKey) + followHer + meetStyle },
     { npcContext: 'The meetup continues — press toward what you want, let a little of your subtext show.' + followHer + ' ONLY IF she gave you nothing to work with (silence, one word), you may open this fallback topic: ' + seeds[0] + '. Keep it true to your personality and current affinity, with a light flirtatious undertone. Same location.' + meetStyle },
     { npcContext: 'The meetup is winding down — this is the FINAL beat, so CLOSE the scene: do NOT suggest going somewhere else "right now", do NOT open a new plan or promise to show her something tonight (the scene ends right after this line and an unfulfilled "let\'s go" reads as a bug). Land your objective so it stays with her tonight.' + followHer + ' Fallback topic ONLY if she gave you nothing: ' + seeds[1] + '. Same location.' + meetStyle },
   ];
@@ -5534,7 +5553,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.47：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.48：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5611,6 +5630,23 @@ function renderToneHints(container, inp, npcKey) {
     };
     toneRow.appendChild(chip);
   });
+  // "做动作"胶囊（用户问"他让我唱歌，我输入什么表示在唱"）：括号描述动作AI读得懂，这里给个开头
+  var actChip = document.createElement('div');
+  actChip.className = 'vn-opt';
+  actChip.style.cssText = 'flex:1;justify-content:center;padding:8px 10px;min-height:36px;font-size:clamp(13px,3.8vw,15px);';
+  actChip.textContent = isZhOpt ? '🎬 做动作' : G.lang==='ja' ? '🎬 行動する' : G.lang==='ko' ? '🎬 행동하기' : '🎬 Do something';
+  var _actPool = isZhOpt
+    ? ['（我深吸一口气，', '（我走到他面前，', '（我看着他，', '（我笑了笑，']
+    : ['(I take a deep breath and ', '(I walk over to him and ', '(I look at him and ', '(I smile and '];
+  var _ai = Math.floor(Math.random() * 9);
+  actChip.onclick = function(){
+    _ai++;
+    inp.value = _actPool[_ai % _actPool.length];
+    inp._hintFilled = false; // 括号动作开头不带省略号，不走省略号剥离逻辑
+    try { inp.scrollIntoView({ block: 'nearest' }); inp.style.transition = 'box-shadow .15s'; inp.style.boxShadow = '0 0 0 2px var(--rose)'; setTimeout(function(){ inp.style.boxShadow = ''; }, 650); } catch(e) {}
+    inp.oninput && inp.oninput.call(inp);
+  };
+  toneRow.appendChild(actChip);
   hintBtn.onclick = function(){ toneRow.style.display = toneRow.style.display==='none' ? 'flex' : 'none'; };
   container.appendChild(hintBtn);
   container.appendChild(toneRow);
@@ -5761,7 +5797,14 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   const _actRule = round === 0
     ? '\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).'
     : '\n- This is round ' + (round + 1) + ' of this scene: PREFER NO action beat — pure spoken dialogue is ideal now. Only include an action if it directly CONTINUES or completes an action already established earlier in THIS scene (e.g. setting down the coffee he poured earlier); NEVER start a new unrelated gesture or fidget. (This overrides any earlier instruction asking to include an action.)';
-  let npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.' + _actRule + '\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.');
+  // 共情覆盖规则组（用户实测定稿）：倾诉时共情优先于人设；拥抱等请求要正面回应；婉拒用借口不说破；
+  // 台词一读就懂；场景中途不许答应"现在就去别处"（3轮后原地收尾，会穿帮）
+  const _careRules = '\n- EMPATHY OVERRIDE (outranks your personality): if she is sharing grief, trauma or vulnerability RIGHT NOW, meet it first — acknowledge the specific thing she said, give one true human response, leave her room to continue. BANNED while she opens up: praising her toughness ("you\'re stronger than most"), calling words/talking useless, offering availability ("I\'m here if you want to talk" — she IS talking), changing the subject, pivoting to work or plans, assigning her tasks. Blunt characters go quiet and awkwardly gentle here; they do not coach.' +
+    '\n- If she asks for physical comfort (a hug, to be held): respond to THAT — accept it in character, or gently offer a warmer alternative. Never redirect her to an activity instead.' +
+    '\n- If you deflect her romantic/physical advance because it feels too soon: use a light natural excuse in character (an early shift, the mess at home, a self-deprecating joke) — NEVER say the real reason aloud (no "we should keep some distance", no "it\'s too fast", nothing that sounds like a rule).' +
+    '\n- Every line must be immediately understandable on first read — no cryptic wit or riddle-phrasing the player has to decode.' +
+    '\n- If she proposes going somewhere ELSE right now: warmly make it a plan for another day, or gently decline with a reason — NEVER agree to leave right now, never grab a coat or head for the door (this scene cannot change location and closes where it is).';
+  let npcLine = await claude(memoryContext + '\n\nWrite this scene in 2-3 sentences. OUTPUT RULES (strictly follow):\n- Plain text ONLY. Zero HTML. Zero class names. Zero tags.\n- Use 你/you for the player, NEVER 她/she/her\n- Spoken words: wrap in 「」for Chinese, or " " for other languages. Nothing else.\n- Any non-spoken action/description of YOURSELF must be written in THIRD person (他/he + role), NEVER first person 我/I — e.g. write 他没有回头。「我知道。」 NOT 我没有回头。「我知道。」. Inside quotes 我/I is fine.' + _actRule + '\n- Keep ALL spoken words as ONE continuous quote. Do NOT split the speech into two separate quoted parts with an action in between. The single action beat goes BEFORE or AFTER the full spoken line, never sandwiched in the middle of it.\n- Describe ONLY what can be seen and heard — NO inner thoughts, NO feelings narration, NO psychological description of yourself or her.\n- NEVER name other characters — use role only: band leader, the actor, building manager\n- If you are tempted to write <span> or "speech"> or any HTML — do NOT. Plain text only.' + _careRules);
   if (!npcLine || !npcLine.trim()) {
     // AI 不可用（额度满/网络）：明确告知玩家 + 给出离开出口，不再空白卡住（模拟真实玩家看到的降级）
     vnSpeak(null);
@@ -6150,7 +6193,7 @@ function lookChangeNote(npcKey) {
 function intentActionRule(locKey) {
   return ' ACTION RULE: include ONE brief physical action in third person that ARISES from what he wants right now and who he is — it should quietly reveal his intent or subtext, and fit THIS place (loose inspiration for what is physically available here, do NOT just copy: ' + dateActionHint(locKey) + '). Never a generic decorative gesture, never the same one twice.' +
     ' MOMENT-FIT RULE: the action must also fit what is happening RIGHT NOW in the scene — someone who just arrived at her door acts like an arriving guest (greeting her, stepping in, handing her something he brought), NEVER self-grooming rituals like crouching to re-tie his shoelaces or fixing his own clothes at her doorstep (real users flagged this as bizarre).' +
-    ' BANNED CLICHÉS (wildly overused, find something fresher): pushing/sliding a cup or glass toward her; tucking or brushing a strand of her hair; re-tying shoelaces. ' +
+    ' BANNED CLICHÉS (wildly overused, find something fresher): pushing/sliding a cup or glass toward her; tucking or brushing a strand of her hair; re-tying shoelaces; grabbing a jacket/coat off a chair back (in a Western home coats live on hooks or in the closet by the door — and see the rule about not leaving mid-scene anyway). ' +
     'PRONOUN RULE: in action narration SHE is always "你"/"you" (second person) — NEVER call her "她"/"her". HE is "他"/"he". ' +
     'FACT RULE: never reference concerts, shows, performances, songs or shared moments that are not explicitly in "Previous interactions" above — do not invent history. ' +
     'NO inner thoughts or naming of feelings — only what can be seen and heard, but let the action carry the meaning.';
@@ -6321,6 +6364,13 @@ const HOME_PROMPTS = {
   butler:   'cozy tidy modest apartment, shelves of books, plants, homey and comfortable, warm and inviting',
   detective:'understated masculine apartment, dark warm wood tones, bookshelves, a coat on a rack, a quiet noir mood',
   rival:    'sleek high-end pop-star apartment, framed platinum records on the wall, a grand piano in the corner, moody designer lighting, floor-to-ceiling city view, glamorous but lived-in',
+  // 二线住处（用户实测：没配表时兜底成经纪人豪宅——咖啡师说住地下1楼、客厅却像顶层公寓）
+  coffee:   'small basement studio apartment below street level, warm and cluttered-cozy: shelves of vinyl records and coffee gear, a worn couch under a high half-window with feet passing by outside, string lights, secondhand furniture arranged with care',
+  clerk:    'tiny student flat, books stacked on every surface, a desk lamp over an open thesis draft, instant-noodle shelf, narrow bed against the wall, one window over a quiet street, humble and warm',
+  trainer:  'modest tidy apartment of a fitness coach, kettlebells lined by the wall, protein tubs on the kitchen counter, a foam roller against the couch, clean simple furniture, everything squared away',
+  engineer: 'compact apartment doubling as a home studio, acoustic foam on one wall, a desk with monitors and a small mixing console, cables neatly coiled, dim warm practical lighting, headphone stands',
+  runner:   'spare minimal apartment of a surgeon, almost monastic: neat bookshelf, running shoes lined at the door, a single framed photo, everything clean and quiet, soft morning light',
+  photog:   'loft-ish rented room strung with drying photo prints on clips, camera bodies and lenses on a wooden table, stacks of photo books, brick wall, warm tungsten work lamp',
 };
 // 过夜暧昧文案的"举动风格"：按各NPC性格差异化（霸道/温柔/急切/青涩/克制），替代原来所有人共用的通用动作模板
 // 每个NPC的亲密语感，按用户选定的参考书校准（只学手法/register，不抄原文）：
@@ -7693,6 +7743,56 @@ function saveChatDraft() {
   if (!G._chatDraft) G._chatDraft = {};
   G._chatDraft[_openChatNpc] = document.getElementById('chat-input').value;
 }
+// ── 聊天话题提示（用户反馈：不熟时玩家找不到话题）：💡给3个贴合NPC身份的话题，点了填进输入框 ──
+const CHAT_TOPICS = {
+  agent:   { zh:['你为什么会做经纪人？','你听我唱歌的那三个晚上，都在想什么？','这行里最让你累的是什么？','你不工作的时候都做什么？'],
+             en:['Why did you become an agent?','Those three nights you listened to me sing — what were you thinking?','What wears you out most in this industry?','What do you do when you are not working?'] },
+  drummer: { zh:['你练鼓的时候都在想什么？','你打过最难忘的一场演出是哪场？','你为什么选了鼓？','说实话，你觉得我的声音怎么样？'],
+             en:['What goes through your head when you drum?','What is the one show you never forgot?','Why drums?','Honestly — what do you think of my voice?'] },
+  actor:   { zh:['你演过最喜欢的角色是哪个？','镜头外的你是什么样的？','你什么时候决定当演员的？','你怎么记住那么多台词的？'],
+             en:['Which role did you love playing most?','What are you like off camera?','When did you decide to act?','How do you even remember all those lines?'] },
+  butler:  { zh:['楼里有什么我该知道的事吗？','你实习结束以后想做什么？','你今天都忙了些什么？','这栋楼里你最喜欢哪里？'],
+             en:['Anything about the building I should know?','What comes after your placement ends?','What kept you busy today?','Favourite corner of this building?'] },
+  rival:   { zh:['你写歌先有词还是先有曲？','你最不服我哪一点？','你上台前会紧张吗？','你的第一把吉他还在吗？'],
+             en:['Lyrics first or melody first?','What about me annoys you most?','Do you get nervous before going on?','Do you still have your first guitar?'] },
+  coffee:  { zh:['现在店里放的这首歌是谁的？','歌单是你选的吧？','你怎么开始做咖啡的？','推荐我一杯你最拿手的'],
+             en:['Who is this playing in the shop right now?','The playlist is yours, isn\'t it?','How did you get into coffee?','Make me your best one — which is it?'] },
+  clerk:   { zh:['深夜的便利店都遇到过什么人？','你的论文写的是什么？','上夜班不困吗？','凌晨卖得最好的是什么？'],
+             en:['Who wanders in at 3am?','What is your thesis about?','How do you stay awake on nights?','What sells most after midnight?'] },
+  trainer: { zh:['说实话，我最近的进步怎么样？','你自己每天都练什么？','你怎么当上教练的？','你见过最拼的客户什么样？'],
+             en:['Honestly, how is my progress?','What is your own training like?','How did you become a coach?','Who is the hardest-working client you have seen?'] },
+  engineer:{ zh:['我的声音在你耳机里是什么样的？','你混过最难的一首歌是哪首？','你是怎么练出这对耳朵的？','录音时你都在听什么细节？'],
+             en:['What does my voice sound like in your headphones?','Hardest song you ever mixed?','How did you train those ears?','What details do you listen for in a take?'] },
+  runner:  { zh:['你每天都是这个点跑吗？','跑步的时候你在想什么？','你跑过最远的一次是多远？','为什么是这条路线？'],
+             en:['Same time every day?','What do you think about while you run?','Longest run you have ever done?','Why this route?'] },
+  photog:  { zh:['你拍我那张照片里，看到了什么？','你最喜欢拍什么样的人？','这个城市哪里最上镜？','有没有一张你一直没舍得给出去的照片？'],
+             en:['That photo of me — what did you see in it?','What kind of people do you love shooting?','Most photogenic corner of this city?','Is there a photo you never gave away?'] },
+  _generic:{ zh:['今天过得怎么样？','你最近在听什么歌？','你小时候是什么样的人？','你理想的休息日怎么过？'],
+             en:['How was your day?','What have you been listening to lately?','What were you like as a kid?','What is your perfect day off?'] },
+};
+function toggleChatTopics() {
+  var row = document.getElementById('chat-topic-row');
+  if (row.style.display === 'flex') { row.style.display = 'none'; return; }
+  var isZhT = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var pool = (CHAT_TOPICS[_openChatNpc] || CHAT_TOPICS._generic)[isZhT ? 'zh' : 'en'].slice();
+  row.innerHTML = '';
+  // 每次打开随机抽3个
+  pool.sort(function(){ return Math.random() - 0.5; }).slice(0, 3).forEach(function(t){
+    var chip = document.createElement('span');
+    chip.style.cssText = 'font-size:13px;padding:6px 10px;border:1.5px solid rgba(196,96,122,0.4);border-radius:14px;color:#C4607A;cursor:pointer;user-select:none;background:#fff';
+    chip.textContent = t;
+    chip.onclick = function(){
+      var inp = document.getElementById('chat-input');
+      inp.value = t; try { saveChatDraft(); } catch(e){}
+      row.style.display = 'none'; inp.focus();
+    };
+    row.appendChild(chip);
+  });
+  row.style.display = 'flex';
+  // 表情行如果开着先收起，别叠两行
+  var er = document.getElementById('chat-emoji-row'); if (er) er.style.display = 'none';
+}
+
 // ── emoji选择行：😊开合；点表情追加进输入框（同时存草稿）──
 const CHAT_EMOJIS = ['😊','😂','🥰','😘','😉','🙈','😳','🥺','😢','😤','🤔','😴','❤️','💕','✨','🔥','👍','🙏','🎵','🍰','☕','🌙','🌹','🫶'];
 function toggleChatEmoji() {
@@ -7703,12 +7803,13 @@ function toggleChatEmoji() {
         const b = document.createElement('span');
         b.textContent = e;
         b.style.cssText = 'font-size:22px;padding:3px 5px;cursor:pointer;user-select:none';
-        b.onclick = () => { const inp = document.getElementById('chat-input'); inp.value += e; saveChatDraft(); inp.focus(); };
+        b.onclick = () => { const inp = document.getElementById('chat-input'); inp.value += e; saveChatDraft(); row.style.display = 'none'; inp.focus(); }; // 选完自动收起（用户定稿）
         row.appendChild(b);
       });
       row.dataset.filled = '1';
     }
     row.style.display = 'flex';
+    var tr = document.getElementById('chat-topic-row'); if (tr) tr.style.display = 'none'; // 别和话题行叠两层
   } else {
     row.style.display = 'none';
   }
@@ -7772,8 +7873,11 @@ async function sendChatReply() {
         ? 'It is past YOUR usual bedtime — you may naturally say you are heading to sleep and set "endChat": true (you will not reply again tonight); but if you two are close, you can choose to stay up a little longer for her instead. '
         : 'You are awake and around right now — do NOT claim you are going to sleep or too busy to talk; keep the conversation going naturally. ') +
       eveningToneNote(npc) + butlerTextObeyHint(npc) + ' ' +
+      'EMPATHY OVERRIDE (outranks your personality): if her message shares grief, trauma or something vulnerable, meet it FIRST — acknowledge the specific thing she said, one true human response, leave her room to keep talking. BANNED in that moment: praising her toughness, calling words/talking useless, "I\'m here if you want to talk" (she IS talking to you right now), changing the subject, pivoting to plans or work. Blunt characters get quiet and awkwardly gentle; they do not coach or toughen her up. ' +
       'MEETUP RULES — distinguish carefully: if she proposes meeting TODAY and you accept, fill "meet". If you two agree to meet TODAY at a SPECIFIC LATER TIME (e.g. 3pm rehearsal, dinner at 7), fill meet.time with that "HH:MM" — if meeting right now, meet.time=null. If a FUTURE day (tomorrow, the 6th, this weekend...) is discussed, fill "futureInvite" ONLY when SHE has clearly said yes to that specific day in HER messages — if YOU are the one proposing and she has not yet agreed, fill NEITHER (wait for her answer in a later message). NEVER use "meet" for future plans. When a FUTURE day is agreed, your reply text must name that day explicitly by weekday/date (never just "tomorrow"), and "daysFromNow" MUST be computed from the DATE REFERENCE table to land exactly on the day you named — if you say Friday, daysFromNow must map to Friday, and "next evening/明晚" means daysFromNow=1.' + upcomingDatesRef(G.day, 6) + ' ' +
       'For "locationKey" pick the place that ACTUALLY matches what was proposed — READ WHOSE HOME CAREFULLY: if SHE says 去你家/到你那/"your place"/"come to yours" → she is visiting YOU → "his_home". If she says 来我家/我家/"my place"/"come over (to mine)" or YOU are going to HER → "her_home". Getting this backwards ruins the scene. Magazine shoot → "magazine_shoot", recording session → "recording_studio", practice → "music_training"; otherwise the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue, never "cafe" as a lazy default when she said a home. ' +
+      'WORKPLACE RULE: if you two are meeting where YOU work or are working right now (the studio, rehearsal space, your café, the gym) → use that work location (recording_studio/music_training/cafe/gym), NEVER "his_home" just because you happen to be there — 工作室/studio is NOT your home. ' +
+      'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
       '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}}');
     const [raw] = await Promise.all([claudeChat(prompt), new Promise(r => setTimeout(r, delay * 0.35))]);
@@ -8174,13 +8278,16 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.47）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.48）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
     ['coffee','clerk','trainer','engineer','runner','photog'].forEach(function(k){ if (!G.npcs[k]) G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); if (G.npcs[k].tier == null) G.npcs[k].tier = 2; });
     ['sleaze','fboy','thief'].forEach(function(k){ if (!G.npcs[k]) { G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); G.npcs[k].relationship = 0; G.npcs[k].tier = 3; } if (G.npcs[k].tier == null) G.npcs[k].tier = 3; });
     if (G.npcs.butler && G.npcs.butler.tier == null) G.npcs.butler.tier = 2;
+    // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
+    // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
+    if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
   })();
   (function migrateScriptedDone() {
     if (!G.scriptedDone) G.scriptedDone = {};
@@ -8221,7 +8328,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.47 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.48 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8239,7 +8346,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.47 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.48 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

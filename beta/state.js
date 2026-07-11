@@ -20,8 +20,8 @@ const STATE = {
     lang: 'en',
     langName: 'English',
 
-    // 图片风格
-    imgStyle: 'illustrated',
+    // 图片风格（用户试用 semi-realistic 中；不喜欢再改回 'illustrated'——老档迁移见 index.html 启动自愈）
+    imgStyle: 'semi-realistic',
     // 人物图高质量模式：true=人物立绘用 fal-ai/flux/dev（更听话更精细），背景仍用 schnell 省钱
     // 需要 Cloudflare Worker 支持 model 字段；Worker 未更新时该字段被忽略，安全向后兼容
     hqPortraits: true,  // 人物立绘/头像默认走 flux/dev（画质/解剖服从度高，修schnell崩坏）；背景仍schnell省钱
@@ -417,8 +417,9 @@ const STATE = {
     // ── 管家生图（只用管家族裔）──
     buildButlerPrompt(G, scene, day = 1, secretRevealed = false) {
       const npc = G.npcs?.butler || STATE.data.npcs.butler;
-      const origin = npc.origin || 'Korean';
-      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['Korean'];
+      // 降二线后不选族裔：默认改西方人（用户实测默认韩裔+schnell 出图"亚洲瘦弱男"，与健壮人设不符）
+      const origin = npc.origin || 'American';
+      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
       // ⚠️ 生图经验：不要在提示词里出现"backpack/glasses"等物体词（哪怕是 NO backpack 的否定式）——
       // flux 对否定词无效甚至反向诱导。这里只做正向描述：光洁无须的脸、双手空垂、只穿polo工作衫
       // ⚠️ 措辞经验：boyish/college-age/innocent/slim youthful 这类词堆起来会把画风推向卡通
