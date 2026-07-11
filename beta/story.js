@@ -253,6 +253,16 @@ const STORY = {
       isPublic: true,
       composition: 'a riverside running path at night, string of warm street lamps reflecting on dark water, city skyline glowing across the river, empty path with soft pools of light, cool night air atmosphere',
     },
+    bowling_alley: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a retro bowling alley at night, glowing lanes stretching away, neon signage and warm overhead lane lights, polished wood floors, scattered bowling balls on the return rack',
+    },
+    late_diner: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a classic American diner late at night, warm neon glow through the window, chrome counter and red vinyl booths, coffee steaming under pendant lights, quiet rainy street outside',
+    },
     record_store: {
       isOutdoor: false,
       isPublic: true,

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.50"></script>
-<script src="state.js?v=11.50"></script>
+<script src="story.js?v=11.51"></script>
+<script src="state.js?v=11.51"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.50 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.51 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1085,7 +1085,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.50 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.51 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1289,6 +1289,8 @@ const NPC_SLEEP = {
 };
 function isNpcAsleep(k) {
   if (!REALTIME) return false;
+  // 新手蜜月：头两天谁都愿意为刚签约的她熬夜（用户实测：凌晨0:56新玩家发现经纪人管家全下线，太冷清）
+  if (G.day <= 2) return false;
   var w = NPC_SLEEP[k]; if (!w) return false;
   var bed = ((w[0] % 24) + 24) % 24, wake = w[1], h = rtClockMin() / 60;
   return (bed < wake) ? (h >= bed && h < wake) : (h >= bed || h < wake);
@@ -2188,6 +2190,10 @@ async function genProtagonistScene(locKey, day) {
     livehouse:      'in the standing crowd, face lit by the stage lights, watching the band',
     festival_event: 'examining a little ornament at a festival stall, half-smiling at it',
     art_gallery:    'standing before a large artwork, seen from behind at a distance',
+    cinema:         'settling into a seat in the glowing dark, popcorn on her lap, face lit by the screen',
+    bowling_alley:  'mid-throw at the lane, ball just released, caught in the follow-through',
+    late_diner:     'in a corner booth of the late-night diner, hands around a mug, gazing out the window',
+    rooftop:        'leaning on the rooftop railing, looking out over the city lights, back half-turned to camera',
     music_training: 'at the piano mid-phrase, eyes on the sheet music',
     recording_studio: 'in the vocal booth at the microphone, headphones on, mid-note',
   };
@@ -2591,7 +2597,10 @@ function renderCalDayEvents(dateStr) {
 
     var typeEmoji = {work:'💼',npc_invite:'💌',player_birthday:'🎂',npc_birthday:'🎂',holiday:'🎉'}[ev.type] || '📌';
 
-    card.innerHTML = '<div class="cal-event-title">' + typeEmoji + ' ' + ev.title + (ev._new ? ' <span style="background:var(--rose);color:#fff;font-size:9px;border-radius:6px;padding:1px 6px;vertical-align:middle">NEW</span>' : '') + '</div>' +
+    // 带NPC的行程标出"和谁"（用户实测：管家约来查WiFi，日历里看不出是谁约的）
+    var _who = '';
+    if (ev.npcKey) { var _wn = ev.npcName || getNPCName(ev.npcKey); if (_wn && (ev.title || '').indexOf(_wn) < 0) _who = _wn + ' · '; }
+    card.innerHTML = '<div class="cal-event-title">' + typeEmoji + ' ' + _who + ev.title + (ev._new ? ' <span style="background:var(--rose);color:#fff;font-size:9px;border-radius:6px;padding:1px 6px;vertical-align:middle">NEW</span>' : '') + '</div>' +
       '<div class="cal-event-meta">' + (ev.time||'') + (ev.timeEnd ? '–' + ev.timeEnd : '') + (ev.time?' · ':'') + statusLabel + '</div>' +
       '<div class="cal-event-desc">' + (ev.description||'') + '</div>';
 
@@ -2615,28 +2624,8 @@ function renderCalDayEvents(dateStr) {
       }
     }
 
-    if (ev.status === 'pending' && ev.type === 'npc_invite') {
-      var acceptBtn = document.createElement('button');
-      acceptBtn.className = 'cal-btn-accept';
-      acceptBtn.textContent = isZh?'接受':'Accept';
-      acceptBtn.onclick = (function(e, ds) { return function() {
-        // 接受时冲突提醒（提醒不禁止：周旋是玩法，爽约有后果）——90分钟内已有确认的约会就问一句
-        try {
-          var near = (G.calendar.events[ds] || []).find(function(x){ return x !== e && x.type === 'npc_invite' && x.status === 'accepted' && x.time && e.time && Math.abs(parseHM(x.time) - parseHM(e.time)) <= 90; });
-          if (near) {
-            var isZhC = G.lang==='zh-cn'||G.lang==='zh-tw';
-            if (!confirm(isZhC ? '这和「' + near.title + ' · ' + near.time + '」只差不到一个半小时。都答应的话很可能赶不过去，爽约会伤感情。还要接受吗？'
-              : 'This is within 90 minutes of "' + near.title + ' · ' + near.time + '". Standing someone up hurts. Accept anyway?')) return;
-          }
-        } catch(err) {}
-        e.status='accepted'; STATE.save.saveGame(); renderCalendar(); renderCalDayEvents(ds); refreshCalBadge(); try{buildDayOpts();}catch(x){} }; })(ev, dateStr);
-      var declineBtn = document.createElement('button');
-      declineBtn.className = 'cal-btn-decline';
-      declineBtn.textContent = isZh?'拒绝':'Decline';
-      declineBtn.onclick = (function(e, ds) { return function() { e.status='declined'; STATE.save.saveGame(); renderCalendar(); renderCalDayEvents(ds); refreshCalBadge(); try{buildDayOpts();}catch(x){} }; })(ev, dateStr);
-      actions.appendChild(acceptBtn);
-      actions.appendChild(declineBtn);
-    }
+    // 日历不再有"接受/拒绝"（用户定稿 v11.51）：所有邀约在【聊天气泡】里确认，接受后才进日历——
+    // 日历只存已确认的行程。老档遗留的 pending 条目在启动自愈里清掉。
 
     if (ev.status === 'declined' || (hasConflict && ev.type === 'npc_invite')) {
       var msgBtn = document.createElement('button');
@@ -3549,9 +3538,11 @@ function confirmNPCOrigin() {
 //    不看真实时钟（修"23:30开新局，经纪人鼓手都没出来"——之前登场靠玩家在首页点"今日剧情"）。
 //    链播完 advanceAfterScene 终场分支照旧标 scriptedDone[1]+排Day2排练 → 回首页时两人已认识，直接能聊。──
 function startPrologue() {
+  var _needProlog = !(G.scriptedDone && G.scriptedDone[1]);
+  if (_needProlog) window._prologueBoot = true; // 防抢屏：startDay 的导航先别切首页（修签约→序章之间粉屏一闪）
   startDay();
-  if (!(G.scriptedDone && G.scriptedDone[1])) {
-    setTimeout(function(){ try { playScripted(1); } catch(e){} }, 200);
+  if (_needProlog) {
+    setTimeout(function(){ window._prologueBoot = false; try { playScripted(1); } catch(e){} }, 60);
   }
 }
 async function startDay() {
@@ -3652,17 +3643,18 @@ async function startDay() {
         notifyNewMessage(k);
       }
       if (st.mode === 'public') {
-        // 想公开的（鼓手）：两天后晚上他的朋友聚会（日历待确认；赴约=向他的圈子公开关系）
+        // 想公开的（鼓手）：两天后晚上他的朋友聚会——聊天气泡确认制（接受才进日历；gathering 标记跟着走）
         var gDay = G.day + 2;
         var isZhS = G.lang==='zh-cn'||G.lang==='zh-tw';
-        calAddEvent(getCalDateStr(gDay), {
-          id: 'gather_' + k + '_' + gDay,
-          type: 'npc_invite', npcKey: k, npcName: getNPCName(k),
-          title: isZhS ? (st.gTitleZh || '他的朋友聚会 🍻') : (st.gTitleEn || "His friends' gathering 🍻"),
-          status: 'pending', time: '19:30', locKey: st.gatherLoc || 'livehouse', gathering: true,
-          description: isZhS ? '去了，就等于向他的朋友们公开你们的关系。' : 'Showing up means going public to his circle.',
+        var gTitle = isZhS ? (st.gTitleZh || '他的朋友聚会 🍻') : (st.gTitleEn || "His friends' gathering 🍻");
+        if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+        G.phone.messages[G.day].push({
+          npc: k, name: getNPCName(k), day: G.day, time: nextMsgTime(G.day, 7*60+45, true), read: false,
+          emoji: NPC_UI[k]?.emoji||'🍻', color: NPC_UI[k]?.color||'#C4A882',
+          text: (isZhS ? '邀约 · ' : 'Invitation · ') + gTitle + ' · ' + getCalDateStr(gDay).slice(5).replace('-', '/') + ' 19:30',
+          meet: { locationKey: st.gatherLoc || 'livehouse', title: gTitle, time: '19:30', invId: null, pending: true, futureDay: gDay, gathering: true,
+            desc: isZhS ? '去了，就等于向他的朋友们公开你们的关系。' : 'Showing up means going public to his circle.' },
         });
-        refreshCalBadge();
         STATE.memory.addEvent(k, 'You invited her to your friends\' gathering (day ' + gDay + ', livehouse) — her showing up means going public as a couple.', G.day);
       } else {
         STATE.memory.addEvent(k, 'You asked her to keep what you two have strictly private for now.', G.day);
@@ -3753,8 +3745,18 @@ async function startDay() {
         } catch(e){} })();
       });
       if (G.fame < 40 && _bdayMet.length) {
-        // 名气还小：好感最高的NPC约今晚一起过生日（正常邀约流程，晚间赴约）
-        addNPCInvite(_bdayMet[0], G.day, isZhB2?'生日晚餐 🎂':'Birthday dinner 🎂', isZhB2?'生日不该一个人过。今晚，交给我。':'Birthdays are not for spending alone. Tonight is on me.', '19:30');
+        // 名气还小：好感最高的NPC约今晚一起过生日——聊天气泡确认制（接受才进日历）
+        (function(bk){
+          if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+          G.phone.messages[G.day].push({
+            npc: bk, name: getNPCName(bk), day: G.day, time: nextMsgTime(G.day, 7*60+25, true), read: false,
+            emoji: NPC_UI[bk]?.emoji||'🎂', color: NPC_UI[bk]?.color||'#C4A882',
+            text: (isZhB2?'邀约 · 生日晚餐 🎂 · 今晚 19:30':'Invitation · Birthday dinner 🎂 · tonight 19:30'),
+            meet: { locationKey: 'night_bar', title: isZhB2?'生日晚餐 🎂':'Birthday dinner 🎂', time: '19:30', invId: null, pending: true, futureDay: G.day,
+              desc: isZhB2?'生日不该一个人过。今晚，交给我。':'Birthdays are not for spending alone. Tonight is on me.' },
+          });
+          notifyNewMessage(bk);
+        })(_bdayMet[0]);
       } else if (G.fame >= 40) {
         // 名气高：歌迷自发庆生活动（经纪人转达+新闻卡）
         if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
@@ -3787,9 +3789,10 @@ async function startDay() {
   autoAddCalendarEvents(G.day);
   // 经纪人排班滚动：一旦开始排班（离开办公室后），每天保证提前约 1 周有行程
   if (G.calendar && G.calendar.plannedUntil) ensureAgentSchedule(G.day + 7);
-  // 场景进行中不抢屏（修"新开局没有序章"）：startPrologue 先开 startDay 再进经纪人场景，
-  // startDay 的异步收尾若在场景开始后才跑到这里，会把玩家从序章里拽回首页——有场景就不导航
-  if (!(typeof _curSceneEv !== 'undefined' && _curSceneEv)) { go('s-daily'); setABn('bn-home'); }
+  // 场景进行中/序章启动中不抢屏（修"新开局没有序章"+签约后粉屏一闪）：
+  // startPrologue 先开 startDay 再进经纪人场景——场景在或即将开时不切首页
+  if (!(typeof _curSceneEv !== 'undefined' && _curSceneEv) && !window._prologueBoot) { go('s-daily'); setABn('bn-home'); }
+  try { buildDayOpts(); } catch(e) {} // 行程选项立刻渲染（修"见完鼓手回首页没有行程，要再点一次首页"——旧位置在异步收尾之后）
   // 序章兜底：Day1 且登场链没完成（比如设置流程中刷新、之后走"继续游戏"绕过了 s-ch1 的按钮）→ 自动进序章/续播
   if (G.day === 1 && !(G.scriptedDone && G.scriptedDone[1])) {
     setTimeout(function(){
@@ -3994,6 +3997,12 @@ function buildDayOpts() {
       if (!_lPool.some(function(o){ return o.key === 'night_bar'; })) _lPool.unshift({ key:'night_bar', label:isZh?'夜间酒吧':lang==='ja'?'ナイトバー':lang==='ko'?'나이트바':'Night Bar' });
       if (!_lPool.some(function(o){ return o.key === 'livehouse'; })) _lPool.push({ key:'livehouse', label:isZh?'去livehouse听现场':lang==='ja'?'ライブハウス':lang==='ko'?'라이브하우스':'Livehouse' });
       _lPool.push({ key:'night_run', label:isZh?'夜跑':lang==='ja'?'ナイトラン':lang==='ko'?'야간 러닝':'Night run' });
+      // 夜间活动扩充（用户要求"欧美人晚上还干嘛"）：晚场电影(23点前)/保龄球(午夜前)/深夜食堂(24h)/天台看夜景
+      var _nm = rtClockMin();
+      if (_nm >= 19 * 60 && _nm < 23 * 60) _lPool.push({ key:'cinema', label:isZh?'看晚场电影':lang==='ja'?'レイトショー':lang==='ko'?'심야 영화':'Late movie' });
+      if (_nm >= 19 * 60) _lPool.push({ key:'bowling_alley', label:isZh?'打保龄球':lang==='ja'?'ボウリング':lang==='ko'?'볼링':'Bowling' });
+      _lPool.push({ key:'late_diner', label:isZh?'深夜食堂':lang==='ja'?'深夜ダイナー':lang==='ko'?'심야 식당':'Late-night diner' });
+      _lPool.push({ key:'rooftop', label:isZh?'天台看夜景':lang==='ja'?'屋上で夜景':lang==='ko'?'옥상 야경':'Rooftop night view' });
     }
     const lPicks = shuffle(_lPool);
     // 当地节日：白天/夜里都给"参加节日活动"入口，且放最前不被洗走（用户要求）
@@ -4171,6 +4180,8 @@ const PLACE_HOURS = {
   beauty_salon:[10,20], hair_salon:[10,20], shopping_mall:[10,22], bookshop:[9,21],
   furniture_store:[10,20], farmers_market:[6,14], street_market:[8,22],
   cafe:[7,22], realty:[9,18], art_gallery:[10,18], record_store:[11,21],
+  cinema:[10,23], bowling_alley:[12,24],
+  // late_diner / rooftop / night_run 不在表里 = 全天可去
   // supermarket 不在表里 = 24小时便利店：深夜也能去（孤独的深夜总得有地方买点吃的）
 };
 // 自由活动限额（用户定稿 3+3）：白天3次 + 晚上19:00起另有3次，分开计数——
@@ -4313,7 +4324,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.50 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.51 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5576,7 +5587,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.50：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.51：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -7075,20 +7086,6 @@ async function generateAffinityMessages(day) {
       } catch (e) { msg = (raw2 || '').trim(); }
 
       if (msg && msg.trim().length > 3) {
-        // 邀约写入日历：日期严格按AI在JSON里声明的天数（和消息文字一致），不再乱猜3-7天后
-        // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"（避免回家后才收到今晚19:30的约）
-        if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
-          var inviteDay = day + inviteInfo.daysFromNow;
-          var isZhInv = G.lang==='zh-cn'||G.lang==='zh-tw';
-          addNPCInvite(npcKey, inviteDay,
-            (G.npcs[npcKey].name||getNPCName(npcKey)) + (isZhInv?' 的邀约':' Invitation'),
-            msg.trim(),
-            /^\d{1,2}:\d{2}$/.test(inviteInfo.time||'') ? inviteInfo.time : '19:30'
-          );
-          // 约会地点=措辞里描述的那个地点（生成前已按性格+城市地标挑好）
-          const invEv = (G.calendar.events[getCalDateStr(inviteDay)]||[]).find(e => e.id === 'invite_'+npcKey+'_'+inviteDay);
-          if (invEv) invEv.locKey = _invSpot;
-        }
         if (!G.phone.messages[day]) G.phone.messages[day] = [];
         G.phone.messages[day].push({
           npc: npcKey,
@@ -7103,6 +7100,20 @@ async function generateAffinityMessages(day) {
           tier,
           occasion: occasion?.key || (isBirthday?'birthday':null),
         });
+        // 邀约改"聊天内确认"制（用户定稿 v11.51）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
+        // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"
+        if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
+          var inviteDay = day + inviteInfo.daysFromNow;
+          var isZhInv = G.lang==='zh-cn'||G.lang==='zh-tw';
+          var invTitle = (G.npcs[npcKey].name||getNPCName(npcKey)) + (isZhInv?' 的邀约':' Invitation');
+          var invTime = /^\d{1,2}:\d{2}$/.test(inviteInfo.time||'') ? inviteInfo.time : '19:30';
+          G.phone.messages[day].push({
+            npc: npcKey, name: npc.name || getNPCName(npcKey), day: day,
+            time: nextMsgTime(day, 22 * 60), read: false,
+            text: (isZhInv ? '邀约 · ' : 'Invitation · ') + invTitle + ' · ' + getCalDateStr(inviteDay).slice(5).replace('-', '/') + ' ' + invTime,
+            meet: { locationKey: _invSpot || 'cafe', title: invTitle, time: invTime, invId: null, pending: true, futureDay: inviteDay, desc: msg.trim().slice(0, 80) },
+          });
+        }
       }
     } catch(e) {
       console.log('Affinity msg failed for', npcKey, e);
@@ -7670,32 +7681,37 @@ function renderChatMsgs(npc, dividerIdx) {
       var isZhMb = G.lang==='zh-cn'||G.lang==='zh-tw';
       var greyCss = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
       var activeCss = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
-      var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(m.day)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
-      if (m.meet.pending && !m.meet.invId) {
-        // 定时约会待你答应（用户定稿：同意后才进日历）：给"接受/婉拒"，接受才写日历
+      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.51 邀约全面改聊天确认制）
+      var _mday = m.meet.futureDay || m.day;
+      var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
+      if (m.meet.pending && !m.meet.invId && _mday < G.day) {
+        // 没答复就过了日子 → 过期
+        mbtn.style.cssText = greyCss; mbtn.textContent = '⌛ ' + m.text + (isZhMb?' · 已过期':' · Expired');
+      } else if (m.meet.pending && !m.meet.invId) {
+        // 邀约待你答应（用户定稿：同意后才进日历）：给"接受/婉拒"，接受才写日历
         mbtn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center;padding-bottom:6px';
         mbtn.innerHTML = '<div style="margin-bottom:6px">💌 ' + m.text + '</div>';
         var acc = document.createElement('button'); acc.className='cal-btn-accept'; acc.style.cssText='margin-right:8px'; acc.textContent = isZhMb?'接受':'Accept';
         var dec = document.createElement('button'); dec.className='cal-btn-decline'; dec.textContent = isZhMb?'婉拒':'Decline';
-        acc.onclick = (function(mm){ return function(){
-          // 和日历接受同一套冲突提醒：90分钟内已有确认约会就问一句（提醒不禁止）
+        acc.onclick = (function(mm, md){ return function(){
+          // 冲突提醒：同一天90分钟内已有确认约会就问一句（提醒不禁止）
           try {
-            var nearC = (G.calendar.events[getCalDateStr(mm.day)] || []).find(function(x){ return x && x.type === 'npc_invite' && x.status === 'accepted' && x.time && mm.meet.time && Math.abs(parseHM(x.time) - parseHM(mm.meet.time)) <= 90; });
+            var nearC = (G.calendar.events[getCalDateStr(md)] || []).find(function(x){ return x && x.type === 'npc_invite' && x.status === 'accepted' && x.time && mm.meet.time && Math.abs(parseHM(x.time) - parseHM(mm.meet.time)) <= 90; });
             if (nearC) {
               var isZhC2 = G.lang==='zh-cn'||G.lang==='zh-tw';
               if (!confirm(isZhC2 ? '这和「' + nearC.title + ' · ' + nearC.time + '」只差不到一个半小时，爽约会伤感情。还要接受吗？'
                 : 'This is within 90 minutes of "' + nearC.title + ' · ' + nearC.time + '". Accept anyway?')) return;
             }
           } catch(err) {}
-          var id = 'chat_meet_' + mm.npc + '_' + mm.day + '_' + String(mm.meet.time).replace(':','');
-          calAddEvent(getCalDateStr(mm.day), { id:id, type:'npc_invite', npcKey:mm.npc, npcName:getNPCName(mm.npc), title:mm.meet.title, status:'accepted', time:mm.meet.time, locKey:mm.meet.locationKey, description:mm.meet.desc||'' });
+          var id = 'chat_meet_' + mm.npc + '_' + md + '_' + String(mm.meet.time).replace(':','');
+          calAddEvent(getCalDateStr(md), { id:id, type:'npc_invite', npcKey:mm.npc, npcName:getNPCName(mm.npc), title:mm.meet.title, status:'accepted', time:mm.meet.time, locKey:mm.meet.locationKey, gathering: mm.meet.gathering || undefined, description:mm.meet.desc||'' });
           mm.meet.invId = id; mm.meet.pending = false;
-          STATE.memory.addEvent(mm.npc, 'She said yes — you two are on for ' + mm.meet.time + ' today ("' + mm.meet.title + '").', mm.day);
+          STATE.memory.addEvent(mm.npc, 'She said yes — you two are on for ' + mm.meet.time + (md === G.day ? ' today' : ' on day ' + md) + ' ("' + mm.meet.title + '").', G.day);
           refreshCalBadge(); try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
-        }; })(m);
+        }; })(m, _mday);
         dec.onclick = (function(mm){ return function(){
           mm.meet.pending = false; mm.meet.declined = true;
-          STATE.memory.addEvent(mm.npc, 'She declined the ' + mm.meet.time + ' plan ("' + mm.meet.title + '") — turned you down gently.', mm.day);
+          STATE.memory.addEvent(mm.npc, 'She declined the ' + mm.meet.time + ' plan ("' + mm.meet.title + '") — turned you down gently.', G.day);
           try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
         }; })(m);
         mbtn.appendChild(acc); mbtn.appendChild(dec);
@@ -7704,6 +7720,12 @@ function renderChatMsgs(npc, dividerIdx) {
       } else if (mInv) {
         if (mInv.status === 'completed') { mbtn.style.cssText = greyCss; mbtn.textContent = '✅ ' + m.text + (isZhMb?' · 已见面':' · Done'); }
         else if (mInv.status !== 'accepted') { mbtn.style.cssText = greyCss; mbtn.textContent = '⌛ ' + m.text + (isZhMb?' · 已过期':' · Expired'); }
+        else if (_mday > G.day) {
+          // 已接受、日子还没到：锁定态显示日期
+          mbtn.style.cssText = greyCss + ';cursor:pointer';
+          mbtn.textContent = '🕐 ' + m.text;
+          mbtn.onclick = (function(md){ return function(){ alert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '约好了——到那天再来赴约。' : "It's a date — come back that day."); }; })(_mday);
+        }
         else {
           var mSt = inviteState(mInv);
           if (mSt === 'before') { mbtn.style.cssText = greyCss + ';cursor:pointer'; mbtn.textContent = '🕐 ' + m.text; mbtn.onclick = (function(iv){ return function(){ alert(inviteNotYetMsg(iv)); }; })(mInv); }
@@ -7973,33 +7995,25 @@ async function sendChatReply() {
         });
         STATE.memory.addEvent(npc, (mTime ? 'Proposed meeting her today at ' + mTime + ' (awaiting her yes)' : 'Agreed to meet her right now') + ': "' + mTitle + '"', G.day);
       }
-      // 聊天里谈成的未来约会：写入日历为"待确认"（玩家在日历点接受才算数——修"日历直接帮我确认了"+双约撞车）；
-      // 同一NPC同一天已有邀约 → 合并更新，不再堆重复条目（修图5同一计划出现两条）
+      // 聊天里谈成的未来约会（用户定稿 v11.51）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
+      // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
         const fiDay = G.day + futureInv.daysFromNow;
-        const fiDate = getCalDateStr(fiDay);
-        const fiTitle = (futureInv.title || '').slice(0, 40) || ((G.lang==='zh-cn'||G.lang==='zh-tw')?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
+        const isZhF = G.lang==='zh-cn'||G.lang==='zh-tw';
+        const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
         const fiTime = /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30';
         const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training'];
-        const fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : null;
-        const existingInv = (G.calendar.events[fiDate] || []).find(e => e.type === 'npc_invite' && e.npcKey === npc && e.status !== 'declined' && e.status !== 'missed');
-        if (existingInv) {
-          existingInv.title = fiTitle; existingInv.time = fiTime; existingInv.description = reply.slice(0, 80);
-          if (fiLoc) existingInv.locKey = fiLoc;
-          existingInv._new = true;
-        } else {
-          calAddEvent(fiDate, {
-            id: 'chat_invite_' + npc + '_' + fiDay,
-            type: 'npc_invite', npcKey: npc, npcName: getNPCName(npc),
-            title: fiTitle,
-            status: 'pending',
-            time: fiTime,
-            locKey: fiLoc,
-            description: reply.slice(0, 80),
+        const fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
+        // 那天已有这位NPC的已确认约会 → 不再重复发气泡
+        const _hasAcc = (G.calendar.events[getCalDateStr(fiDay)] || []).some(e => e && e.type === 'npc_invite' && e.npcKey === npc && e.status === 'accepted');
+        if (!_hasAcc) {
+          G.phone.messages[G.day].push({
+            npc, name: getNPCName(npc), day: G.day, time: getPhoneClockTime(), read: (_openChatNpc === npc),
+            text: (isZhF ? '邀约 · ' : 'Invitation · ') + fiTitle + ' · ' + getCalDateStr(fiDay).slice(5).replace('-', '/') + ' ' + fiTime,
+            meet: { locationKey: fiLoc, title: fiTitle, time: fiTime, invId: null, pending: true, futureDay: fiDay, desc: reply.slice(0, 80) },
           });
+          STATE.memory.addEvent(npc, 'Over text you proposed meeting on day ' + fiDay + ' ("' + fiTitle + '") — awaiting her confirmation in chat.', G.day);
         }
-        STATE.memory.addEvent(npc, 'Over text you two discussed meeting on day ' + fiDay + ' ("' + fiTitle + '") — plan noted on her calendar, she still confirms there.', G.day);
-        refreshCalBadge();
       }
       notifyNewMessage(npc);
     } else {
@@ -8110,7 +8124,8 @@ function renderFame() {
 // ══════════════════════════════════════════════════════
 function renderAffection() {
   const lang = G.lang;
-  const ranked = STATE.relationships.getRanked();
+  // 三线（反面）不进好感度页（用户定稿）：渣男/油腻男/小偷不配占一行
+  const ranked = STATE.relationships.getRanked().filter(function(n){ return npcTier(n.key) < 3; });
   if (ranked.length === 0) {
     document.getElementById('affection-list').innerHTML = '<p style="color:var(--ink-muted);font-size:14px;text-align:center;padding:40px 0">' + (lang==='zh-cn'?'还没有认识任何人':'No connections yet') + '</p>';
     return;
@@ -8121,13 +8136,14 @@ function renderAffection() {
     const color = NPC_UI[npc.key]?.color || '#C4A882';
     // 头像用玩家确认的生成立绘，还没有立绘的NPC回退emoji
     const pUrl = G.npcs[npc.key] && G.npcs[npc.key].portraitUrl;
+    // 点头像/整卡 → NPC信息卡（用户定稿：和消息里点头像一致）
     const avatar = pUrl
-      ? '<img class="aff-avatar" src="' + pUrl + '" onclick="openLB(this.src)">'
-      : '<div class="aff-avatar aff-avatar-emoji">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
+      ? '<img class="aff-avatar" src="' + pUrl + '" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">'
+      : '<div class="aff-avatar aff-avatar-emoji" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
     // 过夜"勋章"：隐晦的🌙缀在名字后（不写字，懂的自然懂；过夜次数≥3 加一颗小星）
     const nights = (G.npcs[npc.key] && G.npcs[npc.key].nights) || 0;
     const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.75" title="✦">🌙' + (nights >= 3 ? '⋆' : '') + '</span>' : '';
-    return '<div class="affection-card">' + avatar +
+    return '<div class="affection-card" style="cursor:pointer" onclick="openNpcProfile(\'' + npc.key + '\')">' + avatar +
       '<div class="aff-info">' +
         '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
         '<div class="aff-bar-bg"><div class="aff-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
@@ -8321,7 +8337,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.50）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.51）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8331,6 +8347,13 @@ window.addEventListener('load', () => {
     // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
     // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
     if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
+    // 邀约改"聊天内确认"制（v11.51 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
+    // （新邀约都会以聊天气泡形式重新出现，不丢内容）
+    try {
+      Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){
+        G.calendar.events[ds] = (G.calendar.events[ds] || []).filter(function(e){ return !(e && e.type === 'npc_invite' && e.status === 'pending'); });
+      });
+    } catch(e) {}
   })();
   (function migrateScriptedDone() {
     if (!G.scriptedDone) G.scriptedDone = {};
@@ -8371,7 +8394,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.50 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.51 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8389,7 +8412,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.50 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.51 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
