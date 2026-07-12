@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.76"></script>
-<script src="state.js?v=11.76"></script>
+<script src="story.js?v=11.77"></script>
+<script src="state.js?v=11.77"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.76 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.77 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1088,7 +1088,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.76 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.77 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1976,12 +1976,15 @@ async function img(prompt, label = '', save = false, retries = 2, seed = null, h
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
   // styleOverride：个别图（如卧室夜景）用户实测另一套风格更好看，用它覆盖全局画风
   const style = styleOverride || STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['illustrated'];
-  const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
   // 人物图高质量模式：立绘走 flux/dev（提示词服从度高），背景仍走 schnell 省钱。
   // Worker 未更新时 model 字段会被忽略（仍走 schnell），安全向后兼容
   // 生图全量 schnell（fal余额紧张，测剧情逻辑阶段省钱——用户定稿 2026-07）。
   // 等进入"对话+图提示词+模型"统一优化批时，把下行改回 `= hq` 即恢复人物图 flux/dev。
   const useDev = false;
+  // schnell 画手容易崩：人物图(hq=true)时把手挡在画面外/藏起来省得出错（用户定稿）。
+  // 切到 dev 模型(把上面 useDev 改回 = hq)后这段自动消失——hq&&!useDev 变为假。
+  const noHands = (hq && !useDev) ? ', framed from the upper body with hands kept out of frame and not visible, no hands shown' : '';
+  const fullPrompt = style + ', ' + prompt + noHands + ', portrait orientation, high quality';
   if (useDev) console.log('[IMG] HQ flux/dev 28steps →', label); // 调试：确认高质量模式实际生效
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -2147,10 +2150,10 @@ function showVNTapHint() {
   const el = document.getElementById('vn-tap-hint');
   if (!el) return;
   const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  el.textContent = isZh ? '点画面放大 · 点背景收起对话框'
-    : G.lang==='ja' ? '画像タップで拡大 · 背景タップで会話を隠す'
-    : G.lang==='ko' ? '이미지 탭하면 확대 · 배경 탭하면 대화 숨김'
-    : 'Tap the picture to enlarge · tap the background to hide the text';
+  el.textContent = isZh ? '点立绘放大 · 点背景收起，看整张场景图'
+    : G.lang==='ja' ? '立ち絵タップで拡大 · 背景タップでシーンを表示'
+    : G.lang==='ko' ? '일러스트 탭하면 확대 · 배경 탭하면 장면 보기'
+    : 'Tap the character to enlarge · tap the background to view the full scene';
   el.style.display = 'block';
   el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; // 重启动画
   clearTimeout(showVNTapHint._t);
@@ -2162,9 +2165,13 @@ function showVNTapHint() {
 function toggleVNDialog() {
   const c = document.getElementById('vn-content');
   const a = document.getElementById('vn-avatars');
+  const card = document.getElementById('vn-npc-card');
   const hidden = c.style.visibility === 'hidden';
   c.style.visibility = hidden ? 'visible' : 'hidden';
   a.style.visibility = hidden ? '' : 'hidden'; // 恢复时交还给子元素自己的显隐规则
+  // 也收起立绘卡，露出整张场景图（用户实测：约会时漂亮的场景图被立绘+对话框挡着看不到）
+  // 用 visibility 不动 display：卡本来是 none 的场景，恢复时也不会被强行显示
+  if (card) card.style.visibility = hidden ? '' : 'hidden';
 }
 
 // ── NPC初次登场三选一：三张共用seed不同姿势的头像，玩家选中的锁定为固定立绘 ──
@@ -8747,7 +8754,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.76 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.77 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
