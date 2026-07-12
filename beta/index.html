@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.72"></script>
-<script src="state.js?v=11.72"></script>
+<script src="story.js?v=11.73"></script>
+<script src="state.js?v=11.73"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.72 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.73 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1088,7 +1088,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.72 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.73 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1563,8 +1563,11 @@ const ACQ_DESC = {
 };
 // 关键关系写死正确事实（超出泛泛"认识"）——防模型瞎编身份
 function acqSpecificFact(npcKey, otherKey) {
-  if ((npcKey === 'drummer' && otherKey === 'agent') || (npcKey === 'agent' && otherKey === 'drummer'))
-    return ' — he is HER talent agent/manager AND the one who assembled the band you drum in; you two work together closely and you know full well he signed and manages her (do NOT mistake him for a "producer")';
+  // 必须区分视角，否则会说反（用户实测：经纪人把鼓手说成"你的经纪人"）
+  if (npcKey === 'drummer' && otherKey === 'agent') // 鼓手 谈 经纪人
+    return ' — he is HER talent agent/manager, and the one who put together the band YOU drum in; you work with him closely and know he signed and manages her (do NOT call him a "producer")';
+  if (npcKey === 'agent' && otherKey === 'drummer') // 经纪人 谈 鼓手
+    return ' — he is the drummer / band leader of the band YOU assembled for her; you manage her and coordinate with him on her music (he is NOT her agent — YOU are)';
   return '';
 }
 function npcAcquaintanceNote(npcKey) {
@@ -8734,7 +8737,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.72 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.73 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
