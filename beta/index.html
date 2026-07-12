@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.79"></script>
-<script src="state.js?v=11.79"></script>
+<script src="story.js?v=11.80"></script>
+<script src="state.js?v=11.80"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -289,14 +289,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .mp-track.playing .mp-track-title{color:var(--rose);font-weight:600;}
 .mp-track.playing .mp-track-num{color:var(--rose);}
 /* Chat list */
-.wc-chat-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(92,31,53,0.08);cursor:pointer;transition:background 0.1s;}
+.wc-chat-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(92,31,53,0.08);cursor:pointer;transition:background 0.1s;}
 .wc-chat-item:active{background:rgba(92,31,53,0.05);}
-.wc-avatar{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.wc-avatar{width:52px;height:52px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
 .wc-chat-info{flex:1;min-width:0;}
-.wc-chat-name{font-size:13px;color:var(--text-dark);font-weight:600;margin-bottom:2px;}
-.wc-chat-preview{font-size:11px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wc-chat-name{font-size:15px;color:var(--text-dark);font-weight:600;margin-bottom:3px;}
+.wc-chat-preview{font-size:13px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wc-chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
-.wc-chat-time{font-size:10px;color:var(--ink-muted);}
+.wc-chat-time{font-size:11px;color:var(--ink-muted);}
 .wc-unread{background:#f00;color:#fff;font-size:9px;border-radius:50%;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
 /* Chat bubbles */
 .wc-msg-area{padding:10px 12px;display:flex;flex-direction:column;gap:10px;}
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.79 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.80 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,7 +1090,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.79 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.80 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3827,7 +3827,8 @@ async function startDay() {
   var calIconEl = document.getElementById('cal-icon-day');
   if (calIconEl) calIconEl.textContent = parseInt(getCalDateStr(G.day).slice(-2), 10);
   // ── 每周一发布 DAILY ENCORE 新人热度周榜（事业紧迫感：名次随名气浮动，经纪人转发）──
-  if (getGameWeekday(G.day) === 1 && G.day > 1 && G._chartWeekDay !== G.day) {
+  // 早上8点后才发（实时）：媒体不会周一凌晨0点发榜，玩家半夜也不该被经纪人转发吵到（用户实测0:11收到）
+  if (getGameWeekday(G.day) === 1 && G.day > 1 && G._chartWeekDay !== G.day && (!REALTIME || rtClockMin() >= 8 * 60)) {
     G._chartWeekDay = G.day;
     var isZhC = G.lang==='zh-cn'||G.lang==='zh-tw';
     var rank = Math.max(1, Math.min(200, 200 - Math.round((G.fame||0) * 1.8) + Math.floor(Math.random()*7) - 3));
@@ -6864,7 +6865,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
     ? 'She is already AT your place and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle for her to STAY the night — tasteful, implicit (the hour, the rain, an unfinished sentence — anything but pressure). ' + (_nightsSoFar > 0 ? 'She has stayed before (' + _nightsSoFar + ' time(s)) — quiet intimacy, no pretext games. ' : '') + 'One or two sentences, spoken words only.'
     : _nightsSoFar === 0
     ? 'The evening date is ending, and neither of you wants it to. In YOUR character\'s voice, gently and suggestively invite her back to YOUR place tonight — tasteful, implicit, never explicit. VARY THE PRETEXT and make it PERSONAL to you and to tonight — never the generic "one more drink/来喝杯茶": e.g. something at your place you want to show her, a record only you own, the view from your window, something you cook, or simply the honest unfinished sentence ("今晚…我还不想说晚安"). Never reuse a pretext that appears in Previous interactions. One or two sentences, spoken words only.'
-    : 'The evening date is ending. She has ALREADY stayed the night with you ' + _nightsSoFar + ' time(s) — past pretexts now. Invite her back to your place with the quiet confidence and intimacy of someone she has woken up next to: reference tonight, or something small and private between you two. Vary it — never the same line twice. Tasteful and implicit. One or two sentences, spoken words only.';
+    : 'The evening date is ending. She has ALREADY stayed the night with you ' + _nightsSoFar + ' time(s) — past pretexts now. Invite her back to your place with the quiet confidence and intimacy of someone she has woken up next to. Do NOT dress it up as a practical excuse or justification (leftover wine "going to waste", the late hour, something to return) — you do not need a reason anymore; say plainly and warmly that you want her home with you tonight, in your own voice. You may reference tonight or something small and private between you two, but as intimacy, not as an excuse. Vary it — never the same line twice. Tasteful and implicit. One or two sentences, spoken words only.';
   let line = '';
   if (!(opts && opts.direct)) {
     try {
@@ -7727,9 +7728,15 @@ function updatePhoneBadge() {
   }
 }
 
+// 消息时间戳（微信惯例）：今天=只显时间；昨天=「昨天 HH:MM」；更早=日期+时间
 function formatMsgTimestamp(m) {
   if (!m) return '';
   if (m.day == null || m.day === G.day) return m.time || '';
+  if (m.day === G.day - 1) {
+    var isZhTs = G.lang==='zh-cn'||G.lang==='zh-tw';
+    var yWord = isZhTs ? '昨天' : G.lang==='ja' ? '昨日' : G.lang==='ko' ? '어제' : 'Yesterday';
+    return yWord + ' ' + (m.time || '');
+  }
   return getGameDate(m.day) + ' ' + (m.time || '');
 }
 
@@ -8757,7 +8764,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.79 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.80 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
