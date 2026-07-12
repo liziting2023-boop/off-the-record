@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.56"></script>
-<script src="state.js?v=11.56"></script>
+<script src="story.js?v=11.57"></script>
+<script src="state.js?v=11.57"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.56 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.57 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.56 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.57 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1511,6 +1511,14 @@ function isMainNpc(k) { return !!MAIN_NPCS[k]; }
 function npcTier(k) { return (G.npcs[k] && G.npcs[k].tier) || 1; }
 // 能不能收发短信（用户定稿）：一线随时；二线要交换过联系方式(contact)才行；管家例外(Day1短信即有)
 function npcHasContact(k) { return npcTier(k) < 2 || k === 'butler' || !!(G.npcs[k] && G.npcs[k].contact); }
+// 去/来家的门槛（用户定稿）：家=亲密专属。够亲密(好感到过夜线 或 已过夜)→双向随时；
+// 门槛前只有例外：经纪人/管家可来【她家】(工作/维修，非亲密)。其余一律不去/不来家。
+function homeVisitAllowed(k, locationKey) {
+  var n = G.npcs[k]; if (!n) return false;
+  if ((n.nights || 0) > 0 || (n.relationship || 0) >= (STAYOVER_MIN[k] || 60)) return true;
+  if (locationKey === 'her_home' && (k === 'agent' || k === 'butler')) return true; // 门槛前例外：来她家办正事
+  return false;
+}
 
 // ── 九人相识关系网（用于将来"群聊"分组 + 影响对话/吃醋）──
 // 关系性质：professional/friendly/rivalry/disdain/frenemy/industry/local；侦探=谁都认识但没人知道他在盯
@@ -2648,7 +2656,7 @@ function renderCalDayEvents(dateStr) {
       }
     }
 
-    // 日历不再有"接受/拒绝"（用户定稿 v11.56）：所有邀约在【聊天气泡】里确认，接受后才进日历——
+    // 日历不再有"接受/拒绝"（用户定稿 v11.57）：所有邀约在【聊天气泡】里确认，接受后才进日历——
     // 日历只存已确认的行程。老档遗留的 pending 条目在启动自愈里清掉。
 
     if (ev.status === 'declined' || (hasConflict && ev.type === 'npc_invite')) {
@@ -5739,7 +5747,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.56：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.57：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -7277,7 +7285,7 @@ async function generateAffinityMessages(day) {
           tier,
           occasion: occasion?.key || (isBirthday?'birthday':null),
         });
-        // 邀约改"聊天内确认"制（用户定稿 v11.56）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
+        // 邀约改"聊天内确认"制（用户定稿 v11.57）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
         // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"
         if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
           var inviteDay = day + inviteInfo.daysFromNow;
@@ -7859,7 +7867,7 @@ function renderChatMsgs(npc, dividerIdx) {
       var isZhMb = G.lang==='zh-cn'||G.lang==='zh-tw';
       var greyCss = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
       var activeCss = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
-      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.56 邀约全面改聊天确认制）
+      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.57 邀约全面改聊天确认制）
       var _mday = m.meet.futureDay || m.day;
       var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
       if (m.meet.pending && !m.meet.invId && _mday < G.day) {
@@ -8092,6 +8100,11 @@ async function sendChatReply() {
     const recentMsgs = Object.values(G.phone.messages||{}).flat()
       .filter(m => m && m.npc === npc).slice(-10)
       .map(m => (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0, 80)).join('\n');
+    // 家=亲密专属的门槛规则（用户定稿）：够亲密才双向随时；否则家OFF；经纪人/管家门槛前可来她家办正事
+    var _homeRule = homeVisitAllowed(npc, 'his_home')
+      ? 'HOME OK: you two are close enough that home visits feel natural — her place or yours are both fine if that is what you two agree on. '
+      : ('HOME GATE: you two are NOT intimate yet, so home is OFF LIMITS — do NOT agree to go to her place or invite her to yours; keep any meetup at a PUBLIC place (cafe/park/bookshop/etc). If she suggests a home visit, decline it lightly and NATURALLY (a small excuse, or redirect to somewhere public) — NEVER state a rule such as "we barely know each other" or "too soon". '
+        + ((npc === 'agent' || npc === 'butler') ? 'EXCEPTION: you MAY come to HER place strictly for a practical reason (as her agent: work — drop something off, check on her when she is stressed/unwell; as the building manager: fix or check something) — professional, not romantic, and never an overnight. ' : ''));
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
     const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
       'RECENT CHAT (oldest→newest, YOU=you, HER=her):\n' + recentMsgs + '\n' +
@@ -8108,6 +8121,7 @@ async function sendChatReply() {
       'MEETUP RULES — distinguish carefully: if she proposes meeting TODAY and you accept, fill "meet". If you two agree to meet TODAY at a SPECIFIC LATER TIME (e.g. 3pm rehearsal, dinner at 7), fill meet.time with that "HH:MM" — if meeting right now, meet.time=null. If a FUTURE day (tomorrow, the 6th, this weekend...) is discussed, fill "futureInvite" ONLY when SHE has clearly said yes to that specific day in HER messages — if YOU are the one proposing and she has not yet agreed, fill NEITHER (wait for her answer in a later message). NEVER use "meet" for future plans. When a FUTURE day is agreed, your reply text must name that day explicitly by weekday/date (never just "tomorrow"), and "daysFromNow" MUST be computed from the DATE REFERENCE table to land exactly on the day you named — if you say Friday, daysFromNow must map to Friday, and "next evening/明晚" means daysFromNow=1.' + upcomingDatesRef(G.day, 6) + ' ' +
       'For "locationKey" pick the place that ACTUALLY matches what was proposed — READ WHOSE HOME CAREFULLY: if SHE says 去你家/到你那/"your place"/"come to yours" → she is visiting YOU → "his_home". If she says 来我家/我家/"my place"/"come over (to mine)" or YOU are going to HER → "her_home". Getting this backwards ruins the scene. Magazine shoot → "magazine_shoot", recording session → "recording_studio", practice → "music_training"; otherwise the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue, never "cafe" as a lazy default when she said a home. ' +
       'WORKPLACE RULE: if you two are meeting where YOU work or are working right now (the studio, rehearsal space, your café, the gym) → use that work location (recording_studio/music_training/cafe/gym), NEVER "his_home" just because you happen to be there — 工作室/studio is NOT your home. ' +
+      _homeRule +
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
       '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}}');
@@ -8162,7 +8176,9 @@ async function sendChatReply() {
         const isZhM = G.lang==='zh-cn'||G.lang==='zh-tw';
         const mTitle = (meetInfo.title||'').slice(0,30) || (isZhM?'见面':'Meet up');
         // 家地点(her_home/his_home)不在 STORY.locations 里（单独处理）；没给有效地点时管家默认公寓大厅，其余咖啡馆
-        const mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : (npc === 'butler' ? 'apartment_lobby' : 'cafe');
+        let mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : (npc === 'butler' ? 'apartment_lobby' : 'cafe');
+        // 家门槛兜底（用户定稿）：AI 万一在没到亲密时还是给了家地点 → 改到公共场所（经纪人/管家来她家办事除外）
+        if (/_home$/.test(mLoc) && !homeVisitAllowed(npc, mLoc)) mLoc = (npc === 'butler' ? 'apartment_lobby' : 'cafe');
         const mTime = (meetInfo.time && /^\d{1,2}:\d{2}$/.test(meetInfo.time)) ? meetInfo.time : null;
         // 约了具体时间的见面：不再直接进日历（用户定稿）——聊天里出现"接受/婉拒"按钮，玩家接受后才进日历。
         // 马上见的(无time)保持原样：直接可点进见面。
@@ -8173,7 +8189,7 @@ async function sendChatReply() {
         });
         STATE.memory.addEvent(npc, (mTime ? 'Proposed meeting her today at ' + mTime + ' (awaiting her yes)' : 'Agreed to meet her right now') + ': "' + mTitle + '"', G.day);
       }
-      // 聊天里谈成的未来约会（用户定稿 v11.56）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
+      // 聊天里谈成的未来约会（用户定稿 v11.57）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
         const fiDay = G.day + futureInv.daysFromNow;
@@ -8181,7 +8197,8 @@ async function sendChatReply() {
         const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
         const fiTime = /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30';
         const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training'];
-        const fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
+        let fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
+        if (/_home$/.test(fiLoc) && !homeVisitAllowed(npc, fiLoc)) fiLoc = 'cafe'; // 家门槛兜底（同 meet）
         // 那天已有这位NPC的已确认约会 → 不再重复发气泡
         const _hasAcc = (G.calendar.events[getCalDateStr(fiDay)] || []).some(e => e && e.type === 'npc_invite' && e.npcKey === npc && e.status === 'accepted');
         if (!_hasAcc) {
@@ -8522,18 +8539,18 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.56）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.57）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
     ['coffee','clerk','trainer','engineer','runner','photog'].forEach(function(k){ if (!G.npcs[k]) G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); if (G.npcs[k].tier == null) G.npcs[k].tier = 2; if (G.npcs[k].met && G.npcs[k].contact == null) G.npcs[k].contact = true; });
-    if (G.npcs.butler && G.npcs.butler.met && G.npcs.butler.contact == null) G.npcs.butler.contact = true; // 老档兼容：联系方式机制(v11.56)之前已认识的二线，视为已交换，别把老玩家锁在外面
+    if (G.npcs.butler && G.npcs.butler.met && G.npcs.butler.contact == null) G.npcs.butler.contact = true; // 老档兼容：联系方式机制(v11.57)之前已认识的二线，视为已交换，别把老玩家锁在外面
     ['sleaze','fboy','thief'].forEach(function(k){ if (!G.npcs[k]) { G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); G.npcs[k].relationship = 0; G.npcs[k].tier = 3; } if (G.npcs[k].tier == null) G.npcs[k].tier = 3; });
     if (G.npcs.butler && G.npcs.butler.tier == null) G.npcs.butler.tier = 2;
     // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
     // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
     if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
-    // 邀约改"聊天内确认"制（v11.56 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
+    // 邀约改"聊天内确认"制（v11.57 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
       Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){
@@ -8580,7 +8597,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.56 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.57 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8598,7 +8615,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.56 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.57 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
