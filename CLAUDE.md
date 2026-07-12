@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.72（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.74（实时化实验）。**
+
+**v11.73-74（2026-07-12）**：v11.73 修 v11.68 关系事实**方向说反**（acqSpecificFact 一句话套双向→经纪人把鼓手叫成"你的经纪人"）：拆成 drummer→agent 与 agent→drummer 两条。v11.74 `buildDialoguePrompt` 加 **FICTIONAL WORLD 规则**：禁提真实政客/总统/选举/时事、禁称"现任X是谁"（模型知识冻结必错+乙女游戏不该扯真政治），被问就含糊带过；真实城市/节日仍可（修咖啡师说"现任美国总统是拜登"）。**NPC 自我身份**=选族裔时存 `G.npcs[k].origin`，buildDialoguePrompt 注入文化背景，故问"哪来的"答得一致（设计如此）。
 
 **v11.71-72（2026-07-12）生图风格**：v11.71 卧室夜景改 `photorealistic` 风（`img()` 加 styleOverride 参数+BEDROOM_STYLE，绕开全局cinematic；老档清 bedroomNightUrl 重生成）。v11.72 **默认画风改 photorealistic**（该 style 数据早有、但没设置卡也非默认→补设置卡+设默认+迁移V4切老档+清bgCache）；用户要再试一段。**⚠️ 事故记录：用户长时间高强度测试后"所有NPC不回消息"，控制台确认是 `code:403`（上游 Anthropic "Request not allowed" 限流，非额度）——`otrNewQuota` 无效（那是429额度）。claude() 已优雅降级返空。根治靠等限流解除、或 Worker 侧 Anthropic key 提速率/spend 档（上架规模化必做，见 project_otr_launch_prep）。**
 
