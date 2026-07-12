@@ -20,8 +20,8 @@ const STATE = {
     lang: 'en',
     langName: 'English',
 
-    // 图片风格（用户试用 cinematic=Film grain·Dreamy 中；不喜欢再改回 'illustrated'/'semi-realistic'——老档迁移见 index.html 启动自愈）
-    imgStyle: 'cinematic',
+    // 图片风格（用户试用 photorealistic=真实摄影风 中；不喜欢再改回其它——老档迁移见 index.html 启动自愈）
+    imgStyle: 'photorealistic',
     // 人物图高质量模式：true=人物立绘用 fal-ai/flux/dev（更听话更精细），背景仍用 schnell 省钱
     // 需要 Cloudflare Worker 支持 model 字段；Worker 未更新时该字段被忽略，安全向后兼容
     hqPortraits: true,  // 人物立绘/头像默认走 flux/dev（画质/解剖服从度高，修schnell崩坏）；背景仍schnell省钱

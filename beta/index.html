@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.71"></script>
-<script src="state.js?v=11.71"></script>
+<script src="story.js?v=11.72"></script>
+<script src="state.js?v=11.72"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.71 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.72 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1050,9 +1050,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div>
       <div class="settings-section-title" id="lbl-style-setting">IMAGE STYLE</div>
       <div class="settings-style">
-        <div class="s-style-card" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
+        <div class="s-style-card sel" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Real photography · Lifelike</span></div>
+        <div class="s-style-card" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
         <div class="s-style-card" onclick="selStyle('semi-realistic',this)"><span class="s-style-name">Semi-Realistic</span><span class="s-style-sub">Soft · Stylized art</span></div>
-        <div class="s-style-card sel" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
+        <div class="s-style-card" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
         <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
       </div>
     </div>
@@ -1087,7 +1088,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.71 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.72 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8666,6 +8667,8 @@ window.addEventListener('load', () => {
     if (!G._styleMigrV3) { if (G.imgStyle === 'illustrated' || G.imgStyle === 'semi-realistic') { G.imgStyle = 'cinematic'; G.bgCache = {}; } G._styleMigrV3 = 1; }
     // v11.71 卧室夜景改用 photorealistic 画风（用户实测更好看）：老档清掉已缓存的卧室夜图，下次入夜按新风格重生成
     if (!G._bedroomStyleMigr) { if (G.apartment) G.apartment.bedroomNightUrl = null; G._bedroomStyleMigr = 1; }
+    // v11.72 默认画风改 photorealistic（真实摄影风，用户要再试一段）：老档一次性切过去 + 清背景缓存重生成；改回请在设置里选
+    if (!G._styleMigrV4) { G.imgStyle = 'photorealistic'; G.bgCache = {}; G._styleMigrV4 = 1; }
     // 邀约改"聊天内确认"制（v11.57 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
@@ -8731,7 +8734,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.71 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.72 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
