@@ -447,27 +447,27 @@ const STATE = {
       // 纯净底立绘——用户实测三选一头像出现了店铺背景）。场景环境由调用方的 scene 参数负责。
       coffee: {
         origin: 'American',
-        line: 'Attractive 29-year-old man, realistic adult proportions, lean and easy build, warm approachable good looks with a low-key indie charm, light stubble, calm friendly eyes, tousled natural hair, wearing a plain tee under a canvas barista apron, sleeves pushed up, relaxed unhurried presence',
+        line: 'Strikingly handsome, model-attractive 29-year-old man, realistic adult proportions, lean and easy build, warm approachable good looks with a low-key indie charm, light stubble, calm friendly eyes, tousled natural hair, wearing a plain tee under a canvas barista apron, sleeves pushed up, relaxed unhurried presence',
       },
       clerk: {
         origin: 'British',
-        line: 'Attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple staff polo shirt',
+        line: 'Strikingly handsome, model-attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple staff polo shirt',
       },
       trainer: {
         origin: 'American',
-        line: 'Attractive 33-year-old man, realistic adult proportions, strong athletic trainer build with broad shoulders, warm encouraging grin, short practical haircut, fitted coach tee with a lanyard and stopwatch',
+        line: 'Strikingly handsome, model-attractive 33-year-old man, realistic adult proportions, strong athletic trainer build with broad shoulders, warm encouraging grin, short practical haircut, fitted coach tee with a lanyard and stopwatch',
       },
       engineer: {
         origin: 'German',
-        line: 'Attractive 30-year-old man, realistic adult proportions, lean build, quiet focused handsome face with light stubble, studio headphones resting around his neck, dark tee under an open flannel',
+        line: 'Strikingly handsome, model-attractive 30-year-old man, realistic adult proportions, lean build, quiet focused handsome face with light stubble, studio headphones resting around his neck, dark tee under an open flannel',
       },
       runner: {
         origin: 'British',
-        line: 'Attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady eyes with the faint tiredness of long hospital shifts, short neat hair damp at the temples, technical running jacket',
+        line: 'Strikingly handsome, model-attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady eyes with the faint tiredness of long hospital shifts, short neat hair damp at the temples, technical running jacket',
       },
       photog: {
         origin: 'French',
-        line: 'Attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, vintage film camera slung across his chest, relaxed sure-of-himself posture',
+        line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, vintage film camera slung across his chest, relaxed sure-of-himself posture',
       },
       // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
       sleaze: {

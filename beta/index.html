@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.51"></script>
-<script src="state.js?v=11.51"></script>
+<script src="story.js?v=11.52"></script>
+<script src="state.js?v=11.52"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.51 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.52 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1085,7 +1085,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.51 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.52 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2624,7 +2624,7 @@ function renderCalDayEvents(dateStr) {
       }
     }
 
-    // 日历不再有"接受/拒绝"（用户定稿 v11.51）：所有邀约在【聊天气泡】里确认，接受后才进日历——
+    // 日历不再有"接受/拒绝"（用户定稿 v11.52）：所有邀约在【聊天气泡】里确认，接受后才进日历——
     // 日历只存已确认的行程。老档遗留的 pending 条目在启动自愈里清掉。
 
     if (ev.status === 'declined' || (hasConflict && ev.type === 'npc_invite')) {
@@ -4324,7 +4324,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.51 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.52 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5587,7 +5587,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.51：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.52：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -7100,7 +7100,7 @@ async function generateAffinityMessages(day) {
           tier,
           occasion: occasion?.key || (isBirthday?'birthday':null),
         });
-        // 邀约改"聊天内确认"制（用户定稿 v11.51）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
+        // 邀约改"聊天内确认"制（用户定稿 v11.52）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
         // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"
         if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
           var inviteDay = day + inviteInfo.daysFromNow;
@@ -7681,7 +7681,7 @@ function renderChatMsgs(npc, dividerIdx) {
       var isZhMb = G.lang==='zh-cn'||G.lang==='zh-tw';
       var greyCss = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
       var activeCss = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
-      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.51 邀约全面改聊天确认制）
+      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.52 邀约全面改聊天确认制）
       var _mday = m.meet.futureDay || m.day;
       var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
       if (m.meet.pending && !m.meet.invId && _mday < G.day) {
@@ -7995,7 +7995,7 @@ async function sendChatReply() {
         });
         STATE.memory.addEvent(npc, (mTime ? 'Proposed meeting her today at ' + mTime + ' (awaiting her yes)' : 'Agreed to meet her right now') + ': "' + mTitle + '"', G.day);
       }
-      // 聊天里谈成的未来约会（用户定稿 v11.51）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
+      // 聊天里谈成的未来约会（用户定稿 v11.52）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
         const fiDay = G.day + futureInv.daysFromNow;
@@ -8337,7 +8337,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.51）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.52）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8347,7 +8347,7 @@ window.addEventListener('load', () => {
     // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
     // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
     if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
-    // 邀约改"聊天内确认"制（v11.51 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
+    // 邀约改"聊天内确认"制（v11.52 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
       Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){
@@ -8394,7 +8394,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.51 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.52 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8412,7 +8412,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.51 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.52 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
