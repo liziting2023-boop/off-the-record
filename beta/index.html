@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.59"></script>
-<script src="state.js?v=11.59"></script>
+<script src="story.js?v=11.60"></script>
+<script src="state.js?v=11.60"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.59 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.60 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.59 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.60 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8372,7 +8372,10 @@ function renderAffection() {
   }
   document.getElementById('affection-list').innerHTML = ranked.map((npc, i) => {
     const pct = Math.min(100, npc.relationship);
-    const heart = pct>=80?'❤️❤️❤️':pct>=50?'❤️❤️':pct>=20?'❤️':'🤍';
+    // 爱心=能否亲密的信号（用户定稿 v11.60）：好感未到该NPC的推倒门槛 STAYOVER_MIN → 🤍空心（还不能）；
+    // 到门槛 → ❤️实心（可以了）。门槛按人设各不同（演员28/鼓手32/经纪人78/侦探60/二线20…），按各自门槛判，非统一值。
+    // 配合名字旁已有的 💗(到表白线,=门槛75%)：🤍 → 💗可表白 → ❤️可推倒 三段进度。
+    const heart = pct >= (STAYOVER_MIN[npc.key] || 60) ? '❤️' : '🤍';
     const color = NPC_UI[npc.key]?.color || '#C4A882';
     // 头像用玩家确认的生成立绘，还没有立绘的NPC回退emoji
     const pUrl = G.npcs[npc.key] && G.npcs[npc.key].portraitUrl;
@@ -8658,7 +8661,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.59 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.60 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
