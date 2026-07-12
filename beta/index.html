@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.61"></script>
-<script src="state.js?v=11.61"></script>
+<script src="story.js?v=11.62"></script>
+<script src="state.js?v=11.62"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.61 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.62 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.61 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.62 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -6901,7 +6901,9 @@ async function maybeStayOver(npcKey, locKey, opts) {
     document.getElementById('vn-text').innerHTML = formatNPCText(act1Nar.trim());
     vopts.innerHTML = '';
     mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2);
-    mk(isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)', leaveAfterAct1);
+    // 拒绝文案按"在谁家"分支：在她家=请他回去（她不可能离开自己家）；在他家=自己起身离开（用户实测）
+    mk(destHers ? (isZh?'今晚到这里就好（送他回去）':'Stop here tonight (see him out)')
+                : (isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)'), leaveAfterAct1);
     // 第二幕预生成：第一幕一显示就后台先跑（此时 nights 还没+1，nights===0 等价于进幕后的 <=1）
     try {
       _pre2 = genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) === 0, destHers).catch(function(){ return ''; });
@@ -8155,6 +8157,10 @@ async function sendChatReply() {
         : 'You are awake and around right now — do NOT claim you are going to sleep or too busy to talk; keep the conversation going naturally. ') +
       eveningToneNote(npc) + butlerTextObeyHint(npc) + ' ' +
       'EMPATHY OVERRIDE (outranks your personality): if her message shares grief, trauma or something vulnerable, meet it FIRST — acknowledge the specific thing she said, one true human response, leave her room to keep talking. BANNED in that moment: praising her toughness, calling words/talking useless, "I\'m here if you want to talk" (she IS talking to you right now), changing the subject, pivoting to plans or work. Blunt characters get quiet and awkwardly gentle; they do not coach or toughen her up. ' +
+      // 亲密回应（用户实测：鼓手已过夜好感79，她挑逗/说露骨的话，他却聊录音室、说"别烦我"——彻底出戏）
+      'INTIMACY & DESIRE (in YOUR own register): ' + (((G.npcs[npc].nights||0) > 0 || (G.npcs[npc].relationship||0) >= confessMin(npc))
+        ? 'You two are already close' + ((G.npcs[npc].nights||0) > 0 ? ' and have been lovers' : '') + '. If her message is flirtatious, longing, or sexually forward, you MUST meet it and WANT her back, the way YOUR character would — blunt and hungry if you are blunt, teasing if you are playful, tender if you are soft; warm and wanting, never bored or annoyed. ABSOLUTELY BANNED here: brushing her off, going cold, pivoting to work/the studio/logistics, saying you "don\'t want to play this", or telling her to stop bothering you — that is unthinkable toward a partner you want, and it breaks her completely. Because this is a text, keep the WORDS suggestive not explicit, and pour the heat into wanting to be TOGETHER: tell her to come over, or that you are coming to her, that this is far better in person — eager and in character (this naturally becomes a meetup). '
+        : 'If she is being flirtatious while you two are still new, react in character — flattered, amused, or a little reserved as fits you — but stay tasteful and do not lock in firm plans yet. ') +
       'MEETUP RULES — distinguish carefully: if she proposes meeting TODAY and you accept, fill "meet". If you two agree to meet TODAY at a SPECIFIC LATER TIME (e.g. 3pm rehearsal, dinner at 7), fill meet.time with that "HH:MM" — if meeting right now, meet.time=null. If a FUTURE day (tomorrow, the 6th, this weekend...) is discussed, fill "futureInvite" ONLY when SHE has clearly said yes to that specific day in HER messages — if YOU are the one proposing and she has not yet agreed, fill NEITHER (wait for her answer in a later message). NEVER use "meet" for future plans. When a FUTURE day is agreed, your reply text must name that day explicitly by weekday/date (never just "tomorrow"), and "daysFromNow" MUST be computed from the DATE REFERENCE table to land exactly on the day you named — if you say Friday, daysFromNow must map to Friday, and "next evening/明晚" means daysFromNow=1.' + upcomingDatesRef(G.day, 6) + ' ' +
       'For "locationKey" pick the place that ACTUALLY matches what was proposed — READ WHOSE HOME CAREFULLY: if SHE says 去你家/到你那/"your place"/"come to yours" → she is visiting YOU → "his_home". If she says 来我家/我家/"my place"/"come over (to mine)" or YOU are going to HER → "her_home". Getting this backwards ruins the scene. Magazine shoot → "magazine_shoot", recording session → "recording_studio", practice → "music_training"; otherwise the social place that fits (cafe/art_gallery/night_bar/street_market/bookshop/shopping_mall/rooftop/livehouse). Never pick a street/market when she named an indoor venue, never "cafe" as a lazy default when she said a home. ' +
       'WORKPLACE RULE: if you two are meeting where YOU work or are working right now (the studio, rehearsal space, your café, the gym) → use that work location (recording_studio/music_training/cafe/gym), NEVER "his_home" just because you happen to be there — 工作室/studio is NOT your home. ' +
@@ -8662,7 +8668,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.61 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.62 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
