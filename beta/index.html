@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.58"></script>
-<script src="state.js?v=11.58"></script>
+<script src="story.js?v=11.59"></script>
+<script src="state.js?v=11.59"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.58 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.59 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.58 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.59 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4115,7 +4115,7 @@ function buildDayOpts() {
           slots.push(makeOpt(
             _bmKnown ? (isZh ? '🔧 大堂碰到管家' : 'Run into the building manager')
                     : (isZh ? '🔧 大堂里的年轻楼管在看你' : 'The young building manager looks up at you'),
-            isZh ? '和他聊两句 · 这次聊天免费' : 'Say hi · this chat is free', '',
+            isZh ? '和他聊两句' : 'Say hi', '',
             function(){ G._lobbyRoll.used = true; STATE.save.saveGame(); startSecondaryMeet('butler', 'apartment_lobby', !_bmKnown); }));
         }
       }
@@ -4128,8 +4128,10 @@ function buildDayOpts() {
       else {
         // 夜里9点后/凌晨6点前不给职业课（形体课/声乐课凌晨0点出现不合理——用户实测截图）
         const _careerNight = REALTIME && (rtClockMin() >= 21 * 60 || rtClockMin() < 6 * 60);
-        const fills = _careerNight ? [leisureOpt(0), leisureOpt(1), leisureOpt(2)] : [careerOpt(), leisureOpt(0), leisureOpt(1)];
-        const n = Math.min(room, slots.length ? 2 : 3);
+        const fills = _careerNight ? [leisureOpt(0), leisureOpt(1), leisureOpt(2), leisureOpt(3), leisureOpt(4)] : [careerOpt(), leisureOpt(0), leisureOpt(1), leisureOpt(2), leisureOpt(3)];
+        // 完全空闲的日子多摆几个候选：一天能做3次自由活动，但列出最多5个让"选"有意义
+        // （用户反馈：只给3个=没得选，等于照单全做）；有工作/约会时仍只补2个随机项，避免首页太挤
+        const n = Math.min(room, slots.length ? 2 : 5);
         for (let i = 0; i < n; i++) { if (fills[i]) opts.appendChild(fills[i]); }
         // 🔄换一批（用户定稿）：随机项现在锁定不再切页刷新；想换的人主动点这个换一批
         if (!actsUsedUp) {
@@ -4376,7 +4378,7 @@ function appendSecondaryEncounterBtn(key) {
   var btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose)';
-  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">'+label+'</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">'+(isZh?'和他聊两句 · 这次聊天免费':'Say hi · this chat is free')+'</span>'; // 文案改清楚：免费的是"这次聊天"，不是整趟出门（用户反馈）
+  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">'+label+'</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">'+(isZh?'和他聊两句':'Say hi')+'</span>'; // 文案改清楚：免费的是"这次聊天"，不是整趟出门（用户反馈）
   btn.onclick = function(){ startSecondaryMeet(s.npc, s.loc, firstTime); };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -4600,7 +4602,7 @@ function appendTier3EncounterBtn(key) {
   var btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.style.cssText = 'border:1.5px dashed rgba(138,128,120,0.55);color:var(--text-mid)';
-  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">' + (isZh?'理他，或者当场怼回去 · 免费':'Engage — or shut him down · free') + '</span>';
+  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">' + (isZh?'理他，或者当场怼回去':'Engage — or shut him down') + '</span>';
   btn.onclick = function(){ startTier3Meet(s.npc, key, !npc.met); };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -8656,7 +8658,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.58 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.59 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
