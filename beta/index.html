@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.63"></script>
-<script src="state.js?v=11.63"></script>
+<script src="story.js?v=11.64"></script>
+<script src="state.js?v=11.64"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.63 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.64 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.63 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.64 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1370,9 +1370,9 @@ async function checkProactiveOnOpen() {
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
       timeWord + ' where she is (current local time: ' + rtClockStr() + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + _noRepeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
-      ' The message MUST fit the CURRENT time of day — never tell her to sleep or say goodnight in the morning/afternoon, never say good-morning at night. ' +
+      ' The message MUST fit the CURRENT time of day (it is now ' + rtClockStr() + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
-      ' Do NOT open a random hyper-specific technical complaint or nitpick out of nowhere (e.g. "the studio soundproofing", "your breath control on bar 12") that she has no context for — it reads as a bizarre non-sequitur. Keep the opening topic something she can naturally understand and respond to. ' +
+      ' Do NOT open with a random hyper-specific or mundane logistical note out of nowhere — NOT about HER work (e.g. "your breath control on bar 12") and NOT about YOUR OWN job\'s equipment/chores/schedule (e.g. a coffee machine that leaks, a delivery, a shift swap). That reads as a bizarre non-sequitur, especially in an early message. Open with something warm and human she can immediately connect to — a small genuine thought, a light question about her, something you noticed — not shop-talk. ' +
       'Output only the message text.'));
     if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
   } catch(e){}
@@ -4538,8 +4538,9 @@ function secondaryContactBeat(npcKey) {
     try { STATE.save.saveGame(); } catch(e){}
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
-  // 见过≥2次 → NPC主动要联系方式（摄影师=为发照片）
-  if ((npc._meets || 0) >= 2) {
+  // NPC 主动要联系方式（用户定稿 v11.64：不再给玩家"主动要号"的按钮/提示）——
+  // 触发 = 见过≥2次，或这次见面好感已到门槛（NPC 达到好感后主动在见面时开口）。摄影师=为发照片。
+  if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10) {
     var askLine = npcKey === 'photog'
       ? (isZh ? '「照片洗出来，我想发给你看看——留个联系方式？只放进我自己的独立影集，不作商用，你不同意我就不用。」' : '"The prints — I\'d like to send you a few. Leave me a way to reach you? Just for my own independent series, never commercial; if you say no, they don\'t get used."')
       : (isZh ? '他顿了一下，还是开口了：「……方便留个联系方式吗？下次不用碰运气。」' : 'He hesitates, then just asks: "…Mind if I get your number? So it\'s not down to luck next time."');
@@ -4549,30 +4550,13 @@ function secondaryContactBeat(npcKey) {
       : 'You two swapped numbers — you can text each other now.');
     return;
   }
-  // 首次见面 → 给玩家主动要号的选择（看好感给不给）
-  document.getElementById('vn-text').textContent = isZh ? '你们的话，好像还没聊够。' : 'It feels like the conversation is not quite finished.';
-  var askEl = document.createElement('div'); askEl.className='vn-opt';
-  askEl.textContent = isZh?'问他要个联系方式':'Ask for his number';
-  askEl.onclick = function(){
-    if ((npc.relationship || 0) >= 10) {
-      document.getElementById('vn-text').textContent = npcKey === 'photog'
-        ? (isZh?'他笑了，把号码写在一张相纸背面递给你：「照片好了我发你。」':'He smiles and writes it on the back of a print. "I\'ll send you the photos.")')
-        : (isZh?'他愣了一下，笑着报了号码给你。':'He blinks, then grins and gives it to you.');
-      grantAndGo('You asked for his number and he gave it — you can text now.');
-    } else {
-      // 好感不够：自然带过，不说"还不熟"（用户定稿）
-      document.getElementById('vn-text').textContent = isZh
-        ? '他笑了笑，没接这个话，转而说起了别的——好像还不是时候。'
-        : 'He smiles but lets it slide, turning to something else — not quite yet.';
-      vopts.innerHTML = '';
-      contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
-    }
-  };
-  vopts.appendChild(askEl);
-  var laterEl = document.createElement('div'); laterEl.className='vn-opt';
-  laterEl.textContent = isZh?'先这样，下次再见':'Leave it for now';
-  laterEl.onclick = function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); };
-  vopts.appendChild(laterEl);
+  // 好感还不够 + 见面不足2次 → 这次不换联系方式，自然收尾。
+  // 用户定稿：游戏绝不给玩家"主动要号"的按钮/提示；她若真想要，可在见面的三轮自由对话里自己开口（AI 会按好感回应）。
+  document.getElementById('vn-text').textContent = isZh
+    ? '你们没多提别的就道了别——下次再碰上，大概会更自然些。'
+    : "You say your goodbyes without making it a thing — next time your paths cross, it'll come easier.";
+  vopts.innerHTML = '';
+  contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
 }
 
 // ══ 三线（反面）NPC 相遇：他们主动凑过来，开口就是带性意味的挑逗/骚扰——台词必须写得油腻讨厌，绝不诱人。
@@ -7269,6 +7253,7 @@ async function generateAffinityMessages(day) {
         '\nSend a text message to ' + (G.player.name||'her') + '. ' +
         (tier === 'high' ? 'You can invite her out. If you DO invite her, you are inviting her SPECIFICALLY to this place: "' + ((STORY.locations[_invSpot]||{}).composition||'').slice(0,90) + '" — word the invitation around that exact place/activity (NOT a generic dinner).' : '') +
         (tier === 'mid' ? 'Keep it casual but warm.' : '') + (tier === 'high' ? '' : ' Do NOT ask her out or propose meeting up — you are still getting to know each other; just a warm little check-in, no plans.') + earlyToneNote(npcKey) + eveningToneNote(npcKey) +
+        ' Do NOT open with mundane shop-talk or an oddly specific logistical note about your own job (a coffee machine, a delivery, a shift) — open with something warm and human she can connect to. ' +
         '\n1-2 sentences, Western style, natural. The "text" value MUST be entirely in ' + G.langName + ' — every word, no English.' +
         '\nIt is LATE EVENING right now — NEVER invite her for tonight or today (the day is over); the earliest possible invitation is daysFromNow=1.' + upcomingDatesRef(day, 6) +
         '\nRespond with ONLY valid JSON, no markdown fences: {"text":"the message","invite": null or {"daysFromNow": <integer 1-6, 1=tomorrow, MUST match what the message text says>, "time":"HH:MM"}}. If the message proposes meeting at a specific time, you MUST fill "invite" so her calendar matches the text exactly.'
@@ -8668,7 +8653,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.63 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.64 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
