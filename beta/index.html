@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.64"></script>
-<script src="state.js?v=11.64"></script>
+<script src="story.js?v=11.65"></script>
+<script src="state.js?v=11.65"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.64 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.65 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.64 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.65 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3177,12 +3177,21 @@ function applyHomeTimeOfDay() {
     if (phEl) phEl.style.display = 'none';
   }
   const clk = document.getElementById('d-clock');
-  const lateNight = REALTIME && rtClockMin() < 5 * 60; // 凌晨单独标"深夜"（用户实测0:04显示"早晨"）
-  if (clk) clk.textContent = lateNight
-    ? (isZh ? '深夜' : lang === 'ja' ? '深夜' : lang === 'ko' ? '깊은 밤' : 'Late night')
-    : night
-    ? (isZh ? '夜晚' : lang === 'ja' ? '夜' : lang === 'ko' ? '밤' : 'Evening')
-    : (isZh ? '早晨' : lang === 'ja' ? '朝' : lang === 'ko' ? '아침' : 'Morning');
+  // 时段标签按真实时钟分五档（用户实测：18:05 却显示"早晨"——原来 5:00–19:00 全标"早晨"）
+  // <5 深夜 / 5-11 早晨 / 11-17 下午 / 17-19 傍晚 / 19+ 夜晚。非 REALTIME 回退 G.phase 二档。
+  const _L = (zh, en, ja, ko) => isZh ? zh : lang === 'ja' ? ja : lang === 'ko' ? ko : en;
+  let todLabel;
+  if (REALTIME) {
+    const m = rtClockMin();
+    todLabel = m < 5 * 60 ? _L('深夜', 'Late night', '深夜', '깊은 밤')
+      : m < 11 * 60 ? _L('早晨', 'Morning', '朝', '아침')
+      : m < 17 * 60 ? _L('下午', 'Afternoon', '午後', '오후')
+      : m < 19 * 60 ? _L('傍晚', 'Evening', '夕方', '저녁')
+      : _L('夜晚', 'Night', '夜', '밤');
+  } else {
+    todLabel = night ? _L('夜晚', 'Evening', '夜', '밤') : _L('早晨', 'Morning', '朝', '아침');
+  }
+  if (clk) clk.textContent = todLabel;
   // 夜晚但夜图还没生成 → 补生成后再贴上（仍在夜里才贴，避免玩家已跨到白天）
   if (night && !G.apartment.bedroomNightUrl) {
     preGenNight().then(function(){ if (isHomeNight() && G.apartment.bedroomNightUrl && imgEl) imgEl.src = G.apartment.bedroomNightUrl; });
@@ -8135,6 +8144,7 @@ async function sendChatReply() {
       'Her newest text (already included above as the last HER line) directly continues this conversation — your reply MUST follow from what YOU said before (e.g. if she answers your question, do not ask what she means). ' +
       'Current local time where you both live: ' + gameClockStr() + ' (' + (isEve?'late evening':'daytime') + ') — if she asks what time it is / 你那几点, THIS is the answer. ' + scheduleCtxFor(npc, 4) +
       ' NEVER claim she sent messages not listed in "Previous interactions". Reply as a text message (1-2 sentences, casual texting style). ' +
+      ' STAY LOGICALLY CONSISTENT: do not contradict your own earlier lines in this chat (e.g. saying the café/coffee is closed, then that it is open), and do NOT robotically repeat the exact same fixed plan or time in message after message. If she questions, pushes back, or points out that something you said does not add up, actually engage with HER point and adjust — acknowledge it, answer it, or offer a real alternative — never just restate the same line as if she had not spoken. ' +
       'Judge her message against your personality: rel is -3 to +3 (inappropriate/rude/needy = negative; what YOU like = positive; neutral = 0). ' +
       'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ' +
       (isNpcAsleep(npc)
@@ -8653,7 +8663,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.64 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.65 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
