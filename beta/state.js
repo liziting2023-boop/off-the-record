@@ -565,6 +565,12 @@ const STATE = {
         ? `Cultural background (${origin}): ${STATE.memory.culturalTraits[origin]}`
         : '';
 
+      // 已成为恋人（过过夜）后，绝不再拿"你是我的客户/我是你经纪人/这样不专业/我不能"当理由推开她——
+      // 那条界线早已跨过（用户实测：经纪人过夜后又被她约来家里，却说"你是我的客户，我不能这样"，自相矛盾）。
+      const intimacyStageNote = (npc.nights || 0) > 0
+        ? `\nRELATIONSHIP STAGE — ALREADY LOVERS: you and ${playerName} have already spent the night together and are in an intimate relationship now. Any professional or moral line that once held you back — "you're my client", "I'm your agent/manager", "this would be unprofessional", "we can't", "I shouldn't" — is ALREADY CROSSED and firmly behind you. NEVER refuse her on those grounds, never lecture her about them, and never talk or act as if being together is forbidden or as if the intimacy has not happened. Any hesitation you still carry is ONLY about keeping the relationship private/discreet — never about whether to be together. When she is warm, inviting, or wants you close, respond as a lover who wants her back, in your own character's register.`
+        : '';
+
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
 
@@ -576,7 +582,7 @@ Core personality: ${personality}.
 ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.
+Emotional state this chapter: ${emotionalState}.${intimacyStageNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
