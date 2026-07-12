@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.54"></script>
-<script src="state.js?v=11.54"></script>
+<script src="story.js?v=11.55"></script>
+<script src="state.js?v=11.55"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -161,7 +161,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-av:not(.has-img){visibility:hidden;}
 .vn-speaker{font-size:13px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,22px);font-style:italic;color:#E9DFE1;line-height:1.58;margin-bottom:10px;}
-.vn-text .speech{color:#FFB2C6;font-style:italic;text-shadow:0 0 10px rgba(255,150,180,0.28);}
+/* 字体统一（用户定稿）：台词=玫瑰高亮·正体；动作/旁白=中性·斜体。双方（NPC和玩家）一致，无括号。 */
+.vn-text .speech{color:#FFB2C6;font-style:normal;text-shadow:0 0 10px rgba(255,150,180,0.28);}
+.vn-text .narr{color:#E9DFE1;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
 .vn-input-wrap{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
@@ -494,7 +496,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <button class="bnav-btn" id="bn-phone" onclick="openPhone()"><span class="bnav-icon">📱<span class="bnav-badge" id="phone-badge">0</span></span><span id="bn-phone-lbl">Phone</span></button>
   <button class="bnav-btn" id="bn-affection" onclick="openAffection()"><span class="bnav-icon">❤️</span><span id="bn-affection-lbl">Affection</span></button>
   <button class="bnav-btn" id="bn-calendar" onclick="openCalendar()" style="position:relative"><span class="bnav-icon"><span id="cal-icon-day" class="cal-icon-day">1</span></span><span id="bn-calendar-lbl">日历</span><span id="cal-badge" style="display:none;position:absolute;top:2px;right:8px;background:var(--rose);color:#fff;border-radius:50%;width:14px;height:14px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:600"></span></button>
-  <button class="bnav-btn" id="bn-fame" onclick="openFame()"><span class="bnav-icon">⭐</span><span id="bn-fame-lbl">Fame</span></button>
+  <!-- 名气按钮移出底部菜单（用户定稿）：改在首页顶部显示名气等级+压力，点开进名气页。openFame 仍可用。 -->
   <!-- gallery moved to top right -->
   <button class="bnav-btn" id="bn-settings" onclick="openSettings()"><span class="bnav-icon">⚙️</span><span id="bn-settings-lbl">Settings</span></button>
 </div>
@@ -509,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.54 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.55 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1085,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.54 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.55 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1450,6 +1452,23 @@ function formatNPCText(raw) {
   }
 
   return text;
+}
+
+// 玩家台词显示（字体统一，用户定稿）：括号()内=动作(中性斜体·去括号)，括号外=台词(玫瑰高亮)。
+// 和 NPC 显示视觉一致——都是"台词高亮、动作旁白斜体"，只是标记方式不同（NPC用引号标台词，玩家用括号标动作）。
+function formatPlayerText(raw) {
+  if (!raw) return '';
+  var t = String(raw).replace(/[<>]/g, '').trim();
+  var out = '', re = /[（(]([^）)]*)[）)]/g, last = 0, m;
+  while ((m = re.exec(t))) {
+    var before = t.slice(last, m.index);
+    if (before.trim()) out += '<span class="speech">' + before + '</span>';
+    if (m[1].trim()) out += '<span class="narr">' + m[1] + '</span>';
+    last = re.lastIndex;
+  }
+  var tail = t.slice(last);
+  if (tail.trim()) out += '<span class="speech">' + tail + '</span>';
+  return out || ('<span class="speech">' + t + '</span>');
 }
 
 // ── FAME DATA ──
@@ -2626,7 +2645,7 @@ function renderCalDayEvents(dateStr) {
       }
     }
 
-    // 日历不再有"接受/拒绝"（用户定稿 v11.54）：所有邀约在【聊天气泡】里确认，接受后才进日历——
+    // 日历不再有"接受/拒绝"（用户定稿 v11.55）：所有邀约在【聊天气泡】里确认，接受后才进日历——
     // 日历只存已确认的行程。老档遗留的 pending 条目在启动自愈里清掉。
 
     if (ev.status === 'declined' || (hasConflict && ev.type === 'npc_invite')) {
@@ -3355,7 +3374,7 @@ function chooseSigningOpt(round, relChange, reply) {
   const text = document.getElementById('signing-text');
   const opts = document.getElementById('signing-opts');
   speaker.textContent = G.player.name;
-  text.textContent = reply;
+  text.innerHTML = formatPlayerText(reply);
   const contLabel = G.lang==='zh-cn'||G.lang==='zh-tw'?'继续':G.lang==='ja'?'続ける':G.lang==='ko'?'계속':'Continue';
   const btn = document.createElement('button'); btn.className = 'vn-next'; btn.textContent = contLabel;
   btn.onclick = () => runSigningDialog(round + 1);
@@ -3991,7 +4010,9 @@ function buildDayOpts() {
     const shuffle = a => [...a].sort(() => Math.random()-0.5);
     const cSub = isZh?'职业投资 · +知名度 +压力':lang==='ja'?'自己投資 · +知名度':lang==='ko'?'자기계발 · +인지도':'Career · +Fame +Stress';
     const lSub = isZh?'休息放松 · -压力':lang==='ja'?'リラックス · -ストレス':lang==='ko'?'휴식 · -스트레스':'Rest · -Stress';
-    const cPick = shuffle(getCareerOps(lang))[0];
+    // 随机项锁定（用户定稿）：同一天同一时段第一次生成后就固定，切到别的页再回来不变；想换点🔄换一批。
+    // 存"抽签结果"(职业index + 休息顺序index)，语言/标签按当前重取。签名=天+时段，跨天或昼夜切换才重抽。
+    var _careerOps = getCareerOps(lang);
     // 晚上7点后：不再给白天类休息（咖啡馆/公园/逛街/理发美容/书店/市集…）——那时段不合理（用户反馈）。
     // 夜里合理的"出门"= 酒吧/livehouse/深夜便利店；再加"回家歇着"，其余靠手机陪伴。
     // 凌晨0-5点也算夜（修0:04还给白天休闲）；夜里可选=酒吧/livehouse/24h便利店/夜跑
@@ -4010,7 +4031,18 @@ function buildDayOpts() {
       _lPool.push({ key:'late_diner', label:isZh?'深夜食堂':lang==='ja'?'深夜ダイナー':lang==='ko'?'심야 식당':'Late-night diner' });
       _lPool.push({ key:'rooftop', label:isZh?'天台看夜景':lang==='ja'?'屋上で夜景':lang==='ko'?'옥상 야경':'Rooftop night view' });
     }
-    const lPicks = shuffle(_lPool);
+    var _optSig = G.day + '|' + (_leisureNight ? 'n' : 'd');
+    if (!G._optRoll || G._optRoll.sig !== _optSig || window._forceReroll) {
+      window._forceReroll = false;
+      G._optRoll = {
+        sig: _optSig,
+        cIdx: Math.floor(Math.random() * _careerOps.length),
+        lOrder: shuffle(_lPool.map(function(_, i){ return i; })),
+      };
+    }
+    const cPick = _careerOps[G._optRoll.cIdx] || _careerOps[0];
+    var lPicks = G._optRoll.lOrder.map(function(i){ return _lPool[i]; }).filter(Boolean);
+    if (!lPicks.length) lPicks = shuffle(_lPool); // 兜底（时段刚切、pool变了）
     // 当地节日：白天/夜里都给"参加节日活动"入口，且放最前不被洗走（用户要求）
     try {
       var _fests = (typeof todaysFestivals === 'function') ? todaysFestivals() : [];
@@ -4064,7 +4096,7 @@ function buildDayOpts() {
           slots.push(makeOpt(
             _bmKnown ? (isZh ? '🔧 大堂碰到管家' : 'Run into the building manager')
                     : (isZh ? '🔧 大堂里的年轻楼管在看你' : 'The young building manager looks up at you'),
-            isZh ? '和他聊两句 · 不占行程' : 'Say hi · free', '',
+            isZh ? '和他聊两句 · 这次聊天免费' : 'Say hi · this chat is free', '',
             function(){ G._lobbyRoll.used = true; STATE.save.saveGame(); startSecondaryMeet('butler', 'apartment_lobby', !_bmKnown); }));
         }
       }
@@ -4080,6 +4112,14 @@ function buildDayOpts() {
         const fills = _careerNight ? [leisureOpt(0), leisureOpt(1), leisureOpt(2)] : [careerOpt(), leisureOpt(0), leisureOpt(1)];
         const n = Math.min(room, slots.length ? 2 : 3);
         for (let i = 0; i < n; i++) { if (fills[i]) opts.appendChild(fills[i]); }
+        // 🔄换一批（用户定稿）：随机项现在锁定不再切页刷新；想换的人主动点这个换一批
+        if (!actsUsedUp) {
+          const reroll = document.createElement('div');
+          reroll.style.cssText = 'text-align:center;font-size:12px;color:var(--text-mid);opacity:0.8;padding:8px 0 2px;cursor:pointer;user-select:none';
+          reroll.textContent = isZh?'🔄 换一批':lang==='ja'?'🔄 他の候補':lang==='ko'?'🔄 다른 추천':'🔄 Show other options';
+          reroll.onclick = function(){ window._forceReroll = true; buildDayOpts(); };
+          opts.appendChild(reroll);
+        }
       }
     }
   }
@@ -4139,9 +4179,13 @@ function updateStressChip() {
   if (!chip) return;
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var s = G.stress || 0;
-  chip.textContent = (s >= 80 ? '😰 ' : s >= 50 ? '😮‍💨 ' : '🙂 ') + (isZh?'压力 ':'Stress ') + s;
+  // 名气页移出底部菜单（用户定稿）：首页顶部同时显示名气等级+压力，点这行打开名气页（和"回忆"一样的入口逻辑）
+  var fr = getCurFame(G.fame);
+  var stressStr = (s >= 80 ? '😰 ' : s >= 50 ? '😮‍💨 ' : '🙂 ') + (isZh?'压力 ':'Stress ') + s;
+  chip.innerHTML = '<span style="cursor:pointer">' + fr.emoji + ' ' + getFameLabel(G.lang, fr) + '　·　' + stressStr + ' ›</span>';
   chip.style.color = s >= 80 ? '#c0392b' : s >= 50 ? '#b0703a' : 'var(--text-mid)';
   chip.style.fontWeight = s >= 80 ? '700' : '500';
+  chip.onclick = function(){ openFame(); };
 }
 
 // 职业投资类（+2知名度 +8压力）：对事业有帮助的自我提升
@@ -4330,7 +4374,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.54 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.55 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -5180,7 +5224,7 @@ async function runQuickNPCChat(npcKey, ctx, onDone) {
     STATE.memory.recordDialogue(npcKey, G.day, line, reply);
     vnSpeak('player');
     document.getElementById('vn-speaker').textContent = G.player.name || (isZh?'你':'You');
-    document.getElementById('vn-text').textContent = reply;
+    document.getElementById('vn-text').innerHTML = formatPlayerText(reply);
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
     let closing = '';
     try {
@@ -5596,7 +5640,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.54：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.55：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5997,7 +6041,7 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
   // Show player's choice
   vnSpeak('player');
   document.getElementById('vn-speaker').textContent = G.player.name || (isZh?'你':'You');
-  document.getElementById('vn-text').textContent = playerReply;
+  document.getElementById('vn-text').innerHTML = formatPlayerText(playerReply);
   document.getElementById('vn-opts').innerHTML = '<div class="gt" style="margin:6px auto">Generating<span class="loading-dots"></span></div>';
 
   // If this is the LAST round, NPC gives a brief closing reaction before ending
@@ -6030,7 +6074,7 @@ async function quickResp(npcKey, relChange, reply) {
   const npcText = document.getElementById('vn-text').textContent;
   STATE.memory.recordDialogue(npcKey, G.day, npcText, reply);
   document.getElementById('vn-speaker').textContent = G.player.name;
-  document.getElementById('vn-text').textContent = reply;
+  document.getElementById('vn-text').innerHTML = formatPlayerText(reply);
   document.getElementById('vn-opts').innerHTML = '';
   const endBtn = document.createElement('button'); endBtn.className='vn-next'; endBtn.textContent=t('end_day')||'End the day'; endBtn.onclick=goEvening;
   document.getElementById('vn-opts').appendChild(endBtn);
@@ -7134,7 +7178,7 @@ async function generateAffinityMessages(day) {
           tier,
           occasion: occasion?.key || (isBirthday?'birthday':null),
         });
-        // 邀约改"聊天内确认"制（用户定稿 v11.54）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
+        // 邀约改"聊天内确认"制（用户定稿 v11.55）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
         // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"
         if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
           var inviteDay = day + inviteInfo.daysFromNow;
@@ -7715,7 +7759,7 @@ function renderChatMsgs(npc, dividerIdx) {
       var isZhMb = G.lang==='zh-cn'||G.lang==='zh-tw';
       var greyCss = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
       var activeCss = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
-      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.54 邀约全面改聊天确认制）
+      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.55 邀约全面改聊天确认制）
       var _mday = m.meet.futureDay || m.day;
       var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
       if (m.meet.pending && !m.meet.invId && _mday < G.day) {
@@ -8029,7 +8073,7 @@ async function sendChatReply() {
         });
         STATE.memory.addEvent(npc, (mTime ? 'Proposed meeting her today at ' + mTime + ' (awaiting her yes)' : 'Agreed to meet her right now') + ': "' + mTitle + '"', G.day);
       }
-      // 聊天里谈成的未来约会（用户定稿 v11.54）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
+      // 聊天里谈成的未来约会（用户定稿 v11.55）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
         const fiDay = G.day + futureInv.daysFromNow;
@@ -8378,7 +8422,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.54）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.55）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8388,7 +8432,7 @@ window.addEventListener('load', () => {
     // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
     // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
     if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
-    // 邀约改"聊天内确认"制（v11.54 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
+    // 邀约改"聊天内确认"制（v11.55 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
       Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){
@@ -8435,7 +8479,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.54 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.55 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8453,7 +8497,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.54 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.55 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
