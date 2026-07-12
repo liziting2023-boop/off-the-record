@@ -490,6 +490,8 @@ const STATE = {
       const origin = npc.origin || look.origin;
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'] || {};
       return [
+        // 好看度加权前缀（用户实测二线不帅）：line 里"疲惫/朴素/凌乱"这类写实词冲淡了颜值，前面顶一句强化
+        'very handsome man, strikingly attractive conventionally good-looking face, sharp clean attractive features, magnetic',
         look.line,
         app.features,
         app.skin ? `${app.skin} skin` : '',
