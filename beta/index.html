@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.77"></script>
-<script src="state.js?v=11.77"></script>
+<script src="story.js?v=11.78"></script>
+<script src="state.js?v=11.78"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.77 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.78 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1088,7 +1088,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.77 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.78 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3761,8 +3761,9 @@ async function startDay() {
         notifyNewMessage(k);
       }
       if (st.mode === 'public') {
-        // 想公开的（鼓手）：两天后晚上他的朋友聚会——聊天气泡确认制（接受才进日历；gathering 标记跟着走）
-        var gDay = G.day + 2;
+        // 想公开的（鼓手/对手）：他朋友聚会——台词里说的是"this Saturday/周六/这周末"，所以排到【下一个周六】，
+        // 别再用"两天后"(G.day+2)——那只有从周四算才是周六，别的日子会落到周三等，和台词打架（用户实测PC上落到周三）
+        var gDay = G.day + 1; while (getGameWeekday(gDay) !== 6 && gDay < G.day + 8) gDay++;
         var isZhS = G.lang==='zh-cn'||G.lang==='zh-tw';
         var gTitle = isZhS ? (st.gTitleZh || '他的朋友聚会 🍻') : (st.gTitleEn || "His friends' gathering 🍻");
         if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
@@ -8754,7 +8755,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.77 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.78 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
