@@ -386,9 +386,9 @@ const STORY = {
   characters: {
 
     protagonist: {
-      age: 23,
+      age: 30,
       profession: 'Singer-songwriter, newly signed artist',
-      background: 'Was busking on the streets for tips before being discovered. Talented but raw. Still adjusting to the industry.',
+      background: 'Spent years busking on the streets for tips before finally being discovered. Talented and self-possessed — a grown woman getting her real shot after a long grind. Still learning the industry, but nobody\'s naive ingénue.',
       // 外形由玩家选择，存在 G.player 里
     },
 

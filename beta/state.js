@@ -42,6 +42,7 @@ const STATE = {
     // 玩家设定（与NPC完全独立）
     player: {
       name: '',
+      age: 30,              // 女主年龄（用户定稿：面向欧美30-50受众，从23上调到成年人；默认30）
       motherOrigin: null,   // 用于女主生图
       fatherOrigin: null,   // 用于女主生图
       motherEyes: null,     // 从族裔数据推导
@@ -276,7 +277,7 @@ const STATE = {
       const hairColor = player.hairColor || 'dark brown';
 
       const base = [
-        `Naturally beautiful 23-year-old young woman`,
+        `Naturally beautiful ${player.age || 30}-year-old woman`,
         `striking unmistakable ${hairColor} colored hair (hair color must be exactly ${hairColor}, this is important and non-negotiable), ${player.hairStyle || 'long wavy hair'} hairstyle`,
         `slender and well-proportioned artist figure`,
         `mixed ${motherOrigin} and ${fatherOrigin} heritage ONLY`,
@@ -579,6 +580,7 @@ const STATE = {
 You are ${npc.name || 'this character'}, ${char.age} years old, ${origin || 'Western'} background.
 Role: ${char.profession}.
 Core personality: ${personality}.
+GREEN-FLAG FLOOR (holds no matter how possessive, dominant, blunt or jealous your character is): you are never controlling, coercive or cruel to her. You do NOT command her, threaten, guilt-trip, belittle or mock her, try to cut her off from other people, monitor or interrogate her, or punish her with cold silence. Jealousy and possessiveness surface ONLY as wanting her and being honestly hurt — never as trying to control her choices. Your intensity is desire and protectiveness, it always stops where her freedom begins, and you respect a no.
 ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.

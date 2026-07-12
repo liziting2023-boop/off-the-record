@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.65"></script>
-<script src="state.js?v=11.65"></script>
+<script src="story.js?v=11.66"></script>
+<script src="state.js?v=11.66"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.65 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.66 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.65 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.66 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2201,7 +2201,7 @@ async function genProtagonistScene(locKey, day) {
     const _mo = G.player.motherOrigin || 'East Asian', _fo = G.player.fatherOrigin || 'East Asian';
     const _mt = (STATE.imagePrompts.heritageTraits[_mo] || { eyes: 'dark brown' });
     const _ft = (STATE.imagePrompts.heritageTraits[_fo] || { skin: 'medium' });
-    const spaPrompt = 'close-up photograph composition of a luxurious multi-stage facial spa treatment in progress: an aesthetician in a crisp white uniform wearing a hygienic face mask performs facial acupressure massage with both hands, a beautiful 23-year-old woman of mixed ' + _mo + ' and ' + _fo + ' heritage ONLY with ' + _ft.skin + ' skin tone, ' + _mt.eyes + ' eyes and ' + (G.player.hairColor||'dark brown') + ' hair lies on a spa treatment bed with her eyes closed, her face clearly visible and serenely relaxed, dim tranquil spa room with soft string lights and treatment equipment in the background, warm professional tones' + (detShadow || '');
+    const spaPrompt = 'close-up photograph composition of a luxurious multi-stage facial spa treatment in progress: an aesthetician in a crisp white uniform wearing a hygienic face mask performs facial acupressure massage with both hands, a beautiful ' + (G.player.age||30) + '-year-old woman of mixed ' + _mo + ' and ' + _fo + ' heritage ONLY with ' + _ft.skin + ' skin tone, ' + _mt.eyes + ' eyes and ' + (G.player.hairColor||'dark brown') + ' hair lies on a spa treatment bed with her eyes closed, her face clearly visible and serenely relaxed, dim tranquil spa room with soft string lights and treatment equipment in the background, warm professional tones' + (detShadow || '');
     let spaUrl = await img(spaPrompt, locKey, false, 2, G.player.portraitSeed, true);
     if (!spaUrl) spaUrl = await img('serene spa facial treatment, young woman lying with eyes closed, masked aesthetician massaging her face, dim warm lighting with string lights', locKey + '-fallback', false, 1, G.player.portraitSeed, true);
     return spaUrl;
@@ -2746,7 +2746,7 @@ function addAgentMandate(d, dateStr, pool, isZh, time, timeEnd) {
     npcKey: task.npc || null, npcName: task.npc ? getNPCName(task.npc) : '',
     title: task.t[G.lang] || task.t['en'], locKey: task.loc,
     status: 'accepted', time: time || '10:00', timeEnd: timeEnd || null,
-    description: isZh ? '经纪人安排的必须行程' : 'Scheduled by your agent (mandatory)',
+    description: isZh ? '你和团队一起定的计划（可改期）' : 'Planned together with your team (movable)',
   });
 }
 
@@ -3606,7 +3606,7 @@ async function startDay() {
     (G.calendar.events[getCalDateStr(G.day - 1)] || []).forEach(function(e) {
       if (e && e.type === 'work' && e.status === 'accepted') {
         e.status = 'missed';
-        try { STATE.memory.addEvent('agent', 'She skipped the scheduled work "' + (e.title||'') + '" on day ' + (G.day - 1) + ' — as her agent you noticed and are not pleased.', G.day); } catch (err) {}
+        try { STATE.memory.addEvent('agent', 'She didn\'t make the planned session "' + (e.title||'') + '" on day ' + (G.day - 1) + ' — as her agent you noticed; a little concerned and hoping she is okay, you\'ll check in without scolding (it\'s her call, you two can reschedule).', G.day); } catch (err) {}
       }
     });
   }
@@ -3868,9 +3868,9 @@ async function startDay() {
   const ev = STORY.utils.getScriptedEvent(G.day);
   // Build full background context to prevent wrong assumptions
   const _bgCtx = [
-    G.player.name + ' is a 23-year-old singer-songwriter.',
+    G.player.name + ' is a ' + (G.player.age||30) + '-year-old singer-songwriter — a grown, self-possessed woman, not a naive ingénue.',
     'She has been living in ' + (G.player.city||'the city') + ' for about 2 months already. Today (Day 1) is the first day after signing her contract.',
-    'She was busking on the streets for tips before being signed by a talent agent.',
+    'She spent years busking on the streets for tips before finally being signed by a talent agent — talented, seasoned by the grind, getting her real shot.',
     'Today is Day ' + G.day + ' of her contract (not Day ' + G.day + ' in the city).',
     'Game date: ' + getGameDate(G.day) + '.',
     ev ? 'Today she has a meeting with her ' + ev.npc + '.' : '',
@@ -4098,7 +4098,7 @@ function buildDayOpts() {
         slots.push(makeOpt(w.title + timeLabel, isZh?'还没到时间':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Not yet', 'locked', () => alert(workNotYetMsg(w))));
       } else {
         const sub = st === 'makeup' ? (isZh?'错过了时段 · 现在补上':lang==='ja'?'遅れて参加':lang==='ko'?'늦게라도 참여':'Missed the slot · catch up now')
-          : (w.source === 'agent_mandate' ? (isZh?'必须行程 · 经纪人安排':lang==='ja'?'必須スケジュール':lang==='ko'?'필수 일정':'Mandatory · Set by your agent') : (isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today'));
+          : (w.source === 'agent_mandate' ? (isZh?'你和团队定的计划 · 可改期':lang==='ja'?'チームと決めた予定':lang==='ko'?'팀과 정한 일정':'Your plan with the team') : (isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today'));
         slots.push(makeOpt(w.title + timeLabel, sub, 'work', () => playScheduledEvent(todayDateStr, w)));
       }
     });
@@ -6632,14 +6632,14 @@ const PUBLIC_REACTIONS = {
     ctx: 'You just learned she showed up at OTHER_NAME\'s friends\' gathering as his girl — their relationship is public now. It lands harder than you expected. Text her: controlled, professional on the surface, hurt underneath — you want to hear it from HER, and you remind her (too formally) to think about optics. (1-2 sentences). Output only the message text.' },
   butler:   { kind: 'question', rel: -6,
     ctx: 'You just learned she is publicly with OTHER_NAME now. It hurts more than you have any right to. Text her: gentle, a little broken, trying to sound happy for her and failing at the last word (1-2 sentences). Output only the message text.' },
-  actor:    { kind: 'cold', days: 5, rel: -10,
-    ctx: 'You just learned she is publicly with OTHER_NAME now. You — who are never caught off guard by a woman — are furious and stung. Send ONE bitter, too-casual parting line (something like "congratulations, great casting") and then you intend to go silent on her (1 sentence). Output only the message text.' },
-  drummer:  { kind: 'cold', days: 4, rel: -10,
-    ctx: 'You just learned she is publicly with OTHER_NAME now. You say exactly one blunt hurt line — short, no drama, the kind that lands harder because it is quiet — and then you stop texting her (1 sentence). Output only the message text.' },
+  actor:    { kind: 'question', rel: -10,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. You — who are never caught off guard by a woman — are stung, and your pride shows. Text her ONE sharp, too-casual line that does not hide that it got to you ("congratulations, great casting") — bitter and honest, but you are NOT freezing her out or disappearing; you say your piece straight to her and stay reachable (1-2 sentences). Output only the message text.' },
+  drummer:  { kind: 'question', rel: -10,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. Say exactly one blunt, quiet hurt line — the kind that lands harder because it is honest — straight to her. No drama, no games, and you do NOT go silent or ice her out; hurt does not make you cruel (1-2 sentences). Output only the message text.' },
   detective:{ kind: 'dry', rel: -5,
     ctx: 'You just learned she is publicly with OTHER_NAME now. You observe, as always. Send one dry, unreadable line that only later she will realize was him caring (1 sentence). Output only the message text.' },
-  rival:    { kind: 'cold', days: 4, rel: -9,
-    ctx: 'You just learned she is publicly with OTHER_NAME now. You — who turns everything into a contest — just lost the one that mattered. Fire off ONE perfectly-worded barb disguised as congratulations ("great narrative, really — very on brand"), and then go silent, because silence is the only move you have left (1 sentence). Output only the message text.' },
+  rival:    { kind: 'question', rel: -9,
+    ctx: 'You just learned she is publicly with OTHER_NAME now. You — who turns everything into a contest — just lost the one that mattered, and it shows through the bravado. Fire off ONE barbed line disguised as congratulations ("great narrative — very on brand"), but you keep talking to her and do NOT vanish; the barb is how you admit it hurt (1-2 sentences). Output only the message text.' },
 };
 // 冷战解冻时的台词方向
 const THAW_CTX = {
@@ -7034,12 +7034,12 @@ async function goEvening() {
   // 今天翘掉了经纪人安排的必须行程 → 晚间消息改为质问，并小幅扣好感
   const missedMandate = (G.calendar.events[getCalDateStr(G.day)] || []).find(e => e.source === 'agent_mandate' && e.status === 'missed');
   const agentMsgPrompt = missedMandate
-    ? ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'Her') + ' is your signed artist. She SKIPPED the mandatory scheduled work "' + missedMandate.title + '" today' + (G.today ? ' and went to "' + G.today.label + '" instead' : '') + '. Send a stern, controlled, questioning text (1-2 sentences) — cold displeasure, demand an explanation, no yelling. Language: ' + G.langName + '.')
+    ? ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'Her') + ' is your signed artist and you treat her as an equal partner in her own career. She didn\'t make the planned session "' + missedMandate.title + '" today' + (G.today ? ' — she chose "' + G.today.label + '" instead' : '') + '. Send a brief text (1-2 sentences): genuinely check in — a little concerned, hoping she is okay — and offer to reschedule. It was HER call to make; do NOT scold her, demand an explanation, or lay on guilt. Warm and respectful, a mentor not a boss. Language: ' + G.langName + '.')
     : ('You are ' + eveAgentName + ', talent agent. ' + (G.player.name||'her') + ' is your signed artist. It is late evening of Day ' + G.day + ' of her contract. ' + todayContext + ' ' + buildScheduleContext(2) + ' STRICT: do NOT invent events that did not happen — no auditions, directors, callbacks, streaming platforms (e.g. Netflix), or industry people asking about her unless mentioned in the context above. Send a brief warm 1-sentence text — supportive, caring, like a mentor who genuinely wants her to rest well. NO contract talk. Language: ' + G.langName + '.');
   if (missedMandate) {
-    STATE.relationships.change('agent', -5);
-    missedMandate.status = 'missed_handled'; // 避免第二天晚上重复质问
-    STATE.memory.addEvent('agent', 'She skipped mandatory "' + missedMandate.title + '" on day ' + G.day + '. You confronted her by text.', G.day);
+    STATE.relationships.change('agent', -2); // 软化：可改期的计划，错过只轻微影响（原-5的"翘班惩罚"太像老板）
+    missedMandate.status = 'missed_handled'; // 避免第二天晚上重复
+    STATE.memory.addEvent('agent', 'She didn\'t make the planned "' + missedMandate.title + '" on day ' + G.day + '. You checked in warmly and offered to reschedule — no lecture.', G.day);
   }
 
   // 经纪人晚间消息：工作日（他知情）/翘班质问/生病关怀时发——
@@ -8663,7 +8663,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.65 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.66 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
