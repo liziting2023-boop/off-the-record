@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.67"></script>
-<script src="state.js?v=11.67"></script>
+<script src="story.js?v=11.68"></script>
+<script src="state.js?v=11.68"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.67 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.68 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.67 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.68 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1545,6 +1545,40 @@ const GROUP_CHATS = {
   block: { members:['chef','butler','bodyguard'],    zh:'街坊群', en:'The Block' },
   scene: { members:['actor','rival'],     zh:'名流群',  en:'The Scene' },
 };
+// ── NPC 互相认识（用户实测：经纪人组的乐队，鼓手却把经纪人当"某个天才制作人"、还问"他找你了"）──
+// NPC_ACQUAINTANCE 早有数据但从没喂进对话。这里把"该NPC认识的其他【已登场】NPC"的名字+角色+关系性质
+// 拼成一段注入 buildDialoguePrompt，让 NPC 认得出彼此的名字（也是群聊/争风吃醋功能的地基）。
+const ACQ_DESC = {
+  professional: 'you two work together in this industry and know each other professionally',
+  disdain: "there's no love lost between you — you look down on him",
+  rivalry: 'open rivals',
+  frenemy: 'friendly rivals — smiles on the surface, competition underneath',
+  'wary-respect': 'a wary, grudging mutual respect',
+  industry: 'you know each other around the industry',
+  regular: 'a familiar regular you see often',
+  local: 'you know each other around the neighbourhood',
+  employer: 'an employer / employee relationship',
+  colleague: 'you are colleagues',
+};
+// 关键关系写死正确事实（超出泛泛"认识"）——防模型瞎编身份
+function acqSpecificFact(npcKey, otherKey) {
+  if ((npcKey === 'drummer' && otherKey === 'agent') || (npcKey === 'agent' && otherKey === 'drummer'))
+    return ' — he is HER talent agent/manager AND the one who assembled the band you drum in; you two work together closely and you know full well he signed and manages her (do NOT mistake him for a "producer")';
+  return '';
+}
+function npcAcquaintanceNote(npcKey) {
+  var web = NPC_ACQUAINTANCE[npcKey]; if (!web) return '';
+  var lines = [];
+  Object.keys(web).forEach(function(other){
+    if (!G.npcs[other] || !G.npcs[other].met) return; // 只列【已登场/已认识】的，名字才可靠、也不剧透未见NPC
+    var nm = (G.npcs[other] && G.npcs[other].name) || getNPCName(other);
+    var role = (NPC_ROLES[other] && NPC_ROLES[other].en) || other;
+    var rel = ACQ_DESC[web[other]] || 'you know each other';
+    lines.push(nm + ' (' + role + ' — ' + rel + acqSpecificFact(npcKey, other) + ')');
+  });
+  if (!lines.length) return '';
+  return '\nPEOPLE YOU ALREADY KNOW (you are NOT strangers — recognize these names instantly if she mentions them): ' + lines.join('; ') + '. If she brings one of them up, react as someone who already knows exactly who that is and what your history with them is; never treat a person you know as a stranger, never ask "who is that?", and never get their profession wrong.';
+}
 
 // ── NPC 角色名称（多语言）──
 const NPC_ROLES = {
@@ -8663,7 +8697,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.67 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.68 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

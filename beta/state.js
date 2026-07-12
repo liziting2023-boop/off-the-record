@@ -574,6 +574,9 @@ const STATE = {
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
 
+      // NPC 互相认识：把该NPC认识的其他已登场NPC喂进来（治"经纪人组的乐队鼓手却不认识经纪人"；群聊功能地基）
+      const acquaintanceNote = (typeof npcAcquaintanceNote === 'function') ? npcAcquaintanceNote(npcKey) : '';
+
       return `⚠️ OUTPUT LANGUAGE = ${lang}. Write EVERY word of your reply ONLY in ${lang}. Do NOT reply in English (unless ${lang} is literally English), even though these instructions are in English. This rule is absolute and overrides everything below.
 
 You are ${npc.name || 'this character'}, ${char.age} years old, ${origin || 'Western'} background.
@@ -583,7 +586,7 @@ GREEN-FLAG FLOOR (holds no matter how possessive, dominant, blunt or jealous you
 ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${intimacyStageNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
