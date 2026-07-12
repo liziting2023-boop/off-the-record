@@ -467,7 +467,7 @@ const STATE = {
       },
       photog: {
         origin: 'French',
-        line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, vintage film camera slung across his chest, relaxed sure-of-himself posture',
+        line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, a modern professional DSLR camera with a large lens slung across his chest, relaxed sure-of-himself posture',
       },
       // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
       sleaze: {

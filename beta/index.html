@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.52"></script>
-<script src="state.js?v=11.52"></script>
+<script src="story.js?v=11.53"></script>
+<script src="state.js?v=11.53"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,7 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.52 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.53 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1085,7 +1085,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.52 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.53 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1986,8 +1986,10 @@ async function genLocationBg(locKey, day) {
   const loc = STORY.locations[locKey] || {};
   const sceneComp = loc.composition || 'elegant interior setting';
   const seasonDesc = loc.isOutdoor ? STORY.seasons.getAtmosphere(G.player.city, day) : '';
-  // flux对否定词(no people)不敏感，用强正向"空无一人"措辞压制人物出现(尤其办公室/咖啡馆这类会自动填人的场景)
-  const prompt = sceneComp + (seasonDesc ? ', ' + seasonDesc : '') + ', a completely deserted and unoccupied place, absolutely nobody in frame, not a single person or figure or silhouette anywhere, still and silent empty environment, architectural interior/scenery photograph with no subjects, atmospheric establishing shot, cinematic wide angle, no people, no humans, no figures';
+  // flux对否定词(no people)不敏感，且部分地点描述本身带"sitting/person"暗示会自动填人。
+  // 对策：①把"空无一人"放最前（flux前部权重高）②去掉描述里暗示人的动作词（sitting/standing…）
+  const dePersoned = sceneComp.replace(/\b(sitting|seated|standing|browsing|walking|lying|posing)\b[^,]*/gi, '').replace(/,\s*,/g, ',').replace(/^\s*,\s*/, '');
+  const prompt = 'Completely empty unoccupied interior scene, absolutely no people, no humans, no figures, no silhouettes anywhere — only the place itself, its furniture and architecture: ' + dePersoned + (seasonDesc ? ', ' + seasonDesc : '') + ', still and silent deserted environment, architectural establishing photograph with zero occupants, cinematic wide angle';
   const url = await img(prompt, 'bg-' + locKey);
   if (url) { if (!G.bgCache) G.bgCache = {}; G.bgCache[cacheKey] = url; STATE.save.saveGame(); }
   return url;
@@ -2624,7 +2626,7 @@ function renderCalDayEvents(dateStr) {
       }
     }
 
-    // 日历不再有"接受/拒绝"（用户定稿 v11.52）：所有邀约在【聊天气泡】里确认，接受后才进日历——
+    // 日历不再有"接受/拒绝"（用户定稿 v11.53）：所有邀约在【聊天气泡】里确认，接受后才进日历——
     // 日历只存已确认的行程。老档遗留的 pending 条目在启动自愈里清掉。
 
     if (ev.status === 'declined' || (hasConflict && ev.type === 'npc_invite')) {
@@ -3787,8 +3789,9 @@ async function startDay() {
   });
   // Auto-populate calendar for today
   autoAddCalendarEvents(G.day);
-  // 经纪人排班滚动：一旦开始排班（离开办公室后），每天保证提前约 1 周有行程
-  if (G.calendar && G.calendar.plannedUntil) ensureAgentSchedule(G.day + 7);
+  // 经纪人排班滚动：序章（办公室会面）过了就保证提前约 2 周有行程。
+  // 之前只在 plannedUntil 已置时才补——若初次铺班没跑到，就永远空着（用户实测日历两周行程消失的根因）。
+  if (G.calendar && G.scriptedDone && G.scriptedDone[1]) ensureAgentSchedule(G.day + 13);
   // 场景进行中/序章启动中不抢屏（修"新开局没有序章"+签约后粉屏一闪）：
   // startPrologue 先开 startDay 再进经纪人场景——场景在或即将开时不切首页
   if (!(typeof _curSceneEv !== 'undefined' && _curSceneEv) && !window._prologueBoot) { go('s-daily'); setABn('bn-home'); }
@@ -4020,8 +4023,8 @@ function buildDayOpts() {
       const b = makeOpt(
       _nw ? (isZh?'今晚 3 次自由活动已用完':lang==='ja'?'今夜の自由行動3回を使い切った':lang==='ko'?'오늘 밤 자유 활동 3회를 다 썼어':'All 3 free activities used tonight')
           : (isZh?'白天 3 次自由活动已用完':lang==='ja'?'昼の自由行動3回を使い切った':lang==='ko'?'낮 자유 활동 3회를 다 썼어':'All 3 daytime free activities used'),
-      _nw ? (isZh?'明天恢复 · 工作/约会/聊天不受限':lang==='ja'?'明日回復 · 仕事/デート/チャットは無制限':lang==='ko'?'내일 회복 · 일/데이트/채팅은 무제한':'Resets tomorrow · work/dates/chat unlimited')
-          : (isZh?'晚上7点后另有3次 · 工作/约会/聊天不受限':lang==='ja'?'19時以降さらに3回 · 仕事/デート/チャットは無制限':lang==='ko'?'저녁 7시 이후 3회 추가 · 일/데이트/채팅은 무제한':'3 more after 7pm · work/dates/chat unlimited'),
+      _nw ? (isZh?'明天恢复':lang==='ja'?'明日回復':lang==='ko'?'내일 회복':'Resets tomorrow')
+          : (isZh?'晚上7点后还有3次':lang==='ja'?'19時以降さらに3回':lang==='ko'?'저녁 7시 이후 3회 더':'3 more after 7pm'),
       'locked', null); b.disabled = true; return b; };
     const slots = [];
     // ① 日历工作（含必须行程 + npc_message 类活动）
@@ -4307,7 +4310,7 @@ function appendSecondaryEncounterBtn(key) {
   var btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.style.cssText = 'border:1.5px solid var(--rose);color:var(--rose)';
-  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">'+label+'</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">'+(isZh?'和他聊两句 · 不占行程':'Say hi · free')+'</span>'; // 字号加大（用户实测太小）
+  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">'+label+'</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">'+(isZh?'和他聊两句 · 这次聊天免费':'Say hi · this chat is free')+'</span>'; // 文案改清楚：免费的是"这次聊天"，不是整趟出门（用户反馈）
   btn.onclick = function(){ startSecondaryMeet(s.npc, s.loc, firstTime); };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -4324,7 +4327,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     try { STATE.save.saveGame(); } catch(e){}
   }
   npc._faceMet = true; // 见过脸（管家可能先收短信 met=true 但没见过面，区分用）
-  // 二线立绘（用户定稿 v11.52 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
+  // 二线立绘（用户定稿 v11.53 改为三选一）：初见当场弹三张让玩家选，和主NPC同一套流程；
   // 老档已认识但没图的，静默补生成一张
   if (firstTime && !npc.portraitUrl) {
     setTimeout(function(){ try { showNPCTrioChooser(npcKey, G.day, function(){}); } catch(e){} }, 100);
@@ -4437,7 +4440,7 @@ function appendTier3EncounterBtn(key) {
   var btn = document.createElement('button');
   btn.className = 'vn-next';
   btn.style.cssText = 'border:1.5px dashed rgba(138,128,120,0.55);color:var(--text-mid)';
-  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">' + (isZh?'理他，或者当场怼回去':'Engage — or shut him down on the spot') + '</span>';
+  btn.innerHTML = '<span style="font-size:clamp(14px,4.2vw,17px)">' + labels[s.npc] + '</span><span class="opt-sub" style="display:block;font-size:12px;opacity:.75;margin-top:2px">' + (isZh?'理他，或者当场怼回去 · 免费':'Engage — or shut him down · free') + '</span>';
   btn.onclick = function(){ startTier3Meet(s.npc, key, !npc.met); };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -5587,7 +5590,7 @@ function renderToneHints(container, inp, npcKey) {
                 en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
-    // "挑逗他"（用户定稿 v11.52：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
+    // "挑逗他"（用户定稿 v11.53：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
     //  晚上+在家+好感≥过夜线→直接触发；在外面→"去他家?"询问流；好感不够→冒进按人设结算）
     { key:'stayover', label:{zh:'挑逗他', en:'Tempt him', ja:'誘惑する', ko:'유혹하기'},
       openers:{ zh:['今晚，可以不用这么规矩','再近一点，也没关系','我们……不必停在这里','今晚我不想就这么结束','别急着说晚安','你刚才那个眼神，再来一遍'],
@@ -5637,7 +5640,10 @@ function renderToneHints(container, inp, npcKey) {
       // 半句带"……"悬着（看得出是提示）；玩家【点输入框】时省略号自动消失、直接续写（用户定的交互）。
       // 所以这里不自动 focus——否则省略号立刻被清掉，玩家看不到提示形态。
       var opener = pool[_ti % pool.length];
-      inp.value = opener + (/[A-Za-z]$/.test(opener) ? '… ' : '……');
+      // 可叠加（用户要求：先"做动作"再"认真回答"两段都在）：输入框已有内容就在后面接，不覆盖
+      var _frag = opener + (/[A-Za-z]$/.test(opener) ? '… ' : '……');
+      var _cur = inp.value.replace(/[…]+\s*$/, '').replace(/\s+$/, '');
+      inp.value = _cur ? (_cur + ' ' + _frag) : _frag;
       inp._hintFilled = true;
       if (!inp._hintStripBound) {
         inp._hintStripBound = true;
@@ -5675,7 +5681,10 @@ function renderToneHints(container, inp, npcKey) {
   var _ai = Math.floor(Math.random() * 9);
   actChip.onclick = function(){
     _ai++;
-    inp.value = _actPool[_ai % _actPool.length];
+    // 可叠加：动作放最前，若已有内容就接在动作后面（一般玩法：先点做动作、再点一个语气续写台词）
+    var _act = _actPool[_ai % _actPool.length];
+    var _cur = inp.value.replace(/[…]+\s*$/, '').replace(/\s+$/, '');
+    inp.value = _cur ? (_act + _cur) : _act;
     inp._hintFilled = false; // 括号动作开头不带省略号，不走省略号剥离逻辑
     try { inp.scrollIntoView({ block: 'nearest' }); inp.style.transition = 'box-shadow .15s'; inp.style.boxShadow = '0 0 0 2px var(--rose)'; setTimeout(function(){ inp.style.boxShadow = ''; }, 650); } catch(e) {}
     inp.oninput && inp.oninput.call(inp);
@@ -5831,11 +5840,14 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   evalIntimacyTone(npcKey, day);
   _vnLastReply = null; _vnLastTone = null;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, _replyCtx + ' ' + dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
-  // 动作节奏（用户定稿）：第1轮可用一个动作定场；第2/3轮宁可没动作——若有，必须延续第1轮那个动作，
-  // 不再新起无关小动作（修"NPC一边讲话一边不停做各种小动作"）
+  // 动作节奏（用户定稿·试行）：只有【第一轮】和【最后一轮】带动作，中间轮纯对话。
+  // 第一轮的动作=他此刻/刚才在做什么（定场）；最后一轮的动作=说完话后他做了什么（收尾）。
+  const _isLastRound = Array.isArray(dialogRounds) && round === dialogRounds.length - 1;
   const _actRule = round === 0
-    ? '\n- Include at most ONE brief physical action beat, and it must fit the CURRENT location and situation (no random or theatrical gestures).'
-    : '\n- This is round ' + (round + 1) + ' of this scene: PREFER NO action beat — pure spoken dialogue is ideal now. Only include an action if it directly CONTINUES or completes an action already established earlier in THIS scene (e.g. setting down the coffee he poured earlier); NEVER start a new unrelated gesture or fidget. (This overrides any earlier instruction asking to include an action.)';
+    ? '\n- Include ONE brief physical action beat that shows what he is doing right now as she arrives (sets the scene); it must fit the CURRENT location (no random or theatrical gestures).'
+    : _isLastRound
+    ? '\n- This is the FINAL beat: end with ONE brief physical action AFTER his spoken line — what he does as the moment closes (a look, a turn, settling back). Fits the location, never theatrical.'
+    : '\n- This is a MIDDLE round: NO physical action beat at all — pure spoken dialogue only. Do NOT describe any gesture, movement or fidget; just what he says. (This overrides any earlier instruction to include an action.)';
   // 共情覆盖规则组（用户实测定稿）：倾诉时共情优先于人设；拥抱等请求要正面回应；婉拒用借口不说破；
   // 台词一读就懂；场景中途不许答应"现在就去别处"（3轮后原地收尾，会穿帮）
   const _careRules = '\n- EMPATHY OVERRIDE (outranks your personality): if she is sharing grief, trauma or vulnerability RIGHT NOW, meet it first — acknowledge the specific thing she said, give one true human response, leave her room to continue. BANNED while she opens up: praising her toughness ("you\'re stronger than most"), calling words/talking useless, offering availability ("I\'m here if you want to talk" — she IS talking), changing the subject, pivoting to work or plans, assigning her tasks. Blunt characters go quiet and awkwardly gentle here; they do not coach.' +
@@ -7100,7 +7112,7 @@ async function generateAffinityMessages(day) {
           tier,
           occasion: occasion?.key || (isBirthday?'birthday':null),
         });
-        // 邀约改"聊天内确认"制（用户定稿 v11.52）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
+        // 邀约改"聊天内确认"制（用户定稿 v11.53）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
         // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"
         if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
           var inviteDay = day + inviteInfo.daysFromNow;
@@ -7681,7 +7693,7 @@ function renderChatMsgs(npc, dividerIdx) {
       var isZhMb = G.lang==='zh-cn'||G.lang==='zh-tw';
       var greyCss = 'border:1.5px solid rgba(138,128,120,0.35);color:rgba(138,128,120,0.6);font-weight:600;text-align:center';
       var activeCss = 'cursor:pointer;border:1.5px solid var(--rose);color:var(--rose);font-weight:600;text-align:center';
-      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.52 邀约全面改聊天确认制）
+      // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.53 邀约全面改聊天确认制）
       var _mday = m.meet.futureDay || m.day;
       var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
       if (m.meet.pending && !m.meet.invId && _mday < G.day) {
@@ -7995,7 +8007,7 @@ async function sendChatReply() {
         });
         STATE.memory.addEvent(npc, (mTime ? 'Proposed meeting her today at ' + mTime + ' (awaiting her yes)' : 'Agreed to meet her right now') + ': "' + mTitle + '"', G.day);
       }
-      // 聊天里谈成的未来约会（用户定稿 v11.52）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
+      // 聊天里谈成的未来约会（用户定稿 v11.53）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
         const fiDay = G.day + futureInv.daysFromNow;
@@ -8103,11 +8115,16 @@ function renderFame() {
     bar.style.width = s + '%';
     bar.style.background = s >= 80 ? '#c0392b' : s >= 50 ? '#d98e3f' : '#7fb37f';
     document.getElementById('stress-pct').textContent = s + '/100';
-    document.getElementById('stress-hint').textContent = G.sick
+    // 状态一句 + 永远显示的机制说明（用户反馈：玩家不知道压力是干嘛的）
+    var _statusLine = G.sick
       ? (isZh?'生病休养中（3天），知名度已受影响':'Sick — forced rest (3 days)')
-      : s >= 80 ? (isZh?'压力很大了，去休息一下吧——满100会病倒':'Dangerously high — rest before you collapse at 100')
+      : s >= 80 ? (isZh?'⚠️ 压力很大了，快去休息':'⚠️ Dangerously high — rest now')
       : s >= 50 ? (isZh?'有点累了，注意安排休息':'Getting tired — plan some rest')
       : (isZh?'状态不错':'Feeling good');
+    var _mech = isZh
+      ? '　工作/职业课会攒压力，休息类活动降压；满 100 会病倒，强制卧床 3 天（那几天不能工作和约会）。'
+      : '　Work and classes raise stress; resting lowers it. At 100 you collapse — 3 days of forced bed rest (no work or dates).';
+    document.getElementById('stress-hint').textContent = _statusLine + '　·' + _mech;
   })();
   const fr = getCurFame(G.fame);
   document.getElementById('fame-level-lbl').textContent = fr.emoji + ' ' + getFameLabel(G.lang, fr);
@@ -8140,12 +8157,14 @@ function renderAffection() {
     const avatar = pUrl
       ? '<img class="aff-avatar" src="' + pUrl + '" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">'
       : '<div class="aff-avatar aff-avatar-emoji" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
-    // 过夜"勋章"：隐晦的🌙缀在名字后（不写字，懂的自然懂；过夜次数≥3 加一颗小星）
+    // 好感图标（用户定稿）：💗=够到表白线可以表白了 / 🌙=过过夜。去掉了✦(最亲,进度条已直观)和过夜次数小星。
     const nights = (G.npcs[npc.key] && G.npcs[npc.key].nights) || 0;
-    const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.75" title="✦">🌙' + (nights >= 3 ? '⋆' : '') + '</span>' : '';
+    const canConfess = pct >= confessMin(npc.key);
+    const confessIcon = (canConfess && nights === 0) ? ' <span style="font-size:12px" title="可以表白了">💗</span>' : '';
+    const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.8" title="已过夜">🌙</span>' : '';
     return '<div class="affection-card" style="cursor:pointer" onclick="openNpcProfile(\'' + npc.key + '\')">' + avatar +
       '<div class="aff-info">' +
-        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + (i===0?' ✦':'') + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
+        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + confessIcon + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
         '<div class="aff-bar-bg"><div class="aff-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
         '<div class="aff-score">' + heart + ' <b>' + pct + '</b> / 100</div>' +
       '</div></div>';
@@ -8337,7 +8356,7 @@ window.addEventListener('load', () => {
   })();
   // 旧存档迁移：补见机制上线前的存档没有 scriptedDone 标记，按"该NPC是否已认识"回填，
   // 避免已经见过的登场剧情又被顺延重放；错过的（如没见到的男演员）会正常顺延补见
-  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.52）→ 补上 ──
+  // ── 二线NPC字段自愈：老档没有 coffee/clerk（v11.34加入）或管家没有降级标记（v11.53）→ 补上 ──
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
@@ -8347,7 +8366,7 @@ window.addEventListener('load', () => {
     // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
     // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
     if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
-    // 邀约改"聊天内确认"制（v11.52 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
+    // 邀约改"聊天内确认"制（v11.53 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
       Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){
@@ -8394,7 +8413,7 @@ window.addEventListener('load', () => {
       var _hasReh = (G.calendar.events[_d2str] || []).some(function(e){ return e && e.id === 'work_2'; });
       if (!_hasReh) { try { addRehearsalNextDay(1); } catch(e){} }
     }
-    // 序章见面被误标"错过/待办"（v11.52 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
+    // 序章见面被误标"错过/待办"（v11.53 前剧情工作不落完成标记）：scriptedDone 说明确实玩过 → 修正日历记录
     try {
       Object.keys(G.scriptedDone || {}).forEach(function(sd) {
         if (!/^\d+$/.test(String(sd))) return;
@@ -8412,7 +8431,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.52 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.53 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
