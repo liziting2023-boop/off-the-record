@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.57"></script>
-<script src="state.js?v=11.57"></script>
+<script src="story.js?v=11.58"></script>
+<script src="state.js?v=11.58"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.57 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.58 · BETA ⏱</p>
   </div>
 </div>
 
@@ -991,7 +991,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="wc-input-bar">
       <button id="chat-topic-btn" onclick="toggleChatTopics()" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 2px;flex-shrink:0">💡</button>
       <button id="chat-emoji-btn" onclick="toggleChatEmoji()" style="background:none;border:none;font-size:20px;cursor:pointer;padding:0 4px;flex-shrink:0">😊</button>
-      <input id="chat-input" type="text" maxlength="300" placeholder="输入消息…" oninput="saveChatDraft()" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendChatReply()">
+      <input id="chat-input" type="text" maxlength="300" placeholder="输入消息…" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" oninput="saveChatDraft()" onkeydown="if(event.key==='Enter'&&!event.isComposing)sendChatReply()">
       <button id="chat-send-btn" onclick="sendChatReply()">发送</button>
     </div>
   </div>
@@ -1050,9 +1050,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div>
       <div class="settings-section-title" id="lbl-style-setting">IMAGE STYLE</div>
       <div class="settings-style">
-        <div class="s-style-card sel" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
+        <div class="s-style-card" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
         <div class="s-style-card" onclick="selStyle('semi-realistic',this)"><span class="s-style-name">Semi-Realistic</span><span class="s-style-sub">Soft · Stylized art</span></div>
-        <div class="s-style-card" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
+        <div class="s-style-card sel" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
         <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
       </div>
     </div>
@@ -1085,9 +1085,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div style="text-align:center;margin-top:18px;font-size:12px">
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">隐私政策 · Privacy Policy</a>
       <span style="color:rgba(138,128,120,0.4)"> | </span>
-      <a href="mailto:liziting2023@gmail.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
+      <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.57 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.58 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1364,8 +1364,11 @@ async function checkProactiveOnOpen() {
         : 'You are still getting to know each other — ' + GETTOKNOW_SEEDS[Math.floor(Math.random()*GETTOKNOW_SEEDS.length)] + '.');
   try {
     var noInvite = (nights > 0 || tier === 'high') ? '' : ' Do NOT ask her out, propose a date, or suggest meeting up — you barely know each other; this is just a casual friendly text to chat, not to make plans.';
+    // 最近的聊天原文喂进来，避免刚聊完/刚答应帮她办事，转头又主动发一条重复的问题（用户实测）
+    var _recentChat = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === k && !m.meet; }).slice(-8).map(function(m){ return (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0,80); }).join('\n');
+    var _noRepeat = _recentChat ? ' You two ALREADY texted recently (YOU=you, HER=her):\n' + _recentChat + '\nDo NOT repeat a question you already asked there, and do NOT re-ask about something already answered or that you already said you would look into/handle — if there is nothing genuinely new, either open a fresh DIFFERENT beat or keep it to one brief warm line, never a near-duplicate of the above. ' : '';
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
-      timeWord + ' where she is (current local time: ' + rtClockStr() + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
+      timeWord + ' where she is (current local time: ' + rtClockStr() + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + _noRepeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
       ' The message MUST fit the CURRENT time of day — never tell her to sleep or say goodnight in the morning/afternoon, never say good-morning at night. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
@@ -2712,6 +2715,9 @@ function ensureAgentSchedule(untilDay) {
   for (var d = from; d <= untilDay; d++) {
     var dateStr = getCalDateStr(d);
     var sev = STORY.utils.getScriptedEvent(d);
+    // Day1 的"与经纪人会面"是序章现场连播的剧情（signing→prologue），不是玩家日历上的一条工作行程——
+    // 否则新开局日历会多出一条"与经纪人会面·已完成"的重复条目（用户实测）
+    if (d === 1) continue;
     if (sev && sev.isWork) {
       calAddEvent(dateStr, {
         id: 'work_' + d, type: 'work', title: scriptedTitles[sev.location] || (isZh?'工作安排':'Work'),
@@ -2764,8 +2770,8 @@ function autoAddCalendarEvents(day) {
   var dateStr = getCalDateStr(day);
   var ev = STORY.utils.getScriptedEvent(day);
 
-  // Add scripted work events
-  if (ev && ev.isWork) {
+  // Add scripted work events（Day1 与经纪人会面=序章现场剧情，不当作日历工作条目——见 ensureAgentSchedule 同注释）
+  if (ev && ev.isWork && day !== 1) {
     var workTitles = {
       agent_office: isZh?'与经纪人会面':'Meeting with Agent',
       recording_studio: isZh?'录音室排练':'Recording Studio',
@@ -7288,7 +7294,9 @@ async function generateAffinityMessages(day) {
         // 邀约改"聊天内确认"制（用户定稿 v11.57）：消息后跟一个"接受/婉拒"气泡，接受才进日历。
         // daysFromNow 最小1：晚间发的邀约最早约明天，绝不约已经过掉的"今晚"
         if (inviteInfo && Number.isInteger(inviteInfo.daysFromNow) && inviteInfo.daysFromNow >= 1 && inviteInfo.daysFromNow <= 6 && (tier === 'high' || occasion)) {
-          var inviteDay = day + inviteInfo.daysFromNow;
+          // 日期锚到消息文字点名的星期几（修文字/日历日期对不上）；没点名才用 AI 的 daysFromNow
+          var _wOffA = weekdayOffsetFromText(msg, day);
+          var inviteDay = day + ((_wOffA && _wOffA >= 1 && _wOffA <= 6) ? _wOffA : inviteInfo.daysFromNow);
           var isZhInv = G.lang==='zh-cn'||G.lang==='zh-tw';
           var invTitle = (G.npcs[npcKey].name||getNPCName(npcKey)) + (isZhInv?' 的邀约':' Invitation');
           var invTime = /^\d{1,2}:\d{2}$/.test(inviteInfo.time||'') ? inviteInfo.time : '19:30';
@@ -7361,6 +7369,30 @@ function upcomingDatesRef(fromDay, n) {
   var parts = [];
   for (var i = 1; i <= (n || 6); i++) parts.push('daysFromNow=' + i + ' → ' + wd[getGameWeekday(fromDay + i)] + ', ' + getGameDate(fromDay + i));
   return ' DATE REFERENCE: ' + parts.join('; ') + '. In the message TEXT, always name the day EXPLICITLY by weekday and/or date (e.g. "Friday evening", "on the 5th") — NEVER use relative words like "tomorrow"/"明天"/"the day after": she may read the message later and relative words become wrong.';
+}
+
+// NPC 消息文字里点名了某个星期几（"周四见"/"see you Friday"）时，把邀约日期锚到玩家真正读到的那天，
+// 而不是信任 AI 另给的 daysFromNow（Haiku 常算错 → "说周四却排到周一"，用户实测）。
+// 返回 daysFromNow(1-7) 或 null（文字里没点名星期几就沿用 AI 的值）。
+function weekdayOffsetFromText(text, fromDay) {
+  if (!text) return null;
+  var pats = [
+    /周日|週日|周天|星期日|星期天|礼拜日|禮拜日|\bsundays?\b/i,       // 0
+    /周一|週一|星期一|礼拜一|禮拜一|\bmondays?\b/i,                 // 1
+    /周二|週二|星期二|礼拜二|禮拜二|\btuesdays?\b/i,                // 2
+    /周三|週三|星期三|礼拜三|禮拜三|\bwednesdays?\b/i,              // 3
+    /周四|週四|星期四|礼拜四|禮拜四|\bthursdays?\b/i,               // 4
+    /周五|週五|星期五|礼拜五|禮拜五|\bfridays?\b/i,                 // 5
+    /周六|週六|星期六|礼拜六|禮拜六|\bsaturdays?\b/i,               // 6
+  ];
+  for (var d = 0; d < 7; d++) {
+    if (pats[d].test(text)) {
+      var off = (d - getGameWeekday(fromDay) + 7) % 7;
+      if (off === 0) off = 7; // 今天已经是那个星期几 → 指下一个（邀约至少排到明天，不排今天/过去）
+      return off;
+    }
+  }
+  return null;
 }
 
 async function generatePhoneContent() {
@@ -8070,6 +8102,9 @@ async function sendChatReply() {
   G.phone.messages[G.day].push({ npc, name: G.player.name||'Me', text, mine: true, isVoice: false, day: G.day, time: getPhoneClockTime(), read: true });
   renderChatMsgs(npc);
   STATE.memory.addEvent(npc, 'She texted: "' + text.slice(0,60) + '"', G.day);
+  // 刚在聊天里说过话 → 重置该NPC"上次联系时间"，让主动消息引擎(checkProactiveOnOpen)的冷却从这次对话算起，
+  // 别几十分钟后又主动跑来问一遍刚聊完/刚答应帮你办的事（用户实测：经纪人答应打听、几分钟后又来问进度）
+  if (G.npcs[npc]) G.npcs[npc]._reachAt = Date.now();
   btn.disabled = false; // 玩家可以连续发，不用等回复
 
   // 冷战中（因她公开了和别人的关系而生气）：不读不回，玩家发消息石沉大海（Batch2）
@@ -8192,7 +8227,10 @@ async function sendChatReply() {
       // 聊天里谈成的未来约会（用户定稿 v11.57）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
-        const fiDay = G.day + futureInv.daysFromNow;
+        // 日期以回复文字里点名的星期几为准（修"说周四却排到周一"）：文字没点名才用 AI 的 daysFromNow
+        const _wOff = weekdayOffsetFromText(reply, G.day);
+        const fiDaysFromNow = (_wOff && _wOff >= 1 && _wOff <= 6) ? _wOff : futureInv.daysFromNow;
+        const fiDay = G.day + fiDaysFromNow;
         const isZhF = G.lang==='zh-cn'||G.lang==='zh-tw';
         const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
         const fiTime = /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30';
@@ -8550,6 +8588,9 @@ window.addEventListener('load', () => {
     // 画风试用迁移（一次性）：老档还是旧默认 illustrated → 切到 semi-realistic 试用；
     // 玩家在设置里自选过其他风格的不动；不喜欢可随时在设置改回（改回后本标记防止再次迁移）
     if (!G._styleMigrV2) { if (G.imgStyle === 'illustrated') G.imgStyle = 'semi-realistic'; G._styleMigrV2 = 1; }
+    // v11.58 一次性迁移：新默认改 cinematic（Film grain·Dreamy）试用——老档旧默认(illustrated/semi-realistic)统一切过去，
+    // 之前生成的地点/立绘缓存也清一批让新画风生效；玩家在设置里自选过别的可随时改回（改回后本标记防再次迁移）
+    if (!G._styleMigrV3) { if (G.imgStyle === 'illustrated' || G.imgStyle === 'semi-realistic') { G.imgStyle = 'cinematic'; G.bgCache = {}; } G._styleMigrV3 = 1; }
     // 邀约改"聊天内确认"制（v11.57 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
@@ -8615,7 +8656,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.57 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.58 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

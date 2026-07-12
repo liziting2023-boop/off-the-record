@@ -206,7 +206,7 @@ const STORY = {
     agent_office: {
       isOutdoor: false,
       isPublic: false,
-      composition: 'inside sleek modern high-rise office, floor-to-ceiling windows with city skyline, glass desk, minimalist luxury interior',
+      composition: 'inside a sleek modern corporate high-rise executive office, floor-to-ceiling windows with city skyline, glass desk, office chairs, minimalist luxury business interior — strictly a business office, NOT a music room, no piano, no instruments, no recording gear',
     },
     recording_studio: {
       isOutdoor: false,
