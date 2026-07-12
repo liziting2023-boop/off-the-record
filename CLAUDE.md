@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.57（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.58（实时化实验）。**
+
+**v11.58（2026-07-12 用户实测反馈批，4图+2项）**：①反馈邮箱统一 `otr.help@wiiboox.com`（游戏内 mailto + privacy.html）②默认画风改 **Cinematic（Film grain·Dreamy）**，一次性迁移老档`_styleMigrV3`+清 bgCache 让背景重生（仍全量 schnell；已锁的立绘 portraitUrl 不动，如需刷新用 `otrNewLook(npc)`）③**图1** 聊天输入框加 `autocomplete/autocorrect off`（那个"好，晚安"气泡是浏览器历史输入弹层挡住发送键，非游戏元素）④**图2a** Day1"与经纪人会面"不再作为日历工作条目（它就是序章现场剧情）——`ensureAgentSchedule`+`autoAddCalendarEvents` 跳过 day1；**图2b** agent_office 生图提示词加固（商务办公室，禁 piano/乐器）⑤**图3** 主动消息不再重复问刚聊完的事——聊天发送即重置 `_reachAt`（冷却从对话算起）+ `checkProactiveOnOpen` 注入近期聊天原文+禁重复规则⑥**图4a** 邀约日期锚到 NPC 消息里点名的星期几（`weekdayOffsetFromText`，修"说周四却排到周一"），聊天 futureInvite 与晚间 affinity 邀约两条路都套用。**图4b（"没点接受日历就有确认行程"）经排查代码本就只在点"接受"后才写日历**——用户看到的周一"已确认"其实是序章鼓手初见后 `addRehearsalNextDay` 自动排的录音室排练（正常），和聊天邀约恰好同一天，非泄漏；已在提交说明里注明。
 
 **v11.38-11.57（NPC四级体系铺满 + 大量实测反馈修复 + 上架四件套，2026-07-09~12 用户边玩边报）**：
 - **NPC四级现状**：一线6人(经纪人/鼓手/演员/侦探/管家→已降二线/对手歌手)；**二线7人**(咖啡师coffee白天咖啡馆·店员clerk深夜超市·健身教练trainer健身房·录音师engineer录音行程后·晨跑医生runner公园上午/夜跑·街头摄影师photog街边市集·管家butler大堂偶遇+Day1短信)；**三线3人**(sleaze油腻男夜店/fboy渣男商场/thief小偷深夜超市·夜跑)；**特级5人=文档`npc_special.md`已定稿待开发**(总统/王子/大佬/船王/球星,商演相遇,名气档位崭露头角30/人气新星45/当红艺人60,每月1次窗口,纯无声错过)。
