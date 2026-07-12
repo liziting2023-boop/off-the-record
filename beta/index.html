@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.70"></script>
-<script src="state.js?v=11.70"></script>
+<script src="story.js?v=11.71"></script>
+<script src="state.js?v=11.71"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.70 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.71 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.70 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.71 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1967,10 +1967,11 @@ async function claude(prompt, sys = '', opts = {}) {
   return '';
 }
 
-async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false) {
+async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false, styleOverride = null) {
   if (DEV_MODE_IMG || (typeof G !== 'undefined' && G && G.imgOff)) return null; // G.imgOff = 设置里手动关掉生图(省钱,测剧情用)
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
-  const style = STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['illustrated'];
+  // styleOverride：个别图（如卧室夜景）用户实测另一套风格更好看，用它覆盖全局画风
+  const style = styleOverride || STATE.imagePrompts.styles[G.imgStyle] || STATE.imagePrompts.styles['illustrated'];
   const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
   // 人物图高质量模式：立绘走 flux/dev（提示词服从度高），背景仍走 schnell 省钱。
   // Worker 未更新时 model 字段会被忽略（仍走 schnell），安全向后兼容
@@ -3170,7 +3171,7 @@ async function genBedrooms() {
   const ids = { a:'bra-ph', b:'brb-ph', c:'brc-ph' };
   const keys = ['a','b','c'];
   for (let i = 0; i < 3; i++) {
-    const url = await img(BEDROOM_LAYOUTS[i] + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + BEDROOM_MOODS[i] + ', NO sunset, NO orange sky, NO daylight, no people', 'Bedroom ' + keys[i], false, 2, seed);
+    const url = await img(BEDROOM_LAYOUTS[i] + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + BEDROOM_MOODS[i] + ', NO sunset, NO orange sky, NO daylight, no people', 'Bedroom ' + keys[i], false, 2, seed, false, BEDROOM_STYLE);
     if (url) { _bedroomUrls[keys[i]] = url; setRCard('br'+keys[i], ids[keys[i]], url, keys[i]); }
   }
   _bedroomDone = true;
@@ -3187,6 +3188,8 @@ function selBedroom(opt) {
   document.getElementById('btn-bedroom').style.visibility = 'visible';
 }
 
+// 卧室夜景画风覆盖（用户实测：这套比全局cinematic生出的卧室更好看）——只用于卧室图，不影响别处
+const BEDROOM_STYLE = 'photorealistic, lifestyle photography, authentic textures';
 // 晚间卧室固定布局（用户指定）：小户型卧室书房一体，左墙衣柜+书桌+一体单人床+窗户
 const BEDROOM_LAYOUT = 'compact bedroom-study combo room, rectangular layout, full-height floor-to-ceiling wardrobe covering the entire left wall, a desk against the wall to the right of the wardrobe with a three-drawer mobile cabinet under its right side and a study chair in front, the desk connects to the single bed forming an integrated layout, single bed along the right wall with storage drawers underneath, bed directly below the window, two-tier open wall-mounted bookshelf above the desk filled with books folders and storage boxes, photo board on the wall behind the desk, large framed window with curtains in the middle of the right wall, green plants visible outside the window, wooden floor, compact space with ample storage, combined study and rest area';
 // 卧室布局B（用户指定）：长方形卧室，中央双人床，两侧对称床头柜+窗户，床上吊灯，右侧梳妆台竖镜，床尾脚凳，左下角单人椅，大地毯
@@ -3206,7 +3209,7 @@ async function preGenNight() {
   const mood = G.apartment.bedroomMood || 'warm cozy interior lamp light';
   const url = await img(
     layout + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + mood + ', warm cozy interior lamp light as the main light source, NO sunset, NO orange sky, NO twilight, NO daylight, no people'
-  , 'Bedroom — Night');
+  , 'Bedroom — Night', false, 2, null, false, BEDROOM_STYLE);
   G.apartment.bedroomNightUrl = url;
   STATE.save.saveGame();
 }
@@ -8661,6 +8664,8 @@ window.addEventListener('load', () => {
     // v11.58 一次性迁移：新默认改 cinematic（Film grain·Dreamy）试用——老档旧默认(illustrated/semi-realistic)统一切过去，
     // 之前生成的地点/立绘缓存也清一批让新画风生效；玩家在设置里自选过别的可随时改回（改回后本标记防再次迁移）
     if (!G._styleMigrV3) { if (G.imgStyle === 'illustrated' || G.imgStyle === 'semi-realistic') { G.imgStyle = 'cinematic'; G.bgCache = {}; } G._styleMigrV3 = 1; }
+    // v11.71 卧室夜景改用 photorealistic 画风（用户实测更好看）：老档清掉已缓存的卧室夜图，下次入夜按新风格重生成
+    if (!G._bedroomStyleMigr) { if (G.apartment) G.apartment.bedroomNightUrl = null; G._bedroomStyleMigr = 1; }
     // 邀约改"聊天内确认"制（v11.57 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
@@ -8726,7 +8731,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.70 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.71 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
