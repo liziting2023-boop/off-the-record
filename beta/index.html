@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.66"></script>
-<script src="state.js?v=11.66"></script>
+<script src="story.js?v=11.67"></script>
+<script src="state.js?v=11.67"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.66 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.67 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.66 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.67 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2201,7 +2201,7 @@ async function genProtagonistScene(locKey, day) {
     const _mo = G.player.motherOrigin || 'East Asian', _fo = G.player.fatherOrigin || 'East Asian';
     const _mt = (STATE.imagePrompts.heritageTraits[_mo] || { eyes: 'dark brown' });
     const _ft = (STATE.imagePrompts.heritageTraits[_fo] || { skin: 'medium' });
-    const spaPrompt = 'close-up photograph composition of a luxurious multi-stage facial spa treatment in progress: an aesthetician in a crisp white uniform wearing a hygienic face mask performs facial acupressure massage with both hands, a beautiful ' + (G.player.age||30) + '-year-old woman of mixed ' + _mo + ' and ' + _fo + ' heritage ONLY with ' + _ft.skin + ' skin tone, ' + _mt.eyes + ' eyes and ' + (G.player.hairColor||'dark brown') + ' hair lies on a spa treatment bed with her eyes closed, her face clearly visible and serenely relaxed, dim tranquil spa room with soft string lights and treatment equipment in the background, warm professional tones' + (detShadow || '');
+    const spaPrompt = 'close-up photograph composition of a luxurious multi-stage facial spa treatment in progress: an aesthetician in a crisp white uniform wearing a hygienic face mask performs facial acupressure massage with both hands, a beautiful 23-year-old woman of mixed ' + _mo + ' and ' + _fo + ' heritage ONLY with ' + _ft.skin + ' skin tone, ' + _mt.eyes + ' eyes and ' + (G.player.hairColor||'dark brown') + ' hair lies on a spa treatment bed with her eyes closed, her face clearly visible and serenely relaxed, dim tranquil spa room with soft string lights and treatment equipment in the background, warm professional tones' + (detShadow || '');
     let spaUrl = await img(spaPrompt, locKey, false, 2, G.player.portraitSeed, true);
     if (!spaUrl) spaUrl = await img('serene spa facial treatment, young woman lying with eyes closed, masked aesthetician massaging her face, dim warm lighting with string lights', locKey + '-fallback', false, 1, G.player.portraitSeed, true);
     return spaUrl;
@@ -3868,7 +3868,7 @@ async function startDay() {
   const ev = STORY.utils.getScriptedEvent(G.day);
   // Build full background context to prevent wrong assumptions
   const _bgCtx = [
-    G.player.name + ' is a ' + (G.player.age||30) + '-year-old singer-songwriter — a grown, self-possessed woman, not a naive ingénue.',
+    G.player.name + ' is a singer-songwriter — a grown, self-possessed woman, not a naive ingénue (do NOT state or imply a specific age for her).',
     'She has been living in ' + (G.player.city||'the city') + ' for about 2 months already. Today (Day 1) is the first day after signing her contract.',
     'She spent years busking on the streets for tips before finally being signed by a talent agent — talented, seasoned by the grind, getting her real shot.',
     'Today is Day ' + G.day + ' of her contract (not Day ' + G.day + ' in the city).',
@@ -8663,7 +8663,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.66 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.67 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

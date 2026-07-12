@@ -42,7 +42,6 @@ const STATE = {
     // 玩家设定（与NPC完全独立）
     player: {
       name: '',
-      age: 30,              // 女主年龄（用户定稿：面向欧美30-50受众，从23上调到成年人；默认30）
       motherOrigin: null,   // 用于女主生图
       fatherOrigin: null,   // 用于女主生图
       motherEyes: null,     // 从族裔数据推导
@@ -277,7 +276,7 @@ const STATE = {
       const hairColor = player.hairColor || 'dark brown';
 
       const base = [
-        `Naturally beautiful ${player.age || 30}-year-old woman`,
+        `Naturally beautiful 23-year-old woman`, // 生图固定23岁保证画面年轻好看（用户定稿）；叙事年龄故意不订，见 _bgCtx
         `striking unmistakable ${hairColor} colored hair (hair color must be exactly ${hairColor}, this is important and non-negotiable), ${player.hairStyle || 'long wavy hair'} hairstyle`,
         `slender and well-proportioned artist figure`,
         `mixed ${motherOrigin} and ${fatherOrigin} heritage ONLY`,
@@ -569,7 +568,7 @@ const STATE = {
       // 已成为恋人（过过夜）后，绝不再拿"你是我的客户/我是你经纪人/这样不专业/我不能"当理由推开她——
       // 那条界线早已跨过（用户实测：经纪人过夜后又被她约来家里，却说"你是我的客户，我不能这样"，自相矛盾）。
       const intimacyStageNote = (npc.nights || 0) > 0
-        ? `\nRELATIONSHIP STAGE — ALREADY LOVERS: you and ${playerName} have already spent the night together and are in an intimate relationship now. Any professional or moral line that once held you back — "you're my client", "I'm your agent/manager", "this would be unprofessional", "we can't", "I shouldn't" — is ALREADY CROSSED and firmly behind you. NEVER refuse her on those grounds, never lecture her about them, and never talk or act as if being together is forbidden or as if the intimacy has not happened. Any hesitation you still carry is ONLY about keeping the relationship private/discreet — never about whether to be together. When she is warm, inviting, or wants you close, respond as a lover who wants her back, in your own character's register. PHYSICAL CLOSENESS IS FAMILIAR NOW: holding her, touching her, kissing her is easy and welcome between you — do NOT write yourself hesitating to touch her, pausing before you return her hug, or treating closeness as a tentative first time; you have been far closer than this. And do NOT answer her flirtation, teasing, or a playful/seductive gesture (dancing for you, reaching for you, pulling you close) with cold dismissal, a bored one-liner, a mundane non-sequitur, or a literal "that's not my job / don't confuse our roles" brush-off — even a blunt, few-words man stays WARM toward the woman he is sleeping with and shows it in what he DOES, never by pushing her away.`
+        ? `\nRELATIONSHIP STAGE — ALREADY LOVERS: you and ${playerName} have already spent the night together and are in an intimate relationship now. Any professional or moral line that once held you back — "you're my client", "I'm your agent/manager", "this would be unprofessional", "we can't", "I shouldn't" — is ALREADY CROSSED and firmly behind you. NEVER refuse her on those grounds, never lecture her about them, and never talk or act as if being together is forbidden or as if the intimacy has not happened. Any hesitation you still carry is ONLY about keeping the relationship private/discreet — never about whether to be together. When she is warm, inviting, or wants you close, respond as a lover who wants her back, in your own character's register. PHYSICAL CLOSENESS IS FAMILIAR NOW: holding her, touching her, kissing her is easy and welcome between you — do NOT write yourself hesitating to touch her, pausing before you return her hug, or treating closeness as a tentative first time; you have been far closer than this. And do NOT answer her flirtation, teasing, or a playful/seductive gesture (dancing for you, reaching for you, pulling you close) with cold dismissal, a bored one-liner, a mundane non-sequitur, or a literal "that's not my job / don't confuse our roles" brush-off — even a blunt, few-words man stays WARM toward the woman he is sleeping with and shows it in what he DOES, never by pushing her away. FAMILIAR NOW: she has already been to your home and knows your places — do NOT introduce your own home, room or rooftop, or a spot you two have shared, as if she has never seen it; and do NOT run a careful, tentative first-move routine or give her cautious "outs" as if she might not grasp your meaning — you two are long past that, so pick up with the easy familiarity of two people who already know each other's spaces.`
         : '';
 
       // Add character's own culture note from story.js
