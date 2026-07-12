@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.68"></script>
-<script src="state.js?v=11.68"></script>
+<script src="story.js?v=11.69"></script>
+<script src="state.js?v=11.69"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.68 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.69 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.68 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.69 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2763,10 +2763,28 @@ function ensureAgentSchedule(untilDay) {
     if (sev) continue; // 非工作剧情日（如管家）：不排额外工作
     // 这天已经有工作/邀约了就跳过（去重）
     if ((G.calendar.events[dateStr] || []).some(function(e){ return e && (e.type === 'work' || e.type === 'npc_invite'); })) continue;
-    if (isGameWeekend(d)) {
-      if (Math.random() < 0.5) addAgentMandate(d, dateStr, AGENT_PERF_TASKS, isZh, '19:30', '22:00'); // 周末=演出（傍晚）
-    } else {
-      if (Math.random() < 0.45) addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '10:00', '13:00'); // 工作日=排练/训练
+    // ── 保证密度（用户实测：纯每日45%随机会掷出"整两周空日历"）──
+    // 每7天窗口保证约3个工作日。用"蓄水池"概率 p=还需要/本周剩余可排天数：
+    // 期望排够3天，末尾不够时 p→1 强制补，既不空、也不是天天工作。滚动加天时按同一周额度自我纠正。
+    var TARGET_PER_WEEK = 3;
+    var wk0 = Math.floor((d - 1) / 7) * 7 + 1; // 该"周"（每7个游戏日一组）的第一天
+    var wkCount = 0;
+    for (var wd = wk0; wd < wk0 + 7; wd++) {
+      if ((G.calendar.events[getCalDateStr(wd)] || []).some(function(e){ return e && e.type === 'work'; })) wkCount++;
+    }
+    if (wkCount >= TARGET_PER_WEEK) continue; // 这周够了
+    var remainingFree = 0; // 本周从今天起还剩几个可排的空闲日（含今天）
+    for (var rd = d; rd < wk0 + 7 && rd <= untilDay; rd++) {
+      if (rd === 1) continue;
+      var rsev = STORY.utils.getScriptedEvent(rd);
+      if (rsev) continue;
+      if ((G.calendar.events[getCalDateStr(rd)] || []).some(function(e){ return e && (e.type === 'work' || e.type === 'npc_invite'); })) continue;
+      remainingFree++;
+    }
+    var p = remainingFree > 0 ? Math.min(1, (TARGET_PER_WEEK - wkCount) / remainingFree) : 0;
+    if (Math.random() < p) {
+      if (isGameWeekend(d)) addAgentMandate(d, dateStr, AGENT_PERF_TASKS, isZh, '19:30', '22:00'); // 周末=演出（傍晚）
+      else addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '10:00', '13:00'); // 工作日=排练/训练
     }
   }
   G.calendar.plannedUntil = untilDay;
@@ -8697,7 +8715,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.68 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.69 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
