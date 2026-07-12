@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.69"></script>
-<script src="state.js?v=11.69"></script>
+<script src="story.js?v=11.70"></script>
+<script src="state.js?v=11.70"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.69 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.70 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1087,7 +1087,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.69 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.70 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -6826,9 +6826,13 @@ async function maybeStayOver(npcKey, locKey, opts) {
   let _pre1 = null, _pre1Bg = null, _pre2 = null, _pre2Bg = null;
   const _stayCtx =
     dest === 'at_hers'
-    ? 'You are at HER apartment and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle to NOT leave tonight — to stay here, at her place — tasteful, implicit, deniable (a reason to linger, an unfinished sentence, "外面太晚了……"). One or two sentences, spoken words only.'
+    ? (_nightsSoFar > 0
+        ? 'You are at HER apartment and the evening is winding down. She has stayed the night with you ' + _nightsSoFar + ' time(s) — you are lovers, past any pretext. In YOUR character\'s voice, just make it plain and warm that you are not going anywhere tonight — quiet familiar confidence, no excuses. One or two sentences, spoken words only.'
+        : 'You are at HER apartment and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle to NOT leave tonight — to stay here, at her place — tasteful, implicit, deniable (a reason to linger, an unfinished sentence, "外面太晚了……"). One or two sentences, spoken words only.')
     : dest === 'walk_hers'
-    ? 'You just walked her home, and you are both at her building\'s door — the night is ending and you don\'t want it to. In YOUR character\'s voice, find a charming in-character excuse to come UP to her place (a glass of water, wanting to see the place she always mentions, "还不想说晚安") — suggestive but deniable, tasteful, never explicit. One or two sentences, spoken words only.'
+    ? (_nightsSoFar > 0
+        ? 'You just walked her home together and you are at her door. She has stayed the night with you ' + _nightsSoFar + ' time(s) — you are lovers, WAY past needing an excuse. Do NOT invent a flimsy pretext like "a glass of water" — in YOUR character\'s voice just make it plain and warm that you are coming up with her, or that you do not want the night to end, with the easy confidence of someone who has woken up next to her. One or two sentences, spoken words only.'
+        : 'You just walked her home, and you are both at her building\'s door — the night is ending and you don\'t want it to. In YOUR character\'s voice, find a charming in-character excuse to come UP to her place (wanting to see the place she always mentions, "还不想说晚安") — suggestive but deniable, tasteful, never explicit. One or two sentences, spoken words only.')
     : dest === 'at_his'
     ? 'She is already AT your place and the evening is winding down. In YOUR character\'s voice, gently and suggestively angle for her to STAY the night — tasteful, implicit (the hour, the rain, an unfinished sentence — anything but pressure). ' + (_nightsSoFar > 0 ? 'She has stayed before (' + _nightsSoFar + ' time(s)) — quiet intimacy, no pretext games. ' : '') + 'One or two sentences, spoken words only.'
     : _nightsSoFar === 0
@@ -6841,12 +6845,19 @@ async function maybeStayOver(npcKey, locKey, opts) {
     } catch(e) {}
     if (!line || !line.trim()) { _vnEndLoc = locKey; runVNDialog([], npcKey, G.day, 0); return; }
     document.getElementById('vn-text').innerHTML = formatNPCText(line);
+    // 邀请画面背景跟上地点（用户实测：走到她家楼下，背景却还是上一场的海边）——她家→她公寓夜景；他家→他家；在外面(go_his)保留约会地点
+    try {
+      var _invBg = (dest === 'at_hers' || dest === 'walk_hers') ? (G.apartment.livingNightUrl || G.apartment.bedroomNightUrl || null)
+                 : (dest === 'at_his') ? await genNPCHomeBg(npcKey) : null;
+      if (_invBg) { var _ib = document.getElementById('vn-bg'); _ib.src = _invBg; _ib.style.display = 'block'; var _iph = document.getElementById('vn-bg-ph'); if (_iph) _iph.style.display = 'none'; }
+    } catch(e) {}
     playSound('stay-invite'); // 亲密邀请专属音效：提醒玩家这不是普通对话
     vopts.innerHTML = '';
     // 第一幕预生成：玩家在读邀请台词的这几秒，后台先把散文+他家背景跑起来
     try {
       const _pFn = (G.npcs[npcKey].nights || 0) === 0;
-      const _pSf = (dest === 'at_his' || dest === 'at_hers') ? (line || '') : '';
+      // walk_hers（送她回家、他上来）也算"衔接当下"——他们刚一起上楼，别再写他单独敲门到访（用户实测图2）
+      const _pSf = (dest === 'at_his' || dest === 'at_hers' || dest === 'walk_hers') ? (line || '') : '';
       _pre1 = genOvernightProse(npcKey, 1, _pFn, (dest === 'at_hers' || dest === 'walk_hers'), _pSf).catch(function(){ return ''; });
       if (dest === 'go_his') _pre1Bg = genNPCHomeActBg(npcKey, 1).catch(function(){ return null; });
     } catch(e) {}
@@ -6937,7 +6948,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
     // 衔接来源：玩家直入=他刚才的台词；询问路径且本来就在家=他刚说的暗示台词（他们已聊了半晚，不是刚进门）
-    const _seamFrom = (opts && opts.seamlessFrom) || (atHome ? (line || '') : '');
+    const _seamFrom = (opts && opts.seamlessFrom) || ((atHome || dest === 'walk_hers') ? (line || '') : '');
     let act1Nar = '';
     try { act1Nar = await (_pre1 || genOvernightProse(npcKey, 1, firstNight, destHers, _seamFrom)); } catch(e){}
     if (!act1Nar || !act1Nar.trim()) {
@@ -8715,7 +8726,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.69 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.70 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
