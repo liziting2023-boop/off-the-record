@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.76（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.77（实时化实验）。**
+
+**v11.77（2026-07-13）schnell 藏手 + 约会看场景图**：①schnell 画手易崩→人物图(`img` hq=true)加"hands kept out of frame/not visible"，**gate 在 `!useDev`**：将来切 dev(`useDev = hq`)自动去掉此提示（用户要求）。⚠️注意 `noHands` 必须声明在 `const useDev` 之后（TDZ）。②`toggleVNDialog` 点背景现在**连立绘卡一起收起**（原来只收对话框，立绘还挡着场景图）→约会时能看整张场景图；用 visibility 不动 display。切 dev 生图方式：把 `img()` 里 `const useDev = false` 改回 `= hq`（人物走 flux/dev 28步、背景仍 schnell），藏手提示同时自动消失。
 
 **v11.76（2026-07-13）跨午夜约会时间 + 夜间选项 + 二线颜值**：①`inviteState`/`workState` 原只比时段(rtClockMin)不看日期→凌晨0-5点钟点数很小，把傍晚的约(19:30)判成"还没到"（用户实测00:05）→加"0-5点算昨晚、≥17:00的约=expired/≥12:00的工作=makeup"。②生日晚餐硬编码19:30→若发出时已过18:30改约40分钟后，保证今晚赶得上。③首页选项深夜只剩2个：`_optSig` 没带池大小→夜里池缩小(晚场电影/保龄球到点消失)后旧锁定洗牌序号指空被过滤→sig 加 `_lPool.length` 使池变化即重洗。④二线立绘不帅：`buildSecondaryPrompt` 加"very handsome…"加权前缀（line 里"疲惫/朴素"写实词冲淡了颜值）；老档要 `otrNewLook(npc)` 或新局刷新。**未解**：图4"未来日约会显示已过期"疑似跨午夜 G.day 与 futureDay 脱轨，需用户复现时 otrDiag 看值；图3 经纪人上门略冷(borderline，恋人暖场规则应压)。
 
