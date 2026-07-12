@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.70（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.72（实时化实验）。**
+
+**v11.71-72（2026-07-12）生图风格**：v11.71 卧室夜景改 `photorealistic` 风（`img()` 加 styleOverride 参数+BEDROOM_STYLE，绕开全局cinematic；老档清 bedroomNightUrl 重生成）。v11.72 **默认画风改 photorealistic**（该 style 数据早有、但没设置卡也非默认→补设置卡+设默认+迁移V4切老档+清bgCache）；用户要再试一段。**⚠️ 事故记录：用户长时间高强度测试后"所有NPC不回消息"，控制台确认是 `code:403`（上游 Anthropic "Request not allowed" 限流，非额度）——`otrNewQuota` 无效（那是429额度）。claude() 已优雅降级返空。根治靠等限流解除、或 Worker 侧 Anthropic key 提速率/spend 档（上架规模化必做，见 project_otr_launch_prep）。**
 
 **v11.70（2026-07-12）过夜场景·已成恋人连续性**：maybeStayOver 三个 bug（nights>0 时）——①邀请台词 walk_hers/at_hers 老用"讨杯水"初次借口→按 nights 分支，恋人改直接"我上去/不想结束今晚"无借口（go_his 早已如此）②邀请画面背景沿用上一场（海边）→ 她家场景设她公寓夜景、他家设他家 bg ③walk_hers（一起走回家）却生成"他敲门你开门"的单独到访→把邀请台词当 seamlessFrom 传入，第一幕从"刚上楼"续写不写敲门。
 
