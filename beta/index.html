@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.86"></script>
-<script src="state.js?v=11.86"></script>
+<script src="story.js?v=11.87"></script>
+<script src="state.js?v=11.87"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.86 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.87 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1094,7 +1094,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.86 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.87 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8346,11 +8346,15 @@ async function sendChatReply() {
     const recentMsgs = Object.values(G.phone.messages||{}).flat()
       .filter(m => m && m.npc === npc).slice(-10)
       .map(m => (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0, 80)).join('\n');
+    // 地址常识（用户实测：健身教练"你在哪儿我去接你"直接上门——她从没给过地址）：好感到门槛≠知道她住哪。
+    // 只有管家（在她楼里工作）、经纪人（签约资料）、已过夜的（去过）"知道她家"；其他人除非她本次聊天里主动给。
+    var _addrRule = (npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0) ? ''
+      : 'ADDRESS RULE: you do NOT know where she lives — nobody ever gave you her address. NEVER propose coming to her place, picking her up at her home, or walking to "her building" as if you know where it is. Arrange to meet AT the venue instead ("see you there"). Only if SHE volunteers her address or explicitly invites you over in THIS chat may her place be an option. ';
     // 家=亲密专属的门槛规则（用户定稿）：够亲密才双向随时；否则家OFF；经纪人/管家门槛前可来她家办正事
-    var _homeRule = homeVisitAllowed(npc, 'his_home')
+    var _homeRule = _addrRule + (homeVisitAllowed(npc, 'his_home')
       ? 'HOME OK: you two are close enough that home visits feel natural — her place or yours are both fine if that is what you two agree on. '
       : ('HOME GATE: you two are NOT intimate yet, so home is OFF LIMITS — do NOT agree to go to her place or invite her to yours; keep any meetup at a PUBLIC place (cafe/park/bookshop/etc). If she suggests a home visit, decline it lightly and NATURALLY (a small excuse, or redirect to somewhere public) — NEVER state a rule such as "we barely know each other" or "too soon". '
-        + ((npc === 'agent' || npc === 'butler') ? 'EXCEPTION: you MAY come to HER place strictly for a practical reason (as her agent: work — drop something off, check on her when she is stressed/unwell; as the building manager: fix or check something) — professional, not romantic, and never an overnight. ' : ''));
+        + ((npc === 'agent' || npc === 'butler') ? 'EXCEPTION: you MAY come to HER place strictly for a practical reason (as her agent: work — drop something off, check on her when she is stressed/unwell; as the building manager: fix or check something) — professional, not romantic, and never an overnight. ' : '')));
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
     const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
       'RECENT CHAT (oldest→newest, YOU=you, HER=her):\n' + recentMsgs + '\n' +
@@ -8430,6 +8434,8 @@ async function sendChatReply() {
         let mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : (npc === 'butler' ? 'apartment_lobby' : 'cafe');
         // 家门槛兜底（用户定稿）：AI 万一在没到亲密时还是给了家地点 → 改到公共场所（经纪人/管家来她家办事除外）
         if (/_home$/.test(mLoc) && !homeVisitAllowed(npc, mLoc)) mLoc = (npc === 'butler' ? 'apartment_lobby' : 'cafe');
+        // 地址常识兜底（用户实测：教练"我去接你"直接上门）：没过夜过、又不是管家/经纪人 → 他不知道她住哪，her_home 改约公园
+        if (mLoc === 'her_home' && !(npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0)) mLoc = 'park';
         const mTime = (meetInfo.time && /^\d{1,2}:\d{2}$/.test(meetInfo.time)) ? meetInfo.time : null;
         // 约了具体时间的见面：不再直接进日历（用户定稿）——聊天里出现"接受/婉拒"按钮，玩家接受后才进日历。
         // 马上见的(无time)保持原样：直接可点进见面。
@@ -8453,6 +8459,7 @@ async function sendChatReply() {
         const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training'];
         let fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
         if (/_home$/.test(fiLoc) && !homeVisitAllowed(npc, fiLoc)) fiLoc = 'cafe'; // 家门槛兜底（同 meet）
+        if (fiLoc === 'her_home' && !(npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0)) fiLoc = 'park'; // 地址常识兜底（同 meet）
         // 那天已有这位NPC的已确认约会 → 不再重复发气泡
         const _hasAcc = (G.calendar.events[getCalDateStr(fiDay)] || []).some(e => e && e.type === 'npc_invite' && e.npcKey === npc && e.status === 'accepted');
         if (!_hasAcc) {
@@ -8879,7 +8886,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.86 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.87 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
