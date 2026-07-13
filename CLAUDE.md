@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.89（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.90（实时化实验）。**
+
+**v11.90（2026-07-14）怪手真凶 + 裸图 + 名字乱码**：①v11.89 后鼓手三选一仍怪手——**真凶是 `genNPCPortraitPlain` 的 plainComp 里一段更老的防手词**（"hands relaxed and empty…exactly five fingers each…natural hands"连提三次 hands，权重盖过 PORTRAIT_CROP，把手全吸到胸前）→ 全部剥掉，手的处理只留 PORTRAIT_CROP 一处；鼓手纹身从 forearms 挪到 upper arms/shoulder（前臂词也会拉手臂入画）。**教训：提示词里任何位置出现 hands 字眼都是吸引子，全库只允许 PORTRAIT_CROP 管构图。**②美容院重生成出裸女主图："spa day/glowing skin"带偏→改"radiant complexion, fully dressed…visible neckline"；PORTRAIT_CROP 加全局 "fully clothed"。③AI 起名偶发乱码符号（"Marcus Dean No.lowa*"）→4处命名统一 unicode 字母过滤+只留前两个词。
 
 **v11.89（2026-07-14）开局立绘不满意的退路**：①**修 bug**：三选一的"↺换一批"（btn-rp）markup 是 `display:none` 而代码只切 visibility→**这按钮从未显示过**；改 visibility:hidden 后正常出现。②新增"**↩ 换个发型/发色再试**"（btn-rehair）：置 `_hairRedo` 回 s-hair 重选，s-hair 的继续按钮（改为 `hairNext()`）检测到标记后**直接回三选一并 regenProto**，不重走城市/装修流程；回到 s-hair 时强制显示继续按钮（原逻辑要点卡片才亮）。游戏中途换造型的入口早已有：**美发店**（4发型×5发色，同seed换发不换脸，NPC会注意到新造型`_lookChange`）、**美容院**（新seed整张重生成=换脸）。
 
