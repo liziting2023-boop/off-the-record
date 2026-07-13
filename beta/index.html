@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.83"></script>
-<script src="state.js?v=11.83"></script>
+<script src="story.js?v=11.84"></script>
+<script src="state.js?v=11.84"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.83 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.84 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,7 +1090,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.83 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.84 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5834,11 +5834,15 @@ function advanceAfterScene(sc) {
 // 二线是生活里认识的、没那层顾虑（用户定稿）。门槛设得比一线最低(rival26)还低，走轻松随性路线。
 // 三线（反面）门槛极低（"很好推倒"是设计的一部分）——但走的是 tier3Night 负反馈流程，不是浪漫过夜
 const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 20, clerk: 20, trainer: 20, engineer: 20, runner: 20, photog: 20, sleaze: 12, fboy: 10, thief: 12 };
-// 表白解锁线 = 过夜线的75%（用户定稿）：表白永远先于性行为解锁，是独立的中间里程碑
+// 表白解锁（用户定稿 v11.84·欧美化）：**已发生过性行为（nights≥1）才解锁**——先激情、后把话说开，
+// 表白=事后"给这段关系定性"的 DTR 时刻（西方叙事顺序），不再是性行为前的中间里程碑。
+// 旧公式 confessMin=过夜线75% 保留给别处引用兜底，但闸门已改为按 nights 判。
 function confessMin(npcKey) { return Math.ceil((STAYOVER_MIN[npcKey] || 60) * 0.75); }
+function canConfessTo(npcKey) { return !!(G.npcs[npcKey] && (G.npcs[npcKey].nights || 0) > 0); }
 function evalIntimacyTone(npcKey, day) {
   if (npcTier(npcKey) >= 3) { _vnLastTone = null; return; } // 三线走 tier3SceneEnd 的明确选择，绝不进浪漫亲密流程
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
+  if (_vnLastTone === 'confess') G.npcs[npcKey]._confessed = true; // 表白过一次：好感度页💗随之熄灭
   var rel = G.npcs[npcKey].relationship || 0;
   var min = STAYOVER_MIN[npcKey] || 60;
   var eve = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
@@ -5889,7 +5893,7 @@ function renderToneHints(container, inp, npcKey) {
                 ja:['今夜は、行儀よくしなくていい','もっと近くに来ても、いいよ','私たち……ここで止まらなくても','今夜はまだ終わらせたくない'],
                 ko:['오늘 밤은, 얌전할 필요 없어','더 가까이 와도 돼','우리……여기서 멈추지 않아도 돼','오늘 밤을 이렇게 끝내고 싶지 않아'] } },
     // "表白"（合并了旧"更进一步"的升级路径：好感≥过夜线+在家+晚上时表白会自然进入夜里；
-    //  否则就是一次浪漫告白。好感<confessMin 时灰锁不可选——差一点就能说出口，就是期待感）
+    //  否则就是一次浪漫告白。未亲密过（nights=0）时灰锁不可选——先激情后告白（v11.84 欧美化定稿））
     { key:'confess', label:{zh:'表白', en:'Confess', ja:'告白する', ko:'고백하기'},
       openers:{ zh:['其实，我喜欢你','我对你，好像不只是','认真的——我心里有你','跟你在一起的时候，我总是'],
                 en:['Truth is, I like you',"What I feel for you isn't just","I mean it — you're on my mind",'When I am with you, I keep'],
@@ -5919,16 +5923,16 @@ function renderToneHints(container, inp, npcKey) {
     chip.className = 'vn-opt';
     chip.style.cssText = 'flex:1;justify-content:center;padding:8px 10px;min-height:36px;font-size:clamp(13px,3.8vw,15px);';
     chip.textContent = t.label[toneLang] || t.label.en;
-    // 表白灰锁（用户定稿）：好感 < confessMin（=过夜线75%）时不可选——看得见、够不着，制造期待
-    if (t.key === 'confess' && _toneNpc && G.npcs[_toneNpc] && (G.npcs[_toneNpc].relationship || 0) < confessMin(_toneNpc)) {
+    // 表白灰锁（用户定稿 v11.84·欧美化）：还没发生过性行为（nights=0）时不可选——先激情、后把话说开（DTR）
+    if (t.key === 'confess' && _toneNpc && G.npcs[_toneNpc] && !canConfessTo(_toneNpc)) {
       chip.style.opacity = '0.4';
       chip.style.borderStyle = 'dashed';
       chip.textContent = '🔒 ' + chip.textContent;
       chip.onclick = function(){
-        alert(isZhOpt ? '现在说这句话还太早——他还没准备好听。再熟一点吧。'
-          : G.lang==='ja' ? 'まだ早い——もう少し親しくなってから。'
-          : G.lang==='ko' ? '아직 일러요——조금 더 가까워진 후에.'
-          : "Too soon for those words — he isn't ready to hear them yet.");
+        alert(isZhOpt ? '这句话的分量……还不到说的时候。等你们真正亲密过之后。'
+          : G.lang==='ja' ? 'その言葉はまだ早い——本当に近づいてから。'
+          : G.lang==='ko' ? '그 말은 아직 일러요——정말 가까워진 후에.'
+          : "Those words carry weight — they come after you two have truly been close.");
       };
       toneRow.appendChild(chip);
       return;
@@ -6137,7 +6141,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     tease:' (her tone: playful teasing — she may have trailed off; read the mischief in it)',
     sincere:' (her tone: sincere and open — she may have trailed off mid-thought; take it seriously)',
     deflect:' (her tone: deflecting, changing the subject — let her, gracefully, or gently call it out)',
-    confess:' (her tone: a REAL romantic confession — she means it. Do NOT read it as a joke or deflect it. PHYSICAL BEAT RULE: the instant she says it, his ENTIRE attention snaps to her — he sets down whatever he holds, turns to fully face her, eyes locked on hers. NEVER write him gazing out a window, pausing distractedly, or looking at anything but her — a confession deserves his whole presence. Respond according to your true feelings and current affinity: if she has your heart, let it show; if you are not there yet, be honest but gentle — this moment matters to her either way)',
+    confess:' (her tone: a REAL romantic confession — she means it. Do NOT read it as a joke or deflect it. You two have ALREADY been intimate — this is her putting real words to what has been happening between you: the defining-the-relationship moment, and it took courage. PHYSICAL BEAT RULE: the instant she says it, his ENTIRE attention snaps to her — he sets down whatever he holds, turns to fully face her, eyes locked on hers. NEVER write him gazing out a window, pausing distractedly, or looking at anything but her — a confession deserves his whole presence. Respond according to your true feelings: if she has your heart, let it show plainly; if some part of you is still guarded, be honest but tender — never dismiss what you two have already shared)',
     stayover:' (her tone: she is inviting you to STAY THE NIGHT — an intimate, suggestive invitation, and she knows exactly what she is implying. Do NOT misread it as literal hospitality. Respond in character per your desire and current affinity: accept with heat, hesitate honestly, or decline gently — tasteful and implicit, never crude. If your affinity with her is still LOW, this is TOO FAST — turn it down in YOUR own way: flustered and overwhelmed, a firm professional boundary, an amused teasing dodge, or a blunt "not yet — earn it" — never cruel, and never pretend she did not say it)',
   }[_vnLastTone] || '' : '';
   const _replyCtx = _vnLastReply
@@ -8549,11 +8553,10 @@ function renderAffection() {
     const avatar = pUrl
       ? '<img class="aff-avatar" src="' + pUrl + '" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">'
       : '<div class="aff-avatar aff-avatar-emoji" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
-    // 好感图标（用户定稿）：💗=够到表白线可以表白了 / 🌙=过过夜。去掉了✦(最亲,进度条已直观)和过夜次数小星。
+    // 好感图标（用户定稿 v11.84）：💗=已亲密过、可以表白了（表白过一次就熄灭）/ 🌙=已发生过性行为。
     const nights = (G.npcs[npc.key] && G.npcs[npc.key].nights) || 0;
-    const canConfess = pct >= confessMin(npc.key);
-    const confessIcon = (canConfess && nights === 0) ? ' <span style="font-size:12px" title="可以表白了">💗</span>' : '';
-    const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.8" title="已过夜">🌙</span>' : '';
+    const confessIcon = (nights > 0 && !(G.npcs[npc.key] && G.npcs[npc.key]._confessed)) ? ' <span style="font-size:12px" title="可以表白了">💗</span>' : '';
+    const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.8" title="已亲密">🌙</span>' : '';
     return '<div class="affection-card" style="cursor:pointer" onclick="openNpcProfile(\'' + npc.key + '\')">' + avatar +
       '<div class="aff-info">' +
         '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + confessIcon + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
@@ -8831,7 +8834,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.83 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.84 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
