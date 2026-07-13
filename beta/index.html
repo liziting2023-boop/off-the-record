@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.88"></script>
-<script src="state.js?v=11.88"></script>
+<script src="story.js?v=11.89"></script>
+<script src="state.js?v=11.89"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.88 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.89 · BETA ⏱</p>
   </div>
 </div>
 
@@ -603,7 +603,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="cgrid c2" id="g-hstyle" style="margin-bottom:10px;max-width:400px"></div>
     <div class="clabel" id="lbl-hair-colour">HAIR COLOUR</div>
     <div class="cgrid c3" id="g-hcolor" style="max-width:400px"></div>
-    <button class="btn-p" id="btn-hair" onclick="go('s-city')" style="visibility:hidden;margin-top:6px">Continue</button>
+    <button class="btn-p" id="btn-hair" onclick="hairNext()" style="visibility:hidden;margin-top:6px">Continue</button>
   </div>
 </div>
 
@@ -668,7 +668,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <div class="trio-item" id="pb" onclick="selProto('b')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
       <div class="trio-item" id="pc" onclick="selProto('c')"><div class="iph"><span class="gt" style="font-size:8px">Creating<span class="loading-dots"></span></span></div><div class="sbadge">✓ This is me</div></div>
     </div>
-    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="display:none;margin-bottom:6px">↺ New options</button>
+    <!-- v11.89 修：btn-rp 原来 inline display:none 而代码只切 visibility → "换一批"从未显示过 -->
+    <button class="btn-t" id="btn-rp" onclick="regenProto()" style="visibility:hidden;margin-bottom:6px">↺ New options</button>
+    <button class="btn-t" id="btn-rehair" onclick="backToHair()" style="visibility:hidden;margin-bottom:6px">↩ Change hair</button>
     <button class="btn-p" id="btn-proto" onclick="if(G.player.portraitUrl){G.gallery.push({url:G.player.portraitUrl,label:t('this_is_me')})}go('s-flash-intro')" style="visibility:hidden">That's me</button>
   </div>
 </div>
@@ -1094,7 +1096,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.88 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.89 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3101,6 +3103,7 @@ function applyLang() {
     s('btn-rooms',     L('就是这里','This is my home','これが私の家','여기가 내 집'));
     s('btn-proto',     L('就是我','That\'s me','これが私','이게 나예요'));
     s('btn-rp',        L('↺ 换一批','↺ New options','↺ 別の候補','↺ 다시 뽑기'));
+    s('btn-rehair',    L('↩ 换个发型/发色再试','↩ Change hair & retry','↩ 髪型・髪色を変える','↩ 헤어 바꾸고 다시'));
     s('btn-rag',       L('↺ 换一批','↺ New options','↺ 別の候補','↺ 다시 뽑기'));
     s('btn-that-night',L('那一晚','That night','あの夜','그날 밤'));
     s('btn-tell-him',  L('说说他','Tell me about him','彼のことを','그에 대해'));
@@ -3384,6 +3387,20 @@ async function genProto() {
   const b = await img(base + ', ' + MIRRORS[1] + PORTRAIT_CROP, 'Portrait B', false, 2, _protoSeed + 7919, true); setTrio('pb', b);
   const c = await img(base + ', ' + MIRRORS[2] + PORTRAIT_CROP, 'Portrait C', false, 2, _protoSeed + 15838, true); setTrio('pc', c);
   document.getElementById('btn-rp').style.visibility = 'visible';
+  var _rh = document.getElementById('btn-rehair'); if (_rh) _rh.style.visibility = 'visible';
+}
+
+// ── 开局三选一不满意的两条退路（用户定稿 v11.89）──
+// ↺ 换一批 = 同发型发色重抽三张；↩ 换发型/发色 = 回 s-hair 重选，选完直接回三选一重生成（不再重走城市/装修）
+function backToHair() {
+  window._hairRedo = true;
+  go('s-hair');
+  // 回来改发型时，继续按钮必须可见（原逻辑只在点选卡片时才显示；这里已有历史选择，直接亮）
+  try { document.getElementById('btn-hair').style.visibility = 'visible'; } catch(e) {}
+}
+function hairNext() {
+  if (window._hairRedo) { window._hairRedo = false; go('s-proto'); regenProto(); return; }
+  go('s-city');
 }
 
 async function regenProto() {
@@ -8902,7 +8919,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.88 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.89 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
