@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.81"></script>
-<script src="state.js?v=11.81"></script>
+<script src="story.js?v=11.82"></script>
+<script src="state.js?v=11.82"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.81 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.82 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,7 +1090,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.81 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.82 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1392,7 +1392,7 @@ function day1Intro() {
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
-        'You are the building\'s NEW trainee manager (a university student on a one-month working placement) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new trainee building manager who will be serving the building for the next month, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome from the building was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
+        'You are the building\'s NEW trainee manager (a university student on a one-month working placement) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new trainee building manager who will be serving the building for the next month, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) {
         pushNpcMsg('butler', t.trim(), 21*60);
         ensureSecondaryName('butler');
@@ -4588,7 +4588,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
   };
   var whereWord = _t2where[npcKey] || _t2where.coffee;
   var _t2first = {
-    butler:   ' This is the first time you two actually talk face to face — you are the shy 20-year-old trainee building manager; you left a homemade lemon cake at her door when she moved in, and now that she is actually talking to you, you are caught off guard, flushed and earnest. Introduce yourself in a slightly tumbling rush.',
+    butler:   ' This is the first time you two actually talk face to face — you are the shy 20-year-old trainee building manager; when she moved in you left a small homemade lemon cake at her door, but you have NO idea whether she ever noticed it, and she has never mentioned it — so do NOT assume she saw or ate it. If you bring it up at all, confess it shyly as new information ("that was me — I wasn\'t sure you\'d even see it"), never ask how it tasted as if she obviously got it. Now that she is actually talking to you, you are caught off guard, flushed and earnest. Introduce yourself in a slightly tumbling rush.',
     trainer:  ' First proper session together — you are her assigned trainer: professional, encouraging, boundaries intact; you already read her file and remember her numbers. Keep it about form and breath, with exactly one beat of genuine human warmth.',
     engineer: ' First time you actually speak beyond a nod through the glass. You are a man of few words with surgical ears — say something brief and TRUE about her sound, nothing polite or generic.',
     runner:   ' You two have nodded past each other on this route for a while; today is the first actual exchange. Keep it to a few unhurried words, the way runners talk — your opener was always going to be about her pace.',
@@ -5348,7 +5348,8 @@ function runMeetupScene(npcKey, locKey, title) {
   // 在他自己的店/工作场地见面：他在上班，不是客人（用户实测：咖啡师坐自己店靠窗位像客人）
   const WORKPLACE_OF = { coffee: 'cafe', trainer: 'gym', engineer: 'recording_studio', clerk: 'supermarket', drummer: 'recording_studio' };
   const workNote = (WORKPLACE_OF[npcKey] === locKey) ? ' NOTE: this place is YOUR OWN workplace and you are on duty here — receive her at the counter/your station, or step aside for a short break with her; you would NEVER sit down at a table like a customer in your own shop.' : '';
-  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey) + workNote;
+  // 日程 grounding：见面对话之前没喂日程，NPC 会编造"你今天的拍摄怎么样"这类没发生的工作（用户实测——当天其实是和他本人的排练）
+  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey) + workNote + ' ' + scheduleCtxFor(npcKey, 2);
   // 带情绪奔赴的见面（用户实测：倾诉创伤后他上门却先翻唱片/看纸条）：第一拍必须先接住情绪
   const emoNote = ' FIRST CHECK the recent interactions above: if the texts that led to this meetup carried heavy emotion (grief, loneliness, she asked for comfort or for you to come be with her), your FIRST beat must meet that emotion directly — arrive attending to HER, warm and fully present, words and body language both matching what she told you; NO teasing about the texts, NO prop business (flipping records, glancing at her notes), NO browsing the room.';
   // 她主动约的见面：话题以【她】为主——她抛什么就接什么、往深聊，绝不硬转到自己的话题
@@ -8004,6 +8005,15 @@ function renderChatMsgs(npc, dividerIdx) {
       // 未来日邀约（futureDay）和当天定时约共用这套气泡：日期以 futureDay 优先（v11.57 邀约全面改聊天确认制）
       var _mday = m.meet.futureDay || m.day;
       var mInv = m.meet.invId ? ((G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; })) : null;
+      // 自愈（用户实测：已接受的约会从日历里消失→气泡掉回"马上见"、未来的聚会当场就能进）：
+      // 接受过（有 invId）但日历里找不到这条 → 按气泡里存的完整信息把日历事件补回来
+      if (m.meet.invId && !mInv && !m.meet.declined) {
+        try {
+          calAddEvent(getCalDateStr(_mday), { id:m.meet.invId, type:'npc_invite', npcKey:m.npc, npcName:getNPCName(m.npc), title:m.meet.title, status:'accepted', time:m.meet.time, locKey:m.meet.locationKey, gathering: m.meet.gathering || undefined, description:m.meet.desc||'' });
+          mInv = (G.calendar.events[getCalDateStr(_mday)] || []).find(function(e){ return e && e.id === m.meet.invId; }) || null;
+          refreshCalBadge(); STATE.save.saveGame();
+        } catch(e) {}
+      }
       if (m.meet.pending && !m.meet.invId && _mday < G.day) {
         // 没答复就过了日子 → 过期
         mbtn.style.cssText = greyCss; mbtn.textContent = '⌛ ' + m.text + (isZhMb?' · 已过期':' · Expired');
@@ -8055,6 +8065,11 @@ function renderChatMsgs(npc, dividerIdx) {
       } else if (m.meet.used) {
         mbtn.style.cssText = greyCss;
         mbtn.textContent = '✅ ' + m.text + (isZhMb ? ' · 已见面' : ' · Done');
+      } else if (_mday > G.day) {
+        // 兜底：未来日的约无论数据状态如何，都不许"当场就进"（用户实测：日历事件丢失后7/18的聚会当天就能点进去）
+        mbtn.style.cssText = greyCss + ';cursor:pointer';
+        mbtn.textContent = '🕐 ' + m.text;
+        mbtn.onclick = function(){ alert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '约好了——到那天再来赴约。' : "It's a date — come back that day."); };
       } else {
         mbtn.style.cssText = activeCss;
         mbtn.textContent = '🤝 ' + m.text;
@@ -8771,7 +8786,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.81 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.82 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
