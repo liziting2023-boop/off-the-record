@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.85"></script>
-<script src="state.js?v=11.85"></script>
+<script src="story.js?v=11.86"></script>
+<script src="state.js?v=11.86"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -479,6 +479,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" onclick="otrNewQuota();closeDevPanel()">重置今日AI额度</button>
     <button class="dev-btn" onclick="otrDiag()">诊断信息（排查存档状态）</button>
     <button class="dev-btn" onclick="closeDevPanel();otrNewLook('butler')">重抽管家形象（按新画风重生成）</button>
+    <button class="dev-btn" onclick="closeDevPanel();otrNewLookAll2()">重抽全部二线立绘（新颜值prompt·手机可用）</button>
     <button class="dev-btn close" onclick="closeDevPanel()">关闭</button>
   </div>
 </div>
@@ -514,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.85 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.86 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1093,7 +1094,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.85 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.86 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1294,6 +1295,13 @@ const NPC_SLEEP = {
   actor:    [4.5, 11.5], // 夜生活多，睡到中午
   detective:[3, 9],      // 作息偏晚
   rival:    [3.5, 9.5],
+  // 二线也要有作息（v11.86 修：之前没条目=永远醒着，凌晨0点咖啡师/教练/医生全员在线齐发"还醒着吗"——用户实测）
+  coffee:   [23.5, 5.5], // 咖啡师：早班开店，睡得早起得早
+  clerk:    [8, 15],     // 便利店夜班：白天睡觉，深夜正是他上班时间（深夜有人可聊的主力）
+  trainer:  [22.5, 5.5], // 健身教练：最健康作息，早睡早起
+  engineer: [3, 10],     // 录音师：棚里熬夜，夜猫子
+  runner:   [22, 5],     // 外科医生：查房早，睡最早（晨跑就是他的清晨）
+  photog:   [2, 9],      // 街头摄影师：拍夜景，晚睡
 };
 function isNpcAsleep(k) { return isNpcAsleepAt(k, rtClockMin()); }
 // 按"某个时刻"判睡：离线补发的消息要按【发送时刻】判他睡没睡，不是按玩家上线的现在
@@ -1409,10 +1417,15 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
     // 最近的聊天原文喂进来，避免刚聊完/刚答应帮她办事，转头又主动发一条重复的问题（用户实测）
     var _recentChat = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === k && !m.meet; }).slice(-8).map(function(m){ return (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0,80); }).join('\n');
     var _noRepeat = _recentChat ? ' You two ALREADY texted recently (YOU=you, HER=her):\n' + _recentChat + '\nDo NOT repeat a question you already asked there, and do NOT re-ask about something already answered or that you already said you would look into/handle — if there is nothing genuinely new, either open a fresh DIFFERENT beat or keep it to one brief warm line, never a near-duplicate of the above. ' : '';
+    // 同一天其他NPC刚发过的消息：不许所有人一个腔调（用户实测凌晨五个人齐刷刷"还醒着吗/累不累"）
+    var _others = Object.values(G.phone.messages||{}).flat()
+      .filter(function(m){ return m && m.day === G.day && m.npc && m.npc !== k && !m.mine && !m.meet && m.text; })
+      .slice(-4).map(function(m){ return '"' + m.text.slice(0, 50) + '"'; }).join(', ');
+    var _noSameBeat = _others ? ' She has ALSO just received these texts from OTHER people today: ' + _others + '. Your message must NOT open with the same angle or near-identical phrasing as ANY of them — if someone already asked whether she is still awake, how late it is, or how tired she is, you are FORBIDDEN to open that way; come at her from an angle that is specifically YOURS (your shared history, something from your own day, a thought only you would have). ' : '';
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
       timeWord + ' where she is (current local time: ' + clockStr + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' +
       (backfill && sendMin < nowMin - 10 ? 'She is away from her phone right now — you are texting knowing she will read it later; do NOT expect an instant reply, do NOT reference her being online or ask her to respond right away. ' : '') +
-      stageCtx + _noRepeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
+      stageCtx + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
       ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
@@ -1861,6 +1874,26 @@ window.otrNewLook = async function(npcKey) {
       alert(isZh ? '生成失败（关图模式/网络），稍后再试。' : 'Generation failed (img off / network).');
     }
   } catch (e) { alert('生成出错: ' + e); }
+};
+// otrNewLookAll2()：批量重抽全部二线立绘（改外形prompt后，手机上没法逐个敲控制台——DEV面板一键跑完）
+window.otrNewLookAll2 = async function() {
+  var list = ['coffee','clerk','trainer','engineer','runner','photog','butler'];
+  var done = [];
+  for (var i = 0; i < list.length; i++) {
+    var k = list[i];
+    // 只重抽"见过且已有立绘"的——没见过的初见时自然会按最新prompt生成
+    if (!G.npcs[k] || !G.npcs[k].met || !G.npcs[k].portraitUrl) continue;
+    G.npcs[k].portraitUrl = null;
+    G.npcs[k].portraitSeed = Math.floor(Math.random() * 1000000);
+    try {
+      var url = await genNPCPortraitPlain(k, G.day || 1, 'facing the camera directly', null);
+      if (url) { G.npcs[k].portraitUrl = url; done.push(k); }
+    } catch (e) {}
+  }
+  try { STATE.save.saveGame(); } catch(e) {}
+  alert((G.lang==='zh-cn'||G.lang==='zh-tw')
+    ? ('二线立绘已重抽：' + (done.join('、') || '无（没见过的会在初见时按新prompt生成；或生图已关/失败）'))
+    : ('Redrawn: ' + (done.join(', ') || 'none')));
 };
 // otrQuota()：查看当前设备ID（额度按它在服务器端计，每日约400次对话）
 window.otrQuota = function() {
@@ -4158,12 +4191,11 @@ function buildDayOpts() {
       const sSub2 = isZh?'顺路逛逛 · 之后回来':lang==='ja'?'寄り道 · その後戻る':lang==='ko'?'들렀다 가기':'Stop by first · then continue';
       soc2.forEach(s => opts.appendChild(makeOpt(s.label, sSub2, '', () => playFree(s.key, s.label, false, evDay))));
     } else {
-      // 工作剧情日行程固定，用灰色空占位保持3个选项的视觉高度
-      for (let i = 0; i < 2; i++) {
-        const lockedBtn = makeOpt('—', '', 'locked', null);
-        lockedBtn.disabled = true;
-        opts.appendChild(lockedBtn);
-      }
+      // 工作剧情日也给1-2个顺路小活动（用户实测：头顶写着"自由活动还剩3次"却只有剧情一个能点）——
+      // 逛完仍会回来进今天的剧情（自由活动限次内，次数用完只剩剧情）
+      const socW = freeActsToday() >= 3 ? [] : [...getSocOps(lang)].sort(() => Math.random()-0.5).slice(0, 2);
+      const sSubW = isZh?'顺路逛逛 · 之后回来':lang==='ja'?'寄り道 · その後戻る':lang==='ko'?'들렀다 가기':'Stop by first · then continue';
+      socW.forEach(s => opts.appendChild(makeOpt(s.label, sSubW, '', () => playFree(s.key, s.label, false, evDay))));
     }
   } else {
     // ── 首页推荐（用户定稿）= 日历工作 + 已确认约会 + 随机职业投资 + 随机休息，最多5个；
@@ -8847,7 +8879,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.85 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.86 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

@@ -451,7 +451,7 @@ const STATE = {
       },
       clerk: {
         origin: 'British',
-        line: 'Strikingly handsome, model-attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft tired-but-kind eyes, slightly messy hair, one earbud in, wearing a simple staff polo shirt',
+        line: 'Strikingly handsome, model-attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft kind eyes, effortlessly tousled hair, one earbud in, wearing a simple staff polo shirt',
       },
       trainer: {
         origin: 'American',
@@ -463,11 +463,11 @@ const STATE = {
       },
       runner: {
         origin: 'British',
-        line: 'Strikingly handsome, model-attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady eyes with the faint tiredness of long hospital shifts, short neat hair damp at the temples, technical running jacket',
+        line: 'Strikingly handsome, model-attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady magnetic eyes, short neat hair damp at the temples, technical running jacket',
       },
       photog: {
         origin: 'French',
-        line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, rugged unshaven charm, sharp observant eyes, worn canvas jacket over a plain tee, a modern professional DSLR camera with a large lens slung across his chest, relaxed sure-of-himself posture',
+        line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, light well-groomed stubble with rugged charm, sharp observant eyes, fitted canvas jacket over a plain tee, a modern professional DSLR camera with a large lens slung across his chest, relaxed sure-of-himself posture',
       },
       // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
       sleaze: {
@@ -490,8 +490,8 @@ const STATE = {
       const origin = npc.origin || look.origin;
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'] || {};
       return [
-        // 好看度加权前缀（用户实测二线不帅）：line 里"疲惫/朴素/凌乱"这类写实词冲淡了颜值，前面顶一句强化
-        'very handsome man, strikingly attractive conventionally good-looking face, sharp clean attractive features, magnetic',
+        // 好看度加权前缀（用户两轮实测都嫌不够帅，v11.86 再加码）：放最前权重最高，明星脸级别
+        'exceptionally handsome young man with idol-level striking good looks, male model face, chiseled jawline, perfectly symmetrical refined features, captivating intense eyes, youthful glowing skin, the kind of face that turns heads on the street',
         look.line,
         app.features,
         app.skin ? `${app.skin} skin` : '',
