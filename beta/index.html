@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.89"></script>
-<script src="state.js?v=11.89"></script>
+<script src="story.js?v=11.90"></script>
+<script src="state.js?v=11.90"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.89 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.90 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1096,7 +1096,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.89 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.90 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2061,7 +2061,7 @@ async function claude(prompt, sys = '', opts = {}) {
 // 只用于立绘类生成点（NPC立绘/女主三选一），不碰活动抓拍/美容院（那些是中远景，构图会打架）。
 // 切 dev 模型：IMG_DEV_PORTRAITS=true → 人物图走 flux/dev 28步，且 PORTRAIT_CROP 自动失效（dev 画手可靠，用户定稿）。
 const IMG_DEV_PORTRAITS = false;
-const PORTRAIT_CROP = IMG_DEV_PORTRAITS ? '' : ', tight head-and-shoulders close-up portrait framed from the chest up, arms relaxed straight down at the sides';
+const PORTRAIT_CROP = IMG_DEV_PORTRAITS ? '' : ', tight head-and-shoulders close-up portrait framed from the chest up, fully clothed, arms relaxed straight down at the sides';
 async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false, styleOverride = null) {
   if (DEV_MODE_IMG || (typeof G !== 'undefined' && G && G.imgOff)) return null; // G.imgOff = 设置里手动关掉生图(省钱,测剧情用)
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
@@ -2104,7 +2104,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
     const origin = G.npcs[npcKey].origin || 'American';
     const age = STORY.characters[npcKey]?.age || 25;
     const nameStr = await claude('Generate a realistic authentic ' + origin + ' MALE name (a man\'s name — unmistakably masculine first name) for a ' + age + '-year-old MAN. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. It must NOT be any of these already-used names: ' + (Object.values(G.npcs || {}).map(n => n && n.name).filter(Boolean).join(', ') || 'none') + '. Return ONLY the name.');
-    G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
+    G.npcs[npcKey].name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
   }
 
   const loc = STORY.locations[locKey] || {};
@@ -2200,10 +2200,12 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
     const origin = G.npcs[npcKey].origin || 'American';
     const age = STORY.characters[npcKey]?.age || 25;
     const nameStr = await claude('Generate a realistic authentic ' + origin + ' MALE name (a man\'s name — unmistakably masculine first name) for a ' + age + '-year-old MAN. MUST be a genuinely ' + origin + ' name that sounds natural and specific to that cultural background. It must NOT be any of these already-used names: ' + (Object.values(G.npcs || {}).map(n => n && n.name).filter(Boolean).join(', ') || 'none') + '. Return ONLY the name.');
-    G.npcs[npcKey].name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
+    G.npcs[npcKey].name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
   }
-  // 不提"眼镜/背包"等物体词（否定式对flux无效甚至反向诱导），只正向描述
-  const plainComp = 'upper body portrait, ' + pose + ', plain soft gradient studio backdrop, no environment details, single person only, bare face, hands relaxed and empty, nothing carried, anatomically correct hands with exactly five fingers each, well-formed natural hands, realistic proportions';
+  // 不提"眼镜/背包"等物体词（否定式对flux无效甚至反向诱导），只正向描述。
+  // ⚠️ 别在这里写任何 hands 字眼（旧版"hands relaxed/five fingers"连提三次手→张张怪手怼胸前，用户实测）——
+  // 手的处理统一交给 img 调用处的 PORTRAIT_CROP（胸上特写+手臂下垂，手自然出画）
+  const plainComp = 'upper body portrait, ' + pose + ', plain soft gradient studio backdrop, no environment details, single person only, bare face, realistic proportions';
   const secretRevealed = STATE.events.has('foundBirthCertificate');
   let prompt = '';
   if (npcKey === 'agent')    prompt = STATE.imagePrompts.buildAgentPrompt(G, plainComp, day);
@@ -3439,7 +3441,7 @@ async function genAgent() {
 
   // Generate name first (always, even in DEV mode)
   const nameStr = await claude('Generate a realistic authentic ' + origin + ' full name for a 32-year-old. MUST be a genuinely ' + origin + ' name that a real person from that background would have. Return ONLY the full name, nothing else. No explanation.');
-  G.npcs.agent.name = nameStr.trim().replace(/['"\n]/g, '').split(' ').slice(0,3).join(' ');
+  G.npcs.agent.name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
 
   // Generate first line
   const firstLine = await claude(G.npcs.agent.name + ' is a 32-year-old ' + origin + ' talent agent. Cold, precise. He approached a street busker named ' + (G.player.name||'her') + ' after secretly watching her for three nights. Write his very first words to her. 1-2 sentences, guarded but intrigued. No quotes. Language: ' + G.langName + '.');
@@ -5091,7 +5093,8 @@ function renderBeautyOpts(thenScripted) {
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">Glowing<span class="loading-dots"></span></div>';
     const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
     const newSeed = Math.floor(Math.random() * 1000000);
-    const url = await img(base + ', ' + MIRRORS[0] + ', fresh glowing skin after a spa day' + PORTRAIT_CROP, 'New portrait', false, 2, newSeed, true);
+    // "spa day/glowing skin"会把模型带向裸肩裸背（用户实测生成了没穿衣服的女主图）——必须正向点明穿着整齐
+    const url = await img(base + ', ' + MIRRORS[0] + ', radiant fresh complexion after a spa day, fully dressed in a stylish casual outfit with a clearly visible neckline' + PORTRAIT_CROP, 'New portrait', false, 2, newSeed, true);
     if (!url) { contAfter(); return; }
     inlineTrioChooser([G.player.portraitUrl, url], {
       headText: isZh?'左：现在 · 右：焕新后':'Left: now · Right: refreshed',
@@ -6191,7 +6194,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     const origin = G.npcs[npcKey].origin || 'American';
     const char = STORY.characters[npcKey];
     const nameStr = await claude('Generate a realistic authentic ' + origin + ' name for a ' + (char?.age||30) + '-year-old. MUST be a genuine ' + origin + ' name. Return ONLY the name.');
-    G.npcs[npcKey].name = nameStr.trim().replace(/['"]/g,'');
+    G.npcs[npcKey].name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
   }
   const npcName2 = getNPCName(npcKey);
   document.getElementById('vn-speaker').textContent = npcName2;
@@ -8919,7 +8922,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.89 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.90 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

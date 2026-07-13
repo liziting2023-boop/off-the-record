@@ -334,7 +334,7 @@ const STATE = {
         `${STATE.imagePrompts.applyHair(app, npc)} tousled`,
         `${app.skin} skin`,
         `casual dark clothing, band tee or leather jacket`,
-        `visible artistic tattoos on his forearms and upper arm, rock musician ink`,
+        `visible artistic tattoos on his upper arms and shoulder, rock musician ink`,
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
         `bare clean-shaven face, clear focused eyes`,
