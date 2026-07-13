@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.87"></script>
-<script src="state.js?v=11.87"></script>
+<script src="story.js?v=11.88"></script>
+<script src="state.js?v=11.88"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.87 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.88 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1094,7 +1094,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.87 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.88 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4533,9 +4533,16 @@ const SECONDARY_NAMES = {
   fboy:   ['Chad','Blake','Tyler','Jax'],
   thief:  ['Denny','Vic','Lou'],
 };
+// 二线暗姓池（v11.88）：界面/日常只显示名（欧美熟人语境），但每人暗定一个姓——
+// 玩家真问起姓时，AI答的是同一个、且永远记得（每次对话都注入 buildDialoguePrompt），不再现编现忘
+const SECONDARY_SURNAMES = ['Hayes','Carter','Brooks','Ellison','Ward','Foster','Monroe','Keller','Quinn','Ashford','Blake','Mercer'];
 function ensureSecondaryName(npcKey) {
   var n = G.npcs[npcKey];
   if (n && !n.name) { var pool = SECONDARY_NAMES[npcKey] || ['Alex']; n.name = pool[Math.floor(Math.random()*pool.length)]; }
+  // 姓氏独立回填：老档已有名没姓的也补上（三线反面NPC不配姓，问了让AI随口糊弄符合人设）
+  if (n && n.name && !n.surname && npcTier(npcKey) === 2) {
+    n.surname = SECONDARY_SURNAMES[Math.floor(Math.random() * SECONDARY_SURNAMES.length)];
+  }
 }
 // 这个地点此刻有没有可搭话的二线？返回配置或 null（REALTIME 才做精确时段判定）。
 function secondaryEncounterAt(key) {
@@ -5887,7 +5894,15 @@ function canConfessTo(npcKey) { return !!(G.npcs[npcKey] && (G.npcs[npcKey].nigh
 function evalIntimacyTone(npcKey, day) {
   if (npcTier(npcKey) >= 3) { _vnLastTone = null; return; } // 三线走 tier3SceneEnd 的明确选择，绝不进浪漫亲密流程
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
-  if (_vnLastTone === 'confess') G.npcs[npcKey]._confessed = true; // 表白过一次：好感度页💗随之熄灭
+  if (_vnLastTone === 'confess' && !G.npcs[npcKey]._confessed) {
+    // 表白的系统反馈（用户问"怎么知道成没成"）：表白只在已亲密后解锁，所以没有"失败"结局——
+    // 他的台词=按人设方式的"接受"（鼓手的「我知道」就是他的yes）。系统层给明确落点：
+    // 好感+6、上扬音效、写进他的记忆——此后所有对话都以"心意已挑明"为前提展开。
+    G.npcs[npcKey]._confessed = true;
+    STATE.relationships.change(npcKey, 6);
+    playSound('rel-up');
+    STATE.memory.addEvent(npcKey, 'Day ' + day + ': she told you, in real words, what you are to her — a true confession. You answered in your own way, and you both know now. From here on, what you two have is SPOKEN, not implied.', day);
+  }
   var rel = G.npcs[npcKey].relationship || 0;
   var min = STAYOVER_MIN[npcKey] || 60;
   var eve = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
@@ -6186,7 +6201,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     tease:' (her tone: playful teasing — she may have trailed off; read the mischief in it)',
     sincere:' (her tone: sincere and open — she may have trailed off mid-thought; take it seriously)',
     deflect:' (her tone: deflecting, changing the subject — let her, gracefully, or gently call it out)',
-    confess:' (her tone: a REAL romantic confession — she means it. Do NOT read it as a joke or deflect it. You two have ALREADY been intimate — this is her putting real words to what has been happening between you: the defining-the-relationship moment, and it took courage. PHYSICAL BEAT RULE: the instant she says it, his ENTIRE attention snaps to her — he sets down whatever he holds, turns to fully face her, eyes locked on hers. NEVER write him gazing out a window, pausing distractedly, or looking at anything but her — a confession deserves his whole presence. Respond according to your true feelings: if she has your heart, let it show plainly; if some part of you is still guarded, be honest but tender — never dismiss what you two have already shared)',
+    confess:' (her tone: a REAL romantic confession — she means it. Do NOT read it as a joke or deflect it. You two have ALREADY been intimate — this is her putting real words to what has been happening between you: the defining-the-relationship moment, and it took courage. PHYSICAL BEAT RULE: the instant she says it, his ENTIRE attention snaps to her — he sets down whatever he holds, turns to fully face her, eyes locked on hers. NEVER write him gazing out a window, pausing distractedly, or looking at anything but her — a confession deserves his whole presence. Respond according to your true feelings: if she has your heart, let it show plainly; if some part of you is still guarded, be honest but tender — never dismiss what you two have already shared. AND your answer must be UNMISTAKABLE by the end of your reply: she walks away KNOWING it landed as a yes — say it in your own register (a blunt man may answer with few words and a gesture, but the warmth must land clearly; never leave her guessing whether she was accepted))',
     stayover:' (her tone: she is inviting you to STAY THE NIGHT — an intimate, suggestive invitation, and she knows exactly what she is implying. Do NOT misread it as literal hospitality. Respond in character per your desire and current affinity: accept with heat, hesitate honestly, or decline gently — tasteful and implicit, never crude. If your affinity with her is still LOW, this is TOO FAST — turn it down in YOUR own way: flustered and overwhelmed, a firm professional boundary, an amused teasing dodge, or a blunt "not yet — earn it" — never cruel, and never pretend she did not say it)',
   }[_vnLastTone] || '' : '';
   const _replyCtx = _vnLastReply
@@ -8349,7 +8364,7 @@ async function sendChatReply() {
     // 地址常识（用户实测：健身教练"你在哪儿我去接你"直接上门——她从没给过地址）：好感到门槛≠知道她住哪。
     // 只有管家（在她楼里工作）、经纪人（签约资料）、已过夜的（去过）"知道她家"；其他人除非她本次聊天里主动给。
     var _addrRule = (npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0) ? ''
-      : 'ADDRESS RULE: you do NOT know where she lives — nobody ever gave you her address. NEVER propose coming to her place, picking her up at her home, or walking to "her building" as if you know where it is. Arrange to meet AT the venue instead ("see you there"). Only if SHE volunteers her address or explicitly invites you over in THIS chat may her place be an option. ';
+      : 'ADDRESS RULE: you do NOT know where she lives — nobody ever gave you her address. NEVER propose coming to her place, picking her up at her home, or walking to "her building" as if you know where it is. And NEVER invent a justification for knowing it (client files, agency records, gym paperwork, "asked around" — none of these exist, and claiming them reads as creepy). Arrange to meet AT the venue instead ("see you there"). Only if SHE volunteers her address or explicitly invites you over in THIS chat may her place be an option. ';
     // 家=亲密专属的门槛规则（用户定稿）：够亲密才双向随时；否则家OFF；经纪人/管家门槛前可来她家办正事
     var _homeRule = _addrRule + (homeVisitAllowed(npc, 'his_home')
       ? 'HOME OK: you two are close enough that home visits feel natural — her place or yours are both fine if that is what you two agree on. '
@@ -8605,9 +8620,9 @@ function renderAffection() {
     const avatar = pUrl
       ? '<img class="aff-avatar" src="' + pUrl + '" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">'
       : '<div class="aff-avatar aff-avatar-emoji" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
-    // 好感图标（用户定稿 v11.84）：💗=已亲密过、可以表白了（表白过一次就熄灭）/ 🌙=已发生过性行为。
+    // 好感图标（用户定稿 v11.88）：🌙=已发生过性行为。💗已移除——表白按钮到点自然亮起，图标重复（用户拍板）。
     const nights = (G.npcs[npc.key] && G.npcs[npc.key].nights) || 0;
-    const confessIcon = (nights > 0 && !(G.npcs[npc.key] && G.npcs[npc.key]._confessed)) ? ' <span style="font-size:12px" title="可以表白了">💗</span>' : '';
+    const confessIcon = '';
     const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.8" title="已亲密">🌙</span>' : '';
     return '<div class="affection-card" style="cursor:pointer" onclick="openNpcProfile(\'' + npc.key + '\')">' + avatar +
       '<div class="aff-info">' +
@@ -8807,7 +8822,8 @@ window.addEventListener('load', () => {
   (function ensureSecondaryNpcs() {
     if (!G.npcs) return;
     var _tpl = { origin:null, name:null, portraitUrl:null, portraitSeed:null, relationship:5, met:false, memory:[], currentMood:'quiet', tier:2 };
-    ['coffee','clerk','trainer','engineer','runner','photog'].forEach(function(k){ if (!G.npcs[k]) G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); if (G.npcs[k].tier == null) G.npcs[k].tier = 2; if (G.npcs[k].met && G.npcs[k].contact == null) G.npcs[k].contact = true; });
+    ['coffee','clerk','trainer','engineer','runner','photog'].forEach(function(k){ if (!G.npcs[k]) G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); if (G.npcs[k].tier == null) G.npcs[k].tier = 2; if (G.npcs[k].met && G.npcs[k].contact == null) G.npcs[k].contact = true; if (G.npcs[k].met) ensureSecondaryName(k); });
+    if (G.npcs.butler && G.npcs.butler.met) ensureSecondaryName('butler'); // 老档补暗姓（v11.88）
     if (G.npcs.butler && G.npcs.butler.met && G.npcs.butler.contact == null) G.npcs.butler.contact = true; // 老档兼容：联系方式机制(v11.57)之前已认识的二线，视为已交换，别把老玩家锁在外面
     ['sleaze','fboy','thief'].forEach(function(k){ if (!G.npcs[k]) { G.npcs[k] = JSON.parse(JSON.stringify(_tpl)); G.npcs[k].relationship = 0; G.npcs[k].tier = 3; } if (G.npcs[k].tier == null) G.npcs[k].tier = 3; });
     if (G.npcs.butler && G.npcs.butler.tier == null) G.npcs.butler.tier = 2;
@@ -8886,7 +8902,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.87 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.88 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
