@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.85（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.86（实时化实验）。**
+
+**v11.86（2026-07-14）**：①工作剧情日（如Day3杂志拍摄）原来剩余槽全是灰色"—"占位、头顶却写"自由活动还剩3次"（用户实测只有剧情一个能点）→改成和非工作剧情日一样给1-2个"顺路逛逛·之后回来"。②**图2根因：二线没有 NPC_SLEEP 条目=永远醒着**→凌晨0点咖啡师/教练/医生全员齐发"还醒着吗"——补全二线作息（咖啡师/教练/医生早睡、店员夜班白天睡、录音师/摄影师夜猫子）。③主动消息防同腔调：`_sendProactive` 注入当天其他NPC已发的消息、禁止用同一开场角度（"还醒着/累不累"）。④二线颜值第二轮加码：booster 升"idol-level/male model face"级、删外形线里的显老词（tired-but-kind/faint tiredness/rugged unshaven）。⑤DEV面板新增"**重抽全部二线立绘**"按钮（`otrNewLookAll2`，手机无控制台可用；只重抽已见过且有立绘的）。
 
 **v11.85（2026-07-14）**：①**藏手方案推倒重做**——v11.77 的"no hands/不可见"负面词彻底翻车：flux 不认否定词，"hands"字眼反成吸引子，张张都是怪手（用户实测健身教练/夜跑者）。撤掉全部否定词，改**正向构图** `PORTRAIT_CROP`（胸上特写+手臂自然垂放，不提hands），只挂在立绘类生成点（NPC立绘/plain/女主三选一/美容院换脸），活动抓拍/spa中远景不碰；新开关 `IMG_DEV_PORTRAITS`（true=人物图切flux/dev且构图补丁自动失效）。②**"看画面"改 class 方案**：原 inline visibility 会被异步渲染（立绘生成完 display:block）盖回来→立绘卡仍挡场景（用户实测）；改 `#s-scene.vn-viewing` class+!important 收 vn-content/avatars/npc-card，`go('s-scene')` 进场景自动复位。③**排班自愈**：ensureAgentSchedule 不再信 plannedUntil 一次性标记，每次从明天重扫到 untilDay（id去重+周额度幂等）——新开局重登丢工作行程（原因未定位）下次打开自动补齐。
 
