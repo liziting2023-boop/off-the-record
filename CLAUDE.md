@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.84（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.85（实时化实验）。**
+
+**v11.85（2026-07-14）**：①**藏手方案推倒重做**——v11.77 的"no hands/不可见"负面词彻底翻车：flux 不认否定词，"hands"字眼反成吸引子，张张都是怪手（用户实测健身教练/夜跑者）。撤掉全部否定词，改**正向构图** `PORTRAIT_CROP`（胸上特写+手臂自然垂放，不提hands），只挂在立绘类生成点（NPC立绘/plain/女主三选一/美容院换脸），活动抓拍/spa中远景不碰；新开关 `IMG_DEV_PORTRAITS`（true=人物图切flux/dev且构图补丁自动失效）。②**"看画面"改 class 方案**：原 inline visibility 会被异步渲染（立绘生成完 display:block）盖回来→立绘卡仍挡场景（用户实测）；改 `#s-scene.vn-viewing` class+!important 收 vn-content/avatars/npc-card，`go('s-scene')` 进场景自动复位。③**排班自愈**：ensureAgentSchedule 不再信 plannedUntil 一次性标记，每次从明天重扫到 untilDay（id去重+周额度幂等）——新开局重登丢工作行程（原因未定位）下次打开自动补齐。
 
 **v11.84（2026-07-13）表白改"性行为之后"解锁（用户定稿·欧美化 DTR 顺序）**：表白语气从"好感≥过夜线75%(confessMin)解锁"改为 **nights≥1 才解锁**（新 `canConfessTo`）——先激情、后把话说开，表白=事后给关系定性的时刻；灰锁提示改"等你们真正亲密过之后"。顺带根治二线表白线过低问题（健身教练好感15就亮，用户实测）。表白 AI note 重写为 DTR 时刻（"给已经发生的事放上真话"）；好感度页 **💗=已亲密、可以表白了**（表白过一次熄灭，新 `_confessed` 标记在 evalIntimacyTone 落）、🌙 提示改"已亲密"。`confessMin` 仅保留作聊天暖度阈值（INTIMACY & DESIRE 规则）。**好感度页图标现含义**：半透明淡红❤=未到推倒门槛 / 实红❤=可发起亲密 / 💗=已亲密可表白 / 🌙=已发生过性行为。
 
