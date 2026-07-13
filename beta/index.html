@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.82"></script>
-<script src="state.js?v=11.82"></script>
+<script src="story.js?v=11.83"></script>
+<script src="state.js?v=11.83"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.82 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.83 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,7 +1090,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.82 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.83 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1292,12 +1292,14 @@ const NPC_SLEEP = {
   detective:[3, 9],      // 作息偏晚
   rival:    [3.5, 9.5],
 };
-function isNpcAsleep(k) {
+function isNpcAsleep(k) { return isNpcAsleepAt(k, rtClockMin()); }
+// 按"某个时刻"判睡：离线补发的消息要按【发送时刻】判他睡没睡，不是按玩家上线的现在
+function isNpcAsleepAt(k, min) {
   if (!REALTIME) return false;
   // 新手蜜月：头两天谁都愿意为刚签约的她熬夜（用户实测：凌晨0:56新玩家发现经纪人管家全下线，太冷清）
   if (G.day <= 2) return false;
   var w = NPC_SLEEP[k]; if (!w) return false;
-  var bed = ((w[0] % 24) + 24) % 24, wake = w[1], h = rtClockMin() / 60;
+  var bed = ((w[0] % 24) + 24) % 24, wake = w[1], h = min / 60;
   return (bed < wake) ? (h >= bed && h < wake) : (h >= bed || h < wake);
 }
 // 夜里语气升温：好感越高，晚上越感性/亲密（和白天不一样）。20点后到凌晨5点算"夜"。
@@ -1318,22 +1320,34 @@ function eveningToneNote(k) {
 async function checkProactiveOnOpen() {
   if (!REALTIME || !G.phone) return;
   var now = Date.now();
-  var isEve = rtClockMin() >= 20*60, isMorning = rtClockMin() < 11*60, isNoon = rtClockMin() >= 11*60 && rtClockMin() < 14*60;
-  // 候选：已识、非侦探、非冷战、距上次主动≥5小时
+  var nowMin = rtClockMin();
+  // ── 离线补发（用户定稿）：NPC想什么时候发就什么时候发——你不在的这段时间里消息照发，
+  //    时间戳=他实际发送的时刻（落在离线窗口内），上线看到的是攒下来的消息，不再全标"上线那一刻"。──
+  var lastOn = G._lastOnlineTs || now;
+  G._lastOnlineTs = now;
+  var gapMin = Math.max(0, Math.round((now - lastOn) / 60000));
+  var _lod = new Date(lastOn), _nod = new Date(now);
+  var sameDay = _lod.getFullYear() === _nod.getFullYear() && _lod.getMonth() === _nod.getMonth() && _lod.getDate() === _nod.getDate();
+  // 补发窗口只回溯【今天】（最早今天7:00；跨天离线的昨晚部分不补，避免消息 day 字段错乱）
+  var winStart = Math.max(7 * 60, sameDay ? (_lod.getHours() * 60 + _lod.getMinutes()) : 7 * 60);
+  var backfill = gapMin >= 90 && nowMin > winStart + 20; // 离线≥90分钟才算"错过了一段"
+  var maxSenders = backfill ? 3 : 1;
+  var isEve = nowMin >= 20*60, isMorning = nowMin < 11*60, isNoon = nowMin >= 11*60 && nowMin < 14*60;
+  // 候选：已识、非侦探、非冷战、有联系方式、距上次主动≥冷却。
+  // 注意"睡着"不在这里筛——补发要按【发送时刻】判他睡没睡（挑发送时间时再查）
   var cands = Object.keys(G.npcs).filter(function(k){
     if (k==='detective' || !G.npcs[k].met || npcIsCold(k)) return false;
     if (npcTier(k) >= 3) return false; // 三线（反面）不主动发消息骚扰玩家——只有玩家自己去找他们
     if (!npcHasContact(k)) return false; // 二线没交换联系方式前不会发消息（用户定稿）
-    if (isNpcAsleep(k)) return false; // 睡着的NPC不会主动来消息（夜里只剩夜猫子活跃，符合现实、也不打扰）
     // 正在剧情/见面场景里的NPC不发消息——人就坐在你对面，还给你发短信就穿帮了
-    // （场景进行中 _curSceneEv 一直有值，中途切去看手机也算"会面还没结束"）
     if (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc === k) return false;
     var hrs = (now - (G.npcs[k]._reachAt || 0)) / 3600000;
     return hrs >= (G.day <= 3 ? 0.75 : 3.5); // 头几天很勤(45分钟)；之后3.5小时冷却（用户再次反馈发信息太慢，从5h调到3.5h）
   });
   if (!cands.length) return;
-  // 打分：好感档基础概率 × 距上次越久越可能；夜猫子(鼓手/演员)夜里更活跃、经纪人白天更活跃
-  var best = null, bestP = 0;
+  // 打分：好感档基础概率 × 距上次越久越可能；夜猫子(鼓手/演员)夜里更活跃、经纪人白天更活跃。
+  // 补发时取过门槛的前几名（离线久了本就该攒下几条），在线时仍只挑一个。
+  var scored = [];
   cands.forEach(function(k){
     var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
     var base = tier==='high'?0.7: tier==='mid'?0.52: 0.34; // 早期朋友阶段也常有人来（治"空"，用户反馈太慢再上调）
@@ -1343,14 +1357,36 @@ async function checkProactiveOnOpen() {
     var timeFit = 1;
     if ((k==='drummer'||k==='actor'||k==='rival') && isEve) timeFit = 1.3;
     if (k==='agent' && (isMorning||isNoon)) timeFit = 1.3;
-    var p = base * recency * timeFit * (0.7 + Math.random()*0.6);
-    if (p > bestP) { bestP = p; best = k; }
+    scored.push({ k:k, p: base * recency * timeFit * (0.7 + Math.random()*0.6) });
   });
-  if (!best || bestP < (G.day <= 3 ? 0.1 : 0.16)) return; // 门槛：不是每次打开都有人来；常规门槛 0.22→0.16（用户反馈太慢）
-  var k = best;
-  G.npcs[k]._reachAt = now;
+  var _thr = (G.day <= 3 ? 0.1 : 0.16); // 门槛：不是每次打开都有人来
+  var senders = scored.filter(function(s){ return s.p >= _thr; }).sort(function(a,b){ return b.p - a.p; }).slice(0, maxSenders);
+  if (!senders.length) return;
+  // 给每人定一个"他发送的时刻"：补发=离线窗口内随机、且他那会儿醒着；在线实时=现在（他现在得醒着）
+  var plans = [];
+  senders.forEach(function(s){
+    var sendMin = null;
+    if (backfill) {
+      for (var t8 = 0; t8 < 6 && sendMin == null; t8++) {
+        var _c = winStart + Math.floor(Math.random() * Math.max(1, nowMin - winStart));
+        if (!isNpcAsleepAt(s.k, _c)) sendMin = _c;
+      }
+      if (sendMin == null && !isNpcAsleepAt(s.k, nowMin)) sendMin = nowMin;
+    } else if (!isNpcAsleepAt(s.k, nowMin)) sendMin = nowMin;
+    if (sendMin != null) plans.push({ k: s.k, min: sendMin });
+  });
+  if (!plans.length) return;
+  plans.sort(function(a,b){ return a.min - b.min; }); // 按发送时间先后插入，消息列表顺序自然
+  for (var _pi = 0; _pi < plans.length; _pi++) { await _sendProactive(plans[_pi].k, plans[_pi].min, now, nowMin, backfill); }
+}
+// 生成并投递一条主动消息：sendMin=他"实际发送"的时刻（补发时在过去），时间戳/时段措辞都按它来
+async function _sendProactive(k, sendMin, now, nowMin, backfill) {
+  // 冷却按"他发送的那一刻"算，不按玩家上线时刻
+  G.npcs[k]._reachAt = now - Math.max(0, nowMin - sendMin) * 60000;
   var tier = STORY.specialDates.getAffinityTier(G.npcs[k].relationship);
   var nights = G.npcs[k].nights || 0;
+  var isMorning = sendMin < 11*60, isNoon = sendMin >= 11*60 && sendMin < 14*60, isEve = sendMin >= 20*60;
+  var clockStr = fmtClock(sendMin);
   var timeWord = isMorning?'It is morning': isNoon?'It is around midday': isEve?'It is evening':'It is afternoon';
   // 头几天（刚签约）：话题偏工作/安顿——像刚认识的同事，不像老朋友闲聊（用户定的分寸）。
   // 只许问"你的角色能合理知道的事"：同事问工作状态，邻居/楼管问安顿生活——管家不该像看过她日程表
@@ -1371,13 +1407,22 @@ async function checkProactiveOnOpen() {
     var _recentChat = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === k && !m.meet; }).slice(-8).map(function(m){ return (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0,80); }).join('\n');
     var _noRepeat = _recentChat ? ' You two ALREADY texted recently (YOU=you, HER=her):\n' + _recentChat + '\nDo NOT repeat a question you already asked there, and do NOT re-ask about something already answered or that you already said you would look into/handle — if there is nothing genuinely new, either open a fresh DIFFERENT beat or keep it to one brief warm line, never a near-duplicate of the above. ' : '';
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
-      timeWord + ' where she is (current local time: ' + rtClockStr() + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' + stageCtx + _noRepeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
+      timeWord + ' where she is (current local time: ' + clockStr + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' +
+      (backfill && sendMin < nowMin - 10 ? 'She is away from her phone right now — you are texting knowing she will read it later; do NOT expect an instant reply, do NOT reference her being online or ask her to respond right away. ' : '') +
+      stageCtx + _noRepeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
-      ' The message MUST fit the CURRENT time of day (it is now ' + rtClockStr() + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
+      ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
       ' Do NOT open with a random hyper-specific or mundane logistical note out of nowhere — NOT about HER work (e.g. "your breath control on bar 12") and NOT about YOUR OWN job\'s equipment/chores/schedule (e.g. a coffee machine that leaks, a delivery, a shift swap). That reads as a bizarre non-sequitur, especially in an early message. Open with something warm and human she can immediately connect to — a small genuine thought, a light question about her, something you noticed — not shop-talk. ' +
       'Output only the message text.'));
-    if (t && t.trim()) { pushNpcMsg(k, t.trim(), rtClockMin()); }
+    if (t && t.trim()) {
+      // 直接用"他发送的时刻"落时间戳（不走 nextMsgTime 的排队逻辑，补发要保留过去的时间）
+      if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+      G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:NPC_UI[k]?.emoji||'💬', color:NPC_UI[k]?.color||'#C4A882', day:G.day, time: fmtClock(sendMin) });
+      try { if (!G.phone.lastMsgMin) G.phone.lastMsgMin = {}; G.phone.lastMsgMin[G.day] = Math.max(G.phone.lastMsgMin[G.day] || 0, sendMin); } catch(e){}
+      notifyNewMessage(k);
+      try { var ph = document.getElementById('s-phone'); if (ph && ph.classList.contains('active') && typeof renderPhone === 'function') renderPhone(); } catch(e){}
+    }
   } catch(e){}
 }
 
@@ -8786,7 +8831,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.82 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.83 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
