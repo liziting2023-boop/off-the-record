@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.80"></script>
-<script src="state.js?v=11.80"></script>
+<script src="story.js?v=11.81"></script>
+<script src="state.js?v=11.81"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -511,7 +511,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.80 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.81 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,7 +1090,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.80 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.81 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4171,9 +4171,16 @@ function buildDayOpts() {
       'locked', null); b.disabled = true; return b; };
     const slots = [];
     // ① 日历工作（含必须行程 + npc_message 类活动）
-    todayCalEvents.filter(e => e && e.status === 'accepted' && (e.type === 'work' || e.source === 'npc_message')).forEach(w => {
+    todayCalEvents.filter(e => e && (e.status === 'accepted' || e.status === 'completed') && (e.type === 'work' || e.source === 'npc_message')).forEach(w => {
       const st = workState(w);
       const timeLabel = w.time ? ' · ' + w.time + (w.timeEnd ? '-' + w.timeEnd : '') : '';
+      // 已完成的工作留一行灰色占位（用户实测：做完就从首页消失，会以为"下午的行程丢了"）
+      if (w.status === 'completed') {
+        const doneBtn = makeOpt('✅ ' + w.title + timeLabel, isZh?'已完成':lang==='ja'?'完了':lang==='ko'?'완료':'Done', 'locked', null);
+        doneBtn.disabled = true;
+        slots.push(doneBtn);
+        return;
+      }
       if (st === 'before') {
         slots.push(makeOpt(w.title + timeLabel, isZh?'还没到时间':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Not yet', 'locked', () => alert(workNotYetMsg(w))));
       } else {
@@ -8764,7 +8771,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.80 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.81 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
