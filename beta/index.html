@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.84"></script>
-<script src="state.js?v=11.84"></script>
+<script src="story.js?v=11.85"></script>
+<script src="state.js?v=11.85"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -149,6 +149,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .npct-hint{font-size:10px;letter-spacing:1px;color:rgba(255,240,245,0.45);margin-bottom:12px;}
 /* NPC固定立绘卡片：玩家确认过的形象，压在场景背景之上、对话框之下（保证同一NPC每次长一样） */
 .vn-npc-card{position:absolute;top:3%;left:50%;transform:translateX(-50%);z-index:1;width:min(92vw,430px);max-height:52vh;border-radius:16px;overflow:hidden;box-shadow:0 14px 48px rgba(15,8,12,0.45);border:3px solid rgba(255,255,255,0.85);cursor:pointer;}
+/* "看画面"模式：class 加在 #s-scene 上，!important 保证立绘/对话框/头像框全部收起——
+   之前用 inline visibility 会被场景的异步渲染（立绘生成完 display:block 等）盖回来（用户实测夜跑立绘没收起） */
+#s-scene.vn-viewing #vn-content,#s-scene.vn-viewing #vn-avatars,#s-scene.vn-viewing .vn-npc-card{visibility:hidden !important;}
 .vn-npc-card img{max-height:52vh;object-fit:cover;}
 .vn-npc-card img{width:100%;display:block;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
@@ -511,7 +514,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.84 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.85 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,7 +1093,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.84 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.85 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2018,6 +2021,12 @@ async function claude(prompt, sys = '', opts = {}) {
   return '';
 }
 
+// ⚠️ v11.77 曾给人物图加"no hands/不可见"——flux 不认否定词，"hands"字眼反成吸引子，生成的图全是怪手（用户实测）→ 已撤。
+// 改用【正向构图】PORTRAIT_CROP：胸部以上特写 + 手臂自然垂放（手自然出画），提示词里绝不出现 hands 字眼。
+// 只用于立绘类生成点（NPC立绘/女主三选一），不碰活动抓拍/美容院（那些是中远景，构图会打架）。
+// 切 dev 模型：IMG_DEV_PORTRAITS=true → 人物图走 flux/dev 28步，且 PORTRAIT_CROP 自动失效（dev 画手可靠，用户定稿）。
+const IMG_DEV_PORTRAITS = false;
+const PORTRAIT_CROP = IMG_DEV_PORTRAITS ? '' : ', tight head-and-shoulders close-up portrait framed from the chest up, arms relaxed straight down at the sides';
 async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false, styleOverride = null) {
   if (DEV_MODE_IMG || (typeof G !== 'undefined' && G && G.imgOff)) return null; // G.imgOff = 设置里手动关掉生图(省钱,测剧情用)
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
@@ -2026,12 +2035,9 @@ async function img(prompt, label = '', save = false, retries = 2, seed = null, h
   // 人物图高质量模式：立绘走 flux/dev（提示词服从度高），背景仍走 schnell 省钱。
   // Worker 未更新时 model 字段会被忽略（仍走 schnell），安全向后兼容
   // 生图全量 schnell（fal余额紧张，测剧情逻辑阶段省钱——用户定稿 2026-07）。
-  // 等进入"对话+图提示词+模型"统一优化批时，把下行改回 `= hq` 即恢复人物图 flux/dev。
-  const useDev = false;
-  // schnell 画手容易崩：人物图(hq=true)时把手挡在画面外/藏起来省得出错（用户定稿）。
-  // 切到 dev 模型(把上面 useDev 改回 = hq)后这段自动消失——hq&&!useDev 变为假。
-  const noHands = (hq && !useDev) ? ', framed from the upper body with hands kept out of frame and not visible, no hands shown' : '';
-  const fullPrompt = style + ', ' + prompt + noHands + ', portrait orientation, high quality';
+  // 切 dev：把 img() 上方的 IMG_DEV_PORTRAITS 改 true（人物图走 flux/dev 28步，PORTRAIT_CROP 构图补丁同时自动失效）。
+  const useDev = IMG_DEV_PORTRAITS && hq;
+  const fullPrompt = style + ', ' + prompt + ', portrait orientation, high quality';
   if (useDev) console.log('[IMG] HQ flux/dev 28steps →', label); // 调试：确认高质量模式实际生效
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -2098,7 +2104,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   // 每个NPC固定一个 seed（首次生成时随机分配，之后一直复用），减少不同天生成时长相不一致
   // 用 == null 而不是 !seed 判断，避免种子恰好随机到 0 时被误判成"未设置"而重新生成
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
-  return await img(prompt, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed, true);
+  return await img(prompt + PORTRAIT_CROP, getNPCName(npcKey) + ' — Day ' + day, false, 2, G.npcs[npcKey].portraitSeed, true);
 }
 
 // ── 纯背景图（无人物）：NPC立绘固定后场景只换背景。按"地点|风格"缓存，省生图费用 ──
@@ -2173,7 +2179,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
   if (npcTier(npcKey) >= 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 二线/三线走 secondaryLooks；管家例外：仍用 buildButlerPrompt
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
-  return await img(prompt, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
+  return await img(prompt + PORTRAIT_CROP, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
 
 // ── 初见立绘全屏展示：三选一确认后先看大图，点击后进入对话 ──
@@ -2210,19 +2216,15 @@ function showVNTapHint() {
 
 // ── 对话中点背景图：隐藏/显示对话框（欣赏画面用） ──
 function toggleVNDialog() {
-  const c = document.getElementById('vn-content');
-  const a = document.getElementById('vn-avatars');
-  const card = document.getElementById('vn-npc-card');
-  const hidden = c.style.visibility === 'hidden';
-  c.style.visibility = hidden ? 'visible' : 'hidden';
-  a.style.visibility = hidden ? '' : 'hidden'; // 恢复时交还给子元素自己的显隐规则
-  // 也收起立绘卡，露出整张场景图（用户实测：约会时漂亮的场景图被立绘+对话框挡着看不到）
-  // 用 visibility 不动 display：卡本来是 none 的场景，恢复时也不会被强行显示
-  if (card) card.style.visibility = hidden ? '' : 'hidden';
-  // 按钮文案随状态切换：现在露出对话=显示"看画面"；现在收起=显示"回到对话"
+  // "看画面"模式改用 class（v11.85）：inline visibility 会被场景的异步渲染
+  // （立绘生成完 display:block、新一轮对话等）盖回来——class + !important 不会（用户实测夜跑立绘没收起）
+  const sc = document.getElementById('s-scene');
+  const viewing = sc.classList.toggle('vn-viewing');
+  // 清掉旧方案可能残留的 inline visibility（隐藏统一交给 class 规则）
+  ['vn-content','vn-avatars','vn-npc-card'].forEach(function(i){ var el = document.getElementById(i); if (el) el.style.visibility = ''; });
   var vb = document.getElementById('vn-viewbtn');
   if (vb) { var isZhVb = G.lang==='zh-cn'||G.lang==='zh-tw';
-    vb.textContent = hidden ? (isZhVb?'🖼 看画面':'🖼 View scene') : (isZhVb?'💬 回到对话':'💬 Back to text'); }
+    vb.textContent = viewing ? (isZhVb?'💬 回到对话':'💬 Back to text') : (isZhVb?'🖼 看画面':'🖼 View scene'); }
 }
 
 // ── NPC初次登场三选一：三张共用seed不同姿势的头像，玩家选中的锁定为固定立绘 ──
@@ -2489,6 +2491,14 @@ const OVERLAY_SCREENS = ['s-fame','s-gallery','s-settings','s-phone','s-chat','s
 
 function go(id) {
   if (id === 's-ch1') updateChapterScreen();
+  // 进场景屏时退出"看画面"模式：新场景/从手机切回都应默认显示对话（按钮文案同步复位）
+  if (id === 's-scene') {
+    try {
+      var _sc = document.getElementById('s-scene'); if (_sc) _sc.classList.remove('vn-viewing');
+      var _vb = document.getElementById('vn-viewbtn');
+      if (_vb) _vb.textContent = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '🖼 看画面' : '🖼 View scene';
+    } catch(e){}
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   const idx = SETUP_SCREENS.indexOf(id);
@@ -2802,7 +2812,10 @@ function ensureAgentSchedule(untilDay) {
   if (!G.calendar) return;
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   untilDay = Math.min(untilDay, 360);
-  var from = (G.calendar.plannedUntil || 1) + 1;
+  // 自愈式（v11.85）：每次都从"明天"起重扫到 untilDay，不再依赖 plannedUntil 一次性标记——
+  // calAddEvent 按 id 去重 + 下面的周额度检查天然幂等；行程若因任何原因丢失（用户实测新开局
+  // 重登后两条工作只剩一条），下次打开自动把缺的周额度补齐。今天不动（避免深夜凭空冒出当日工作）。
+  var from = Math.max(2, (G.day || 1) + 1);
   if (from > untilDay) return;
   var scriptedTitles = {
     agent_office: isZh?'与经纪人会面':'Meeting with Agent',
@@ -3334,9 +3347,9 @@ async function genProto() {
   // 同一批候选图共用一个 seed，保证发色/风格一致，只有姿势不同
   // 三张用不同seed（base+i*7919）差异更明显；发色/风格由prompt锁定
   _protoSeed = Math.floor(Math.random() * 1000000);
-  const a = await img(base + ', ' + MIRRORS[0], 'Portrait A', false, 2, _protoSeed, true); setTrio('pa', a);
-  const b = await img(base + ', ' + MIRRORS[1], 'Portrait B', false, 2, _protoSeed + 7919, true); setTrio('pb', b);
-  const c = await img(base + ', ' + MIRRORS[2], 'Portrait C', false, 2, _protoSeed + 15838, true); setTrio('pc', c);
+  const a = await img(base + ', ' + MIRRORS[0] + PORTRAIT_CROP, 'Portrait A', false, 2, _protoSeed, true); setTrio('pa', a);
+  const b = await img(base + ', ' + MIRRORS[1] + PORTRAIT_CROP, 'Portrait B', false, 2, _protoSeed + 7919, true); setTrio('pb', b);
+  const c = await img(base + ', ' + MIRRORS[2] + PORTRAIT_CROP, 'Portrait C', false, 2, _protoSeed + 15838, true); setTrio('pc', c);
   document.getElementById('btn-rp').style.visibility = 'visible';
 }
 
@@ -5022,7 +5035,7 @@ function renderBeautyOpts(thenScripted) {
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">Glowing<span class="loading-dots"></span></div>';
     const base = STATE.imagePrompts.buildProtagonistPrompt(G, '');
     const newSeed = Math.floor(Math.random() * 1000000);
-    const url = await img(base + ', ' + MIRRORS[0] + ', fresh glowing skin after a spa day', 'New portrait', false, 2, newSeed, true);
+    const url = await img(base + ', ' + MIRRORS[0] + ', fresh glowing skin after a spa day' + PORTRAIT_CROP, 'New portrait', false, 2, newSeed, true);
     if (!url) { contAfter(); return; }
     inlineTrioChooser([G.player.portraitUrl, url], {
       headText: isZh?'左：现在 · 右：焕新后':'Left: now · Right: refreshed',
@@ -8834,7 +8847,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.84 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.85 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
