@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.90"></script>
-<script src="state.js?v=11.90"></script>
+<script src="story.js?v=11.91"></script>
+<script src="state.js?v=11.91"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.90 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.91 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1096,7 +1096,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <span style="color:rgba(138,128,120,0.4)"> | </span>
       <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.90 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.91 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1370,7 +1370,9 @@ async function checkProactiveOnOpen() {
     var timeFit = 1;
     if ((k==='drummer'||k==='actor'||k==='rival') && isEve) timeFit = 1.3;
     if (k==='agent' && (isMorning||isNoon)) timeFit = 1.3;
-    scored.push({ k:k, p: base * recency * timeFit * (0.7 + Math.random()*0.6) });
+    var _p9 = base * recency * timeFit * (0.7 + Math.random()*0.6);
+    if (G.npcs[k]._careFollowup && G.day > G.npcs[k]._careFollowup.day) _p9 += 0.4; // 她昨天跟他倾诉过→他今天更可能主动来关心（Nomi做不到的"记得且主动"）
+    scored.push({ k:k, p: _p9 });
   });
   var _thr = (G.day <= 3 ? 0.1 : 0.16); // 门槛：不是每次打开都有人来
   var senders = scored.filter(function(s){ return s.p >= _thr; }).sort(function(a,b){ return b.p - a.p; }).slice(0, maxSenders);
@@ -1424,10 +1426,17 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
       .filter(function(m){ return m && m.day === G.day && m.npc && m.npc !== k && !m.mine && !m.meet && m.text; })
       .slice(-4).map(function(m){ return '"' + m.text.slice(0, 50) + '"'; }).join(', ');
     var _noSameBeat = _others ? ' She has ALSO just received these texts from OTHER people today: ' + _others + '. Your message must NOT open with the same angle or near-identical phrasing as ANY of them — if someone already asked whether she is still awake, how late it is, or how tired she is, you are FORBIDDEN to open that way; come at her from an angle that is specifically YOURS (your shared history, something from your own day, a thought only you would have). ' : '';
+    // 她之前跟他倾诉过的事 → 主动来关心一句（"他记得、而且是他先来问的"——竞品Nomi不会主动，这是我们的差异点）。
+    // 用过即清，避免天天旧事重提变唠叨。
+    var _careF = '';
+    if (G.npcs[k]._careFollowup && G.day > G.npcs[k]._careFollowup.day) {
+      _careF = ' IMPORTANT — she recently opened up to YOU about something heavy: "' + G.npcs[k]._careFollowup.note + '". This message should gently check in on how she is doing about THAT — specific and caring but light-handed (one warm line, no pressure, no lecture, no dramatics); show that you remembered without making it a big production. ';
+      delete G.npcs[k]._careFollowup;
+    }
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
       timeWord + ' where she is (current local time: ' + clockStr + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' +
       (backfill && sendMin < nowMin - 10 ? 'She is away from her phone right now — you are texting knowing she will read it later; do NOT expect an instant reply, do NOT reference her being online or ask her to respond right away. ' : '') +
-      stageCtx + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
+      stageCtx + _careF + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
       ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
@@ -8390,6 +8399,17 @@ async function sendChatReply() {
       ? 'HOME OK: you two are close enough that home visits feel natural — her place or yours are both fine if that is what you two agree on. '
       : ('HOME GATE: you two are NOT intimate yet, so home is OFF LIMITS — do NOT agree to go to her place or invite her to yours; keep any meetup at a PUBLIC place (cafe/park/bookshop/etc). If she suggests a home visit, decline it lightly and NATURALLY (a small excuse, or redirect to somewhere public) — NEVER state a rule such as "we barely know each other" or "too soon". '
         + ((npc === 'agent' || npc === 'butler') ? 'EXCEPTION: you MAY come to HER place strictly for a practical reason (as her agent: work — drop something off, check on her when she is stressed/unwell; as the building manager: fix or check something) — professional, not romantic, and never an overnight. ' : '')));
+    // ── 情绪时刻升级（竞品Nomi实测"接得住情绪"比我们好——根因：日常闲聊走Haiku省钱，情感细腻度不够）──
+    // 检测到她在倾诉/脆弱 → 这一条回复升级 Sonnet 接住（情绪消息占比小，成本可控·符合成本铁律）；
+    // 同时记一条有分量的记忆 + 标记"次日主动关心"——用我们有而Nomi没有的主动消息，把弱项反打成强项
+    const _emoRe = /难过|伤心|委屈|想哭|哭了|大哭|好累|太累了|撑不住|崩溃|失眠|睡不着|焦虑|害怕|好怕|孤独|寂寞|想家|去世|离世|分手|吵架|被骂|压力好大|喘不过气|抑郁|好丧|想放弃|没人懂|难受|sad|depress|anxious|lonely|overwhelmed|can'?t sleep|miss home|passed away|broke up|crying|heartbroken/i;
+    const _isEmotional = text.length >= 5 && _emoRe.test(text);
+    if (_isEmotional) {
+      try {
+        STATE.memory.addEvent(npc, 'She opened up to you about something heavy: "' + text.slice(0, 80) + '". This mattered — hold onto it.', G.day);
+        G.npcs[npc]._careFollowup = { day: G.day, note: text.slice(0, 60) };
+      } catch(e) {}
+    }
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
     const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
       'RECENT CHAT (oldest→newest, YOU=you, HER=her):\n' + recentMsgs + '\n' +
@@ -8404,6 +8424,7 @@ async function sendChatReply() {
         : 'You are awake and around right now — do NOT claim you are going to sleep or too busy to talk; keep the conversation going naturally. ') +
       eveningToneNote(npc) + butlerTextObeyHint(npc) + ' ' +
       'EMPATHY OVERRIDE (outranks your personality): if her message shares grief, trauma or something vulnerable, meet it FIRST — acknowledge the specific thing she said, one true human response, leave her room to keep talking. BANNED in that moment: praising her toughness, calling words/talking useless, "I\'m here if you want to talk" (she IS talking to you right now), changing the subject, pivoting to plans or work. Blunt characters get quiet and awkwardly gentle; they do not coach or toughen her up. ' +
+      'ATTUNEMENT (how to actually hold it): name the specific feeling underneath her words in your own voice, let her know it makes sense to feel that way, and STAY with it — one line of real presence beats any advice; you may ask ONE gentle open question that invites more, never an interrogation. Do NOT rush to fix her, cheer her up, or find the bright side ("at least…"/"至少" is banned). Match her energy: when she is heavy, you get quieter and closer, not brisker. ' +
       // 亲密回应（用户实测：鼓手已过夜好感79，她挑逗/说露骨的话，他却聊录音室、说"别烦我"——彻底出戏）
       'INTIMACY & DESIRE (in YOUR own register): ' + (((G.npcs[npc].nights||0) > 0 || (G.npcs[npc].relationship||0) >= confessMin(npc))
         ? 'You two are already close' + ((G.npcs[npc].nights||0) > 0 ? ' and have been lovers' : '') + '. If her message is flirtatious, longing, or sexually forward, you MUST meet it and WANT her back, the way YOUR character would — blunt and hungry if you are blunt, teasing if you are playful, tender if you are soft; warm and wanting, never bored or annoyed. ABSOLUTELY BANNED here: brushing her off, going cold, pivoting to work/the studio/logistics, saying you "don\'t want to play this", or telling her to stop bothering you — that is unthinkable toward a partner you want, and it breaks her completely. Because this is a text, keep the WORDS suggestive not explicit, and pour the heat into wanting to be TOGETHER: tell her to come over, or that you are coming to her, that this is far better in person — eager and in character (this naturally becomes a meetup). '
@@ -8415,7 +8436,8 @@ async function sendChatReply() {
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
       '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}}');
-    const [raw] = await Promise.all([claudeChat(prompt), new Promise(r => setTimeout(r, delay * 0.35))]);
+    // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
+    const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null;
     try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; }
     catch (e) { reply = (raw||'').trim(); }
@@ -8922,7 +8944,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.90 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.91 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
