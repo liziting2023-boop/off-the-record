@@ -19,7 +19,9 @@
 
 ## 🔖 交接状态（2026-07-06，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.90（实时化实验）。**
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.91（实时化实验）。**
+
+**v11.91（2026-07-14）情绪时刻升级（竞品Nomi实测反哺，详见记忆 reference_nomi_competitor.md）**：Nomi 唯一赢 OTR 的点=接得住情绪，根因=闲聊走 Haiku。修法守成本铁律：①中英关键词网检测倾诉/脆弱消息→**该条回复单独升级 Sonnet**（情绪消息占比小）②同时写有分量记忆+置 `_careFollowup`→**次日该NPC主动消息概率+0.4 且注入"温柔跟进她昨天说的事"**（Nomi从不主动，这是反打差异点）③EMPATHY OVERRIDE 追加正向 **ATTUNEMENT** 指南（说出情绪本名/共情合理化/停留陪伴/最多一个温柔开放问题；禁修复式安慰/"至少"式找亮点；跟随她的能量）。Nomi 其他情报：付费墙=第二伴侣（不掐核心情感循环）、群聊点头像才说话（我们自动接话可碾压）、永远在线（保持我们的作息"活人感"勿学）。
 
 **v11.90（2026-07-14）怪手真凶 + 裸图 + 名字乱码**：①v11.89 后鼓手三选一仍怪手——**真凶是 `genNPCPortraitPlain` 的 plainComp 里一段更老的防手词**（"hands relaxed and empty…exactly five fingers each…natural hands"连提三次 hands，权重盖过 PORTRAIT_CROP，把手全吸到胸前）→ 全部剥掉，手的处理只留 PORTRAIT_CROP 一处；鼓手纹身从 forearms 挪到 upper arms/shoulder（前臂词也会拉手臂入画）。**教训：提示词里任何位置出现 hands 字眼都是吸引子，全库只允许 PORTRAIT_CROP 管构图。**②美容院重生成出裸女主图："spa day/glowing skin"带偏→改"radiant complexion, fully dressed…visible neckline"；PORTRAIT_CROP 加全局 "fully clothed"。③AI 起名偶发乱码符号（"Marcus Dean No.lowa*"）→4处命名统一 unicode 字母过滤+只留前两个词。
 
