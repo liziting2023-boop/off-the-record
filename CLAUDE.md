@@ -26,6 +26,8 @@
 **v11.92（2026-07-14）**：同步码+反馈入口（见上）。
 **✅ Worker 部署管线已建立（2026-07-18，Claude 长期接管）**：`npx wrangler deploy --config D:\OTR\wrangler.toml`（配置在 **D:\OTR\wrangler.toml**，凭据在 **D:\OTR\cloudflare_wrangler.env**——都在 git 仓库外，绝不 commit）。**wrangler.toml 有 `keep_vars=true` 保住两个明文 AI key，删掉它=线上瘫痪**。已部署 repo/worker.js 最新版并验证：/report 200（原404，举报打通）、/claude 密钥完好、/save 正常。以后改 worker.js 后直接 wrangler 部署，不再要用户贴后台。
 
+**v11.96（2026-07-18）**：`FEEDBACK_FORM_URL` 已填用户问卷（https://forms.gle/LgwZnKe22NfN7EJb6，已验证：无需登录、必填项对、付费三题在——缺"一次性小额"第4题已建议补）；设置页问卷按钮生效。新增 **🐛 Report a Bug 按钮**（`BUG_FORM_URL` 常量，待用户建含截图上传的Bug表单后填入；Google Form 文件上传题会强制答题者登录 Google，文件落表单主人的 Drive）。
+
 **v11.95（2026-07-18）测试者进度面板**：Worker `/save` PUT 时把摘要写进 KV metadata（测试码/角色名/天数/最后活跃/各NPC好感+nights，<1KB上限超了丢好感明细）；新路由 **`/admin?key=ADMIN_KEY`** 输出 HTML 表格=开发者仪表盘（list 免费带 metadata，零额外读）。ADMIN_KEY 为 Worker secret（值在 `D:\OTR\cloudflare_wrangler.env`）。客户端把测试码写进存档 `G._testerCode`（过门/读档回填/设置页改动三处）。**metadata 从各玩家部署后的下一次存档才有**。已部署验证（无钥403/有钥200）。
 
 **v11.94（2026-07-18）**：年龄门改 **17+**（用户定稿：怕"18禁"名声——17+ 对齐 App Store 最高分级，观感是"成熟内容分级"而非成人标签；去掉🔞）+ 语言选择前的所有界面（年龄门/测试码门/标题页同步码/恢复提示）**纯英文**。**注意：将来网页辣版若做，那个版本必须回 18+**。
