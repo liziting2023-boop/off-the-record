@@ -24,6 +24,9 @@
 **📢 20人×2周封测筹备中（2026-07-14 用户定稿）**：①**同步码**已上线（v11.92，设置页：显示设备ID可复制；输码=接管那份云存档跨设备/找回，替代账号系统）②反馈=Google 问卷为主（`FEEDBACK_FORM_URL` 常量待用户给链接后填入，问卷回复表发布为CSV供Claude读取）+邮箱纯文本展示（不做一键发信）+"复制诊断信息"按钮（版本/天数/测试码/短ID）+测试码选填字段（otr_tester_code）③**测试版要加：特级NPC（球星Rafael样板先行）+ 群聊（合理存在的群）**——用户拍板，开发顺序：Rafael→群聊④打赏：测试期可挂纯打赏链接（Ko-fi类，不绑功能防变成"购买"），收款渠道是真门槛，数据价值>钱⑤/report 部署：用户将给 CF API token+Account ID，走 wrangler（**wrangler.toml 必须 keep_vars=true 保住两个明文AI key + OTR_KV 绑定**）。
 
 **v11.92（2026-07-14）**：同步码+反馈入口（见上）。
+**✅ Worker 部署管线已建立（2026-07-18，Claude 长期接管）**：`npx wrangler deploy --config D:\OTR\wrangler.toml`（配置在 **D:\OTR\wrangler.toml**，凭据在 **D:\OTR\cloudflare_wrangler.env**——都在 git 仓库外，绝不 commit）。**wrangler.toml 有 `keep_vars=true` 保住两个明文 AI key，删掉它=线上瘫痪**。已部署 repo/worker.js 最新版并验证：/report 200（原404，举报打通）、/claude 密钥完好、/save 正常。以后改 worker.js 后直接 wrangler 部署，不再要用户贴后台。
+
+**v11.94（2026-07-18）**：年龄门改 **17+**（用户定稿：怕"18禁"名声——17+ 对齐 App Store 最高分级，观感是"成熟内容分级"而非成人标签；去掉🔞）+ 语言选择前的所有界面（年龄门/测试码门/标题页同步码/恢复提示）**纯英文**。**注意：将来网页辣版若做，那个版本必须回 18+**。
 **v11.93（2026-07-14）**：①**测试码门禁**：年龄门之后弹（z-index 低一层），`TESTER_CODES` 20个码+OTR-DEV 主码；通过后写 otr_tester_ok + otr_tester_code（兼作测试者身份进诊断信息）；**封测结束删 `ensureTesterGate()` 那一行调用即全开**。②标题页"有同步码？找回进度"入口（`titleSyncRestore`），恢复逻辑抽成 `adoptSyncCode()` 与设置页共用，提示双语（语言可能未选）。③年龄门保持18+（用户问改17/16，已建议不改：AI恋爱内容+未成年监管风向+受众30-50无商业价值+Anthropic政策）。特级球星按用户定稿=**足球(soccer)明星**。
 
 **v11.91（2026-07-14）情绪时刻升级（竞品Nomi实测反哺，详见记忆 reference_nomi_competitor.md）**：Nomi 唯一赢 OTR 的点=接得住情绪，根因=闲聊走 Haiku。修法守成本铁律：①中英关键词网检测倾诉/脆弱消息→**该条回复单独升级 Sonnet**（情绪消息占比小）②同时写有分量记忆+置 `_careFollowup`→**次日该NPC主动消息概率+0.4 且注入"温柔跟进她昨天说的事"**（Nomi从不主动，这是反打差异点）③EMPATHY OVERRIDE 追加正向 **ATTUNEMENT** 指南（说出情绪本名/共情合理化/停留陪伴/最多一个温柔开放问题；禁修复式安慰/"至少"式找亮点；跟随她的能量）。Nomi 其他情报：付费墙=第二伴侣（不掐核心情感循环）、群聊点头像才说话（我们自动接话可碾压）、永远在线（保持我们的作息"活人感"勿学）。
