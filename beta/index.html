@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.96"></script>
-<script src="state.js?v=11.96"></script>
+<script src="story.js?v=11.97"></script>
+<script src="state.js?v=11.97"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -442,6 +442,16 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 /* ── NPC ORIGIN SELECT (popup) ── */
 .npc-origin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center;}
+/* ── 桌面端锁手机尺寸（用户定稿）：宽屏时游戏固定在居中的手机宽度框内，四周暗色剧场背景。
+   .screen 是流内元素，收窄 body 即被包住；position:fixed 的浮层逐个用 !important 拉回框内（能盖过内联样式）── */
+@media (min-width: 600px) {
+  html{background:#120a10;}
+  body{max-width:430px;margin:0 auto;position:relative;box-shadow:0 0 70px rgba(0,0,0,0.55);}
+  .bottom-nav,#night-transition,#news-overlay,#call-overlay,#music-player,.lightbox,.npc-origin-overlay,#dev-panel,#age-gate,#tester-gate{left:50% !important;right:auto !important;transform:translateX(-50%) !important;width:430px !important;max-width:430px !important;}
+  .back-btn{left:calc(50% - 201px) !important;}
+  .sind,#memories-btn{right:calc(50% - 201px) !important;}
+  #dev-fab{right:calc(50% - 209px) !important;}
+}
 .npc-origin-overlay.open{display:flex;}
 .npc-origin-sheet{background:#FFF5F7;border-radius:12px 12px 0 0;padding:16px 16px max(16px,env(safe-area-inset-bottom));width:100%;max-width:500px;}
 .nos-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--pink-deep);text-align:center;margin-bottom:4px;}
@@ -517,7 +527,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.96 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.97 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1092,35 +1102,29 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <!-- 上架合规：隐私政策 + 反馈邮箱（纯文本展示，不做一键发信——用户定稿）+ 测试期问卷/诊断入口 -->
-    <div style="text-align:center;margin-top:18px;font-size:12px;line-height:2">
-      <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">隐私政策 · Privacy Policy</a><br>
-      <span style="color:#8a8078">反馈/举报邮箱 Feedback: <b style="user-select:all">otr.help@wiiboox.com</b></span>
-      <div id="fb-form-row" style="display:none;margin-top:8px">
-        <button class="btn-t" onclick="openFeedbackForm()" style="font-size:12px">📝 Feedback Survey</button>
-      </div>
-      <div id="bug-form-row" style="display:none;margin-top:6px">
-        <button class="btn-t" onclick="openBugForm()" style="font-size:12px">🐛 Report a Bug (with screenshot)</button>
-      </div>
-      <div style="margin-top:6px">
-        <button class="btn-t" onclick="copyDiagInfo()" style="font-size:12px">📋 复制诊断信息 · Copy debug info</button>
+    <!-- 测试专区（v11.97 整理：卡片分组+纯英文标签，减少双语堆叠——用户反馈设置页乱）-->
+    <div style="margin:20px auto 0;max-width:320px;text-align:center;background:rgba(255,255,255,0.55);border:1px solid rgba(196,96,122,0.18);border-radius:14px;padding:14px 16px">
+      <div class="settings-section-title" style="margin-top:0">SYNC CODE</div>
+      <p style="font-size:11px;color:var(--ink-muted);margin:2px 0 8px">Save this code — restore your progress on any device.</p>
+      <div id="sync-code-display" style="font-size:12px;letter-spacing:0.5px;color:var(--text-dark);user-select:all;word-break:break-all"></div>
+      <button class="btn-t" onclick="copySyncCode()" style="font-size:12px;margin-top:8px">Copy code</button>
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+        <input id="sync-code-input" type="text" autocomplete="off" placeholder="Paste a code to restore…" style="flex:1;min-width:0;background:rgba(255,255,255,0.9);border:1.5px solid rgba(196,96,122,0.3);border-radius:10px;padding:8px 10px;font-size:12px;outline:none">
+        <button class="btn-t" onclick="restoreBySyncCode()" style="font-size:12px;flex-shrink:0">Restore</button>
       </div>
     </div>
-    <!-- 同步码（测试期核心）：防丢档 + 跨设备找回进度 -->
-    <div style="margin-top:16px;text-align:center">
-      <div class="settings-section-title">SYNC CODE 同步码</div>
-      <p style="font-size:11px;color:var(--ink-muted);margin:4px 0 8px">抄下同步码，换手机或丢进度时可找回云端进度<br>Save this code — restore your progress on any device</p>
-      <div id="sync-code-display" style="font-size:13px;letter-spacing:1px;color:var(--text-dark);user-select:all;word-break:break-all;padding:0 24px"></div>
-      <button class="btn-t" onclick="copySyncCode()" style="font-size:12px;margin-top:6px">复制同步码 · Copy</button>
-      <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;align-items:center;padding:0 24px">
-        <input id="sync-code-input" type="text" autocomplete="off" placeholder="输入同步码找回进度 / paste code" style="flex:1;max-width:250px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none">
-        <button class="btn-t" onclick="restoreBySyncCode()" style="font-size:12px">找回 · Restore</button>
-      </div>
-      <div style="margin-top:10px">
-        <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="测试码(选填) Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim());G._testerCode=this.value.trim();STATE.save.saveGame()}catch(e){}" style="width:190px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none;text-align:center">
-      </div>
+    <div style="margin:12px auto 0;max-width:320px;text-align:center;background:rgba(255,255,255,0.55);border:1px solid rgba(196,96,122,0.18);border-radius:14px;padding:14px 16px">
+      <div class="settings-section-title" style="margin-top:0">BETA FEEDBACK</div>
+      <div id="fb-form-row" style="display:none;margin-top:4px"><button class="btn-t" onclick="openFeedbackForm()" style="font-size:12px;width:100%">📝 Feedback survey</button></div>
+      <div id="bug-form-row" style="display:none;margin-top:6px"><button class="btn-t" onclick="openBugForm()" style="font-size:12px;width:100%">🐛 Report a bug (screenshot)</button></div>
+      <div style="margin-top:6px"><button class="btn-t" onclick="copyDiagInfo()" style="font-size:12px;width:100%">📋 Copy debug info</button></div>
+      <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim());G._testerCode=this.value.trim();STATE.save.saveGame()}catch(e){}" style="margin-top:8px;width:140px;background:rgba(255,255,255,0.9);border:1.5px solid rgba(196,96,122,0.3);border-radius:10px;padding:7px 10px;font-size:12px;outline:none;text-align:center">
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.96 · BETA (realtime)</p>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#8a8078;line-height:1.9">
+      <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
+      &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
+    </div>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.97 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2680,7 +2684,7 @@ function openSettings() {
 }
 // ── 测试期反馈问卷/Bug表单（Google Form 链接；留空则对应按钮不显示）。打开前静默复制诊断信息方便粘贴 ──
 const FEEDBACK_FORM_URL = 'https://forms.gle/LgwZnKe22NfN7EJb6';
-const BUG_FORM_URL = ''; // Bug 专用表单（带截图上传，需登录Google）——用户建好后填入
+const BUG_FORM_URL = 'https://forms.gle/W6p4bxHW4vxZfKmU8'; // Bug 专用表单（带截图上传，需登录Google）
 function openFeedbackForm() { try { copyDiagInfo(true); } catch(e){} if (FEEDBACK_FORM_URL) window.open(FEEDBACK_FORM_URL, '_blank'); }
 function openBugForm() { try { copyDiagInfo(true); } catch(e){} if (BUG_FORM_URL) window.open(BUG_FORM_URL, '_blank'); }
 function diagInfoStr() {
@@ -9051,7 +9055,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.96 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.97 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
