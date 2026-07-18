@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.93"></script>
-<script src="state.js?v=11.93"></script>
+<script src="story.js?v=11.94"></script>
+<script src="state.js?v=11.94"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,9 +515,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
-    <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">有同步码？找回进度 · Restore with sync code</p>
+    <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.93 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.94 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1117,7 +1117,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="测试码(选填) Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim())}catch(e){}" style="width:190px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none;text-align:center">
       </div>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.93 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.94 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1763,17 +1763,19 @@ function ensureAgeGate() {
   var ov = document.createElement('div');
   ov.id = 'age-gate';
   ov.style.cssText = 'position:fixed;inset:0;z-index:99;background:rgba(15,8,12,0.96);display:flex;align-items:center;justify-content:center;padding:28px;';
+  // v11.94 用户定稿：①改 17+（与 App Store 最高分级一致，是"成熟内容分级"不是"18禁"标签——去掉🔞观感）
+  // ②语言选择之前的界面（年龄门/测试码门/同步码）一律纯英文
   ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;padding:26px 22px;text-align:center">' +
-    '<div style="font-size:34px">🔞</div>' +
-    '<div style="font-size:16px;font-weight:700;color:#3a2e33;margin-top:10px;line-height:1.6">本游戏含成人向情感内容<br><span style="font-size:13px;font-weight:400">This game contains mature romantic content.</span></div>' +
-    '<div style="font-size:13px;color:#8a8078;margin-top:8px;line-height:1.7">仅适合 18 岁及以上玩家。<br>For players 18 and over only.</div>' +
-    '<button id="age-yes" style="margin-top:16px;width:100%;padding:13px;border:none;border-radius:10px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">我已年满 18 岁 · I am 18 or older</button>' +
-    '<button id="age-no" style="margin-top:8px;width:100%;padding:10px;border:1.5px solid rgba(138,128,120,.4);border-radius:10px;background:none;color:#8a8078;font-size:13px;cursor:pointer">未满 18 岁 · Under 18</button>' +
+    '<div style="display:inline-block;font-size:15px;font-weight:800;color:#fff;background:#C4607A;padding:6px 16px;border-radius:10px;letter-spacing:1px">17+</div>' +
+    '<div style="font-size:16px;font-weight:700;color:#3a2e33;margin-top:12px;line-height:1.6">Mature romantic themes</div>' +
+    '<div style="font-size:13px;color:#8a8078;margin-top:8px;line-height:1.7">This game is intended for players<br>17 years of age and older.</div>' +
+    '<button id="age-yes" style="margin-top:16px;width:100%;padding:13px;border:none;border-radius:10px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">I am 17 or older</button>' +
+    '<button id="age-no" style="margin-top:8px;width:100%;padding:10px;border:1.5px solid rgba(138,128,120,.4);border-radius:10px;background:none;color:#8a8078;font-size:13px;cursor:pointer">Under 17</button>' +
     '</div>';
   document.body.appendChild(ov);
   document.getElementById('age-yes').onclick = function(){ try { localStorage.setItem('otr_age_ok', '1'); } catch(e){} ov.remove(); };
   document.getElementById('age-no').onclick = function(){
-    ov.innerHTML = '<div style="color:#fff;text-align:center;font-size:15px;line-height:2.2;padding:0 20px">这个故事要等你长大一点再来读。🌙<br>Come back when you\'re a little older.</div>';
+    ov.innerHTML = '<div style="color:#fff;text-align:center;font-size:15px;line-height:2.2;padding:0 20px">Come back when you\'re a little older. 🌙</div>';
   };
 }
 
@@ -1787,10 +1789,10 @@ function ensureTesterGate() {
   ov.style.cssText = 'position:fixed;inset:0;z-index:98;background:rgba(15,8,12,0.96);display:flex;align-items:center;justify-content:center;padding:28px;';
   ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;padding:26px 22px;text-align:center">' +
     '<div style="font-size:30px">🎟️</div>' +
-    '<div style="font-size:16px;font-weight:700;color:#3a2e33;margin-top:10px;line-height:1.6">封闭测试中<br><span style="font-size:13px;font-weight:400">Closed beta — invite only.</span></div>' +
-    '<div style="font-size:13px;color:#8a8078;margin-top:8px;line-height:1.7">请输入你的测试码<br>Enter your tester code</div>' +
+    '<div style="font-size:16px;font-weight:700;color:#3a2e33;margin-top:10px;line-height:1.6">Closed Beta</div>' +
+    '<div style="font-size:13px;color:#8a8078;margin-top:8px;line-height:1.7">This is an invite-only test.<br>Enter your tester code to continue.</div>' +
     '<input id="tg-input" type="text" autocomplete="off" autocapitalize="characters" style="margin-top:14px;width:100%;box-sizing:border-box;padding:11px;border:2px solid rgba(196,96,122,0.35);border-radius:10px;font-size:15px;text-align:center;letter-spacing:2px;outline:none" placeholder="OTR-XXXX">' +
-    '<button id="tg-go" style="margin-top:12px;width:100%;padding:13px;border:none;border-radius:10px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">进入 · Enter</button>' +
+    '<button id="tg-go" style="margin-top:12px;width:100%;padding:13px;border:none;border-radius:10px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">Enter</button>' +
     '</div>';
   document.body.appendChild(ov);
   document.getElementById('tg-go').onclick = function(){
@@ -1799,7 +1801,7 @@ function ensureTesterGate() {
       try { localStorage.setItem('otr_tester_ok', '1'); localStorage.setItem('otr_tester_code', v); } catch(e){}
       ov.remove();
     } else {
-      alert('测试码不对，请联系开发者获取。\nInvalid code — please contact the developer.');
+      alert('Invalid code — please contact the developer for access.');
     }
   };
   document.getElementById('tg-input').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('tg-go').click(); });
@@ -2690,25 +2692,25 @@ function copySyncCode() {
   try { navigator.clipboard.writeText(getDeviceId()); alert(isZh?'同步码已复制——抄在安全的地方，这是找回进度的唯一凭证。':'Sync code copied — keep it safe; it is the only key to your progress.'); }
   catch(e) { prompt(isZh?'手动复制：':'Copy:', getDeviceId()); }
 }
-// 核心恢复流程（设置页和标题页共用）：语言可能还没选，提示一律中英双语
+// 核心恢复流程（设置页和标题页共用）：语言可能还没选，提示一律纯英文（用户定稿）
 async function adoptSyncCode(code) {
   code = (code || '').trim();
-  if (code.length < 8) { alert('请输入完整同步码 / Enter the full sync code'); return; }
-  if (code === getDeviceId()) { alert('这已经是本机的同步码 / That is already this device\'s code'); return; }
+  if (code.length < 8) { alert('Please enter the full sync code.'); return; }
+  if (code === getDeviceId()) { alert('That is already this device\'s sync code.'); return; }
   try {
     const r = await fetch(WORKER + '/save', { headers: { 'X-Device-Id': code } });
     const data = await r.json();
-    if (!(data && data.player && data.player.name)) { alert('没有找到该同步码对应的云端进度\nNo cloud save found for that code'); return; }
-    if (!confirm('找到进度 Found: ' + data.player.name + ' · Day ' + (data.day||1) + '\n将【覆盖】本机当前进度并改用该同步码。\nThis will REPLACE this device\'s progress. Continue?')) return;
+    if (!(data && data.player && data.player.name)) { alert('No cloud save found for that code.'); return; }
+    if (!confirm('Found: ' + data.player.name + ' · Day ' + (data.day||1) + '\nThis will REPLACE this device\'s progress and adopt that sync code. Continue?')) return;
     localStorage.setItem('otr_device_id_beta', code);
     localStorage.setItem('otr_save_v2_beta', JSON.stringify(data));
     location.reload(); // 重载后走 loadGame 原地合并；此后本机以该同步码继续云同步
-  } catch(e) { alert('网络错误，稍后再试 / Network error — try again later'); }
+  } catch(e) { alert('Network error — please try again later.'); }
 }
 async function restoreBySyncCode() { await adoptSyncCode(document.getElementById('sync-code-input').value); }
 // 标题页入口：开局前就能找回（换新手机的测试者不用先开新档）
 async function titleSyncRestore() {
-  var code = prompt('输入你的同步码 / Enter your sync code:');
+  var code = prompt('Enter your sync code:');
   if (code) await adoptSyncCode(code);
 }
 // 存玩家生日（月/日）：生日当天 startDay 里触发特别问候/安排
@@ -9040,7 +9042,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.93 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.94 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
