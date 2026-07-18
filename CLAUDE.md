@@ -26,6 +26,8 @@
 **v11.92（2026-07-14）**：同步码+反馈入口（见上）。
 **✅ Worker 部署管线已建立（2026-07-18，Claude 长期接管）**：`npx wrangler deploy --config D:\OTR\wrangler.toml`（配置在 **D:\OTR\wrangler.toml**，凭据在 **D:\OTR\cloudflare_wrangler.env**——都在 git 仓库外，绝不 commit）。**wrangler.toml 有 `keep_vars=true` 保住两个明文 AI key，删掉它=线上瘫痪**。已部署 repo/worker.js 最新版并验证：/report 200（原404，举报打通）、/claude 密钥完好、/save 正常。以后改 worker.js 后直接 wrangler 部署，不再要用户贴后台。
 
+**v11.95（2026-07-18）测试者进度面板**：Worker `/save` PUT 时把摘要写进 KV metadata（测试码/角色名/天数/最后活跃/各NPC好感+nights，<1KB上限超了丢好感明细）；新路由 **`/admin?key=ADMIN_KEY`** 输出 HTML 表格=开发者仪表盘（list 免费带 metadata，零额外读）。ADMIN_KEY 为 Worker secret（值在 `D:\OTR\cloudflare_wrangler.env`）。客户端把测试码写进存档 `G._testerCode`（过门/读档回填/设置页改动三处）。**metadata 从各玩家部署后的下一次存档才有**。已部署验证（无钥403/有钥200）。
+
 **v11.94（2026-07-18）**：年龄门改 **17+**（用户定稿：怕"18禁"名声——17+ 对齐 App Store 最高分级，观感是"成熟内容分级"而非成人标签；去掉🔞）+ 语言选择前的所有界面（年龄门/测试码门/标题页同步码/恢复提示）**纯英文**。**注意：将来网页辣版若做，那个版本必须回 18+**。
 **v11.93（2026-07-14）**：①**测试码门禁**：年龄门之后弹（z-index 低一层），`TESTER_CODES` 20个码+OTR-DEV 主码；通过后写 otr_tester_ok + otr_tester_code（兼作测试者身份进诊断信息）；**封测结束删 `ensureTesterGate()` 那一行调用即全开**。②标题页"有同步码？找回进度"入口（`titleSyncRestore`），恢复逻辑抽成 `adoptSyncCode()` 与设置页共用，提示双语（语言可能未选）。③年龄门保持18+（用户问改17/16，已建议不改：AI恋爱内容+未成年监管风向+受众30-50无商业价值+Anthropic政策）。特级球星按用户定稿=**足球(soccer)明星**。
 
