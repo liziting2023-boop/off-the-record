@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.92"></script>
-<script src="state.js?v=11.92"></script>
+<script src="story.js?v=11.93"></script>
+<script src="state.js?v=11.93"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -514,8 +514,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <p style="font-size:10px;letter-spacing:3px;color:var(--ink-muted);text-transform:uppercase;margin-bottom:36px">An AI Romance</p>
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
+    <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
+    <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">有同步码？找回进度 · Restore with sync code</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.92 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.93 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1115,7 +1117,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="测试码(选填) Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim())}catch(e){}" style="width:190px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none;text-align:center">
       </div>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.92 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.93 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1773,6 +1775,34 @@ function ensureAgeGate() {
   document.getElementById('age-no').onclick = function(){
     ov.innerHTML = '<div style="color:#fff;text-align:center;font-size:15px;line-height:2.2;padding:0 20px">这个故事要等你长大一点再来读。🌙<br>Come back when you\'re a little older.</div>';
   };
+}
+
+// ── 测试码门禁（封测期，用户定稿：有码才能玩）。z-index 低于年龄门→年龄确认后自然露出。
+//    码同时写入 otr_tester_code 作为测试者身份（诊断信息自动带上）。封测结束删掉此调用即可全开。──
+const TESTER_CODES = ['OTR-M4K7','OTR-P2X9','OTR-R8T3','OTR-B6N1','OTR-L5Q8','OTR-H3W6','OTR-D9F2','OTR-S7J4','OTR-V1C5','OTR-G8Y3','OTR-K2Z7','OTR-N6M9','OTR-T4B8','OTR-W9R1','OTR-F3P6','OTR-J7L2','OTR-Q5D8','OTR-X8H4','OTR-C1V9','OTR-Z6S3','OTR-DEV'];
+function ensureTesterGate() {
+  try { if (localStorage.getItem('otr_tester_ok') === '1') return; } catch(e) { return; }
+  var ov = document.createElement('div');
+  ov.id = 'tester-gate';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:98;background:rgba(15,8,12,0.96);display:flex;align-items:center;justify-content:center;padding:28px;';
+  ov.innerHTML = '<div style="background:#fff8f5;border-radius:16px;max-width:340px;width:100%;padding:26px 22px;text-align:center">' +
+    '<div style="font-size:30px">🎟️</div>' +
+    '<div style="font-size:16px;font-weight:700;color:#3a2e33;margin-top:10px;line-height:1.6">封闭测试中<br><span style="font-size:13px;font-weight:400">Closed beta — invite only.</span></div>' +
+    '<div style="font-size:13px;color:#8a8078;margin-top:8px;line-height:1.7">请输入你的测试码<br>Enter your tester code</div>' +
+    '<input id="tg-input" type="text" autocomplete="off" autocapitalize="characters" style="margin-top:14px;width:100%;box-sizing:border-box;padding:11px;border:2px solid rgba(196,96,122,0.35);border-radius:10px;font-size:15px;text-align:center;letter-spacing:2px;outline:none" placeholder="OTR-XXXX">' +
+    '<button id="tg-go" style="margin-top:12px;width:100%;padding:13px;border:none;border-radius:10px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">进入 · Enter</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('tg-go').onclick = function(){
+    var v = (document.getElementById('tg-input').value || '').trim().toUpperCase();
+    if (TESTER_CODES.indexOf(v) >= 0) {
+      try { localStorage.setItem('otr_tester_ok', '1'); localStorage.setItem('otr_tester_code', v); } catch(e){}
+      ov.remove();
+    } else {
+      alert('测试码不对，请联系开发者获取。\nInvalid code — please contact the developer.');
+    }
+  };
+  document.getElementById('tg-input').addEventListener('keydown', function(e){ if (e.key === 'Enter') document.getElementById('tg-go').click(); });
 }
 
 // ── AI内容举报（上架合规·四件套之一，Google Play 对AI生成内容的硬性要求）：
@@ -2660,21 +2690,26 @@ function copySyncCode() {
   try { navigator.clipboard.writeText(getDeviceId()); alert(isZh?'同步码已复制——抄在安全的地方，这是找回进度的唯一凭证。':'Sync code copied — keep it safe; it is the only key to your progress.'); }
   catch(e) { prompt(isZh?'手动复制：':'Copy:', getDeviceId()); }
 }
-async function restoreBySyncCode() {
-  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  var code = (document.getElementById('sync-code-input').value || '').trim();
-  if (code.length < 8) { alert(isZh?'请输入完整同步码':'Enter the full sync code'); return; }
-  if (code === getDeviceId()) { alert(isZh?'这已经是本机的同步码':'That is already this device\'s code'); return; }
+// 核心恢复流程（设置页和标题页共用）：语言可能还没选，提示一律中英双语
+async function adoptSyncCode(code) {
+  code = (code || '').trim();
+  if (code.length < 8) { alert('请输入完整同步码 / Enter the full sync code'); return; }
+  if (code === getDeviceId()) { alert('这已经是本机的同步码 / That is already this device\'s code'); return; }
   try {
     const r = await fetch(WORKER + '/save', { headers: { 'X-Device-Id': code } });
     const data = await r.json();
-    if (!(data && data.player && data.player.name)) { alert(isZh?'没有找到该同步码对应的云端进度':'No cloud save found for that code'); return; }
-    if (!confirm(isZh ? '找到进度：' + data.player.name + ' · 第' + (data.day||1) + '天。\n将【覆盖】本机当前进度并改用该同步码，确定？'
-      : 'Found: ' + data.player.name + ' · Day ' + (data.day||1) + '.\nThis will REPLACE this device\'s progress and adopt that code. Continue?')) return;
+    if (!(data && data.player && data.player.name)) { alert('没有找到该同步码对应的云端进度\nNo cloud save found for that code'); return; }
+    if (!confirm('找到进度 Found: ' + data.player.name + ' · Day ' + (data.day||1) + '\n将【覆盖】本机当前进度并改用该同步码。\nThis will REPLACE this device\'s progress. Continue?')) return;
     localStorage.setItem('otr_device_id_beta', code);
     localStorage.setItem('otr_save_v2_beta', JSON.stringify(data));
     location.reload(); // 重载后走 loadGame 原地合并；此后本机以该同步码继续云同步
-  } catch(e) { alert(isZh?'网络错误，稍后再试':'Network error — try again later'); }
+  } catch(e) { alert('网络错误，稍后再试 / Network error — try again later'); }
+}
+async function restoreBySyncCode() { await adoptSyncCode(document.getElementById('sync-code-input').value); }
+// 标题页入口：开局前就能找回（换新手机的测试者不用先开新档）
+async function titleSyncRestore() {
+  var code = prompt('输入你的同步码 / Enter your sync code:');
+  if (code) await adoptSyncCode(code);
 }
 // 存玩家生日（月/日）：生日当天 startDay 里触发特别问候/安排
 function setBirthday() {
@@ -8998,13 +9033,14 @@ window.addEventListener('load', () => {
   applyLang();
   setupTitleButtons();
   ensureAgeGate(); // 年龄门（上架合规）：首次启动18+确认
+  ensureTesterGate(); // 测试码门（封测期）：有码才能进；封测结束删这一行即全开
   // "开始新游戏"走的是"清档→reload→到这里"（sessionStorage 标记）：此刻已是 100% 干净状态
   // （无存档、所有模块级JS变量随整页重载复位、云端恢复已跳过），直接进设置流程。
   try { if (_freshStart) { sessionStorage.removeItem('otr_start_fresh'); go('s-lang'); } } catch(e){}
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.92 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.93 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
