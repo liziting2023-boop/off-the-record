@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.91"></script>
-<script src="state.js?v=11.91"></script>
+<script src="story.js?v=11.92"></script>
+<script src="state.js?v=11.92"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -515,7 +515,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-p" id="btn-continue" onclick="continueGame()" style="display:none">Continue</button>
     <button class="btn-p" id="btn-begin" onclick="startNewGame()">Begin</button>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.91 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.92 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1090,13 +1090,32 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     </div>
     <p id="settings-profile" style="font-size:11px;letter-spacing:1px;color:rgba(138,128,120,0.75);text-align:center;margin-top:10px"></p>
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
-    <!-- 上架合规：隐私政策 + 反馈/举报入口（商店审核要求可发现的路径） -->
-    <div style="text-align:center;margin-top:18px;font-size:12px">
-      <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">隐私政策 · Privacy Policy</a>
-      <span style="color:rgba(138,128,120,0.4)"> | </span>
-      <a href="mailto:otr.help@wiiboox.com?subject=Off%20the%20Record%20feedback" style="color:#8a8078">反馈/举报 · Feedback</a>
+    <!-- 上架合规：隐私政策 + 反馈邮箱（纯文本展示，不做一键发信——用户定稿）+ 测试期问卷/诊断入口 -->
+    <div style="text-align:center;margin-top:18px;font-size:12px;line-height:2">
+      <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">隐私政策 · Privacy Policy</a><br>
+      <span style="color:#8a8078">反馈/举报邮箱 Feedback: <b style="user-select:all">otr.help@wiiboox.com</b></span>
+      <div id="fb-form-row" style="display:none;margin-top:8px">
+        <button class="btn-t" onclick="openFeedbackForm()" style="font-size:12px">📝 填写反馈问卷 · Feedback Survey</button>
+      </div>
+      <div style="margin-top:6px">
+        <button class="btn-t" onclick="copyDiagInfo()" style="font-size:12px">📋 复制诊断信息 · Copy debug info</button>
+      </div>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.91 · BETA (realtime)</p>
+    <!-- 同步码（测试期核心）：防丢档 + 跨设备找回进度 -->
+    <div style="margin-top:16px;text-align:center">
+      <div class="settings-section-title">SYNC CODE 同步码</div>
+      <p style="font-size:11px;color:var(--ink-muted);margin:4px 0 8px">抄下同步码，换手机或丢进度时可找回云端进度<br>Save this code — restore your progress on any device</p>
+      <div id="sync-code-display" style="font-size:13px;letter-spacing:1px;color:var(--text-dark);user-select:all;word-break:break-all;padding:0 24px"></div>
+      <button class="btn-t" onclick="copySyncCode()" style="font-size:12px;margin-top:6px">复制同步码 · Copy</button>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;align-items:center;padding:0 24px">
+        <input id="sync-code-input" type="text" autocomplete="off" placeholder="输入同步码找回进度 / paste code" style="flex:1;max-width:250px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none">
+        <button class="btn-t" onclick="restoreBySyncCode()" style="font-size:12px">找回 · Restore</button>
+      </div>
+      <div style="margin-top:10px">
+        <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="测试码(选填) Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim())}catch(e){}" style="width:190px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none;text-align:center">
+      </div>
+    </div>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.92 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2614,7 +2633,48 @@ function openSettings() {
     if (m) m.value = G.player.birthMonth || '';
     if (d) d.value = G.player.birthDay || '';
   })();
+  // 同步码/测试码/问卷入口（测试期）
+  try {
+    var scd = document.getElementById('sync-code-display'); if (scd) scd.textContent = getDeviceId();
+    var tci = document.getElementById('tester-code-input'); if (tci) tci.value = localStorage.getItem('otr_tester_code') || '';
+    var ffr = document.getElementById('fb-form-row'); if (ffr) ffr.style.display = FEEDBACK_FORM_URL ? 'block' : 'none';
+  } catch(e){}
   go('s-settings');
+}
+// ── 测试期反馈问卷（Google Form 链接；留空则按钮不显示）。打开前静默复制诊断信息方便粘贴 ──
+const FEEDBACK_FORM_URL = '';
+function openFeedbackForm() { try { copyDiagInfo(true); } catch(e){} if (FEEDBACK_FORM_URL) window.open(FEEDBACK_FORM_URL, '_blank'); }
+function diagInfoStr() {
+  var tc = ''; try { tc = localStorage.getItem('otr_tester_code') || ''; } catch(e){}
+  var vt = ''; try { vt = (document.getElementById('ver-tag-settings').textContent.match(/v[\d.]+/) || [''])[0]; } catch(e){}
+  return vt + ' · Day ' + (G.day || '-') + ' · ' + (G.lang || '-') + (tc ? ' · tester ' + tc : '') + ' · id ' + String(getDeviceId()).slice(0, 8);
+}
+function copyDiagInfo(silent) {
+  var s = diagInfoStr(); var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  try { navigator.clipboard.writeText(s); if (!silent) alert((isZh?'已复制，粘贴到问卷或邮件里即可：\n':'Copied — paste it into the survey/email:\n') + s); }
+  catch(e) { prompt(isZh?'手动复制：':'Copy:', s); }
+}
+// ── 同步码：设备ID即身份。复制留存；输入他人/旧机的码=接管那份云端进度（覆盖本机） ──
+function copySyncCode() {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  try { navigator.clipboard.writeText(getDeviceId()); alert(isZh?'同步码已复制——抄在安全的地方，这是找回进度的唯一凭证。':'Sync code copied — keep it safe; it is the only key to your progress.'); }
+  catch(e) { prompt(isZh?'手动复制：':'Copy:', getDeviceId()); }
+}
+async function restoreBySyncCode() {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var code = (document.getElementById('sync-code-input').value || '').trim();
+  if (code.length < 8) { alert(isZh?'请输入完整同步码':'Enter the full sync code'); return; }
+  if (code === getDeviceId()) { alert(isZh?'这已经是本机的同步码':'That is already this device\'s code'); return; }
+  try {
+    const r = await fetch(WORKER + '/save', { headers: { 'X-Device-Id': code } });
+    const data = await r.json();
+    if (!(data && data.player && data.player.name)) { alert(isZh?'没有找到该同步码对应的云端进度':'No cloud save found for that code'); return; }
+    if (!confirm(isZh ? '找到进度：' + data.player.name + ' · 第' + (data.day||1) + '天。\n将【覆盖】本机当前进度并改用该同步码，确定？'
+      : 'Found: ' + data.player.name + ' · Day ' + (data.day||1) + '.\nThis will REPLACE this device\'s progress and adopt that code. Continue?')) return;
+    localStorage.setItem('otr_device_id_beta', code);
+    localStorage.setItem('otr_save_v2_beta', JSON.stringify(data));
+    location.reload(); // 重载后走 loadGame 原地合并；此后本机以该同步码继续云同步
+  } catch(e) { alert(isZh?'网络错误，稍后再试':'Network error — try again later'); }
 }
 // 存玩家生日（月/日）：生日当天 startDay 里触发特别问候/安排
 function setBirthday() {
@@ -8944,7 +9004,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.91 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.92 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
