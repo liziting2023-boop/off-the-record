@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.94"></script>
-<script src="state.js?v=11.94"></script>
+<script src="story.js?v=11.95"></script>
+<script src="state.js?v=11.95"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -517,7 +517,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.94 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.95 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1114,10 +1114,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <button class="btn-t" onclick="restoreBySyncCode()" style="font-size:12px">找回 · Restore</button>
       </div>
       <div style="margin-top:10px">
-        <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="测试码(选填) Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim())}catch(e){}" style="width:190px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none;text-align:center">
+        <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="测试码(选填) Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim());G._testerCode=this.value.trim();STATE.save.saveGame()}catch(e){}" style="width:190px;background:rgba(255,255,255,0.8);border:2px solid rgba(196,96,122,0.3);border-radius:12px;padding:8px 10px;font-size:12px;outline:none;text-align:center">
       </div>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.94 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.95 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1799,6 +1799,7 @@ function ensureTesterGate() {
     var v = (document.getElementById('tg-input').value || '').trim().toUpperCase();
     if (TESTER_CODES.indexOf(v) >= 0) {
       try { localStorage.setItem('otr_tester_ok', '1'); localStorage.setItem('otr_tester_code', v); } catch(e){}
+      try { if (typeof G !== 'undefined' && G) { G._testerCode = v; STATE.save.saveGame(); } } catch(e){} // 写进存档→云端metadata→/admin面板识人
       ov.remove();
     } else {
       alert('Invalid code — please contact the developer for access.');
@@ -9034,15 +9035,17 @@ window.addEventListener('load', () => {
   })();
   applyLang();
   setupTitleButtons();
-  ensureAgeGate(); // 年龄门（上架合规）：首次启动18+确认
+  ensureAgeGate(); // 年龄门（上架合规）：首次启动17+确认
   ensureTesterGate(); // 测试码门（封测期）：有码才能进；封测结束删这一行即全开
+  // 测试码同步进存档（老进门的测试者也补上）：随下一次云同步写进 metadata → /admin 面板按码识人
+  try { var _tc0 = localStorage.getItem('otr_tester_code'); if (_tc0 && G._testerCode !== _tc0) G._testerCode = _tc0; } catch(e){}
   // "开始新游戏"走的是"清档→reload→到这里"（sessionStorage 标记）：此刻已是 100% 干净状态
   // （无存档、所有模块级JS变量随整页重载复位、云端恢复已跳过），直接进设置流程。
   try { if (_freshStart) { sessionStorage.removeItem('otr_start_fresh'); go('s-lang'); } } catch(e){}
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.94 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.95 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

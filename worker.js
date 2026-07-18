@@ -168,9 +168,47 @@ export default {
         if (text.length > 400000) {
           return new Response(JSON.stringify({ error: 'too_large' }), { status: 413, headers: cors() });
         }
-        await env.OTR_KV.put(key, text);
+        // 存档摘要写进 KV metadata（list 时免费带出）→ /admin 面板零成本展示测试者进度
+        let meta = null;
+        try {
+          const s = JSON.parse(text);
+          const npcs = {};
+          Object.keys(s.npcs || {}).forEach(k => {
+            const n = s.npcs[k];
+            if (n && n.met) npcs[k] = [n.relationship | 0, n.nights | 0];
+          });
+          meta = { tc: String(s._testerCode || '').slice(0, 12), n: String((s.player || {}).name || '').slice(0, 20), d: s.day | 0, ts: Date.now(), npc: npcs };
+          if (JSON.stringify(meta).length > 900) meta.npc = {}; // KV metadata 上限1KB，超了就丢好感明细保核心字段
+        } catch (e) {}
+        await env.OTR_KV.put(key, text, meta ? { metadata: meta } : undefined);
         return new Response(JSON.stringify({ ok: true }), { headers: cors() });
       }
+    }
+
+    // ── 测试者进度面板（封测期）：/admin?key=ADMIN_KEY → HTML表格 ──
+    // 展示每份云存档的：测试码/角色名/游戏天数/最后活跃/各NPC好感(·n=性行为次数)。
+    // 数据来自 /save PUT 时写的 metadata——部署后测试者下一次存档起才有数据。
+    if (path === '/admin') {
+      if (!env.ADMIN_KEY || url.searchParams.get('key') !== env.ADMIN_KEY) {
+        return new Response('forbidden', { status: 403 });
+      }
+      const list = await env.OTR_KV.list({ prefix: 'save:', limit: 1000 });
+      const rows = list.keys
+        .map(k => Object.assign({ id: k.name.slice(5, 13) }, k.metadata || {}))
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      const NPC_LABELS = { agent: 'Agent', drummer: 'Drummer', actor: 'Actor', detective: 'Detective', butler: 'Butler', rival: 'Rival', coffee: 'Barista', clerk: 'Clerk', trainer: 'Trainer', engineer: 'Engineer', runner: 'Runner', photog: 'Photog' };
+      const esc = t => String(t == null ? '' : t).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+      const trs = rows.map(r => {
+        const npcCells = Object.keys(r.npc || {}).map(k =>
+          esc(NPC_LABELS[k] || k) + ' <b>' + esc((r.npc[k] || [])[0]) + '</b>' + (((r.npc[k] || [])[1] | 0) > 0 ? ' 🌙' + esc(r.npc[k][1]) : '')
+        ).join(' · ');
+        const when = r.ts ? new Date(r.ts).toISOString().replace('T', ' ').slice(0, 16) + ' UTC' : '—';
+        return '<tr><td>' + esc(r.tc || '—') + '</td><td>' + esc(r.n || '—') + '</td><td>' + esc(r.d || '—') + '</td><td>' + when + '</td><td style="font-size:12px">' + (npcCells || '—') + '</td><td style="color:#999;font-size:11px">' + esc(r.id) + '</td></tr>';
+      }).join('');
+      const html = '<!doctype html><meta charset="utf-8"><title>OTR Testers</title><style>body{font-family:system-ui;margin:24px;background:#fdf6f8}h1{font-size:18px}table{border-collapse:collapse;width:100%;background:#fff}th,td{border:1px solid #eed7de;padding:8px 10px;text-align:left;font-size:13px;vertical-align:top}th{background:#f7e3ea}</style>' +
+        '<h1>Off the Record — Testers (' + rows.length + ')</h1>' +
+        '<table><tr><th>Code</th><th>Name</th><th>Day</th><th>Last active</th><th>Affection (🌙=nights)</th><th>Device</th></tr>' + trs + '</table>';
+      return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     }
 
     return new Response('Not found', { status: 404 });
