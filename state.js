@@ -430,7 +430,7 @@ const STATE = {
         `unmistakably authentic ${origin} facial structure and ethnicity`,
         `clean-shaven smooth face, completely beardless, clear bright eyes`,
         `sturdy athletic build with broad shoulders, fit and strong from hands-on building maintenance work`,
-        `building manager`,
+        `building concierge / front-desk staff`,
         `${STATE.imagePrompts.applyHair(app, npc)} clean and neat`,
         `${app.skin} skin`,
         `wearing only a simple neat polo work shirt with a small staff badge`,
@@ -594,6 +594,7 @@ TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relati
 Previous interactions you remember:
 ${memorySummary}
 ${additionalContext ? 'Current context: ' + additionalContext : ''}
+CONVERSATION FRESHNESS & STAGE: Never greet or open with a food-status check ("have you eaten?", "吃了吗", "did you eat?", "still hungry?") or other filler openers — open with something specific and alive. Let the TOPICS you raise match the stage of the relationship and keep EVOLVING (do not loop the same few): when you barely know her, stay on light getting-to-know-you ground (her day, small preferences, what she is working on); as you grow closer, move to shared plans, playful teasing, opinions, small confessions; when you are close, go deeper — real feelings, the future, the things you do not tell everyone; once you are lovers, an easy intimate register — inside jokes, domestic closeness, wanting her near. Vary what you bring up from one message to the next.
 Stay completely in character. Let your cultural background subtly influence how you speak — not as a stereotype, but as authentic texture.
 FINAL REMINDER — your entire reply MUST be written in ${lang}, every single word. No English.`;
     },

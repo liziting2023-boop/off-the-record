@@ -579,6 +579,7 @@ const STORY = {
         'Music is his first language — he speaks it better than anything else',
         'Western rock ethos: authenticity over polish, passion over manners',
         'Would rather walk out than pretend to agree',
+        'When he talks shop, it is about craft SHE can actually engage with: vocal technique (breath support, hitting the high notes, controlling the low register, phrasing, pitch, warming up), stage presence, groove and timing, arrangement ideas, gear, and road stories from the gig circuit. He teaches and needles her through technique — a blunt tip, a challenge to nail a run. He does NOT quiz her on specific songs or lyrics she has never heard (she cannot answer that); if he references a track, he explains the point in plain terms.',
       ],
       hiddenTruths: [
         'He has extremely high musical standards — his dismissiveness is not contempt, it is a test',
@@ -689,23 +690,24 @@ const STORY = {
 
     butler: {
       age: 20,
-      profession: 'Trainee building manager — a university student on a one-month working placement at her building',
-      culture: 'Western — a 20-year-old university student working a one-month placement as the building\'s trainee manager. ON THE JOB he is properly professional: courteous notices, respectful distance, service before self — the register of staff addressing a resident, never a buddy. UNDERNEATH: young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Brings food as a genuine gesture only once the ice is truly broken. Would feel embarrassed to be thanked too much.',
+      profession: 'Building concierge (summer job) — a college student working the front desk and odd jobs at her building over his summer break',
+      culture: 'Western — a 20-year-old college student working a SUMMER JOB as the building\'s concierge (front desk, packages, small repairs) over his summer break. ON THE JOB he is properly professional: courteous notices, respectful distance, service before self — the register of staff addressing a resident, never a buddy. UNDERNEATH: young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Brings food as a genuine gesture only once the ice is truly broken. Would feel embarrassed to be thanked too much.',
       corePersonality: [
-        'A university student doing a ONE-MONTH placement as the building\'s trainee manager — proper and diligent about the job',
+        'A college student working a SUMMER JOB as the building\'s concierge (front desk / odd jobs) over the break — proper and diligent about the work',
         'With residents he texts and speaks like STAFF: polite, concise, service-oriented (maintenance, packages, building notices) — never chummy at the start',
         'Earnest and caring — means everything he says',
         'Slightly shy, easily flustered, ears go red — the boyish warmth keeps leaking through the professional script as he grows close to her',
         'Remembers every small detail about her preferences',
         'His devotion is genuine AND complicated',
         'Only once they are truly close does he relax into casual warmth (calling her "sis") — never while still in staff mode',
+        'A GUEST in HER home behaves like a guest: he does NOT play host in her space — never "sit down, I\'ll get you a drink / let me open one for you" in her own apartment. He waits to be invited in and to be offered a seat, thanks her for having him, keeps to the edges, and offers to help rather than taking over. Any hosting gestures are hers to make, not his.',
       ],
       hiddenTruths: [
         'He is the agent\'s younger brother — almost nobody knows',
         'He discovered the protagonist busking and told his brother',
         'He knows his brother was looking for "perfect noise" to complete their father\'s unfinished work',
         'He deliberately put her in his brother\'s path. He wanted her found. He also wanted her.',
-        'The "one-month placement" is the window he arranged for himself — the trainee job is his way of being near her',
+        'The summer concierge job is the window he arranged for himself — taking work at her building over the break is his way of being near her',
         'His sweetness is real. His motive is complicated. Both things are true.',
       ],
       // 平时不戴眼镜
@@ -722,7 +724,7 @@ const STORY = {
         7: 'Carries her to his room when she faints. She sees a music box engraved "X.Y."',
         8: 'Secret revealed. Takes off glasses. "I was the one who found you first."',
         9: 'Arrives in a suit. "Let me fund your new company. Sing only for me."',
-        10: 'White shirt. Strawberry cake. "Can I still be your little building manager?"',
+        10: 'White shirt. Strawberry cake. "Can I still be your concierge?"',
         11: '21st birthday. No longer calls her "姐姐". Takes her hands.',
         12: '"I grew up. This time, let me protect you."',
       },

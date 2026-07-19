@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.99"></script>
-<script src="state.js?v=11.99"></script>
+<script src="story.js?v=12.00"></script>
+<script src="state.js?v=12.00"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -528,7 +528,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.99 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.00 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1124,7 +1124,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.99 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.00 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1315,7 +1315,7 @@ const EARLY_TONE = {
   agent:   'You have only just started working together — professionally warm but composed and in charge, NOT personally familiar, gushing, or over-eager. Your care shows in small restrained gestures, not effusive texts.',
   drummer: 'You barely know her and she has NOT proven herself to you yet — stay blunt, cocky and a little standoffish. You do not hand out warmth for free. You NEVER whine, complain about your mood, or fish for sympathy — you are a proud musician, not a moper; if you text her it is about the music, the work, or a curt challenge.',
   actor:   'You only just met — smooth and lightly flirtatious but emotionally detached. Never earnest, eager, or clingy; you keep her at arm\'s length on purpose.',
-  butler:  'You are the building\'s TRAINEE manager on a one-month placement and she is a resident — text like STAFF, not like a friend: polite, concise, service-oriented notices and reminders (maintenance, packages, building matters), respectful register. NO chummy openers, no nicknames, no personal chit-chat unless SHE opens that door first.',
+  butler:  'You are the building\'s summer concierge (a college student working a summer job at the front desk) and she is a resident — text like STAFF, not like a friend: polite, concise, service-oriented notices and reminders (maintenance, packages, building matters), respectful register. NO chummy openers, no nicknames, no personal chit-chat unless SHE opens that door first.',
   rival:   'You are wary rivals, not friends — cool, competitive, a little sharp.',
   detective:'Reserved and businesslike; you keep your distance.',
 };
@@ -1517,7 +1517,7 @@ function day1Intro() {
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
-        'You are the building\'s NEW trainee manager (a university student on a one-month working placement) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new trainee building manager who will be serving the building for the next month, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
+        'You are the building\'s NEW summer concierge (a college student working a summer job at the front desk) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new concierge working the desk over the summer, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) {
         pushNpcMsg('butler', t.trim(), nowMin + 10);
         ensureSecondaryName('butler');
@@ -1717,7 +1717,7 @@ const NPC_ROLES = {
   drummer:  { 'zh-cn':'鼓手','zh-tw':'鼓手',ja:'ドラマー',ko:'드러머',en:'Drummer' },
   actor:    { 'zh-cn':'演员','zh-tw':'演員',ja:'俳優',ko:'배우',en:'Actor' },
   detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
-  butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Building Manager' },
+  butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Concierge' },
   rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
   coffee:   { 'zh-cn':'咖啡师','zh-tw':'咖啡師',ja:'バリスタ',ko:'바리스타',en:'Barista' },
   clerk:    { 'zh-cn':'便利店员','zh-tw':'便利店員',ja:'コンビニ店員',ko:'편의점 직원',en:'Store Clerk' },
@@ -1741,7 +1741,7 @@ const NPC_BIO = {
   agent:    { zh:'在街头发掘你、签下你的人。要求高，但比谁都信你。', en:'The man who found you busking and signed you. Demanding — and your biggest believer.', metZh:'雨夜的街头，他听完了你整场', metEn:'A rainy street at night — he stayed for your whole set' },
   drummer:  { zh:'你乐队的主心骨。嘴硬，耳朵毒，从不说软话。', en:'The backbone of your band. Sharp tongue, sharper ears, allergic to flattery.', metZh:'签约当天下午的录音室', metEn:'The studio, the afternoon you signed' },
   actor:    { zh:'当红演员。撩人是他的呼吸，真心藏在玩笑里。', en:'A rising actor. Flirting is how he breathes; the truth hides in his jokes.', metZh:'共用场地的杂志拍摄', metEn:'A shared magazine shoot' },
-  butler:   { zh:'来做一个月实习管家的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A university student on a one-month trainee placement managing your building. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
+  butler:   { zh:'趁暑假来你公寓做门房打工的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A college student working a summer job as your building\'s concierge. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
   rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
   detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
   coffee:   { zh:'楼下咖啡馆的咖啡师。话不多，记性好——第三次来他就记住了你的单。', en:'The barista downstairs. Few words, long memory — he knew your order by the third visit.', metZh:'楼下咖啡馆', metEn:'The café downstairs' },
@@ -1754,6 +1754,17 @@ const NPC_BIO = {
   fboy:     { zh:'商场里的搭讪惯犯。台词是背好的。', en:'A serial pickup artist working the mall. The lines are rehearsed.', metZh:'商场', metEn:'The mall' },
   thief:    { zh:'深夜街头凑得太近的男人。看好你的包。', en:'The man who stands too close on late-night streets. Watch your bag.', metZh:'深夜街头', metEn:'A late-night street' },
 };
+// 族裔值(如 'British')→ 当前语言可读名（用户反馈：资料卡没有"来自哪里"）。zh 标签与 AGENT_ORIGIN_VALS 同序。
+function originDisplayName(origin) {
+  if (!origin) return '';
+  // 混血值形如 'British×Italian'（见混血选项）——逐段翻译再拼
+  if (String(origin).indexOf('×') >= 0) {
+    return String(origin).split('×').map(function(o){ return originDisplayName(o.trim()); }).filter(Boolean).join(' × ');
+  }
+  var i = AGENT_ORIGIN_VALS.indexOf(origin);
+  if (i < 0) return origin;
+  try { var labels = t('agent_origins'); return (labels && labels[i]) || origin; } catch(e){ return origin; }
+}
 function openNpcProfile(npcKey) {
   if (!npcKey || !G.npcs[npcKey]) return;
   var npc = G.npcs[npcKey];
@@ -1782,7 +1793,8 @@ function openNpcProfile(npcKey) {
     '<div style="padding:14px 18px 18px">' +
     '<div style="font-size:19px;font-weight:700;color:#3a2e33">' + getNPCName(npcKey) + '</div>' +
     '<div style="font-size:13px;color:#8a8078;margin-top:2px">' + getNPCRole(npcKey, G.lang) + (ch.age ? ' · ' + ch.age + (isZh ? '岁' : '') : '') + '</div>' +
-    '<div style="font-size:12px;color:#8a8078;margin-top:10px">' + (isZh ? '相遇' : 'Met') + '：' + met + '</div>' +
+    (npc.origin ? '<div style="font-size:12px;color:#8a8078;margin-top:10px">' + (isZh ? '来自' : 'From') + '：' + originDisplayName(npc.origin) + '</div>' : '') +
+    '<div style="font-size:12px;color:#8a8078;margin-top:' + (npc.origin ? '4' : '10') + 'px">' + (isZh ? '相遇' : 'Met') + '：' + met + '</div>' +
     '<div style="font-size:13px;color:#3a2e33;line-height:1.7;margin-top:8px">' + (isZh ? (bio.zh || '') : (bio.en || '')) + '</div>' +
     '<div style="font-size:13px;color:#C4607A;margin-top:10px">' + hearts + ' ' + rel + '/100' + ((npc.nights || 0) > 0 ? ' 🌙' : '') + '</div>' +
     '</div></div>';
@@ -4797,7 +4809,7 @@ const T2_INTRO = {
   engineer: { zh:'录音室的调音台后，那个总是沉默的人。\n他给很多大牌混过音，从不提。\n今天，他摘下了耳机。', en:'Behind the studio console, the quiet one.\nHe has mixed for big names and never mentions it.\nToday, he takes off his headphones.' },
   runner:   { zh:'公园的跑道，同一个时间，同一个人。\n你们点头擦肩了好些天。\n今天，他慢下脚步，第一次开了口。', en:'The park loop, same hour, same man.\nYou have nodded past each other for days.\nToday, he slows, and speaks for the first time.' },
   photog:   { zh:'街角，一个拿着相机的男人。\n他不急着按快门，先看人。\n他朝你走来，问能不能拍你。', en:'A man with a camera at the corner.\nHe is in no hurry to shoot — he watches people first.\nHe comes over, and asks if he can take your picture.' },
-  butler:   { zh:'公寓大堂。\n那个来实习一个月的年轻楼管，正蹲在你的信箱前放着什么。\n听见你，他慌忙站起来。', en:'The apartment lobby.\nThe young trainee manager — here for just a month — is crouched at your mailbox, leaving something.\nHe scrambles up when he hears you.' },
+  butler:   { zh:'公寓大堂。\n那个暑假来打工的年轻门房，正蹲在你的信箱前放着什么。\n听见你，他慌忙站起来。', en:'The apartment lobby.\nThe young summer-job concierge is crouched at your mailbox, leaving something.\nHe scrambles up when he hears you.' },
 };
 // 二线首遇：先播介绍旁白 → 选族裔/发色 → 三选一 → 全屏立绘 → 进相遇场景（和一线出场一致）
 function _showSecondaryIntro(npcKey, locKey) {
@@ -6136,18 +6148,18 @@ function renderToneHints(container, inp, npcKey) {
   var toneLang = isZhOpt ? 'zh' : (G.lang==='ja' ? 'ja' : (G.lang==='ko' ? 'ko' : 'en'));
   var TONES = [
     { key:'tease',   label:{zh:'调侃他', en:'Tease him', ja:'からかう', ko:'놀리기'},
-      openers:{ zh:['你还真是','哟，这话说得','我要是当真了，你可','就你会说','嘴这么甜，练过吧','这话我记下了，以后'],
-                en:["Oh, you're really","Careful, that almost sounded","If I didn't know better, I'd","Look who's talking","Smooth. Did you rehearse that","I'm writing that one down, so"],
+      openers:{ zh:['你还真是','哟，这话说得','我要是当真了，你可','就你会说','嘴这么甜，练过吧','这话我记下了，以后','你这人真有意思','少来这套','行行行，算你会说','我怎么没发现你这么贫','你是不是对谁都这样','别以为我看不出来你在'],
+                en:["Oh, you're really","Careful, that almost sounded","If I didn't know better, I'd","Look who's talking","Smooth. Did you rehearse that","I'm writing that one down, so","You're something else","Don't try that on me","Okay okay, you win this one","When did you get so smooth","Do you say that to everyone, or","Don't think I can't tell you're"],
                 ja:['あなたって、ほんとに','へえ、その言い方','本気にしちゃったら','よく言うよ','口がうまいね、練習した'],
                 ko:['너 정말','어머, 그 말','진심으로 들으면 어쩌려고','말은 잘하네','입만 살았네'] } },
     { key:'sincere', label:{zh:'认真回应', en:'Be sincere', ja:'素直に', ko:'진심으로'},
-      openers:{ zh:['说实话，我','其实我一直','认真讲','我想了想，还是','有件事想告诉你','听你这么说，我'],
-                en:['Honestly, I',"Truth is, I've been",'I mean it','I thought about it, and','There is something I want to say','Hearing you say that, I'],
+      openers:{ zh:['说实话，我','其实我一直','认真讲','我想了想，还是','有件事想告诉你','听你这么说，我','跟你说件真心话','这话我只跟你讲','我不太会说，但','有时候我会想','别笑我——我真的','这段时间，我好像'],
+                en:['Honestly, I',"Truth is, I've been",'I mean it','I thought about it, and','There is something I want to say','Hearing you say that, I',"Can I be real with you for a second — I","This is just between us, but I","I'm not good at saying it, but","Sometimes I catch myself","Don't laugh, but I actually","Lately, I think I've been"],
                 ja:['正直に言うと、私','実はずっと','本音を言えば','考えたんだけど、やっぱり','聞いてほしいことがあって'],
                 ko:['솔직히 말하면, 나','사실 나 계속','진심인데','생각해봤는데, 역시','하고 싶은 말이 있어'] } },
     { key:'deflect', label:{zh:'转移话题', en:'Change subject', ja:'話をそらす', ko:'화제 돌리기'},
-      openers:{ zh:['先不聊这个','话说回来','这个待会儿再说，先','对了，我想问你','换个话题吧','你先别管这个，说说'],
-                en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me'],
+      openers:{ zh:['先不聊这个','话说回来','这个待会儿再说，先','对了，我想问你','换个话题吧','你先别管这个，说说','说到这个，我突然想起','别岔开——不过说真的','我更好奇的是','诶，问你个事','聊点开心的吧','趁我还记得，问你'],
+                en:["Let's not get into that",'Anyway','Hold that thought — first','Oh right, I meant to ask you','New topic','Never mind that — tell me',"Speaking of which, that reminds me","Wait, actually — what I really want to know is","I'm more curious about","Hey, random question —","Let's talk about something fun instead","Before I forget, tell me"],
                 ja:['その話はまた今度','それより','あとで聞くから、まず','そういえば、聞きたかったんだけど','話変えよう'],
                 ko:['그 얘긴 나중에','그것보다','잠깐, 그 전에','맞다, 물어보고 싶었는데','화제 좀 바꾸자'] } },
     // "挑逗他"（用户定稿 v11.57：原"更进一步"改名，内部键名沿用 stayover 保住全部亲密机制接线——
@@ -9145,7 +9157,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.99 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.00 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
