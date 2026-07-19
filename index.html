@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.03"></script>
-<script src="state.js?v=12.03"></script>
+<script src="story.js?v=12.04"></script>
+<script src="state.js?v=12.04"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -536,7 +536,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.03 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.04 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1132,7 +1132,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.03 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.04 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1415,6 +1415,7 @@ async function checkProactiveOnOpen() {
     if (k==='agent' && (isMorning||isNoon)) timeFit = 1.3;
     var _p9 = base * recency * timeFit * (0.7 + Math.random()*0.6);
     if (G.npcs[k]._careFollowup && G.day > G.npcs[k]._careFollowup.day) _p9 += 0.4; // 她昨天跟他倾诉过→他今天更可能主动来关心（Nomi做不到的"记得且主动"）
+    if (G.npcs[k]._confessed) _p9 += 0.2; // 正式恋人后更主动（用户定稿：表白后他会更主动找你）
     scored.push({ k:k, p: _p9 });
   });
   var _thr = (G.day <= 3 ? 0.1 : 0.16); // 门槛：不是每次打开都有人来
@@ -2680,6 +2681,11 @@ function goHome()       {
   // 重建行程按钮：状态可能已经变了（如见完经纪人、鼓手场景进行到一半），
   // 不重建的话首页还挂着早上的旧按钮（"去见经纪人"），点开就把已看过的场景重播一遍
   try { buildDayOpts(); } catch (e) {}
+  // 表白里程碑：刚表白完的场景收尾回到主页 → 弹"正式在一起"卡
+  if (_pendingConfessMilestone) { var _cm = _pendingConfessMilestone; _pendingConfessMilestone = null; setTimeout(function(){ try { showConfessMilestone(_cm); } catch(e){} }, 350); }
+  else { // 同居邀请（一次只弹一个）——里程碑那一屏不抢，下次回主页再弹
+    try { for (var _ck in G.npcs) { if (maybeCohabInvite(_ck)) break; } } catch(e){}
+  }
   // Day1 序章一播完回到主页 → 立刻触发开局消息节奏（经纪人+鼓手先发、管家+10min），不再等到夜里（用户定稿 c）
   if (REALTIME && G.day === 1 && G.scriptedDone && G.scriptedDone[1]) {
     try { day1Intro(); } catch (e) {}
@@ -6193,13 +6199,15 @@ function evalIntimacyTone(npcKey, day) {
   if (npcTier(npcKey) >= 3) { _vnLastTone = null; return; } // 三线走 tier3SceneEnd 的明确选择，绝不进浪漫亲密流程
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   if (_vnLastTone === 'confess' && !G.npcs[npcKey]._confessed) {
-    // 表白的系统反馈（用户问"怎么知道成没成"）：表白只在已亲密后解锁，所以没有"失败"结局——
-    // 他的台词=按人设方式的"接受"（鼓手的「我知道」就是他的yes）。系统层给明确落点：
-    // 好感+6、上扬音效、写进他的记忆——此后所有对话都以"心意已挑明"为前提展开。
+    // 表白后三件套（用户定稿"全都要"）：①里程碑时刻 ②正式恋人=称呼变亲昵+更主动+做"我们"的计划 ③高好感解锁同居邀请。
+    // 表白只在已亲密后解锁，所以没有"失败"结局——他的台词=按人设方式的"接受"。
     G.npcs[npcKey]._confessed = true;
+    G.npcs[npcKey]._loversSince = day; // 正式在一起的日子
     STATE.relationships.change(npcKey, 6);
     playSound('rel-up');
-    STATE.memory.addEvent(npcKey, 'Day ' + day + ': she told you, in real words, what you are to her — a true confession. You answered in your own way, and you both know now. From here on, what you two have is SPOKEN, not implied.', day);
+    STATE.memory.addEvent(npcKey, 'Day ' + day + ': she told you, in real words, what you are to her — a true confession, and you answered yes in your own way. You are officially together now — a couple, spoken and committed. From here on you call her by an affectionate pet name, you make "us" plans, and there is no more hesitation about what you two are.', day);
+    G.npcs[npcKey]._careFollowup = { day: day, note: 'you two just made it real — said out loud what you are to each other' }; // 次日更可能主动来暖场
+    _pendingConfessMilestone = npcKey; // 场景收尾回主页时弹"正式在一起"里程碑
   }
   var rel = G.npcs[npcKey].relationship || 0;
   var min = STAYOVER_MIN[npcKey] || 60;
@@ -6218,6 +6226,73 @@ function evalIntimacyTone(npcKey, day) {
     STATE.memory.addEvent(npcKey, 'On day ' + day + ' she invited you to take things further — way too soon for where you two stood. You turned it down in your own way, but it left a mark: bold, reckless, impossible to forget.', day);
   }
   _vnLastTone = null; // 消费掉：收尾和轮间不会重复结算
+}
+
+// 表白里程碑：场景收尾回主页时弹一张"你们正式在一起了"的卡（用户要的"表白后有事件发生"的落点）
+let _pendingConfessMilestone = null;
+function showConfessMilestone(npcKey) {
+  if (!npcKey || !G.npcs[npcKey]) return;
+  var npc = G.npcs[npcKey];
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var name = getNPCName(npcKey);
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:96;background:radial-gradient(circle at 50% 38%,rgba(196,96,122,0.35),rgba(15,8,12,0.94));display:flex;align-items:center;justify-content:center;padding:26px;';
+  var line1 = isZh ? '你们，正式在一起了' : "You're together now";
+  var line2 = isZh ? ('从今天起，你和' + name + '不再是"心照不宣"——\n心意说出了口，是恋人了。') : ('From today, you and ' + name + " aren't just implied —\nyou said it out loud. You're lovers now.");
+  var line3 = isZh ? '接下来 · 他会更主动、称呼会变、会和你许"我们"的将来；\n好感够深时，他会问你要不要住在一起。' : "From here · he'll be warmer and more forward, call you something tender, make plans as 'us';\nand when you're close enough, he'll ask you to move in together.";
+  var cont = isZh ? '继续' : 'Continue';
+  ov.innerHTML = '<div style="background:#fff8f5;border-radius:20px;max-width:340px;width:100%;padding:22px 22px 20px;text-align:center;box-shadow:0 18px 60px rgba(0,0,0,.5)">' +
+    (npc.portraitUrl ? '<img src="' + npc.portraitUrl + '" style="width:96px;height:128px;object-fit:cover;border-radius:14px;display:block;margin:0 auto 12px;box-shadow:0 6px 20px rgba(196,96,122,.4)">' : '') +
+    '<div style="font-size:30px;margin-bottom:2px">💞</div>' +
+    '<div style="font-size:19px;font-weight:800;color:#7A2442">' + line1 + '</div>' +
+    '<div style="font-size:13px;color:#5C1F35;line-height:1.7;margin-top:10px;white-space:pre-line">' + line2 + '</div>' +
+    '<div style="font-size:11.5px;color:#8a6070;line-height:1.7;margin-top:12px;white-space:pre-line;border-top:1px solid rgba(196,96,122,.2);padding-top:10px">' + line3 + '</div>' +
+    '<button id="cm-ok" style="margin-top:16px;width:100%;padding:12px;border:none;border-radius:12px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">' + cont + '</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('cm-ok').onclick = function(){ ov.remove(); };
+  ov.onclick = function(e){ if (e.target === ov) ov.remove(); };
+}
+
+// 同居邀请（表白后三件套之三）：正式恋人 + 好感很高 + 已同床≥2次 → 他提出搬到一起住，弹一次
+function maybeCohabInvite(npcKey) {
+  var npc = G.npcs[npcKey];
+  if (!npc || !npc._confessed || npc._cohabiting || npc._cohabOffered) return false;
+  if ((npc.relationship||0) < 92 || (npc.nights||0) < 2) return false;
+  if (npcTier(npcKey) >= 3) return false;
+  npc._cohabOffered = true;
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var name = getNPCName(npcKey);
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:96;background:radial-gradient(circle at 50% 40%,rgba(196,96,122,0.32),rgba(15,8,12,0.94));display:flex;align-items:center;justify-content:center;padding:26px;';
+  var head = isZh ? (name + ' 想和你住在一起') : (name + ' wants to live with you');
+  var body = isZh ? '「别每天两头跑了。搬来和我一起住吧——我想每天醒来，第一个看见的是你。」' : '"Stop going back and forth every day. Move in with me — I want you to be the first thing I see every morning."';
+  var yes = isZh ? '搬去一起住' : 'Move in together';
+  var no = isZh ? '还没准备好' : 'Not yet';
+  ov.innerHTML = '<div style="background:#fff8f5;border-radius:20px;max-width:340px;width:100%;padding:22px;text-align:center;box-shadow:0 18px 60px rgba(0,0,0,.5)">' +
+    (npc.portraitUrl ? '<img src="' + npc.portraitUrl + '" style="width:96px;height:128px;object-fit:cover;border-radius:14px;display:block;margin:0 auto 12px">' : '') +
+    '<div style="font-size:28px">🏡</div>' +
+    '<div style="font-size:18px;font-weight:800;color:#7A2442;margin-top:4px">' + head + '</div>' +
+    '<div style="font-size:13px;color:#5C1F35;line-height:1.7;margin-top:10px;font-style:italic">' + body + '</div>' +
+    '<button id="cohab-yes" style="margin-top:16px;width:100%;padding:12px;border:none;border-radius:12px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">' + yes + '</button>' +
+    '<button id="cohab-no" style="margin-top:8px;width:100%;padding:10px;border:1.5px solid rgba(138,128,120,.4);border-radius:12px;background:none;color:#8a8078;font-size:13px;cursor:pointer">' + no + '</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('cohab-yes').onclick = function(){
+    npc._cohabiting = true;
+    try { STATE.relationships.change(npcKey, 5); } catch(e){}
+    try { STATE.memory.addEvent(npcKey, 'Day ' + G.day + ': she said YES to moving in together. You share one home now — home means her.', G.day); } catch(e){}
+    try { playSound('rel-up'); } catch(e){}
+    try { STATE.save.saveGame(); } catch(e){}
+    ov.remove();
+  };
+  document.getElementById('cohab-no').onclick = function(){
+    npc._cohabOffered = false; // 还没准备好：以后还能再问
+    try { STATE.memory.addEvent(npcKey, 'Day ' + G.day + ': you asked her to move in; she is not ready yet, and you took it gracefully — no pressure.', G.day); } catch(e){}
+    try { STATE.save.saveGame(); } catch(e){}
+    ov.remove();
+  };
+  return true;
 }
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
@@ -9308,7 +9383,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.03 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.04 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

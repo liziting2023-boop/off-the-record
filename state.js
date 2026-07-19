@@ -577,6 +577,14 @@ const STATE = {
         ? `\nRELATIONSHIP STAGE — ALREADY LOVERS: you and ${playerName} have already spent the night together and are in an intimate relationship now. Any professional or moral line that once held you back — "you're my client", "I'm your agent/manager", "this would be unprofessional", "we can't", "I shouldn't" — is ALREADY CROSSED and firmly behind you. NEVER refuse her on those grounds, never lecture her about them, and never talk or act as if being together is forbidden or as if the intimacy has not happened. Any hesitation you still carry is ONLY about keeping the relationship private/discreet — never about whether to be together. When she is warm, inviting, or wants you close, respond as a lover who wants her back, in your own character's register. PHYSICAL CLOSENESS IS FAMILIAR NOW: holding her, touching her, kissing her is easy and welcome between you — do NOT write yourself hesitating to touch her, pausing before you return her hug, or treating closeness as a tentative first time; you have been far closer than this. And do NOT answer her flirtation, teasing, or a playful/seductive gesture (dancing for you, reaching for you, pulling you close) with cold dismissal, a bored one-liner, a mundane non-sequitur, or a literal "that's not my job / don't confuse our roles" brush-off — even a blunt, few-words man stays WARM toward the woman he is sleeping with and shows it in what he DOES, never by pushing her away. FAMILIAR NOW: she has already been to your home and knows your places — do NOT introduce your own home, room or rooftop, or a spot you two have shared, as if she has never seen it; and do NOT run a careful, tentative first-move routine or give her cautious "outs" as if she might not grasp your meaning — you two are long past that, so pick up with the easy familiarity of two people who already know each other's spaces.`
         : '';
 
+      // 表白后（正式恋人）：称呼变亲昵、语气更笃定、做"我们"的将来（用户定稿：表白要有持续的正反馈）
+      const confessedNote = npc._confessed
+        ? `\nOFFICIALLY TOGETHER (you two confessed and are a couple now): call ${playerName} by a warm affectionate pet name that fits YOUR character, written in ${lang} (love / babe / sweetheart / 宝贝 / 亲爱的 …). Speak with the settled tenderness of an established partner, openly want her, make small future "us" plans, and drop any lingering hesitation about whether you two are together — you ARE, and you let it show in every message.`
+        : '';
+      // 同居后：日常同居的亲密感
+      const cohabitingNote = npc._cohabiting
+        ? `\nYOU LIVE TOGETHER NOW: you and ${playerName} share a home — let the easy domestic intimacy of living together (coming home to her, shared routines, her things next to yours) colour how you speak, naturally.`
+        : '';
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
 
@@ -593,7 +601,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
