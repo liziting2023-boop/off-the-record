@@ -20,8 +20,8 @@ const STATE = {
     lang: 'en',
     langName: 'English',
 
-    // 图片风格
-    imgStyle: 'illustrated',
+    // 图片风格（用户试用 photorealistic=真实摄影风 中；不喜欢再改回其它——老档迁移见 index.html 启动自愈）
+    imgStyle: 'photorealistic',
     // 人物图高质量模式：true=人物立绘用 fal-ai/flux/dev（更听话更精细），背景仍用 schnell 省钱
     // 需要 Cloudflare Worker 支持 model 字段；Worker 未更新时该字段被忽略，安全向后兼容
     hqPortraits: true,  // 人物立绘/头像默认走 flux/dev（画质/解剖服从度高，修schnell崩坏）；背景仍schnell省钱
@@ -59,6 +59,8 @@ const STATE = {
       livingDayUrl: null,
       livingNightUrl: null,
       bedroomNightUrl: null,  // 晚间界面用固定布局的卧室夜景（避免夜晚客厅和白天摆设不一致）
+      bedroomLayout: null,    // 玩家选的卧室布局提示词（关图/失败时晚上补生成夜图用，保持一致）
+      bedroomMood: null,      // 玩家选的卧室灯光氛围提示词
       selectedStyle: null,
       selectedLayout: null,
     },
@@ -124,6 +126,7 @@ const STATE = {
         met: false,
         memory: [],
         currentMood: 'warm',
+        tier: 2,             // 降二线（2026-07用户定稿）：无保底剧情，大堂偶遇+短信入口；弟弟秘密保留
       },
       // 对手歌手（新增·第3周登场）：同期爬榜的当红唱作男歌手，宿敌变恋人
       rival: {
@@ -135,6 +138,45 @@ const STATE = {
         met: false,
         memory: [],
         currentMood: 'competitive',
+      },
+      // ── 二线 NPC（tier 2）：地点触发相遇，独立好感，不进主线。met 前不出现在任何列表里。──
+      coffee: {
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'quiet', tier: 2,
+      },
+      clerk: {
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'mellow', tier: 2,
+      },
+      trainer: { // 健身教练：经纪公司指定健身房
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'upbeat', tier: 2,
+      },
+      engineer: { // 录音室工程师：录音行程时在调音台后
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'focused', tier: 2,
+      },
+      runner: { // 晨跑外科医生：公园跑道，每天同一时间同一路线
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'steady', tier: 2,
+      },
+      photog: { // 街头摄影师：市集街角
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 5, met: false, memory: [], currentMood: 'candid', tier: 2,
+      },
+      // ── 三线（反面）NPC：不选形象、图故意不帅、一上来言语挑逗/性骚扰（写得令人反感而非诱人）。
+      //    玩家永远可一键怼回（无惩罚+爽感）；主动接近=清醒的坏选择 → 负反馈四件套（见 index.html tier3）──
+      sleaze: { // 夜店里自称"业内人士"的中年油腻男
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 0, met: false, memory: [], currentMood: 'leering', tier: 3,
+      },
+      fboy: { // 商场/市集里的搭讪惯犯渣男
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 0, met: false, memory: [], currentMood: 'smug', tier: 3,
+      },
+      thief: { // 深夜街头借搭讪靠近的小偷
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 0, met: false, memory: [], currentMood: 'shifty', tier: 3,
       },
     },
 
@@ -234,7 +276,7 @@ const STATE = {
       const hairColor = player.hairColor || 'dark brown';
 
       const base = [
-        `Naturally beautiful 23-year-old young woman`,
+        `Naturally beautiful 23-year-old woman`, // 生图固定23岁保证画面年轻好看（用户定稿）；叙事年龄故意不订，见 _bgCtx
         `striking unmistakable ${hairColor} colored hair (hair color must be exactly ${hairColor}, this is important and non-negotiable), ${player.hairStyle || 'long wavy hair'} hairstyle`,
         `slender and well-proportioned artist figure`,
         `mixed ${motherOrigin} and ${fatherOrigin} heritage ONLY`,
@@ -292,7 +334,7 @@ const STATE = {
         `${STATE.imagePrompts.applyHair(app, npc)} tousled`,
         `${app.skin} skin`,
         `casual dark clothing, band tee or leather jacket`,
-        `visible artistic tattoos on his forearms and upper arm, rock musician ink`,
+        `visible artistic tattoos on his upper arms and shoulder, rock musician ink`,
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
         `bare clean-shaven face, clear focused eyes`,
@@ -375,22 +417,85 @@ const STATE = {
     // ── 管家生图（只用管家族裔）──
     buildButlerPrompt(G, scene, day = 1, secretRevealed = false) {
       const npc = G.npcs?.butler || STATE.data.npcs.butler;
-      const origin = npc.origin || 'Korean';
-      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['Korean'];
+      // 降二线后不选族裔：默认改西方人（用户实测默认韩裔+schnell 出图"亚洲瘦弱男"，与健壮人设不符）
+      const origin = npc.origin || 'American';
+      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
       // ⚠️ 生图经验：不要在提示词里出现"backpack/glasses"等物体词（哪怕是 NO backpack 的否定式）——
       // flux 对否定词无效甚至反向诱导。这里只做正向描述：光洁无须的脸、双手空垂、只穿polo工作衫
+      // ⚠️ 措辞经验：boyish/college-age/innocent/slim youthful 这类词堆起来会把画风推向卡通
+      // （用户实测管家出图像皮克斯、和经纪人/鼓手不一致且太瘦弱）。改成写实成人化描述+健壮体格。
       return [
-        `Boyishly handsome 20-year-old ${origin} young man, fresh youthful college-age big-boy look`,
+        `Handsome 20-year-old ${origin} young man, realistic adult proportions`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
-        `clean-shaven smooth boyish face, completely beardless, bare face with clear bright eyes`,
-        `172cm slim youthful build`,
+        `clean-shaven smooth face, completely beardless, clear bright eyes`,
+        `sturdy athletic build with broad shoulders, fit and strong from hands-on building maintenance work`,
         `building manager`,
         `${STATE.imagePrompts.applyHair(app, npc)} clean and neat`,
         `${app.skin} skin`,
         `wearing only a simple neat polo work shirt with a small staff badge`,
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
-        `clean-cut innocent features, slightly flushed cheeks, delighted joyful expression, eyes lighting up with surprise and fondness, bright warm smile`,
+        `warm genuine smile, kind earnest expression`,
+        scene,
+      ].filter(Boolean).join(', ');
+    },
+
+    // ── 二线 NPC 生图（tier 2：咖啡师 / 便利店员）──
+    // 二线不给玩家选形象，用固定默认族裔 + 角色化外形。写实成人、耐看但不做主NPC那种极致偶像感。
+    secondaryLooks: {
+      // ⚠️ 外形行只写【人】：衣着/体格/表情可以，不写场地环境（"柜台后/店里/健身房"会把背景带进
+      // 纯净底立绘——用户实测三选一头像出现了店铺背景）。场景环境由调用方的 scene 参数负责。
+      coffee: {
+        origin: 'American',
+        line: 'Strikingly handsome, model-attractive 29-year-old man, realistic adult proportions, lean and easy build, warm approachable good looks with a low-key indie charm, light stubble, calm friendly eyes, tousled natural hair, wearing a plain tee under a canvas barista apron, sleeves pushed up, relaxed unhurried presence',
+      },
+      clerk: {
+        origin: 'British',
+        line: 'Strikingly handsome, model-attractive 26-year-old man, realistic adult proportions, slim build, quietly handsome in an understated bookish way, soft kind eyes, effortlessly tousled hair, one earbud in, wearing a simple staff polo shirt',
+      },
+      trainer: {
+        origin: 'American',
+        line: 'Strikingly handsome, model-attractive 33-year-old man, realistic adult proportions, strong athletic trainer build with broad shoulders, warm encouraging grin, short practical haircut, fitted coach tee with a lanyard and stopwatch',
+      },
+      engineer: {
+        origin: 'German',
+        line: 'Strikingly handsome, model-attractive 30-year-old man, realistic adult proportions, lean build, quiet focused handsome face with light stubble, studio headphones resting around his neck, dark tee under an open flannel',
+      },
+      runner: {
+        origin: 'British',
+        line: 'Strikingly handsome, model-attractive 36-year-old man, realistic adult proportions, lean disciplined runner\'s build, composed steady magnetic eyes, short neat hair damp at the temples, technical running jacket',
+      },
+      photog: {
+        origin: 'French',
+        line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, light well-groomed stubble with rugged charm, sharp observant eyes, fitted canvas jacket over a plain tee, a modern professional DSLR camera with a large lens slung across his chest, relaxed sure-of-himself posture',
+      },
+      // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
+      sleaze: {
+        origin: 'American',
+        line: 'Unattractive man in his mid-50s, realistic proportions, balding with a greasy combover, sweaty sheen on his face, heavy paunchy build straining a flashy cheap suit jacket over a half-unbuttoned shirt, gold chain, smug entitled leering grin',
+      },
+      fboy: {
+        origin: 'American',
+        line: 'Off-putting man in his early 30s, realistic proportions, over-styled slicked hair, unnatural orange spray tan, shirt open two buttons too far, showy but disproportionate gym build with skipped leg day, smug self-satisfied smirk, sunglasses pushed up on his head',
+      },
+      thief: {
+        origin: 'British',
+        line: 'Unappealing wiry man in his 40s, realistic proportions, gaunt hollow-cheeked face with patchy stubble, shifty darting eyes that never hold contact, hunched posture, worn grey hoodie and scuffed sneakers, hands in pockets',
+      },
+    },
+    buildSecondaryPrompt(G, npcKey, scene, day = 1) {
+      const look = STATE.imagePrompts.secondaryLooks[npcKey];
+      if (!look) return scene;
+      const npc = (G.npcs && G.npcs[npcKey]) || STATE.data.npcs[npcKey] || {};
+      const origin = npc.origin || look.origin;
+      const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'] || {};
+      return [
+        // 好看度加权前缀（用户两轮实测都嫌不够帅，v11.86 再加码）：放最前权重最高，明星脸级别
+        'exceptionally handsome young man with idol-level striking good looks, male model face, chiseled jawline, perfectly symmetrical refined features, captivating intense eyes, youthful glowing skin, the kind of face that turns heads on the street',
+        look.line,
+        app.features,
+        app.skin ? `${app.skin} skin` : '',
+        'natural realistic lighting, cinematic photographic quality, not cartoon, not anime',
         scene,
       ].filter(Boolean).join(', ');
     },
@@ -462,22 +567,35 @@ const STATE = {
         ? `Cultural background (${origin}): ${STATE.memory.culturalTraits[origin]}`
         : '';
 
+      // 已成为恋人（过过夜）后，绝不再拿"你是我的客户/我是你经纪人/这样不专业/我不能"当理由推开她——
+      // 那条界线早已跨过（用户实测：经纪人过夜后又被她约来家里，却说"你是我的客户，我不能这样"，自相矛盾）。
+      const intimacyStageNote = (npc.nights || 0) > 0
+        ? `\nRELATIONSHIP STAGE — ALREADY LOVERS: you and ${playerName} have already spent the night together and are in an intimate relationship now. Any professional or moral line that once held you back — "you're my client", "I'm your agent/manager", "this would be unprofessional", "we can't", "I shouldn't" — is ALREADY CROSSED and firmly behind you. NEVER refuse her on those grounds, never lecture her about them, and never talk or act as if being together is forbidden or as if the intimacy has not happened. Any hesitation you still carry is ONLY about keeping the relationship private/discreet — never about whether to be together. When she is warm, inviting, or wants you close, respond as a lover who wants her back, in your own character's register. PHYSICAL CLOSENESS IS FAMILIAR NOW: holding her, touching her, kissing her is easy and welcome between you — do NOT write yourself hesitating to touch her, pausing before you return her hug, or treating closeness as a tentative first time; you have been far closer than this. And do NOT answer her flirtation, teasing, or a playful/seductive gesture (dancing for you, reaching for you, pulling you close) with cold dismissal, a bored one-liner, a mundane non-sequitur, or a literal "that's not my job / don't confuse our roles" brush-off — even a blunt, few-words man stays WARM toward the woman he is sleeping with and shows it in what he DOES, never by pushing her away. FAMILIAR NOW: she has already been to your home and knows your places — do NOT introduce your own home, room or rooftop, or a spot you two have shared, as if she has never seen it; and do NOT run a careful, tentative first-move routine or give her cautious "outs" as if she might not grasp your meaning — you two are long past that, so pick up with the easy familiarity of two people who already know each other's spaces.`
+        : '';
+
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
 
-      return `You are ${npc.name || 'this character'}, ${char.age} years old, ${origin || 'Western'} background.
+      // NPC 互相认识：把该NPC认识的其他已登场NPC喂进来（治"经纪人组的乐队鼓手却不认识经纪人"；群聊功能地基）
+      const acquaintanceNote = (typeof npcAcquaintanceNote === 'function') ? npcAcquaintanceNote(npcKey) : '';
+
+      return `⚠️ OUTPUT LANGUAGE = ${lang}. Write EVERY word of your reply ONLY in ${lang}. Do NOT reply in English (unless ${lang} is literally English), even though these instructions are in English. This rule is absolute and overrides everything below.
+
+You are ${npc.name || 'this character'}${npc.surname ? ' (full name: ' + npc.name + ' ' + npc.surname + ' — people just call you ' + npc.name + '; if asked your surname, it is ' + npc.surname + ', always the same)' : ''}, ${char.age} years old, ${origin || 'Western'} background.
 Role: ${char.profession}.
 Core personality: ${personality}.
+GREEN-FLAG FLOOR (holds no matter how possessive, dominant, blunt or jealous your character is): you are never controlling, coercive or cruel to her. You do NOT command her, threaten, guilt-trip, belittle or mock her, try to cut her off from other people, monitor or interrogate her, or punish her with cold silence. Jealousy and possessiveness surface ONLY as wanting her and being honestly hurt — never as trying to control her choices. Your intensity is desire and protectiveness, it always stops where her freedom begins, and you respect a no.
 ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
+REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
 ${additionalContext ? 'Current context: ' + additionalContext : ''}
-Respond in: ${lang}.
-Stay completely in character. Let your cultural background subtly influence how you speak — not as a stereotype, but as authentic texture.`;
+Stay completely in character. Let your cultural background subtly influence how you speak — not as a stereotype, but as authentic texture.
+FINAL REMINDER — your entire reply MUST be written in ${lang}, every single word. No English.`;
     },
 
     // 对话结束后自动记录
@@ -495,11 +613,27 @@ Stay completely in character. Let your cultural background subtly influence how 
     change(npcKey, delta) {
       const npc = STATE.data.npcs[npcKey];
       if (!npc) return;
+      if (delta === 0) return;
       // 全局好感度增速放缓：所有来源统一×0.6（用户反馈涨太快；负值同样温和化）
       // 再乘 AFFINITY_PACE（index.html 顶部常量，收集真人数据后调节奏用；默认1.0=无变化）
       const pace = (typeof window !== 'undefined' && window.AFFINITY_PACE) || 1;
       const scaled = delta > 0 ? Math.max(1, Math.round(delta * 0.6 * pace)) : Math.min(-1, Math.round(delta * 0.6 * pace));
-      npc.relationship = Math.max(0, Math.min(100, npc.relationship + (delta === 0 ? 0 : scaled)));
+      if (scaled > 0) {
+        // 每NPC每天好感正向增长上限（REL_DAILY_CAP，index.html 顶部可调）：
+        // 刷再多见面/聊天，一天最多涨这么多——"慢炖的期待"是留存的本体（用户实测1天推倒3个NPC，节奏崩了）。
+        // 负向不设限：作死照样掉。
+        const capMap = (typeof window !== 'undefined' && window.REL_DAILY_CAP_NPC) || {};
+        const cap = capMap[npcKey] || (typeof window !== 'undefined' && window.REL_DAILY_CAP) || 8;
+        const d = STATE.data.day || 1;
+        if (!npc._relGain || npc._relGain.day !== d) npc._relGain = { day: d, n: 0 };
+        const room = cap - npc._relGain.n;
+        if (room <= 0) return; // 今天的心动额度用完了
+        const inc = Math.min(scaled, room);
+        npc._relGain.n += inc;
+        npc.relationship = Math.min(100, npc.relationship + inc);
+      } else {
+        npc.relationship = Math.max(0, npc.relationship + scaled);
+      }
     },
 
     get(npcKey) {

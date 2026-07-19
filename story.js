@@ -206,7 +206,7 @@ const STORY = {
     agent_office: {
       isOutdoor: false,
       isPublic: false,
-      composition: 'inside sleek modern high-rise office, floor-to-ceiling windows with city skyline, glass desk, minimalist luxury interior',
+      composition: 'inside a sleek modern corporate high-rise executive office, floor-to-ceiling windows with city skyline, glass desk, office chairs, minimalist luxury business interior — strictly a business office, NOT a music room, no piano, no instruments, no recording gear',
     },
     recording_studio: {
       isOutdoor: false,
@@ -242,6 +242,36 @@ const STORY = {
       isOutdoor: false,
       isPublic: true,
       composition: 'intimate café, sitting alone at a small table with a coffee cup, soft warm lighting, solo portrait, NO other people in frame, NO other customers visible',
+    },
+    convenience_store: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a small 24-hour convenience store late at night, bright fluorescent lighting, rows of snacks and a fridge wall glowing, quiet empty aisles, the counter by the window with dark street outside',
+    },
+    night_run: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'a riverside running path at night, string of warm street lamps reflecting on dark water, city skyline glowing across the river, empty path with soft pools of light, cool night air atmosphere',
+    },
+    bowling_alley: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a retro bowling alley at night, glowing lanes stretching away, neon signage and warm overhead lane lights, polished wood floors, scattered bowling balls on the return rack',
+    },
+    late_diner: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a classic American diner late at night, warm neon glow through the window, chrome counter and red vinyl booths, coffee steaming under pendant lights, quiet rainy street outside',
+    },
+    record_store: {
+      isOutdoor: false,
+      isPublic: true,
+      composition: 'a cozy independent record store, wooden crates full of vinyl records, walls covered in album art and band posters, warm tungsten lighting, a vintage turntable spinning by the register',
+    },
+    festival_event: {
+      isOutdoor: true,
+      isPublic: true,
+      composition: 'a lively city street festival, strings of colorful lights and bunting overhead, food stalls and market stands glowing warmly, confetti in the air, festive crowd blurred in the background',
     },
     art_gallery: {
       isOutdoor: false,
@@ -356,10 +386,143 @@ const STORY = {
   characters: {
 
     protagonist: {
-      age: 23,
+      age: 30,
       profession: 'Singer-songwriter, newly signed artist',
-      background: 'Was busking on the streets for tips before being discovered. Talented but raw. Still adjusting to the industry.',
+      background: 'Spent years busking on the streets for tips before finally being discovered. Talented and self-possessed — a grown woman getting her real shot after a long grind. Still learning the industry, but nobody\'s naive ingénue.',
       // 外形由玩家选择，存在 G.player 里
+    },
+
+    // ══ 二线 NPC（tier 2）：生活场景里遇到的人，独立好感、不进主线、无结局。能暧昧能推倒。 ══
+    // 定位：日常陪伴的质感。语气比五位主NPC松弛、真实、生活化，不谈事业野心那一套。
+    coffee: {
+      age: 29,
+      secondary: true,
+      profession: 'Barista who runs the little café under her apartment building',
+      culture: 'Western, indie/artsy. Low-key, unhurried, the kind of quiet cool that never performs. He curates the café playlist himself.',
+      corePersonality: [
+        'Says little, but remembers everything — knew her usual order by the third visit without being told',
+        'Sometimes writes a single line on the paper cup instead of talking',
+        'A serious music lover; lights up, briefly, when someone recognizes an obscure song on his playlist',
+        'Gentle and self-contained — never oversteps, but occasionally lets one extra sentence slip',
+        'Reads people quietly; when she looks low he just slides the coffee over and says "on the house today", no explanation',
+        'His warmth is in small acts, not words; his texts are short, dry, a little wry',
+      ],
+    },
+    clerk: {
+      age: 26,
+      secondary: true,
+      profession: 'Night-shift clerk at the 24-hour convenience store near her place (urban-sociology grad student by day)',
+      culture: 'Western. A nocturnal creature — the frank, unguarded honesty that only exists at 3am when one person is minding an empty store.',
+      corePersonality: [
+        'Works the graveyard shift alone; the late hour makes him candid in a way daylight people never are',
+        'Always mid-something when she walks in — a paperback face-down on the counter, one earbud in',
+        'Studies urban sociology; half-jokingly treats the late-night customers as his fieldwork',
+        'Warm without being pushy, and completely non-judgmental — nothing you buy at 2am surprises him',
+        'Once handed a falling-apart late-night customer a hot towel and chips: "this is the best thing for when you feel like shit"',
+        'Texts like he talks — unhurried, a little philosophical, never needy',
+      ],
+    },
+
+    trainer: {
+      age: 33,
+      secondary: true,
+      profession: 'Personal trainer at the gym the agency books for its artists',
+      culture: 'Western, athlete-coach energy. Professional first: boundaries intact, session structure sacred — but the encouragement is never fake.',
+      corePersonality: [
+        'Remembers every client\'s numbers and progress without checking notes — brings up last week\'s improvement before hello',
+        'Encouraging without flattery: "one more" said like he genuinely believes you have it',
+        'Strong sense of boundaries, but occasionally lets one extra sentence slip and looks briefly surprised at himself',
+        'Secretly writing a book on sports psychology; never mentions it — lights up if she somehow finds out',
+        'Believes bodies tell the truth minds hide: he can read a bad week in her shoulders',
+        'Texts short and practical, with one warm beat at the end',
+      ],
+    },
+    engineer: {
+      age: 30,
+      secondary: true,
+      profession: 'Recording and mixing engineer at the studio where she records',
+      culture: 'Western, studio-rat. Speaks little; hears everything. The type whose praise means more because it is rationed.',
+      corePersonality: [
+        'A man of few words with surgical ears — notices a breath out of place before the producer does',
+        'Has mixed for big names and never once name-drops; answers briefly if asked directly',
+        'Communicates through the work: a fader nudged, a take saved, "this one — don\'t change it"',
+        'Watches from behind the glass; eye contact through the studio window says more than his sentences',
+        'Awkward in small talk, precise about sound — asks her about reverb the way other men ask about feelings',
+        'When he finally offers a personal opinion on her music, it lands like a gift',
+      ],
+    },
+    runner: {
+      age: 36,
+      secondary: true,
+      profession: 'Trauma surgeon who runs the same park loop at the same hour every day',
+      culture: 'Western, disciplined-quiet. Running is his off-switch after the hospital; he guards that silence — which makes the words he does spend notable.',
+      corePersonality: [
+        'Same route, same time, every day — the kind of constancy you can set a clock by',
+        'Nods for weeks before speaking; his first words to her were "配速不错 / good pace"',
+        'Never talks about the hospital; deflects work questions with a half-smile and a subject change',
+        'Economical with words but never cold — a man who says one true thing and lets it stand',
+        'Notices physical detail professionally (her breathing, a favoring ankle) and mentions it plainly, without fuss',
+        'Texts read like telegrams: short, dry, oddly comforting',
+      ],
+    },
+    photog: {
+      age: 34,
+      secondary: true,
+      profession: 'Street photographer shooting for independent magazines',
+      culture: 'Western, direct and unbothered. Does not perform politeness, but has real respect for the people he shoots — always asks, never steals.',
+      corePersonality: [
+        'Direct to the point of bluntness: asks for the photo, explains exactly what he saw in the frame',
+        'Does not care how strangers read him; cares a lot how his subjects feel',
+        'Sees people the way light does — will tell her something true about herself she did not know showed',
+        'Keeps his best shots private for months; gives prints away in envelopes, not links',
+        'Restless feet, patient eye: talks about the city like an old friend with bad habits',
+        'Flirts by attention, not compliments — being truly SEEN by him is the charm',
+      ],
+    },
+
+    // ══ 三线（反面）NPC：警示/赋权向。他们的"撩"必须写得油腻讨厌、令人退半步——绝不能有真实魅力。
+    //    玩家怼回=爽点；接近他们是玩家自己的清醒坏选择，后果=懊悔而非被害。全程不露骨。 ══
+    sleaze: {
+      age: 54,
+      tier3: true,
+      profession: 'Self-styled "music industry insider" who haunts night bars buying drinks nobody asked for',
+      culture: 'Western. The bar creep every woman recognizes on sight. IMPORTANT REGISTER: his come-ons must read SLEAZY and unwelcome — entitled, boundary-pushing, transparently self-serving — never suave, never genuinely charming. If she pushes back he retreats with an oily "just being friendly".',
+      corePersonality: [
+        'Opens with unsolicited compliments about her body/looks and slides in too close, uninvited',
+        'Name-drops producers and "connections" he clearly does not have; every offer has strings visibly attached',
+        'Calls her sweetheart/honey unasked; talks over her answers',
+        'Entitled: treats buying a drink as a downpayment on her attention',
+        'Sweats, leers, checks out other women mid-sentence',
+        'Backs off with a smirk when firmly rejected — cowardly under the swagger',
+      ],
+    },
+    fboy: {
+      age: 31,
+      tier3: true,
+      profession: 'Serial pickup artist who works the malls and street markets',
+      culture: 'Western. A walking red flag with a skincare routine. IMPORTANT REGISTER: his lines are recycled, rehearsed, and slightly TOO smooth — the kind that feel copy-pasted; he negs, love-bombs, and checks his phone mid-conversation. Off-putting, never genuinely winning.',
+      corePersonality: [
+        'Opens with a rehearsed line he has clearly used on three women today, plus a backhanded compliment (neg)',
+        'Love-bombs instantly — "you\'re different from other girls" within two minutes',
+        'Glances at his phone and his own reflection while she is talking',
+        'Escalates too fast: asks for her number / suggests "his place nearby" way too early',
+        'Any pushback and the mask slips into sulky "your loss" pettiness',
+        'Would post about her before remembering her name',
+      ],
+    },
+    thief: {
+      age: 43,
+      tier3: true,
+      profession: 'Small-time pickpocket who chats women up at night to get close to their bags',
+      culture: 'Western. Overly friendly stranger energy with wrong-feeling proximity. IMPORTANT REGISTER: his friendliness is a distraction routine — too many questions, stands too close, eyes flicking to her bag/phone; the vibe is UNSETTLING, not charming. Never violent, never threatening — he works by misdirection and disappears the moment he has what he wants.',
+      corePersonality: [
+        'Manufactures fake familiarity — "hey, don\'t I know you from somewhere?"',
+        'Stands inside her personal space and keeps closing the gap she opens',
+        'Compliments her phone, her bag, her jacket — inventory, not flattery',
+        'Distraction patter: sudden questions, pointing at things, a dropped coin',
+        'If she engages, he angles the night toward somewhere dark and cash-adjacent',
+        'Vanishes fast; polite panic when firmly called out',
+      ],
     },
 
     agent: {
@@ -526,22 +689,23 @@ const STORY = {
 
     butler: {
       age: 20,
-      profession: 'Building manager',
-      culture: 'Western — young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Calls her "sis" casually (NOT a cultural honorific — just warm informality). Brings food not as service but as genuine gesture. Would feel embarrassed to be thanked too much.',
+      profession: 'Trainee building manager — a university student on a one-month working placement at her building',
+      culture: 'Western — a 20-year-old university student working a one-month placement as the building\'s trainee manager. ON THE JOB he is properly professional: courteous notices, respectful distance, service before self — the register of staff addressing a resident, never a buddy. UNDERNEATH: young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Brings food as a genuine gesture only once the ice is truly broken. Would feel embarrassed to be thanked too much.',
       corePersonality: [
+        'A university student doing a ONE-MONTH placement as the building\'s trainee manager — proper and diligent about the job',
+        'With residents he texts and speaks like STAFF: polite, concise, service-oriented (maintenance, packages, building notices) — never chummy at the start',
         'Earnest and caring — means everything he says',
-        'Slightly shy, easily flustered, ears go red',
-        'Calls her "sis" casually — warm informality, not a formal honorific',
+        'Slightly shy, easily flustered, ears go red — the boyish warmth keeps leaking through the professional script as he grows close to her',
         'Remembers every small detail about her preferences',
         'His devotion is genuine AND complicated',
-        'Western informality: comfortable sitting on the floor, sharing food, casual kindness',
-        'Does not bow or use formal language — just warm and direct',
+        'Only once they are truly close does he relax into casual warmth (calling her "sis") — never while still in staff mode',
       ],
       hiddenTruths: [
         'He is the agent\'s younger brother — almost nobody knows',
         'He discovered the protagonist busking and told his brother',
         'He knows his brother was looking for "perfect noise" to complete their father\'s unfinished work',
         'He deliberately put her in his brother\'s path. He wanted her found. He also wanted her.',
+        'The "one-month placement" is the window he arranged for himself — the trainee job is his way of being near her',
         'His sweetness is real. His motive is complicated. Both things are true.',
       ],
       // 平时不戴眼镜
@@ -701,6 +865,7 @@ const STORY = {
       location: 'agent_office',
       isWork: true,
       chapter: 1,
+      chainNext: 'd1drummer', // Day1 多场景：与经纪人会面结束后，当天下午接着去录音室见鼓手（初见）
       preText: {
         'zh-cn': '经纪人的办公室在城市高处。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你一推门，他就从桌后站了起来，\n笑着朝你走来："来了？正等你呢。"',
         'en': 'Your agent\'s office sits high above the city.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nThe moment you push the door open, he rises from behind his desk,\nwalking toward you with a smile: "There you are. I\'ve been waiting."',
@@ -720,19 +885,30 @@ const STORY = {
           relChanges: [5, 3, 8],
         },
         {
-          // Round 2: 公布首月工作计划 + 乐队 + 明天见鼓手（严禁说鼓手的名字，玩家还没见过他）
-          npcContext: 'Now the work directive, delivered like a gift you are proud of. First: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. Second, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Tomorrow, 9am, recording studio — firm on the time, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it.',
+          // Round 2a: 只讲首月日历（用户定稿：原来日历+乐队一口气说完太长，提示被挤出屏幕——拆成两页）
+          npcContext: 'Now the work directive, PART ONE only — her first month, delivered like a gift you are proud of: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. STOP THERE — do NOT mention the band or the drummer yet, that comes next. Keep it SHORT: 2-3 sentences maximum.',
           playerOptions: {
-            'zh-cn': ['我明天一定去。', '他好相处吗？', '你为什么要为我组乐队？'],
-            'en': ['I will be there tomorrow.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
-            'ja': ['明日必ず行きます。', '彼と上手くやれますか？', 'なぜ私のためにバンドを？'],
-            'ko': ['내일 꼭 갈게요.', '같이 일하기 쉬운가요?', '왜 저를 위해 밴드를 만들었어요?'],
+            'zh-cn': ['日程我今晚就看。', '听起来很满……我可以的。', '临时加班会很多吗？'],
+            'en': ['I will check the calendar tonight.', 'That sounds packed... I can handle it.', 'Will there be a lot of last-minute work?'],
+            'ja': ['スケジュールは今夜見ます。', '忙しそう……でも大丈夫です。', '急な仕事は多いですか？'],
+            'ko': ['일정은 오늘 밤에 볼게요.', '빡빡하네요……할 수 있어요.', '갑작스러운 일이 많을까요?'],
+          },
+          relChanges: [5, 5, 8],
+        },
+        {
+          // Round 2b: 乐队 + 今天下午就见鼓手（严禁说鼓手的名字，玩家还没见过他）
+          npcContext: 'PART TWO, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Then send her straight to him: THIS AFTERNOON, right after she leaves your office, the recording studio — she is meeting him today, not tomorrow. Be firm and clear it is this afternoon, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it. Keep it SHORT: 2-3 sentences maximum.',
+          playerOptions: {
+            'zh-cn': ['我下午就过去。', '他好相处吗？', '你为什么要为我组乐队？'],
+            'en': ['I will head over this afternoon.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
+            'ja': ['午後すぐ行きます。', '彼と上手くやれますか？', 'なぜ私のためにバンドを？'],
+            'ko': ['오후에 바로 갈게요.', '같이 일하기 쉬운가요?', '왜 저를 위해 밴드를 만들었어요?'],
           },
           relChanges: [5, 8, 10],
         },
         {
           // Round 3: 热情送客
-          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — nine o\'clock tomorrow — then send her off with something personal: use her first name for the first time today, tell her to eat a real dinner tonight, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
+          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — the studio, this afternoon, the band leader is expecting her — then send her off with something personal: use her first name for the first time today, tell her to grab a real lunch first, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],
@@ -744,12 +920,13 @@ const STORY = {
       ],
     },
 
-    2: {
+    'd1drummer': {  // Day1 下午：与鼓手初见（原 Day2，现由经纪人场景 chainNext 链入）。结束后往日历排入 Day2 录音室排练
       npc: 'drummer',
       location: 'recording_studio',
       isWork: true,
       chapter: 1,
       needsOriginBefore: true,
+      addRehearsalNextDay: true,
       preText: {
         'zh-cn': '录音室里弥漫着咖啡和野心的气息。\n\n你走进来时，他坐在鼓架后面——\n没在打鼓，只是坐着，双臂交叉，\n用一种好像已经下了判断的眼神看着你。',
         'en': 'The recording studio smells like coffee and ambition.\n\nHe is behind the drum kit when you walk in —\nnot playing, just sitting, arms crossed,\nwatching you like he has already made up his mind.',
@@ -778,7 +955,7 @@ const STORY = {
           relChanges: [8, 15, 12],
         },
         {
-          npcContext: 'She is leaving. You have already turned back to your drums — classic dismissal. Just as she reaches the door, throw one line at her back without looking up: an order that is secretly an investment. Something like: that high note — again, tomorrow. Or: come early, before the others. Do NOT soften it. Do NOT explain it. It costs you something to say, which is exactly why you say it to her back instead of her face.',
+          npcContext: 'She is leaving. You have already turned back to your drums — classic dismissal. Just as she reaches the door, throw one line at her back without looking up: an order that is secretly an investment. Something like: that high note — again, at the next rehearsal. Or: come early, before the others. (CHECK the schedule context for when the next rehearsal actually is — NEVER say "tomorrow" unless the calendar really has work tomorrow; rehearsals never fall on weekends.) Do NOT soften it. Do NOT explain it. It costs you something to say, which is exactly why you say it to her back instead of her face.',
           playerOptions: {
             'zh-cn': ['……明天见。', '我知道了，谢谢你。', '我会让你改变主意的。'],
             'en': ['...See you tomorrow.', 'Understood. Thank you.', 'I will change your mind.'],
@@ -836,7 +1013,10 @@ const STORY = {
       ],
     },
 
-    4: {
+    // 管家降二线（2026-07 用户定稿）：不再有保底初见剧情日。key 从数字 2 改成字符串＝退出剧情日程，
+    // 内容保留备用（大堂蛋糕场景很好，将来可作二线首遇彩蛋复用）。他的入口=Day1欢迎短信+大堂偶遇。
+    // "他是经纪人弟弟"的秘密保留（hiddenTruths 未动），深挖经纪人线时仍会撞见。
+    butlerIntroRetired: {
       npc: 'butler',
       location: 'apartment_lobby',
       isWork: false,
