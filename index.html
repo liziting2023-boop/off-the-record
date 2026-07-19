@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.00"></script>
-<script src="state.js?v=12.00"></script>
+<script src="story.js?v=12.01"></script>
+<script src="state.js?v=12.01"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -528,7 +528,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.00 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.01 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1124,7 +1124,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.00 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.01 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5663,7 +5663,12 @@ function runMeetupScene(npcKey, locKey, title) {
   const WORKPLACE_OF = { coffee: 'cafe', trainer: 'gym', engineer: 'recording_studio', clerk: 'supermarket', drummer: 'recording_studio' };
   const workNote = (WORKPLACE_OF[npcKey] === locKey) ? ' NOTE: this place is YOUR OWN workplace and you are on duty here — receive her at the counter/your station, or step aside for a short break with her; you would NEVER sit down at a table like a customer in your own shop.' : '';
   // 日程 grounding：见面对话之前没喂日程，NPC 会编造"你今天的拍摄怎么样"这类没发生的工作（用户实测——当天其实是和他本人的排练）
-  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey) + workNote + ' ' + scheduleCtxFor(npcKey, 2);
+  // 生日点题（用户反馈：生日请管家做蛋糕，全程只做蛋糕不说生日快乐）
+  const bdayNote = isTodayPlayerBirthday() ? ' TODAY IS HER BIRTHDAY — wish her a happy birthday early, in your own way, and let it colour the whole meetup; if this meetup is itself about her birthday (a cake, a celebration), make the birthday the heart of it, never just mechanically go through the task without acknowledging her day.' : '';
+  // 接送/护送类见面（用户反馈：说好送她去机场，却在演办公室推咖啡、还反向"她送他到门口"）
+  const _escort = /机场|车站|送.*(去|到)|送她|送你|drop.?off|escort|airport|station|去.*的路上|on the way/i.test(title||'');
+  const escortNote = _escort ? ' THIS MEETUP IS YOU TAKING HER SOMEWHERE ("' + title + '"): YOU are escorting HER — carry her bag, open the car door for her, walk her in, stay with her until she is where she is going. The setting is the journey itself (her door → the car/road → the destination), NOT an office or a living room; every action must fit being on the move. NEVER end with her walking YOU out and you leaving — the scene follows HER and ends at the destination.' : '';
+  const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey) + workNote + bdayNote + escortNote + ' ' + scheduleCtxFor(npcKey, 2);
   // 带情绪奔赴的见面（用户实测：倾诉创伤后他上门却先翻唱片/看纸条）：第一拍必须先接住情绪
   const emoNote = ' FIRST CHECK the recent interactions above: if the texts that led to this meetup carried heavy emotion (grief, loneliness, she asked for comfort or for you to come be with her), your FIRST beat must meet that emotion directly — arrive attending to HER, warm and fully present, words and body language both matching what she told you; NO teasing about the texts, NO prop business (flipping records, glancing at her notes), NO browsing the room.';
   // 她主动约的见面：话题以【她】为主——她抛什么就接什么、往深聊，绝不硬转到自己的话题
@@ -6861,6 +6866,10 @@ const DATE_ACTION_HINTS = {
   magazine_shoot:     'bringing her a coffee between takes and staying out of the crew\'s way, holding her jacket while she is under the lights, a quiet thumbs-up from behind the photographers',
   recording_studio:   'listening by the mixing desk with his arms folded, bringing her water when her voice tires, pressing the talkback button just to say one encouraging word',
   music_training:     'leaning in the doorway listening before she notices him, turning the sheet-music pages for her, tapping the rhythm lightly on the piano lid',
+  // 出行/接送类（治"送她去机场却在演办公室推咖啡"）：动作贴合旅途当下
+  airport:            'taking her suitcase handle from her the moment he reaches her, checking the departures board and steering her toward the right gate, tucking her passport back into her bag zip after she checks it for the third time, a hand at her back through the crowd',
+  car_ride:           'holding the passenger door open for her and waiting until she is settled to close it, one hand on the wheel and a glance sideways at her at the red light, reaching over to turn the music down so he can hear her, resting a hand on her headrest as he reverses',
+  street_walk:        'matching his stride to hers, steering her to the inside of the pavement away from the traffic, a light hand at her elbow at the crossing',
 };
 // 在她家：每个NPC注意到的东西不一样（用户反馈"动作总是看书架"——按人设各看各的）
 const HOME_NOTICE = {
@@ -6899,6 +6908,14 @@ function dateActionHint(locKey) {
   return 'opening the door for her, a light guiding touch at her back, tucking a strand of hair behind her ear at the right moment';
 }
 
+// 今天是否女主生日（供各场景点题用；用户反馈生日局/生日蛋糕场景不点生日）
+function isTodayPlayerBirthday() {
+  try {
+    var gd = STORY.specialDates.getGameDate(G.day);
+    var pb = STORY.specialDates.birthdays.player;
+    return !!(pb && gd && pb.month === gd.month && pb.day === gd.d);
+  } catch(e){ return false; }
+}
 async function playInviteScene(inv) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   const npcKey = inv.npcKey;
@@ -6944,8 +6961,18 @@ async function playInviteScene(inv) {
   const tier = STORY.specialDates.getAffinityTier(G.npcs[npcKey].relationship);
   const seeds = pickSeeds(3);
   const _rel = G.npcs[npcKey].relationship;
-  const flirt = ' Keep a romantic, gently flirtatious undertone with real tension — calibrate boldness to affinity (' + tier + '): high = openly charged, mid = testing the waters, low = restrained sparks. It is a ' + (isDayDate ? 'relaxed daytime DATE' : 'evening DATE') + ', not a work meeting.' +
-    ' THIS IS PERSONAL TIME — do NOT talk shop no matter your profession: no recording studio, band, drummer, rehearsals, set lists, contracts, gigs, castings, agency business or career logistics. You are here as a man interested in HER, not as her agent/colleague. Talk about her as a person, this place, small human things, and the pull between you.' +
+  // 邀约兑现（用户反馈：经纪人约来"讲合作细节+本周日程"，现场却只字不提）：把当初约的事真讲出来
+  const _promise = (inv.description || inv.title || '').trim();
+  const _promiseIsWork = /日程|合作|细节|schedule|work|contract|project|meeting|deal|plan/i.test(_promise);
+  const promiseNote = _promise ? ' INVITATION FOLLOW-THROUGH: you invited her with this in mind — "' + _promise.replace(/"/g,"'") + '". You MUST genuinely follow through on it in this scene — if you said you would talk about something specific, actually talk about it and give her real substance (not a vague deflection); never lure her out on a pretext and then ignore what you promised.' : '';
+  // 生日点题（用户反馈：约的是生日局，现场却和生日无关 / 管家做蛋糕却不说生日快乐）
+  const _isBirthdayScene = /🎂|生日|birthday/i.test(_promise) || isTodayPlayerBirthday();
+  const birthdayNote = _isBirthdayScene ? ' TODAY IS HER BIRTHDAY: the whole point of this is to celebrate HER — open by wishing her a happy birthday in your own way and let the scene revolve around her day; never let it drift into unrelated topics as if it were an ordinary meetup.' : '';
+  const flirt = ' Keep a romantic, gently flirtatious undertone with real tension — calibrate boldness to affinity (' + tier + '): high = openly charged, mid = testing the waters, low = restrained sparks. It is a ' + (isDayDate ? 'relaxed daytime DATE' : 'evening DATE') + '.' +
+    (_promiseIsWork
+      ? ' Your invitation was partly about a real matter (above) — cover that promised topic for real and give her substance, THEN let it turn personal and warm; do not pretend the practical reason does not exist.'
+      : ' THIS IS PERSONAL TIME — do NOT talk shop no matter your profession: no recording studio, band, drummer, rehearsals, set lists, contracts, gigs, castings, agency business or career logistics. You are here as a man interested in HER, not as her agent/colleague. Talk about her as a person, this place, small human things, and the pull between you.') +
+    promiseNote + birthdayNote +
     intentBlock(npcKey, _rel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey);
   let rounds;
   if (inv.gathering) {
@@ -9157,7 +9184,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.00 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.01 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
