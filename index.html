@@ -555,7 +555,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 <!-- ══ OPEN ══ -->
 <div class="screen" id="s-open">
   <div class="wrap">
-    <div class="stamp" id="open-stamp">Monday · 7:14 AM</div>
+    <div class="stamp" id="open-stamp">Early morning · 7:14</div>
     <p class="nar" id="open-nar"></p>
     <button class="btn-g" id="btn-open-cont" onclick="go('s-name')">Continue</button>
   </div>
@@ -1491,18 +1491,35 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
 
 // ── Day1前置：签约当天傍晚，鼓手(明天要一起工作,先撂狠话)+管家(欢迎入住)各来一条消息并成为可聊对象。
 //    让Day1就有3个人可聊、不空。正式的登场场景仍在后面的剧情日照常发生（这里只是先建立联系）──
+// Day1 开局消息节奏（用户定稿 c）：序章一结束，经纪人+鼓手先各发一条跟进消息，管家延后 10 分钟发欢迎。
+// 用真实时钟做时间戳（不再固定 21:00 等到夜里），治"序章演完一直等不到消息、觉得没玩的"。
 function day1Intro() {
   if (G.day !== 1 || G._day1Intro) return;
   G._day1Intro = true;
-  // 鼓手当天下午已在录音室与她正式初见（经纪人场景 chainNext 链入），傍晚不再重复来撂狠话。
-  // 管家已降二线（无保底剧情日）：Day1 门口留蛋糕 + 欢迎短信就是他的入口——收到短信即算认识（met=true），
-  // 可以直接回消息聊天；之后白天在公寓大堂还会偶遇（buildDayOpts 的大堂卡）。
+  var nowMin = (REALTIME ? rtClockMin() : 20*60);
+  // ① 经纪人：签约刚结束的暖场跟进（到家了吗+日程今晚看+藏不住的骄傲）；禁"吃了吗"式开场
+  if (G.npcs.agent && G.npcs.agent.met) {
+    (async function(){ try {
+      var ta = await claudeChat(STATE.memory.buildDialoguePrompt('agent', G.day, G.langName, G.player.name,
+        'The signing meeting wrapped a little while ago and she is home now. Text her a short, warm professional follow-up: check she got back okay, remind her (lightly) that her whole first month is already in her calendar to look over tonight, and let a little quiet pride in signing her show through. NEVER open with "have you eaten" or any food question. 1-2 texting-style sentences.' + earlyToneNote('agent') + ' Output only the message text.'));
+      if (ta && ta.trim()) { pushNpcMsg('agent', ta.trim(), nowMin); ensureSecondaryName('agent'); }
+    } catch(e){} })();
+  }
+  // ② 鼓手：录音室初见后一条不带温度的短句（下战书/提醒明天排练要准备好），绝不寒暄、不"吃了吗"
+  if (G.npcs.drummer && G.npcs.drummer.met) {
+    (async function(){ try {
+      var td = await claudeChat(STATE.memory.buildDialoguePrompt('drummer', G.day, G.langName, G.player.name,
+        'You met her at the studio this afternoon and were hard on her. Text her ONE short blunt line now — not warm, not an apology: a curt challenge, or a note about the music / tomorrow\'s rehearsal that makes clear you expect her to show up ready. NO small talk, NO "have you eaten", NO fishing for sympathy. 1 texting-style sentence.' + earlyToneNote('drummer') + ' Output only the message text.'));
+      if (td && td.trim()) { pushNpcMsg('drummer', td.trim(), nowMin); ensureSecondaryName('drummer'); }
+    } catch(e){} })();
+  }
+  // ③ 管家：10 分钟后发欢迎短信（收到即算认识 met=true，可直接回聊）
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
         'You are the building\'s NEW trainee manager (a university student on a one-month working placement) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new trainee building manager who will be serving the building for the next month, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) {
-        pushNpcMsg('butler', t.trim(), 21*60);
+        pushNpcMsg('butler', t.trim(), nowMin + 10);
         ensureSecondaryName('butler');
         G.npcs.butler.met = true; G.npcs.butler.contact = true; // 二线：接触即认识；管家Day1短信=已有联系方式（例外）
       }
@@ -2643,6 +2660,10 @@ function goHome()       {
   // 重建行程按钮：状态可能已经变了（如见完经纪人、鼓手场景进行到一半），
   // 不重建的话首页还挂着早上的旧按钮（"去见经纪人"），点开就把已看过的场景重播一遍
   try { buildDayOpts(); } catch (e) {}
+  // Day1 序章一播完回到主页 → 立刻触发开局消息节奏（经纪人+鼓手先发、管家+10min），不再等到夜里（用户定稿 c）
+  if (REALTIME && G.day === 1 && G.scriptedDone && G.scriptedDone[1]) {
+    try { day1Intro(); } catch (e) {}
+  }
   // 真实入夜后回主页：补触发晚间内容（白天不再走 goEvening 收尾，这些事改在这里发生；都有一次性守卫）
   if (REALTIME && G.day && isHomeNight()) {
     try { day1Intro(); } catch (e) {}
@@ -3156,7 +3177,7 @@ function closeLB()      { document.getElementById('lb').classList.remove('open')
 // TRANSLATIONS
 // ══════════════════════════════════════════════════════
 const TX = {
-  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Monday · 7:14 AM', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
+  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Early morning · 7:14', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East','North America'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran','USA · Canada'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -3170,7 +3191,7 @@ const TX = {
     agent_origins:['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'],
     agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara'],
   },
-  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'周一 · 上午 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
+  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'清晨 · 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
     region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗','美国·加拿大'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
