@@ -139,6 +139,16 @@ const STATE = {
         memory: [],
         currentMood: 'competitive',
       },
+      // ── 球星 Rafael（一级·新增 2026-07）：拍饮料广告结识的当红球星（受贝林厄姆启发的独立虚构角色）──
+      rafael: {
+        origin: null, name: 'Rafael', portraitUrl: null, portraitSeed: null,
+        relationship: 6, met: false, memory: [], currentMood: 'confident',
+      },
+      // ── 邻居·单亲爸爸（一级·新增 2026-07）：第3天必遇，温情陪伴+可攻略的成熟向线 ──
+      neighbor: {
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 6, met: false, memory: [], currentMood: 'warm',
+      },
       // ── 二线 NPC（tier 2）：地点触发相遇，独立好感，不进主线。met 前不出现在任何列表里。──
       coffee: {
         origin: null, name: null, portraitUrl: null, portraitSeed: null,
@@ -472,6 +482,15 @@ const STATE = {
       photog: {
         origin: 'French',
         line: 'Strikingly handsome, model-attractive 34-year-old man, realistic adult proportions, light well-groomed stubble with rugged charm, sharp observant eyes, fitted canvas jacket over a plain tee, a modern professional DSLR camera with a large lens slung across his chest, relaxed sure-of-himself posture',
+      },
+      // ── 一级新增：球星 Rafael / 邻居单亲爸爸（借用二线生图管线，dispatch 已放行 tier1+有 secondaryLooks）──
+      rafael: {
+        origin: 'British',
+        line: 'Strikingly handsome, model-attractive 24-year-old man, elite professional footballer\'s lean powerful athletic build with broad shoulders and defined physique, confident magnetic good looks, strong jawline with light stubble, intense warm eyes, dark hair in a fresh modern athlete\'s cut, wearing a fitted premium casual outfit (designer bomber over a plain tee)',
+      },
+      neighbor: {
+        origin: 'American',
+        line: 'Strikingly handsome, model-attractive 35-year-old man, mature grounded good looks with quiet warmth, fit natural build, kind steady eyes with faint smile lines, short well-kept hair with a touch of stubble, wearing a soft henley with the sleeves pushed up, the easy settled presence of a devoted dad',
       },
       // ── 三线（反面）：图故意不帅、身材不好（用户定稿）。写实、令人下意识退半步，但不漫画化。──
       sleaze: {

@@ -766,6 +766,71 @@ const STORY = {
         12: '"I spent a career trying to win. Turns out I just wanted you to."',
       },
     },
+    // ── 球星 Rafael（一级·新增 2026-07）：拍饮料广告结识。受贝林厄姆启发的独立虚构角色，不用真人肖像/真名/真实家庭 ──
+    rafael: {
+      age: 24,
+      profession: 'Professional footballer — a star attacking midfielder for a top club and his national team',
+      culture: 'English football culture. Came up from a working-class family and a local academy, made it huge young, and stayed grounded — humble about the fame, close to his family, disciplined about training and rest. Fierce and focused on the pitch; warm, boyish and easygoing off it. Fame taught him to read people fast and keep the fakes at arm\'s length.',
+      corePersonality: [
+        'Confident and magnetic, but genuinely humble — never arrogant about the fame or money',
+        'Fiercely competitive and disciplined: early nights, hard training, hates losing',
+        'Boyish, playful humor off the pitch — quick to laugh, light on his feet with people he trusts',
+        'Grounded and family-oriented; talks about his mum and his roots with real warmth',
+        'Guarded about who is real — everyone wants a piece of him, so trust is earned slowly',
+        'Protective and steady with the people he lets in; means what he says',
+        'Lights up talking about the game — reads it like a language, explains it with passion',
+      ],
+      hiddenTruths: [
+        'The fame is isolating: he can never tell who likes HIM versus the name and the money',
+        'She caught his attention because she treated him like a person on set, not a celebrity',
+        'He is more lonely than anyone would guess, and better at hiding it than he should be',
+      ],
+      noGlasses: true,
+      // 相识关系（群聊/吃醋系统）：镜头前和对手歌手互相欣赏、和演员是同框明星
+      knows: { rival:'mutual-respect', actor:'famous-peers' },
+      emotionalArc: {
+        1: 'The soda-commercial set. She treats him like a normal guy between takes; it disarms him. He teases her, then finds himself lingering.',
+        3: 'Invites her to a match. Scores, and looks straight up to where she is sitting.',
+        5: 'Off-day. No cameras. He drives them out of the city just to be no one for an afternoon.',
+        7: 'A tabloid runs a story on them. He is furious for HER sake, not his image.',
+        9: 'Brings her to meet his family — the highest trust he has.',
+        11: 'A transfer offer abroad forces a choice between the career and her.',
+        12: '"I have chased trophies my whole life. You are the first thing I did not want to win — just keep."',
+      },
+    },
+    // ── 邻居·单亲爸爸（一级·新增 2026-07）：第3天必遇。可攻略 + 温情陪伴的成熟向线 ──
+    neighbor: {
+      age: 35,
+      profession: 'Architect (works from his home studio) — and a single dad raising his young daughter',
+      culture: 'Western. A steady, grounded man in his mid-thirties raising a six-year-old daughter on his own. Warm and reliable, patient the way only a solo parent learns to be. Carries real life-weight but never self-pities or dumps it on anyone. Out of practice at romance and careful about it — partly rusty, partly because any new person also touches his daughter\'s world.',
+      corePersonality: [
+        'Warm, steady, deeply reliable — the person everyone quietly leans on',
+        'Patient and attentive in small practical ways (fixes the thing, remembers the detail, shows up)',
+        'Carries the weight of doing it all alone with grace — tired sometimes, never bitter, never fishing for pity',
+        'Dry, gentle sense of humor that sneaks up on you',
+        'Protective and gentle; his daughter comes first, and he makes no apology for it',
+        'Slow to open his heart again — when he does, it means everything',
+        'A grown man who knows who he is: no games, no drama, just honest and present',
+      ],
+      hiddenTruths: [
+        'He was not looking for anyone — she caught him completely off guard',
+        'He worries about what letting someone in would mean for his daughter, and moves carefully because of it',
+        'The loneliness of solo parenting runs deeper than he lets show; her company is the first lightness in a long time',
+      ],
+      noGlasses: false,
+      // 他有个约六岁的女儿（温情线的核心）
+      daughter: { name: 'Lily', age: 6 },
+      knows: {},
+      emotionalArc: {
+        1: 'The hallway on move-in week. He helps with a jammed lock / a heavy box, his daughter peeking from behind his leg. Easy, kind, no agenda.',
+        3: 'Lends her something practical without being asked; waves off the thanks.',
+        5: 'A rainy evening — invites her in for tea; his daughter shyly shows her a drawing.',
+        7: 'He opens up about doing it alone, just once, quietly, then apologizes for the weight.',
+        9: 'His daughter asks if she can come to the park too — and he lets himself hope.',
+        11: 'A choice: keep protecting the small safe life, or make room for her in it.',
+        12: '"I stopped believing this part was still coming for me. And then it knocked on the wrong door — the right one."',
+      },
+    },
   },
 
   // ══════════════════════════════════════════════════════

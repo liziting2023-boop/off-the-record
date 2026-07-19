@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.04"></script>
-<script src="state.js?v=12.04"></script>
+<script src="story.js?v=12.05"></script>
+<script src="state.js?v=12.05"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -536,7 +536,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.04 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.05 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1132,7 +1132,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.04 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.05 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1326,6 +1326,8 @@ const EARLY_TONE = {
   butler:  'You are the building\'s summer concierge (a college student working a summer job at the front desk) and she is a resident — text like STAFF, not like a friend: polite, concise, service-oriented notices and reminders (maintenance, packages, building matters), respectful register. NO chummy openers, no nicknames, no personal chit-chat unless SHE opens that door first.',
   rival:   'You are wary rivals, not friends — cool, competitive, a little sharp.',
   detective:'Reserved and businesslike; you keep your distance.',
+  rafael:  'You only just met her on set — friendly and magnetic, but a famous man is careful with new people. Warm and a little teasing, yet you keep a little distance until you are sure she is not after the name; you do NOT gush or over-share with someone you barely know.',
+  neighbor:'You are new neighbours who have only just met — warm, courteous and helpful in a grounded, fatherly way, but not familiar yet. You keep an easy, respectful distance, you do not over-share about your life or your daughter, and you are a little rusty and careful about anything beyond friendly.',
 };
 function earlyToneNote(k) {
   return (G.npcs[k] && (G.npcs[k].relationship || 0) < 40 && EARLY_TONE[k]) ? ' ' + EARLY_TONE[k] : '';
@@ -1340,6 +1342,8 @@ const NPC_SLEEP = {
   actor:    [4.5, 11.5], // 夜生活多，睡到中午
   detective:[3, 9],      // 作息偏晚
   rival:    [3.5, 9.5],
+  rafael:   [23, 7],     // 职业球员，作息自律，睡得早
+  neighbor: [22.5, 6.5], // 单亲爸爸，跟着孩子作息，早睡早起
   // 二线也要有作息（v11.86 修：之前没条目=永远醒着，凌晨0点咖啡师/教练/医生全员在线齐发"还醒着吗"——用户实测）
   coffee:   [23.5, 5.5], // 咖啡师：早班开店，睡得早起得早
   clerk:    [8, 15],     // 便利店夜班：白天睡觉，深夜正是他上班时间（深夜有人可聊的主力）
@@ -1634,6 +1638,8 @@ const NPC_UI = {
   detective:{ emoji:'🕵️', color:'#6b8cba' },
   butler:   { emoji:'🎂', color:'#7ec48a' },
   rival:    { emoji:'🎤', color:'#d98cae' },
+  rafael:   { emoji:'⚽', color:'#5aa06a' },
+  neighbor: { emoji:'🏡', color:'#c48a6a' },
   coffee:   { emoji:'☕', color:'#b89a7a' },
   clerk:    { emoji:'🌙', color:'#7a8cba' },
   trainer:  { emoji:'🏋️', color:'#8ab07a' },
@@ -1728,6 +1734,8 @@ const NPC_ROLES = {
   detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
   butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Concierge' },
   rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
+  rafael:   { 'zh-cn':'球星','zh-tw':'球星',ja:'サッカー選手',ko:'축구 스타',en:'Footballer' },
+  neighbor: { 'zh-cn':'邻居','zh-tw':'鄰居',ja:'隣人',ko:'이웃',en:'Neighbor' },
   coffee:   { 'zh-cn':'咖啡师','zh-tw':'咖啡師',ja:'バリスタ',ko:'바리스타',en:'Barista' },
   clerk:    { 'zh-cn':'便利店员','zh-tw':'便利店員',ja:'コンビニ店員',ko:'편의점 직원',en:'Store Clerk' },
   trainer:  { 'zh-cn':'健身教练','zh-tw':'健身教練',ja:'トレーナー',ko:'트레이너',en:'Personal Trainer' },
@@ -1752,6 +1760,8 @@ const NPC_BIO = {
   actor:    { zh:'当红演员。撩人是他的呼吸，真心藏在玩笑里。', en:'A rising actor. Flirting is how he breathes; the truth hides in his jokes.', metZh:'共用场地的杂志拍摄', metEn:'A shared magazine shoot' },
   butler:   { zh:'趁暑假来你公寓做门房打工的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A college student working a summer job as your building\'s concierge. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
   rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
+  rafael:   { zh:'当红球星。名气很大，人却意外地踏实——他记得你把他当普通人看。', en:'A star footballer. Huge fame, surprisingly grounded — he remembers you treated him like a person.', metZh:'一场饮料广告的拍摄现场', metEn:'A soda commercial shoot' },
+  neighbor: { zh:'住你隔壁的单亲爸爸，独自带着女儿。温柔可靠，是那种让人安心的人。', en:'The single dad next door, raising his daughter alone. Warm, steady, the kind of man who makes you feel safe.', metZh:'公寓走廊', metEn:'The apartment hallway' },
   detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
   coffee:   { zh:'楼下咖啡馆的咖啡师。话不多，记性好——第三次来他就记住了你的单。', en:'The barista downstairs. Few words, long memory — he knew your order by the third visit.', metZh:'楼下咖啡馆', metEn:'The café downstairs' },
   clerk:    { zh:'便利店的夜班店员，白天读研究生。凌晨的坦诚只有他那里有。', en:'The night clerk at the 24h store, grad student by day. 3am honesty lives behind his counter.', metZh:'深夜便利店', metEn:'The late-night store' },
@@ -2246,7 +2256,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
-  if (npcTier(npcKey) >= 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day); // 二线/三线走 secondaryLooks；管家例外（有专属buildButlerPrompt）
+  if (!prompt && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day); // 二线/三线 + 一级新NPC(rafael/neighbor) 走 secondaryLooks；主线有专属build的不会走到这（prompt已非空）
 
   if (detShadow) prompt += detShadow;
 
@@ -2328,7 +2338,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
-  if (npcTier(npcKey) >= 2 && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 二线/三线走 secondaryLooks；管家例外：仍用 buildButlerPrompt
+  if (!prompt && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 二线/三线 + 一级新NPC 走 secondaryLooks；主线有专属build的prompt已非空
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt + PORTRAIT_CROP, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
 }
@@ -2681,6 +2691,10 @@ function goHome()       {
   // 重建行程按钮：状态可能已经变了（如见完经纪人、鼓手场景进行到一半），
   // 不重建的话首页还挂着早上的旧按钮（"去见经纪人"），点开就把已看过的场景重播一遍
   try { buildDayOpts(); } catch (e) {}
+  // 邻居单亲爸爸：第3天起在走廊必遇一次（用户#14）——不抢正在进行的场景，回主页时触发
+  if (REALTIME && G.day >= 3 && G.npcs.neighbor && !G.npcs.neighbor.met && !(typeof _curSceneEv !== 'undefined' && _curSceneEv) && !_pendingConfessMilestone) {
+    setTimeout(function(){ try { if (!G.npcs.neighbor.met && !(typeof _curSceneEv !== 'undefined' && _curSceneEv)) _showSecondaryIntro('neighbor', 'apartment_lobby'); } catch(e){} }, 500);
+  }
   // 表白里程碑：刚表白完的场景收尾回到主页 → 弹"正式在一起"卡
   if (_pendingConfessMilestone) { var _cm = _pendingConfessMilestone; _pendingConfessMilestone = null; setTimeout(function(){ try { showConfessMilestone(_cm); } catch(e){} }, 350); }
   else { // 同居邀请（一次只弹一个）——里程碑那一屏不抢，下次回主页再弹
@@ -3042,6 +3056,16 @@ function ensureAgentSchedule(untilDay) {
   if (!G.calendar) return;
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   untilDay = Math.min(untilDay, 360);
+  // 球星 Rafael 首遇（用户#13）：排一场"饮料广告拍摄"，玩到=在片场结识球星（一次性，锁死档期）
+  if (G.npcs.rafael && !G.npcs.rafael.met && !G._rafaelShootSet && G.calendar.events) {
+    var _rd = Math.max(6, (G.day || 1) + 2);
+    while (isGameWeekend(_rd)) _rd++;
+    var _rds = getCalDateStr(_rd);
+    if (!(G.calendar.events[_rds] || []).some(function(e){ return e && e.id === 'rafael_adshoot'; })) {
+      calAddEvent(_rds, { id:'rafael_adshoot', type:'work', source:'agent_mandate', title:(isZh?'饮料广告拍摄':'Soda commercial shoot'), locKey:'magazine_shoot', status:'accepted', time:'13:00', timeEnd:'18:00', _introNpc:'rafael', locked:true, description:(isZh?'品牌代言拍摄 · 档期已定':'Brand campaign shoot · fixed date') });
+    }
+    G._rafaelShootSet = true;
+  }
   // 自愈式（v11.85）：每次都从"明天"起重扫到 untilDay，不再依赖 plannedUntil 一次性标记——
   // calAddEvent 按 id 去重 + 下面的周额度检查天然幂等；行程若因任何原因丢失（用户实测新开局
   // 重登后两条工作只剩一条），下次打开自动把缺的周额度补齐。今天不动（避免深夜凭空冒出当日工作）。
@@ -4856,6 +4880,7 @@ function _secTitle(npcKey, isZh) {
     clerk: isZh?'深夜便利店':'the late-night store', trainer: isZh?'健身房':'the gym',
     engineer: isZh?'录音室':'the recording studio', runner: isZh?'公园跑道':'the park loop',
     photog: isZh?'街角':'the street corner',
+    rafael: isZh?'饮料广告拍摄现场':'a soda commercial shoot', neighbor: isZh?'公寓走廊':'the apartment hallway',
   })[npcKey] || (isZh?'街上':'around town');
 }
 // 二线出场介绍旁白（用户要求：像一线出场一样，先给一段描述增加份量）
@@ -4867,6 +4892,8 @@ const T2_INTRO = {
   runner:   { zh:'公园的跑道，同一个时间，同一个人。\n你们点头擦肩了好些天。\n今天，他慢下脚步，第一次开了口。', en:'The park loop, same hour, same man.\nYou have nodded past each other for days.\nToday, he slows, and speaks for the first time.' },
   photog:   { zh:'街角，一个拿着相机的男人。\n他不急着按快门，先看人。\n他朝你走来，问能不能拍你。', en:'A man with a camera at the corner.\nHe is in no hurry to shoot — he watches people first.\nHe comes over, and asks if he can take your picture.' },
   butler:   { zh:'公寓大堂。\n那个暑假来打工的年轻门房，正蹲在你的信箱前放着什么。\n听见你，他慌忙站起来。', en:'The apartment lobby.\nThe young summer-job concierge is crouched at your mailbox, leaving something.\nHe scrambles up when he hears you.' },
+  rafael:   { zh:'一支饮料广告的拍摄现场，灯光和风机嗡嗡作响。\n这支广告的另一张脸，是那个你在体育新闻里见过无数次的球星。\n换场的间隙，他走过来，没有一点架子。', en:'The set of a soda commercial, lights and wind machines humming.\nThe other face of the campaign is the footballer you have seen a hundred times on the sports pages.\nBetween takes, he wanders over — no airs at all.' },
+  neighbor: { zh:'公寓走廊。隔壁的门开着，一个男人正单手抱着一摞东西跟门锁较劲，\n一个扎着小辫的小女孩从他腿后探出头看你。\n他回头，冲你歉意又温和地笑了笑。', en:'The apartment hallway. The door next to yours is open; a man is wrestling the lock one-handed, an armful of things balanced against him,\na little girl with braids peeking out from behind his leg.\nHe glances back and gives you an apologetic, gentle smile.' },
 };
 // 二线首遇：先播介绍旁白 → 选族裔/发色 → 三选一 → 全屏立绘 → 进相遇场景（和一线出场一致）
 function _showSecondaryIntro(npcKey, locKey) {
@@ -5898,6 +5925,13 @@ function maybeAddPostWorkDinner(npcKey) {
 }
 async function playScheduledEvent(dateStr, event) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
+  // 特殊行程=某NPC的首遇（如 Rafael 的广告拍摄）：不当普通工作放，直接进他的初见流程
+  if (event && event._introNpc && G.npcs[event._introNpc] && !G.npcs[event._introNpc].met) {
+    event.status = 'completed';
+    try { STATE.save.saveGame(); } catch(e){}
+    try { _showSecondaryIntro(event._introNpc, event.locKey || 'magazine_shoot'); } catch(e){}
+    return;
+  }
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -6189,7 +6223,7 @@ function advanceAfterScene(sc) {
 // 二线（咖啡师/便利店员，初始好感5）：比一线【更容易】推倒——一线都是工作关系、有职业底线，
 // 二线是生活里认识的、没那层顾虑（用户定稿）。门槛设得比一线最低(rival26)还低，走轻松随性路线。
 // 三线（反面）门槛极低（"很好推倒"是设计的一部分）——但走的是 tier3Night 负反馈流程，不是浪漫过夜
-const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, coffee: 20, clerk: 20, trainer: 20, engineer: 20, runner: 20, photog: 20, sleaze: 12, fboy: 10, thief: 12 };
+const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, rafael: 34, neighbor: 42, coffee: 20, clerk: 20, trainer: 20, engineer: 20, runner: 20, photog: 20, sleaze: 12, fboy: 10, thief: 12 };
 // 表白解锁（用户定稿 v11.84·欧美化）：**已发生过性行为（nights≥1）才解锁**——先激情、后把话说开，
 // 表白=事后"给这段关系定性"的 DTR 时刻（西方叙事顺序），不再是性行为前的中间里程碑。
 // 旧公式 confessMin=过夜线75% 保留给别处引用兜底，但闸门已改为按 nights 判。
@@ -9383,7 +9417,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.04 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.05 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
