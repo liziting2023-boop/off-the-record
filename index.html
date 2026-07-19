@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.05"></script>
-<script src="state.js?v=12.05"></script>
+<script src="story.js?v=12.06"></script>
+<script src="state.js?v=12.06"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -492,6 +492,23 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" onclick="devStay('butler')">过夜 · 管家</button>
     <button class="dev-btn" onclick="devStay('detective')">过夜 · 侦探</button>
     <button class="dev-btn" onclick="devStay('rival')">过夜 · 对手歌手</button>
+    <button class="dev-btn" onclick="devStay('rafael')">过夜 · 球星</button>
+    <button class="dev-btn" onclick="devStay('neighbor')">过夜 · 邻居</button>
+    <div class="dev-sec">🧪 恋人化（好感95+已过夜+已表白）→ 自动开聊天看反应</div>
+    <button class="dev-btn" onclick="devLovers('agent')">恋人 · 经纪人</button>
+    <button class="dev-btn" onclick="devLovers('drummer')">恋人 · 鼓手</button>
+    <button class="dev-btn" onclick="devLovers('actor')">恋人 · 男演员</button>
+    <button class="dev-btn" onclick="devLovers('butler')">恋人 · 管家</button>
+    <button class="dev-btn" onclick="devLovers('detective')">恋人 · 侦探</button>
+    <button class="dev-btn" onclick="devLovers('rival')">恋人 · 对手歌手</button>
+    <button class="dev-btn" onclick="devLovers('rafael')">恋人 · 球星</button>
+    <button class="dev-btn" onclick="devLovers('neighbor')">恋人 · 邻居</button>
+    <div class="dev-sec">🧪 刚过夜·还没表白（测"性行为后未官宣"）</div>
+    <button class="dev-btn" onclick="devIntimate('drummer')">过夜未表白 · 鼓手</button>
+    <button class="dev-btn" onclick="devIntimate('agent')">过夜未表白 · 经纪人</button>
+    <div class="dev-sec">🧪 新NPC初见（不用等 Day3/Day6）</div>
+    <button class="dev-btn" onclick="devMeet('rafael')">初见 · 球星 Rafael</button>
+    <button class="dev-btn" onclick="devMeet('neighbor')">初见 · 邻居单亲爸爸</button>
     <div class="dev-sec">图像 / 额度</div>
     <button class="dev-btn" id="dev-imgtoggle" onclick="devToggleImg()">生图开关：加载中…</button>
     <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
@@ -536,7 +553,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.05 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.06 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1132,7 +1149,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.05 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.06 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2096,6 +2113,43 @@ function devStay(k) {
   }
   otrTestStay(k);
 }
+// 测试用：把某NPC一键设成"恋人"（好感95 · 已过夜 · 已表白）→ 打开聊天，直接看表白后/过夜后反应
+function devLovers(k) {
+  closeDevPanel();
+  if (typeof G === 'undefined' || !G || !G.npcs || !G.npcs[k]) { try { alert('请先「开始」或读档进入游戏再测。'); } catch(e){} return; }
+  var n = G.npcs[k];
+  if (!n.name) { try { n.name = getNPCName(k) || k; } catch(e){ n.name = k; } }
+  n.met = true; n.contact = true;
+  n.relationship = Math.max(n.relationship || 0, 95);
+  n.nights = Math.max(n.nights || 0, 2);
+  n._confessed = true; n._loversSince = G.day;
+  try { STATE.save.saveGame(); } catch(e){}
+  try { alert('已把「' + getNPCName(k) + '」设成恋人：好感95 · 已过夜 · 已表白。\n现在打开和他的聊天，发条撒娇/暧昧的话，看他的反应。'); } catch(e){}
+  try { setABn('bn-phone'); openWCChat(k); } catch(e){}
+}
+// 测试用：把某NPC设成"刚过夜、还没表白"（好感85 · 过夜1次），测"性行为后但未官宣"的反应
+function devIntimate(k) {
+  closeDevPanel();
+  if (typeof G === 'undefined' || !G || !G.npcs || !G.npcs[k]) { try { alert('请先进入游戏再测。'); } catch(e){} return; }
+  var n = G.npcs[k];
+  if (!n.name) { try { n.name = getNPCName(k) || k; } catch(e){ n.name = k; } }
+  n.met = true; n.contact = true;
+  n.relationship = Math.max(n.relationship || 0, 85);
+  n.nights = Math.max(n.nights || 0, 1);
+  n._confessed = false; // 还没表白
+  try { STATE.save.saveGame(); } catch(e){}
+  try { alert('已把「' + getNPCName(k) + '」设成"刚过夜、还没表白"。\n打开聊天试试暧昧的话，看他怎么接。'); } catch(e){}
+  try { setABn('bn-phone'); openWCChat(k); } catch(e){}
+}
+// 测试用：立刻触发某NPC的初见（Rafael 片场 / 邻居走廊，不用等到 Day6/Day3）
+function devMeet(k) {
+  closeDevPanel();
+  if (typeof G === 'undefined' || !G || !G.npcs || !G.npcs[k]) { try { alert('请先进入游戏再测。'); } catch(e){} return; }
+  if (G.npcs[k].met) { try { alert('「' + getNPCName(k) + '」已经认识了，重开一局才能再看初见。'); } catch(e){} return; }
+  var loc = (k === 'rafael') ? 'magazine_shoot' : (k === 'neighbor') ? 'apartment_lobby' : 'cafe';
+  try { _showSecondaryIntro(k, loc); } catch(e){ console.warn(e); }
+}
+window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet;
 
 function _sleepMs(ms) { return new Promise(function(res){ setTimeout(res, ms); }); }
 
@@ -9417,7 +9471,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.05 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.06 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
