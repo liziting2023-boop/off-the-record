@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.01"></script>
-<script src="state.js?v=12.01"></script>
+<script src="story.js?v=12.02"></script>
+<script src="state.js?v=12.02"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -528,7 +528,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.01 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.02 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1124,7 +1124,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.01 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.02 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2999,7 +2999,7 @@ const AGENT_PLAN_TASKS = [
   { loc:'recording_studio', npc:'drummer', t:{ 'zh-cn':'录制Demo','zh-tw':'錄製Demo', en:'Demo recording', ja:'デモ録音', ko:'데모 녹음' } },
   { loc:'music_training',   npc:null, t:{ 'zh-cn':'声乐训练','zh-tw':'聲樂訓練', en:'Vocal training', ja:'ボイストレーニング', ko:'보컬 트레이닝' } },
   { loc:'music_training',   npc:null, t:{ 'zh-cn':'舞蹈体能训练','zh-tw':'舞蹈體能訓練', en:'Dance & fitness', ja:'ダンス・体力トレーニング', ko:'댄스·체력 훈련' } },
-  { loc:'magazine_shoot',   npc:null, t:{ 'zh-cn':'形象定妆拍摄','zh-tw':'形象定妝拍攝', en:'Styling & test shoot', ja:'スタイリング撮影', ko:'스타일링 촬영' } },
+  { loc:'magazine_shoot',   npc:null, locked:true, t:{ 'zh-cn':'形象定妆拍摄','zh-tw':'形象定妝拍攝', en:'Styling & test shoot', ja:'スタイリング撮影', ko:'스타일링 촬영' } }, // 合同拍摄，档期定死不好改
   { loc:'music_training',   npc:null, t:{ 'zh-cn':'媒体应对训练','zh-tw':'媒體應對訓練', en:'Media training', ja:'メディアトレーニング', ko:'미디어 트레이닝' } },
   { loc:'cafe_meeting',     npc:'agent', t:{ 'zh-cn':'与制作人会面','zh-tw':'與製作人會面', en:'Producer meeting', ja:'プロデューサーとの面談', ko:'프로듀서 미팅' } },
   { loc:'music_training',   npc:null, t:{ 'zh-cn':'词曲创作课','zh-tw':'詞曲創作課', en:'Songwriting session', ja:'ソングライティング', ko:'작사·작곡 세션' } },
@@ -3058,7 +3058,7 @@ function ensureAgentSchedule(untilDay) {
     // ── 保证密度（用户实测：纯每日45%随机会掷出"整两周空日历"）──
     // 每7天窗口保证约3个工作日。用"蓄水池"概率 p=还需要/本周剩余可排天数：
     // 期望排够3天，末尾不够时 p→1 强制补，既不空、也不是天天工作。滚动加天时按同一周额度自我纠正。
-    var TARGET_PER_WEEK = 3;
+    var TARGET_PER_WEEK = 5; // 用户反馈工作太少：从3提到5（每周大多数天有工作，留1-2天空档给约会/休息）
     var wk0 = Math.floor((d - 1) / 7) * 7 + 1; // 该"周"（每7个游戏日一组）的第一天
     var wkCount = 0;
     for (var wd = wk0; wd < wk0 + 7; wd++) {
@@ -3076,7 +3076,13 @@ function ensureAgentSchedule(untilDay) {
     var p = remainingFree > 0 ? Math.min(1, (TARGET_PER_WEEK - wkCount) / remainingFree) : 0;
     if (schedRand(d, 1) < p) { // 确定性掷点：丢档重排也得到同一份日程
       if (isGameWeekend(d)) addAgentMandate(d, dateStr, AGENT_PERF_TASKS, isZh, '19:30', '22:00'); // 周末=演出（傍晚）
-      else addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '10:00', '13:00'); // 工作日=排练/训练
+      else {
+        // 工作日时段随天变化（用户反馈：可以白天也可以晚上）——确定性随机挑早/午/晚
+        var _slot = schedRand(d, 3);
+        if (_slot < 0.5)      addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '10:00', '13:00'); // 上午
+        else if (_slot < 0.8) addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '14:00', '17:00'); // 下午
+        else                  addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '19:00', '21:30'); // 晚间
+      }
     }
   }
   G.calendar.plannedUntil = untilDay;
@@ -3090,7 +3096,10 @@ function addAgentMandate(d, dateStr, pool, isZh, time, timeEnd) {
     npcKey: task.npc || null, npcName: task.npc ? getNPCName(task.npc) : '',
     title: task.t[G.lang] || task.t['en'], locKey: task.loc,
     status: 'accepted', time: time || '10:00', timeEnd: timeEnd || null,
-    description: isZh ? '你和团队一起定的计划（可改期）' : 'Planned together with your team (movable)',
+    locked: !!task.locked, // 合同类（拍摄）档期定死：找经纪人也改不了
+    description: task.locked
+      ? (isZh ? '合同拍摄 · 档期已定，不可改期' : 'Contracted shoot · fixed date, cannot move')
+      : (isZh ? '你和团队一起定的计划（可改期）' : 'Planned together with your team (movable)'),
   });
 }
 
@@ -5818,6 +5827,27 @@ async function playSickDay() {
 }
 
 // ── NPC 消息里提前安排好的活动（今天到点了）──
+// 录完音自动追加当晚"一起吃饭"后续行程（用户定稿⑩：鼓手说"录完一起吃饭"要真的落地）
+function maybeAddPostWorkDinner(npcKey) {
+  if (!G.calendar) return;
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  const dateStr = getCalDateStr(G.day);
+  const id = 'postwork_dinner_' + npcKey + '_' + G.day;
+  const evs = G.calendar.events[dateStr] || [];
+  if (evs.some(function(e){ return e && e.id === id; })) return; // 今天已加过
+  let t = 19*60;
+  if (REALTIME && rtClockMin() >= 18*60) t = Math.min(22*60, rtClockMin() + 60);
+  const hh = String(Math.floor(t/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
+  calAddEvent(dateStr, {
+    id: id, type: 'npc_invite', npcKey: npcKey, npcName: getNPCName(npcKey),
+    title: isZh ? '收工后一起吃饭' : 'Dinner after the session',
+    status: 'accepted', time: hh, locKey: 'night_bar',
+    description: isZh ? '录完音，他说一起吃点东西。' : 'After the session — grab a bite together.',
+  });
+  try { pushNpcMsg(npcKey, isZh ? '收工了，一起去吃点东西吧，' + hh + '，别磨蹭。' : "We're done for the day — let's grab food, " + hh + ", don't dawdle.", REALTIME ? rtClockMin() : t); } catch(e){}
+  try { refreshCalBadge(); } catch(e){}
+  STATE.save.saveGame();
+}
 async function playScheduledEvent(dateStr, event) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   go('s-scene');
@@ -5840,6 +5870,10 @@ async function playScheduledEvent(dateStr, event) {
   addStress(12); // 工作日累压力
   G.today = { label: event.title, isWork: true, npc: event.npcKey || null };
   event.status = 'completed'; STATE.save.saveGame(); // 做过的行程标记完成，首页不再重复出现
+  // 录音室行程 + 同行的是鼓手 + 好感够 → 当晚自动多一条"一起吃饭"（用户定稿⑩）
+  if (event.locKey === 'recording_studio' && event.npcKey === 'drummer' && G.npcs.drummer && (G.npcs.drummer.relationship||0) >= 25) {
+    try { maybeAddPostWorkDinner('drummer'); } catch(e){}
+  }
 
   const locKey = event.locKey || 'music_training';
   if (event.npcKey && G.npcs[event.npcKey]) {
@@ -8630,6 +8664,22 @@ async function sendChatReply() {
         G.npcs[npc]._careFollowup = { day: G.day, note: text.slice(0, 60) };
       } catch(e) {}
     }
+    // 经纪人专属：她可以在聊天里请经纪人帮忙改/取消已排工作，经纪人真能改到日历（修"口头答应改期、日历没变"）
+    let agentReschedCtx = '';
+    if (npc === 'agent' && G.calendar && G.calendar.events) {
+      const _wkd = (G.lang==='zh-cn'||G.lang==='zh-tw') ? ['周日','周一','周二','周三','周四','周五','周六'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const _upl = [];
+      for (let dd = G.day; dd <= G.day + 9; dd++) {
+        (G.calendar.events[getCalDateStr(dd)] || []).forEach(function(e){
+          if (e && e.type === 'work' && e.status === 'accepted') {
+            _upl.push('day ' + dd + ' (' + _wkd[getGameWeekday(dd)] + (dd===G.day?', TODAY':'') + ') "' + e.title + '" at ' + (e.time||'?') + (e.locked ? ' [LOCKED contracted shoot — CANNOT move]' : ' [movable]'));
+          }
+        });
+      }
+      if (_upl.length) {
+        agentReschedCtx = ' HER UPCOMING WORK (you are her agent and you run her calendar): ' + _upl.join('; ') + '. If she asks to MOVE or CANCEL one of these, you CAN actually do it: for a [movable] one, agree warmly and fill "reschedule" = {"day": <the day number of that session>, "newTime": "HH:MM" or null, "newDaysFromNow": <int 1-9 if moving to another day> or null, "cancel": <bool>}, and confirm the change in plain words in your reply. For a [LOCKED] one, kindly explain it is a contracted shoot whose date is fixed and cannot be moved, and leave "reschedule" null. Fill "reschedule" ONLY when she actually asked to change a specific session and you agreed.';
+      }
+    }
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
     const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
       'RECENT CHAT (oldest→newest, YOU=you, HER=her):\n' + recentMsgs + '\n' +
@@ -8638,7 +8688,10 @@ async function sendChatReply() {
       ' NEVER claim she sent messages not listed in "Previous interactions". Reply as a text message (1-2 sentences, casual texting style). ' +
       ' STAY LOGICALLY CONSISTENT: do not contradict your own earlier lines in this chat (e.g. saying the café/coffee is closed, then that it is open), and do NOT robotically repeat the exact same fixed plan or time in message after message. If she questions, pushes back, or points out that something you said does not add up, actually engage with HER point and adjust — acknowledge it, answer it, or offer a real alternative — never just restate the same line as if she had not spoken. ' +
       'Judge her message against your personality: rel is -3 to +3 (inappropriate/rude/needy = negative; what YOU like = positive; neutral = 0). ' +
-      'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ' +
+      (npc === 'agent'
+        ? 'You are her AGENT and you run her work calendar, so when she asks to MOVE or CANCEL an existing work session you CAN do it right here and confirm it (see HER UPCOMING WORK + the "reschedule" field) — default to accommodating her. Do NOT invent brand-new recurring rehearsals out of nothing, and rehearsals never land on weekends (shows can). '
+        : 'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ') +
+      agentReschedCtx +
       (isNpcAsleep(npc)
         ? 'It is past YOUR usual bedtime — you may naturally say you are heading to sleep and set "endChat": true (you will not reply again tonight); but if you two are close, you can choose to stay up a little longer for her instead. '
         : 'You are awake and around right now — do NOT claim you are going to sleep or too busy to talk; keep the conversation going naturally. ') +
@@ -8655,12 +8708,41 @@ async function sendChatReply() {
       _homeRule +
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}}');
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (npc==='agent' ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
     // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
     const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
-    let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null;
-    try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; }
+    let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null, rescheduleInfo = null;
+    try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; rescheduleInfo = p.reschedule || null; }
     catch (e) { reply = (raw||'').trim(); }
+    // 经纪人改期真正落到日历（修用户实测：跟经纪人说把周二工作改到晚6点，口头答应了、日历却没变）
+    if (npc === 'agent' && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
+      try {
+        const _rd = rescheduleInfo.day;
+        const _evs = G.calendar.events[getCalDateStr(_rd)] || [];
+        const _wev = _evs.find(function(e){ return e && e.type === 'work' && e.status === 'accepted'; });
+        if (_wev && !_wev.locked) {
+          if (rescheduleInfo.cancel) {
+            _wev.status = 'declined'; // 取消：不再作为待办工作显示
+          } else {
+            if (/^\d{1,2}:\d{2}$/.test(rescheduleInfo.newTime||'')) {
+              const _dur = _wev.timeEnd ? (parseHM(_wev.timeEnd) - parseHM(_wev.time)) : 180;
+              _wev.time = rescheduleInfo.newTime;
+              const _em = parseHM(rescheduleInfo.newTime) + Math.max(60, _dur);
+              _wev.timeEnd = String(Math.floor(_em/60)%24).padStart(2,'0') + ':' + String(_em%60).padStart(2,'0');
+            }
+            if (Number.isInteger(rescheduleInfo.newDaysFromNow) && rescheduleInfo.newDaysFromNow >= 1 && rescheduleInfo.newDaysFromNow <= 14) {
+              const _nd = G.day + rescheduleInfo.newDaysFromNow;
+              G.calendar.events[getCalDateStr(_rd)] = _evs.filter(function(e){ return e !== _wev; });
+              _wev.id = (_wev.id || 'work') + '_mv' + _nd;
+              calAddEvent(getCalDateStr(_nd), _wev);
+            }
+          }
+          try { refreshCalBadge(); } catch(e){}
+          STATE.memory.addEvent('agent', 'She asked to change a work session and you sorted it on her calendar (day ' + _rd + ').', G.day);
+          STATE.save.saveGame();
+        }
+      } catch(e){}
+    }
     // 露骨词闸（上架合规）：被诱导越界的回复换成含蓄搪塞，顺带丢弃同条里的约见字段
     if (reply && !heatOK(reply)) { reply = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '这个话题……见了面再说。' : "That's… a conversation for in person."; meetInfo = null; futureInv = null; }
     // AI失败（额度满/网络）以前是无声的——玩家以为NPC下线了（用户23:05实测）。改成聊天内可见提示
@@ -9184,7 +9266,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.01 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.02 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
