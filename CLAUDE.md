@@ -173,7 +173,7 @@ git commit -m "vX.XX 说明"
 git push https://<TOKEN>@github.com/liziting2023-boop/off-the-record.git main
 ```
 
-**GitHub Token**：存于交接文档 `D:\OTR\OTR_开发交接文档_v10.39.docx`，有效期 ~2027年6月。
+**GitHub Token**：⚠️ 旧 token 已于 2026-07-19 **作废重发**（曾明文暴露在旧 docx + 远程URL中）。新 token（fine-grained，仅 off-the-record 仓库 Contents 读写，有效期至 2026-10-17）存于 **`D:\OTR\github_token.env`**（仓库外，绝不 commit），并已嵌入本地 `repo` 的 `origin` 远程URL——`git push origin main` 直接可用。到期换新：GitHub → Settings → Developer settings → PAT → Fine-grained → Generate；更新 `github_token.env` + `git remote set-url origin https://<新token>@github.com/liziting2023-boop/off-the-record.git`。
 
 ### 自动部署
 push 到 main → GitHub Actions → 约 30 秒生效。
