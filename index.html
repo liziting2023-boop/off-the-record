@@ -170,7 +170,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
 .vn-input-wrap{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
-.vn-input{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,200,210,0.25);border-radius:12px;padding:8px 12px;font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.2vw,17px);color:#FFF0F3;resize:none;outline:none;min-height:42px;max-height:90px;line-height:1.4;}
+.vn-input{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,200,210,0.25);border-radius:12px;padding:10px 12px;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.4vw,18px);color:#FFF0F3;resize:none;outline:none;min-height:52px;max-height:150px;line-height:1.45;}
 .vn-input:focus{border-color:rgba(255,180,200,0.5);background:rgba(255,255,255,0.15);}
 .vn-input::placeholder{color:rgba(255,200,210,0.5);font-style:italic;}
 .vn-send{background:linear-gradient(135deg,#C4847A,#B5536A);border:none;border-radius:10px;width:40px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;flex-shrink:0;}
@@ -202,7 +202,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-room{position:absolute;inset:0;z-index:0;overflow:hidden;}
 .daily-room img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .daily-room-ph{position:absolute;inset:0;width:100%;height:100%;background:var(--night-glow);display:flex;align-items:center;justify-content:center;}
-.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,232,240,0) 0%, rgba(255,232,240,0) 58%, rgba(255,232,240,0.35) 78%, rgba(255,232,240,0.7) 100%);}
+/* 顶部也加一层浅色罩：房间照片常偏亮，顶部时钟/日期/标签是深色字，需要浅底才读得清（用户反馈首页看不清）。中段留空给照片+独白玻璃卡，底部保留原渐变给选项。 */
+.daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,240,245,0.78) 0%, rgba(255,238,244,0.42) 12%, rgba(255,232,240,0) 26%, rgba(255,232,240,0) 56%, rgba(255,232,240,0.4) 76%, rgba(255,232,240,0.72) 100%);}
 .daily-wrap{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;pointer-events:none;}
 .daily-wrap > *{pointer-events:auto;}
 .daily-top{flex:0 0 auto;padding:16px 16px 8px;}
@@ -361,10 +362,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 /* ── GALLERY ── */
 #s-gallery{padding:60px 12px max(70px,env(safe-area-inset-bottom));}
-.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;width:100%;overflow-y:auto;max-height:calc(100vh - 140px);}
-.gi{border-radius:2px;overflow:hidden;cursor:pointer;}
+.ggrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;overflow-y:auto;max-height:calc(100vh - 140px);padding-bottom:12px;}
+.gi{border-radius:8px;overflow:hidden;cursor:pointer;background:var(--night-warm);}
 .gi img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
-.gi .gl{background:var(--night-warm);padding:3px 5px;font-size:8px;color:var(--ink-muted);}
+.gi .gl{background:var(--night-warm);padding:5px 7px;font-size:10px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── CALENDAR ── */
 .cal-day-header{text-align:center;font-size:10px;letter-spacing:1px;color:var(--ink-muted);padding:4px 0;font-weight:500;}
@@ -2916,7 +2917,9 @@ function renderCalDayEvents(dateStr) {
     if (ev.npcKey) { var _wn = ev.npcName || getNPCName(ev.npcKey); if (_wn && (ev.title || '').indexOf(_wn) < 0) _who = _wn + ' · '; }
     card.innerHTML = '<div class="cal-event-title">' + typeEmoji + ' ' + _who + ev.title + (ev._new ? ' <span style="background:var(--rose);color:#fff;font-size:9px;border-radius:6px;padding:1px 6px;vertical-align:middle">NEW</span>' : '') + '</div>' +
       '<div class="cal-event-meta">' + (ev.time||'') + (ev.timeEnd ? '–' + ev.timeEnd : '') + (ev.time?' · ':'') + statusLabel + '</div>' +
-      '<div class="cal-event-desc">' + (ev.description||'') + '</div>';
+      // 约会条目只留 时间/地点/和谁/做什么，不再塞对话原文（用户反馈：日历里出现整句台词很乱）。
+      // 有地点就显示地点，其它类型(节日/生日等)保留原描述。
+      '<div class="cal-event-desc">' + (ev.type === 'npc_invite' ? (ev.locKey ? locDisplayName(ev.locKey) : '') : (ev.description||'')) + '</div>';
 
     var actions = document.createElement('div');
     actions.className = 'cal-event-actions';
@@ -4300,7 +4303,10 @@ function buildDayOpts() {
   var _slotWord = isZh ? (_isNightW ? '夜间' : '白天') : lang==='ja' ? (_isNightW ? '夜' : '昼') : lang==='ko' ? (_isNightW ? '밤' : '낮') : (_isNightW ? 'tonight' : 'today');
   document.getElementById('d-opts-head').textContent =
     (isZh?'今天要做什么？':lang==='ja'?'今日は何をする？':lang==='ko'?'오늘은 뭘 할까?':'What will you do today?') +
-    (isZh ? '（' + _slotWord + '自由活动还剩 ' + _actsLeft + ' 次）' : lang==='ja' ? '（' + _slotWord + 'の自由行動あと' + _actsLeft + '回）' : lang==='ko' ? '（' + _slotWord + ' 자유 활동 ' + _actsLeft + '회 남음）' : ' (' + _actsLeft + ' free activities left ' + _slotWord + ')');
+    // 次数只在还有剩余时显示；用完了由下方"已用完·晚上7点后再开放"卡片单独说明，
+    // 避免出现"还剩0次"与"还有3次"同屏看似矛盾（用户实测觉得不合理）
+    (_actsLeft <= 0 ? '' :
+      (isZh ? '（' + _slotWord + '自由活动还剩 ' + _actsLeft + ' 次）' : lang==='ja' ? '（' + _slotWord + 'の自由行動あと' + _actsLeft + '回）' : lang==='ko' ? '（' + _slotWord + ' 자유 활동 ' + _actsLeft + '회 남음）' : ' (' + _actsLeft + ' free activities left ' + _slotWord + ')'));
   const phoneLabel = isZh?'查看手机':lang==='ja'?'スマホを確認':lang==='ko'?'휴대폰 확인':'Check phone';
   const phoneSub = isZh?'消息 · 朋友圈 · 行业资讯':'Messages · Moments · Industry';
   const makeOpt = (label, sub, cls, onclick) => {
@@ -4446,7 +4452,7 @@ function buildDayOpts() {
     todayCalEvents.filter(e => e && e.type === 'npc_invite' && e.status === 'accepted').forEach(inv => {
       const st = inviteState(inv);
       if (st === 'before') {
-        slots.push(makeOpt('💌 ' + inv.title + ' · ' + (inv.time||''), isZh?'提前30分钟可赴约':lang==='ja'?'30分前から':lang==='ko'?'30분 전부터':'Opens 30 min early', 'locked', () => alert(inviteNotYetMsg(inv))));
+        slots.push(makeOpt('💌 ' + inv.title + ' · ' + (inv.time||''), isZh?'提前1小时可赴约':lang==='ja'?'1時間前から':lang==='ko'?'1시간 전부터':'Opens 1 hour early', 'locked', () => alert(inviteNotYetMsg(inv))));
       } else if (st === 'open') {
         slots.push(makeOpt('💌 ' + inv.title + (inv.time ? ' · ' + inv.time : ''), (isZh?'赴约 · 和':'Date with ') + (inv.npcName||getNPCName(inv.npcKey)), 'work', () => playInviteScene(inv)));
       }
@@ -4641,11 +4647,25 @@ function workState(ev) {
   return 'makeup'; // 区间过了，当天补做
 }
 function workNotYet(ev) { return workState(ev) === 'before'; } // 兼容旧调用
+// 日历/约会地点的可读名。未知键返回空串（绝不把原始 key 显示给玩家）。
+function locDisplayName(key) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var m = {
+    cafe:['咖啡馆','City Café'], night_bar:['酒吧','Night Bar'], recording_studio:['录音室','Recording Studio'],
+    livehouse:['Livehouse','Livehouse'], park:['公园','The Park'], street_market:['街市','Street Market'],
+    art_gallery:['美术馆','Art Gallery'], concert_hall:['音乐厅','Concert Hall'], opera_house:['歌剧院','Opera House'],
+    rooftop:['天台','Rooftop'], mountain_viewpoint:['山顶观景台','Mountain Viewpoint'], restaurant:['餐厅','Restaurant'],
+    bookstore:['书店','Bookstore'], agent_office:['经纪人办公室',"Agent's Office"], player_home:['你的公寓','Your Apartment'],
+    apartment_lobby:['公寓大堂','Lobby'], airport:['机场','Airport'], gym:['健身房','Gym'], salon:['沙龙','Salon'],
+  };
+  var v = m[key];
+  return v ? (isZh ? v[0] : v[1]) : '';
+}
 function inviteState(ev) {
   if (!REALTIME || !ev || !ev.time) return 'open';
   var n = rtClockMin(), s = parseHM(ev.time);
-  if (n < s - 30) return 'before';
-  if (n <= s + 30) return 'open';
+  if (n < s - 60) return 'before';   // 提前1小时解锁（用户反馈半小时太短）
+  if (n <= s + 30) return 'open';    // 过点仍只等30分钟（NPC只等半小时=爽约，不变）
   return 'expired';
 }
 function workNotYetMsg(ev) {
@@ -4657,8 +4677,8 @@ function workNotYetMsg(ev) {
 function inviteNotYetMsg(ev) {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   return isZh
-    ? '还没到约定时间（' + ev.time + '）。提前30分钟可以出发。'
-    : 'Not time yet (' + ev.time + '). You can head out 30 minutes early.';
+    ? '还没到约定时间（' + ev.time + '）。提前1小时可以出发。'
+    : 'Not time yet (' + ev.time + '). You can head out an hour early.';
 }
 
 function placeClosedMsg(key, label) {
@@ -7746,6 +7766,11 @@ function upcomingDatesRef(fromDay, n) {
 // 返回 daysFromNow(1-7) 或 null（文字里没点名星期几就沿用 AI 的值）。
 function weekdayOffsetFromText(text, fromDay) {
   if (!text) return null;
+  // 相对词优先（明天/后天/tomorrow…）：AI 有时不听话在文字里用相对词（用户实测鼓手"明天"却排到今天）。
+  // 相对词在【创建那一刻】相对 fromDay 计算成绝对天数存进 futureDay，之后读到也不会错位。
+  if (/大后天|大後天|in three days|three days from now/i.test(text)) return 3;
+  if (/后天|後天|day after tomorrow|day\-after\-tomorrow/i.test(text)) return 2;
+  if (/明天|明日|明晚|明早|tomorrow|\btmrw?\b/i.test(text)) return 1;
   var pats = [
     /周日|週日|周天|星期日|星期天|礼拜日|禮拜日|\bsundays?\b/i,       // 0
     /周一|週一|星期一|礼拜一|禮拜一|\bmondays?\b/i,                 // 1
