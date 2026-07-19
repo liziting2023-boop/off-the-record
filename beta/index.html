@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=11.97"></script>
-<script src="state.js?v=11.97"></script>
+<script src="story.js?v=11.98"></script>
+<script src="state.js?v=11.98"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -527,7 +527,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.97 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v11.98 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1074,7 +1074,6 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
         <div class="s-style-card" onclick="selStyle('cinematic',this)"><span class="s-style-name">Cinematic</span><span class="s-style-sub">Film grain · Dreamy</span></div>
         <div class="s-style-card" onclick="selStyle('semi-realistic',this)"><span class="s-style-name">Semi-Realistic</span><span class="s-style-sub">Soft · Stylized art</span></div>
         <div class="s-style-card" onclick="selStyle('illustrated',this)"><span class="s-style-name">Illustrated</span><span class="s-style-sub">Painterly · Stylized</span></div>
-        <div class="s-style-card" onclick="selStyle('photorealistic',this)"><span class="s-style-name">Photorealistic</span><span class="s-style-sub">Photography style</span></div>
       </div>
     </div>
     <!-- 人物图质量开关已移除（用户定稿：一律 flux/dev，设置页太长）-->
@@ -1117,14 +1116,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <div class="settings-section-title" style="margin-top:0">BETA FEEDBACK</div>
       <div id="fb-form-row" style="display:none;margin-top:4px"><button class="btn-t" onclick="openFeedbackForm()" style="font-size:12px;width:100%">📝 Feedback survey</button></div>
       <div id="bug-form-row" style="display:none;margin-top:6px"><button class="btn-t" onclick="openBugForm()" style="font-size:12px;width:100%">🐛 Report a bug (screenshot)</button></div>
-      <div style="margin-top:6px"><button class="btn-t" onclick="copyDiagInfo()" style="font-size:12px;width:100%">📋 Copy debug info</button></div>
+      <!-- COPY DEBUG INFO 独立按钮已删（用户定稿）：两个表单按钮点开时自动复制诊断信息，复制失败时 copyDiagInfo 的 catch 会弹窗给手动复制 -->
       <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim());G._testerCode=this.value.trim();STATE.save.saveGame()}catch(e){}" style="margin-top:8px;width:140px;background:rgba(255,255,255,0.9);border:1.5px solid rgba(196,96,122,0.3);border-radius:10px;padding:7px 10px;font-size:12px;outline:none;text-align:center">
     </div>
     <div style="text-align:center;margin-top:14px;font-size:11px;color:#8a8078;line-height:1.9">
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.97 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v11.98 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1301,6 +1300,13 @@ const GETTOKNOW_SEEDS = [
   'share one small real thing about yourself or your day, the kind of thing you would text a friend',
   'ask what her weekend looks like, or tell her a small plan of yours',
   'mention something small and human — the weather where you are, something you saw, a song stuck in your head',
+  // v11.98 扩池（用户实测："吃了吗"式开场太多）：更有性格、更能聊起来的开场
+  'tell her a tiny scene from YOUR work today — a ridiculous moment, a small win, an odd customer — told the way you would tell a friend',
+  'send a playful either/or question and make her pick (coffee or tea, ocean or mountains, stage or studio, morning or midnight)',
+  'mention a song, film or place that made you think of her today — and say WHY in one line',
+  'ask her opinion on something small you are actually deciding (what to cook tonight, which of two jackets, what to name a playlist)',
+  'tease her lightly about something specific from your shared history — affectionate, never mean',
+  'describe one small thing you just saw that she would appreciate — a dog, a sunset, a stranger doing something kind — a "saw this and thought of you" beat',
 ];
 // ── 相识初期各NPC的语气基线（按人设区分）：治Day1/早期"人人一见如故太热情"。
 //    只在好感<40（相识头几周）套用，好感涨上来后交回正常好感语气。只挂在【主动消息】上，不碰回复逻辑。──
@@ -1467,6 +1473,7 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
       stageCtx + _careF + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
       ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
+      ' BANNED OPENERS (wildly overused across this game): asking whether she has eaten / 吃饭了吗 / telling her to eat, asking whether she is still awake, and "are you tired/busy?" as the whole message. Open with something specific and alive instead — a real detail from your day, a genuine question about HER world, a callback to something you two shared. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
       ' Do NOT open with a random hyper-specific or mundane logistical note out of nowhere — NOT about HER work (e.g. "your breath control on bar 12") and NOT about YOUR OWN job\'s equipment/chores/schedule (e.g. a coffee machine that leaks, a delivery, a shift swap). That reads as a bizarre non-sequitur, especially in an early message. Open with something warm and human she can immediately connect to — a small genuine thought, a light question about her, something you noticed — not shop-talk. ' +
       'Output only the message text.'));
@@ -2648,6 +2655,7 @@ function openGallery()  { setABn('bn-gallery');   renderGallery();   go('s-galle
 function closeGallery() { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 function openSettings() {
   setABn('bn-settings');
+  window._pendingLang = null; window._pendingStyle = null; // 清上次未保存的暂存选择
   // 我的设定一览（用户要的：城市/族裔/发色显示在哪——放设置页）
   try {
     var sp = document.getElementById('settings-profile');
@@ -2739,7 +2747,17 @@ function setImgOff(off, el) {
   document.getElementById('img-off-card').classList.toggle('sel', off);
   STATE.save.saveGame();
 }
-function closeSettings(){ go(G._prevScreen || 's-daily'); setABn('bn-home'); }
+function closeSettings(){
+  // 应用暂存的语言/画风（v11.98：点"保存并返回"才生效）
+  if (window._pendingLang && window._pendingLang.code !== G.lang) {
+    G.lang = window._pendingLang.code; G.langName = window._pendingLang.name;
+    applyLang();
+  }
+  if (window._pendingStyle && window._pendingStyle !== G.imgStyle) G.imgStyle = window._pendingStyle;
+  window._pendingLang = null; window._pendingStyle = null;
+  try { STATE.save.saveGame(); } catch(e){}
+  go(G._prevScreen || 's-daily'); setABn('bn-home');
+}
 function openPhone()    { if (REALTIME) checkProactiveOnOpen(); setABn('bn-phone'); renderPhone(); go('s-phone'); }
 function closePhone()   { go(G._prevScreen || 's-daily'); setABn('bn-home'); }
 // ══════════════════════════════════════════════════════
@@ -2962,6 +2980,14 @@ const AGENT_PERF_TASKS = [
 // ── 经纪人排班（滚动式）：给 [已排到的下一天, untilDay] 范围内排必须行程。──
 // 不再一次性发完一个月：Day1 离开办公室后先发 2 周，之后每天保证提前约 1 周有行程。
 // 工作日 = 排练/训练/拍摄；周末 = 演出（小型演出/驻唱，合理发生在周末）。用 isGameWeekend 判真实星期（实时版 Day1 不一定是周一）。
+// 排班专用确定性随机（v11.98）：种子=存档固定 _schedSeed × 天数——同一档同一天永远掷同一结果。
+// 即使日历因任何原因丢失，自愈重排出的行程【与原来完全一致】，玩家不会再看到"重进游戏工作全变了"（用户实测的重要bug）。
+function schedRand(d, salt) {
+  if (!G._schedSeed) { G._schedSeed = Math.floor(Math.random() * 1e9) + 1; try { STATE.save.saveGame(); } catch(e){} }
+  var x = (G._schedSeed ^ Math.imul(d, 2654435761) ^ Math.imul(salt || 1, 40503)) >>> 0;
+  x = Math.imul(x ^ (x >>> 15), 2246822519); x = Math.imul(x ^ (x >>> 13), 3266489917);
+  return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
+}
 function ensureAgentSchedule(untilDay) {
   if (!G.calendar) return;
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
@@ -3012,7 +3038,7 @@ function ensureAgentSchedule(untilDay) {
       remainingFree++;
     }
     var p = remainingFree > 0 ? Math.min(1, (TARGET_PER_WEEK - wkCount) / remainingFree) : 0;
-    if (Math.random() < p) {
+    if (schedRand(d, 1) < p) { // 确定性掷点：丢档重排也得到同一份日程
       if (isGameWeekend(d)) addAgentMandate(d, dateStr, AGENT_PERF_TASKS, isZh, '19:30', '22:00'); // 周末=演出（傍晚）
       else addAgentMandate(d, dateStr, AGENT_PLAN_TASKS, isZh, '10:00', '13:00'); // 工作日=排练/训练
     }
@@ -3022,7 +3048,7 @@ function ensureAgentSchedule(untilDay) {
   STATE.save.saveGame();
 }
 function addAgentMandate(d, dateStr, pool, isZh, time, timeEnd) {
-  var task = pool[Math.floor(Math.random() * pool.length)];
+  var task = pool[Math.floor(schedRand(d, 2) * pool.length)]; // 确定性选任务：同一天永远同一项
   calAddEvent(dateStr, {
     id: 'mandate_' + d, type: 'work', source: 'agent_mandate',
     npcKey: task.npc || null, npcName: task.npc ? getNPCName(task.npc) : '',
@@ -3171,16 +3197,17 @@ function selLang(code, name, el) {
   applyLang();
   document.getElementById('btn-lang').style.visibility = 'visible';
 }
+// 设置页的语言/画风改为【点"保存并返回"才生效】（用户定稿：原来点了语种立即切换，误触就换语言了）。
+// 点选只高亮+暂存 pending；closeSettings 统一应用；openSettings 清 pending（从底栏直接切走=放弃未保存的更改）
 function selLangSettings(code, name, el) {
   document.querySelectorAll('#settings-lang-grid .s-lang-card').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
-  G.lang = code; G.langName = name;
-  applyLang();
+  window._pendingLang = { code: code, name: name };
 }
 function selStyle(style, el) {
   document.querySelectorAll('.s-style-card[onclick^="selStyle"]').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
-  G.imgStyle = style;
+  window._pendingStyle = style;
 }
 function setSoundOn(on, el) {
   G.soundOn = on;
@@ -8777,7 +8804,11 @@ function renderAffection() {
     return '<div class="affection-card" style="cursor:pointer" onclick="openNpcProfile(\'' + npc.key + '\')">' + avatar +
       '<div class="aff-info">' +
         '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + confessIcon + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
-        '<div class="aff-bar-bg"><div class="aff-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+        // 进度条带"亲密线"刻度（用户定稿 v11.98：涨好感要有可见目标）：竖线=该NPC的推倒门槛；过线后填充变深红=已解锁
+        '<div class="aff-bar-bg" style="position:relative;overflow:visible">' +
+          '<div class="aff-bar-fill" style="width:' + pct + '%;background:' + (pct >= (STAYOVER_MIN[npc.key] || 60) ? '#E0356B' : color) + '"></div>' +
+          '<div style="position:absolute;top:-2px;bottom:-2px;left:' + (STAYOVER_MIN[npc.key] || 60) + '%;width:2px;background:rgba(196,96,122,0.9);border-radius:1px" title="亲密线 Intimacy threshold"></div>' +
+        '</div>' +
         '<div class="aff-score">' + heart + ' <b>' + pct + '</b> / 100</div>' +
       '</div></div>';
   }).join('');
@@ -8994,6 +9025,19 @@ window.addEventListener('load', () => {
         G.calendar.events[ds] = (G.calendar.events[ds] || []).filter(function(e){ return !(e && e.type === 'npc_invite' && e.status === 'pending'); });
       });
     } catch(e) {}
+    // 读档兜底（v11.98，用户实测"重进游戏约好的约会全消失"）：聊天消息里的 meet.invId 是接受约会的权威记录——
+    // 每次读档都把"接受过、没婉拒、日子还没过"的约会从消息数据重建进日历（calAddEvent 按 id 去重，重复无害）。
+    // 不管日历因为什么原因丢，这里都能长回来；v11.82 的开聊天自愈仍在（双保险）。
+    try {
+      Object.values((G.phone && G.phone.messages) || {}).flat().forEach(function(m){
+        if (!(m && m.meet && m.meet.invId && !m.meet.declined)) return;
+        var _rmd = m.meet.futureDay || m.day;
+        if (!_rmd || _rmd < G.day) return; // 过去的不重建
+        var _rds = getCalDateStr(_rmd);
+        if ((G.calendar.events[_rds] || []).some(function(e){ return e && e.id === m.meet.invId; })) return;
+        calAddEvent(_rds, { id: m.meet.invId, type: 'npc_invite', npcKey: m.npc, npcName: getNPCName(m.npc), title: m.meet.title, status: 'accepted', time: m.meet.time, locKey: m.meet.locationKey, gathering: m.meet.gathering || undefined, description: m.meet.desc || '' });
+      });
+    } catch(e) {}
   })();
   (function migrateScriptedDone() {
     if (!G.scriptedDone) G.scriptedDone = {};
@@ -9055,7 +9099,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v11.97 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v11.98 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
