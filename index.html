@@ -4,9 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Off the Record</title>
+<!-- 加到主页有正经图标（用户反馈原来显示"G"占位）：PWA manifest + favicon + iOS touch icon -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#C4607A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.02"></script>
-<script src="state.js?v=12.02"></script>
+<script src="story.js?v=12.03"></script>
+<script src="state.js?v=12.03"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -528,7 +536,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.02 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.03 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1124,7 +1132,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.02 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.03 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3883,12 +3891,46 @@ function showNPCOrigin(npcKey, callback) {
     el.onclick = (function(v){return function(){selNPCOrigin(v, this);};})(vals[i]);
     nosGrid.appendChild(el);
   });
+  // 混血可选项（用户27）：点它进入"选两个来源"模式，不强制、不默认
+  var mixEl = document.createElement('div');
+  mixEl.className = 'nos-card';
+  mixEl.style.borderStyle = 'dashed';
+  mixEl.innerHTML = (isZhNos?'✦ 混血':'✦ Mixed') + '<br><span style="font-size:9px;color:var(--ink-muted)">' + (isZhNos?'选两个来源':'pick two') + '</span>';
+  mixEl.onclick = function(){ enterMixMode(this); };
+  nosGrid.appendChild(mixEl);
   document.getElementById('nos-confirm').style.visibility = 'hidden';
+  _mixMode = false; _mixFirst = null; // 重置混血状态
   _nosPhase = 'origin'; _selectedNPCHair = null; // 重置两步选择状态
   document.getElementById('npc-origin-overlay').classList.add('open');
 }
 
+var _mixMode = false, _mixFirst = null;
+function enterMixMode(el) {
+  _mixMode = true; _mixFirst = null; _selectedNPCOrigin = null;
+  document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  document.getElementById('nos-sub').textContent = isZh?'混血：先选第一个来源':'Mixed: pick the FIRST origin';
+  document.getElementById('nos-confirm').style.visibility = 'hidden';
+}
 function selNPCOrigin(val, el) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  if (_mixMode) {
+    if (!_mixFirst) { // 第一个来源
+      _mixFirst = val;
+      document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
+      el.classList.add('sel');
+      document.getElementById('nos-sub').textContent = (isZh?'已选 ':'Picked ') + originDisplayName(val) + (isZh?' × 　再选第二个来源':' × 　now pick the SECOND');
+      document.getElementById('nos-confirm').style.visibility = 'hidden';
+      return;
+    }
+    if (val === _mixFirst) return; // 两个来源不能相同
+    _selectedNPCOrigin = _mixFirst + '×' + val; // 存成 'A×B'
+    el.classList.add('sel');
+    document.getElementById('nos-sub').textContent = (isZh?'混血：':'Mixed: ') + originDisplayName(_selectedNPCOrigin);
+    document.getElementById('nos-confirm').style.visibility = 'visible';
+    return;
+  }
   document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
   _selectedNPCOrigin = val;
@@ -9266,7 +9308,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.02 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.03 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
