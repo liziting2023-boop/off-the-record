@@ -17,9 +17,11 @@
 
 ---
 
-## 🔖 交接状态（2026-07-06，接手先读这段）
+## 🔖 交接状态（2026-07-19 更新，接手先读这段）
 
-**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.92（实时化实验）。**
+**⚡ 30秒速览**：正处**20人×2周封测筹备**尾声。封测基础设施**已全部就绪**（测试码门+同步码+双反馈表单+进度面板 `/admin`+邀请二维码+report端点）。**开测前只差两个内容大件**（用户已拍板、待开发）：**① 特级NPC·足球明星 Rafael 样板**（先做，见 `npc_special.md`）**② 群聊**（乐队群/团队群，NPC按 `NPC_ACQUAINTANCE` 关系网自动接话；不做"追求者擂台"）。**另一独立大件**：多语言总攻（缩到6语EN/DE/FR/JA/zhCN/zhTW+全量本地化，用户会另开窗口时说做）。工作流铁律：改 beta/ → 三处版本号+script `?v=` 同步升 → `node` 语法检查 → commit&push main（beta 在 main 的 `beta/` 子目录，push 即上线）。**改 worker.js 后**：`export $(grep -v '^#' /d/OTR/cloudflare_wrangler.env|xargs) && npx wrangler deploy --config /d/OTR/wrangler.toml`（凭据/配置在仓库外，勿删 keep_vars）。生图铁律：提示词里**任何位置**出现 "hands" 都是怪手吸引子，构图只走 `PORTRAIT_CROP`。
+
+**当前版本 main=v10.95（线上稳定）；realtime分支/beta=v11.98（实时化实验）。**
 
 **📢 20人×2周封测筹备中（2026-07-14 用户定稿）**：①**同步码**已上线（v11.92，设置页：显示设备ID可复制；输码=接管那份云存档跨设备/找回，替代账号系统）②反馈=Google 问卷为主（`FEEDBACK_FORM_URL` 常量待用户给链接后填入，问卷回复表发布为CSV供Claude读取）+邮箱纯文本展示（不做一键发信）+"复制诊断信息"按钮（版本/天数/测试码/短ID）+测试码选填字段（otr_tester_code）③**测试版要加：特级NPC（球星Rafael样板先行）+ 群聊（合理存在的群）**——用户拍板，开发顺序：Rafael→群聊④打赏：测试期可挂纯打赏链接（Ko-fi类，不绑功能防变成"购买"），收款渠道是真门槛，数据价值>钱⑤/report 部署：用户将给 CF API token+Account ID，走 wrangler（**wrangler.toml 必须 keep_vars=true 保住两个明文AI key + OTR_KV 绑定**）。
 
