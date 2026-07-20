@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.12"></script>
-<script src="state.js?v=12.12"></script>
+<script src="story.js?v=12.13"></script>
+<script src="state.js?v=12.13"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -388,7 +388,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-settings{padding:0;}
 .settings-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:52px 14px max(64px,env(safe-area-inset-bottom));gap:10px;overflow-y:auto;-webkit-overflow-scrolling:touch;} /* 原overflow:hidden导致设置页滚不到底（用户看不到版本号/保存按钮） */
 .settings-section-title{font-size:9px;letter-spacing:3px;color:var(--rose);text-transform:uppercase;opacity:0.9;margin-bottom:6px;}
-.settings-lang{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.settings-lang{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
 .settings-style{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
 .s-lang-card{background:rgba(255,255,255,0.75);border:2px solid rgba(196,96,122,0.15);border-radius:4px;padding:7px 4px;cursor:pointer;text-align:center;}
 .s-lang-card.sel{border-color:var(--gold);background:rgba(196,168,130,0.08);}
@@ -562,7 +562,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.12 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.13 · BETA ⏱</p>
   </div>
 </div>
 
@@ -571,14 +571,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="setup-screen">
     <div class="sec-head"><h2>Choose your language</h2></div>
     <div class="lgrid" id="lang-grid-main">
+      <!-- 多语言缩到6语（用户定稿 2026-07-19）：EN/DE/FR/JA/zh-CN/zh-TW；删 KO/ES/PT/TR -->
       <div class="lcard" onclick="selLang('en','English',this)"><span class="lname">English</span></div>
       <div class="lcard" onclick="selLang('ja','日本語',this)"><span class="lname">日本語</span></div>
-      <div class="lcard" onclick="selLang('ko','한국어',this)"><span class="lname">한국어</span></div>
       <div class="lcard" onclick="selLang('de','Deutsch',this)"><span class="lname">Deutsch</span></div>
       <div class="lcard" onclick="selLang('fr','Français',this)"><span class="lname">Français</span></div>
-      <div class="lcard" onclick="selLang('es','Español',this)"><span class="lname">Español</span></div>
-      <div class="lcard" onclick="selLang('pt','Português',this)"><span class="lname">Português</span></div>
-      <div class="lcard" onclick="selLang('tr','Türkçe',this)"><span class="lname">Türkçe</span></div>
       <div class="lcard" onclick="selLang('zh-cn','简体中文',this)"><span class="lname">简体中文</span></div>
       <div class="lcard" onclick="selLang('zh-tw','繁體中文',this)"><span class="lname">繁體中文</span></div>
     </div>
@@ -1090,14 +1087,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div>
       <div class="settings-section-title" id="lbl-lang-setting">LANGUAGE</div>
       <div class="settings-lang" id="settings-lang-grid">
+        <!-- 6语（用户定稿）：EN/DE/FR/JA/zh-CN/zh-TW -->
         <div class="s-lang-card" onclick="selLangSettings('en','English',this)"><span class="sl-name">English</span></div>
         <div class="s-lang-card" onclick="selLangSettings('ja','日本語',this)"><span class="sl-name">日本語</span></div>
-        <div class="s-lang-card" onclick="selLangSettings('ko','한국어',this)"><span class="sl-name">한국어</span></div>
         <div class="s-lang-card" onclick="selLangSettings('de','Deutsch',this)"><span class="sl-name">Deutsch</span></div>
         <div class="s-lang-card" onclick="selLangSettings('fr','Français',this)"><span class="sl-name">Français</span></div>
-        <div class="s-lang-card" onclick="selLangSettings('es','Español',this)"><span class="sl-name">Español</span></div>
-        <div class="s-lang-card" onclick="selLangSettings('pt','Português',this)"><span class="sl-name">Português</span></div>
-        <div class="s-lang-card" onclick="selLangSettings('tr','Türkçe',this)"><span class="sl-name">Türkçe</span></div>
         <div class="s-lang-card" onclick="selLangSettings('zh-cn','简体中文',this)"><span class="sl-name">简体中文</span></div>
         <div class="s-lang-card" onclick="selLangSettings('zh-tw','繁體中文',this)"><span class="sl-name">繁體中文</span></div>
       </div>
@@ -1158,7 +1152,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.12 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.13 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3415,6 +3409,8 @@ function setSoundOn(on, el) {
 }
 
 function applyLang() {
+  // 多语言缩到6语：老档若停在已删语言(ko/es/pt/tr)，迁移到英文（用户定稿）
+  if (['ko','es','pt','tr'].indexOf(G.lang) >= 0) { G.lang = 'en'; G.langName = 'English'; try { STATE.save.saveGame(); } catch(e){} }
   const s = (id, v) => { const e = document.getElementById(id); if (e && v !== undefined) e.innerHTML = (v+'').replace(/\n/g,'<br>'); };
   s('open-nar', t('open_nar')); s('open-stamp', t('open_stamp'));
   s('name-title', t('name_title')); s('name-sub', t('name_sub'));
@@ -9629,7 +9625,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.12 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.13 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
