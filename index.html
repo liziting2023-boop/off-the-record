@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.14"></script>
-<script src="state.js?v=12.14"></script>
+<script src="story.js?v=12.15"></script>
+<script src="state.js?v=12.15"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -562,7 +562,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.14 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.15 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1132,19 +1132,19 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-g" onclick="closeSettings()" id="btn-save-settings" style="align-self:center">Save & Return</button>
     <!-- 测试专区（v11.97 整理：卡片分组+纯英文标签，减少双语堆叠——用户反馈设置页乱）-->
     <div style="margin:20px auto 0;max-width:320px;text-align:center;background:rgba(255,255,255,0.55);border:1px solid rgba(196,96,122,0.18);border-radius:14px;padding:14px 16px">
-      <div class="settings-section-title" style="margin-top:0">SYNC CODE</div>
-      <p style="font-size:11px;color:var(--ink-muted);margin:2px 0 8px">Save this code — restore your progress on any device.</p>
+      <div class="settings-section-title" style="margin-top:0" id="lbl-sync-title">SYNC CODE</div>
+      <p style="font-size:11px;color:var(--ink-muted);margin:2px 0 8px" id="lbl-sync-desc">Save this code — restore your progress on any device.</p>
       <div id="sync-code-display" style="font-size:12px;letter-spacing:0.5px;color:var(--text-dark);user-select:all;word-break:break-all"></div>
-      <button class="btn-t" onclick="copySyncCode()" style="font-size:12px;margin-top:8px">Copy code</button>
+      <button class="btn-t" onclick="copySyncCode()" style="font-size:12px;margin-top:8px" id="lbl-sync-copy">Copy code</button>
       <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
         <input id="sync-code-input" type="text" autocomplete="off" placeholder="Paste a code to restore…" style="flex:1;min-width:0;background:rgba(255,255,255,0.9);border:1.5px solid rgba(196,96,122,0.3);border-radius:10px;padding:8px 10px;font-size:12px;outline:none">
-        <button class="btn-t" onclick="restoreBySyncCode()" style="font-size:12px;flex-shrink:0">Restore</button>
+        <button class="btn-t" onclick="restoreBySyncCode()" style="font-size:12px;flex-shrink:0" id="lbl-sync-restore">Restore</button>
       </div>
     </div>
     <div style="margin:12px auto 0;max-width:320px;text-align:center;background:rgba(255,255,255,0.55);border:1px solid rgba(196,96,122,0.18);border-radius:14px;padding:14px 16px">
-      <div class="settings-section-title" style="margin-top:0">BETA FEEDBACK</div>
-      <div id="fb-form-row" style="display:none;margin-top:4px"><button class="btn-t" onclick="openFeedbackForm()" style="font-size:12px;width:100%">📝 Feedback survey</button></div>
-      <div id="bug-form-row" style="display:none;margin-top:6px"><button class="btn-t" onclick="openBugForm()" style="font-size:12px;width:100%">🐛 Report a bug (screenshot)</button></div>
+      <div class="settings-section-title" style="margin-top:0" id="lbl-feedback-title">BETA FEEDBACK</div>
+      <div id="fb-form-row" style="display:none;margin-top:4px"><button class="btn-t" onclick="openFeedbackForm()" style="font-size:12px;width:100%" id="lbl-fb-survey">📝 Feedback survey</button></div>
+      <div id="bug-form-row" style="display:none;margin-top:6px"><button class="btn-t" onclick="openBugForm()" style="font-size:12px;width:100%" id="lbl-fb-bug">🐛 Report a bug (screenshot)</button></div>
       <!-- COPY DEBUG INFO 独立按钮已删（用户定稿）：两个表单按钮点开时自动复制诊断信息，复制失败时 copyDiagInfo 的 catch 会弹窗给手动复制 -->
       <input id="tester-code-input" type="text" maxlength="12" autocomplete="off" placeholder="Tester code" oninput="try{localStorage.setItem('otr_tester_code',this.value.trim());G._testerCode=this.value.trim();STATE.save.saveGame()}catch(e){}" style="margin-top:8px;width:140px;background:rgba(255,255,255,0.9);border:1.5px solid rgba(196,96,122,0.3);border-radius:10px;padding:7px 10px;font-size:12px;outline:none;text-align:center">
     </div>
@@ -1152,7 +1152,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.14 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.15 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3436,8 +3436,25 @@ function applyLang() {
   s('lbl-sound-setting', t('sound_setting')); s('lbl-sound-on', t('sound_on')); s('lbl-sound-off', t('sound_off')); s('lbl-sound-on-sub', t('sound_on_sub')); s('lbl-sound-off-sub', t('sound_off_sub'));
   // 补齐 onboarding 里之前写死英文、没走语言系统的文字（v10.75）——让"选择语言"对所有文字都生效
   (function(){
-    var isZhL = G.lang==='zh-cn'||G.lang==='zh-tw', isJaL=G.lang==='ja', isKoL=G.lang==='ko';
-    var L = function(zh,en,ja,ko){ return isZhL?zh:(isJaL&&ja)?ja:(isKoL&&ko)?ko:en; };
+    var isZhL = G.lang==='zh-cn'||G.lang==='zh-tw', isJaL=G.lang==='ja', isKoL=G.lang==='ko', isDeL=G.lang==='de', isFrL=G.lang==='fr';
+    // 6语（用户定稿）：可选 de/fr 第5、6参；不传则回退英文。老的4参调用不受影响。
+    var L = function(zh,en,ja,ko,de,fr){ return isZhL?zh:(isJaL&&ja)?ja:(isKoL&&ko)?ko:(isDeL&&de)?de:(isFrL&&fr)?fr:en; };
+    var ph = function(id,v){ var e=document.getElementById(id); if(e) e.placeholder=v; };
+    // ── 设置页区块标题 + 同步码/反馈区（原来硬编码英文，中文玩家也看英文——6语补齐）──
+    s('lbl-lang-setting',  L('语言','LANGUAGE','言語','언어','SPRACHE','LANGUE'));
+    s('lbl-style-setting', L('生图风格','IMAGE STYLE','画像スタイル','이미지 스타일','BILDSTIL','STYLE D\'IMAGE'));
+    s('lbl-sound-setting', L('音效','SOUND EFFECTS','効果音','효과음','SOUNDEFFEKTE','EFFETS SONORES'));
+    s('lbl-imggen-setting',L('图片生成','IMAGE GENERATION','画像生成','이미지 생성','BILDGENERIERUNG','GÉNÉRATION D\'IMAGES'));
+    s('lbl-bday-setting',  L('我的生日 🎂','MY BIRTHDAY 🎂','私の誕生日 🎂','내 생일 🎂','MEIN GEBURTSTAG 🎂','MON ANNIVERSAIRE 🎂'));
+    s('lbl-sync-title',    L('同步码','SYNC CODE','同期コード','동기화 코드','SYNC-CODE','CODE DE SYNC'));
+    s('lbl-sync-desc',     L('保存这个码——在任何设备上恢复进度。','Save this code — restore your progress on any device.','このコードを保存——どの端末でも進行状況を復元。','이 코드를 저장하면 어떤 기기에서도 진행 상황을 복원할 수 있어요.','Speichere diesen Code — stelle deinen Fortschritt auf jedem Gerät wieder her.','Garde ce code — restaure ta progression sur n\'importe quel appareil.'));
+    s('lbl-sync-copy',     L('复制','Copy code','コピー','복사','Kopieren','Copier'));
+    s('lbl-sync-restore',  L('恢复','Restore','復元','복원','Wiederherstellen','Restaurer'));
+    ph('sync-code-input',  L('粘贴同步码以恢复…','Paste a code to restore…','コードを貼り付けて復元…','코드를 붙여넣어 복원…','Code einfügen zum Wiederherstellen…','Colle un code pour restaurer…'));
+    s('lbl-feedback-title',L('封测反馈','BETA FEEDBACK','ベータフィードバック','베타 피드백','BETA-FEEDBACK','RETOUR BÊTA'));
+    s('lbl-fb-survey',     L('📝 反馈问卷','📝 Feedback survey','📝 フィードバック','📝 피드백 설문','📝 Feedback-Umfrage','📝 Sondage de retour'));
+    s('lbl-fb-bug',        L('🐛 报告 Bug（可传截图）','🐛 Report a bug (screenshot)','🐛 バグ報告（画像可）','🐛 버그 신고 (스크린샷)','🐛 Fehler melden (Screenshot)','🐛 Signaler un bug (capture)'));
+    ph('tester-code-input',L('测试码','Tester code','テスターコード','테스터 코드','Tester-Code','Code testeur'));
     s('bedroom-title', L('选择你的卧室','Choose your bedroom','寝室を選ぶ','침실을 고르세요'));
     s('bedroom-sub',   L('一天结束的地方','Where the day ends','一日が終わる場所','하루가 끝나는 곳'));
     s('btn-bedroom',   L('就是我的卧室','This is my bedroom','これが私の寝室','내 침실이에요'));
@@ -9632,7 +9649,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.14 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.15 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
