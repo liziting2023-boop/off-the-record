@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.13"></script>
-<script src="state.js?v=12.13"></script>
+<script src="story.js?v=12.14"></script>
+<script src="state.js?v=12.14"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -562,7 +562,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.13 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.14 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1152,7 +1152,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.13 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.14 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4451,12 +4451,19 @@ async function startDay() {
   const days_zh = ['周日','周一','周二','周三','周四','周五','周六'];
   const days_ja = ['日','月','火','水','木','金','土'];
   const days_ko = ['일','월','화','수','목','금','토'];
+  const days_de = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  const days_fr = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
   const idx = getGameWeekday(G.day);
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
-  const dn = isZh?days_zh[idx]:lang==='ja'?days_ja[idx]+'曜日':lang==='ko'?days_ko[idx]+'요일':days_en[idx];
+  const dn = isZh?days_zh[idx]:lang==='ja'?days_ja[idx]+'曜日':lang==='ko'?days_ko[idx]+'요일':lang==='de'?days_de[idx]:lang==='fr'?days_fr[idx]:days_en[idx];
   const monthDay = getGameDate(G.day);
   // 首页不标具体时间，只显示时段（具体时间只出现在手机里，避免两处对不上的观感）
-  document.getElementById('d-date').textContent = isZh ? dn + ' · ' + monthDay + ' · 第' + G.day + '天' : lang==='ko' ? dn + ' · ' + monthDay + ' · ' + G.day + '일차' : dn + ' · ' + monthDay + ' · Day ' + G.day;
+  document.getElementById('d-date').textContent =
+    isZh ? dn + ' · ' + monthDay + ' · 第' + G.day + '天'
+    : lang==='ko' ? dn + ' · ' + monthDay + ' · ' + G.day + '일차'
+    : lang==='de' ? dn + ' · ' + monthDay + ' · Tag ' + G.day
+    : lang==='fr' ? dn + ' · ' + monthDay + ' · Jour ' + G.day
+    : dn + ' · ' + monthDay + ' · Day ' + G.day;
   updateStressChip();
   // 时段图（白天客厅 / 19点后卧室夜景）+ 时段标签，随真实时间切换
   applyHomeTimeOfDay();
@@ -9625,7 +9632,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.13 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.14 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

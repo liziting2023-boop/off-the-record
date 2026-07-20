@@ -646,10 +646,15 @@ const STATE = {
         ? `\nYOU LIVE TOGETHER NOW: you and ${playerName} share a home — let the easy domestic intimacy of living together (coming home to her, shared routines, her things next to yours) colour how you speak, naturally.`
         : '';
       // 歌曲圣经（用户定稿）：音乐相关的人（经纪人/鼓手/对手歌手）提到她的歌/歌词只能用这几首，绝不现编
-      const _isZhLang = String(lang).indexOf('zh') >= 0 || String(lang).indexOf('中') >= 0;
+      const _ll = String(lang);
+      const _hookOf = (s) => (_ll.indexOf('zh')>=0||_ll.indexOf('中')>=0) ? s.hook_zh
+        : _ll.indexOf('de')>=0||_ll.indexOf('Deutsch')>=0 ? (s.hook_de||s.hook_en)
+        : _ll.indexOf('fr')>=0||_ll.indexOf('Fran')>=0 ? (s.hook_fr||s.hook_en)
+        : _ll.indexOf('ja')>=0||_ll.indexOf('日')>=0 ? (s.hook_ja||s.hook_en)
+        : s.hook_en;
       const musicNote = (['agent','drummer','rival'].includes(npcKey) && STORY.songs && STORY.songs.length)
         ? '\nHER MUSIC — CANON (when you mention her songs or quote a lyric, use ONLY these; NEVER invent other titles or lyrics; song TITLES stay in English even in other languages): ' +
-          STORY.songs.map(s => '"' + s.title + '" — ' + s.about + '; signature line: “' + (_isZhLang ? s.hook_zh : s.hook_en) + '”').join(' | ')
+          STORY.songs.map(s => '"' + s.title + '" — ' + s.about + '; signature line: “' + _hookOf(s) + '”').join(' | ')
         : '';
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
