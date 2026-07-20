@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.06"></script>
-<script src="state.js?v=12.06"></script>
+<script src="story.js?v=12.07"></script>
+<script src="state.js?v=12.07"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -553,7 +553,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.06 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.07 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1149,7 +1149,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.06 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.07 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1526,7 +1526,7 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
 function day1Intro() {
   if (G.day !== 1 || G._day1Intro) return;
   G._day1Intro = true;
-  var nowMin = (REALTIME ? rtClockMin() : 20*60);
+  var nowMin = (REALTIME ? rtClockMin() + 1 : 20*60); // 见完鼓手后+1分钟才发（用户定稿：别在见面时发）
   // ① 经纪人：签约刚结束的暖场跟进（到家了吗+日程今晚看+藏不住的骄傲）；禁"吃了吗"式开场
   if (G.npcs.agent && G.npcs.agent.met) {
     (async function(){ try {
@@ -2754,8 +2754,9 @@ function goHome()       {
   else { // 同居邀请（一次只弹一个）——里程碑那一屏不抢，下次回主页再弹
     try { for (var _ck in G.npcs) { if (maybeCohabInvite(_ck)) break; } } catch(e){}
   }
-  // Day1 序章一播完回到主页 → 立刻触发开局消息节奏（经纪人+鼓手先发、管家+10min），不再等到夜里（用户定稿 c）
-  if (REALTIME && G.day === 1 && G.scriptedDone && G.scriptedDone[1]) {
+  // Day1 序章【全部】播完（见完经纪人+鼓手）回到主页 → 才触发开局消息节奏
+  // （用户实测：见经纪人半途手机就收到2条短信，经纪人人在对面还发信息穿帮）——必须等鼓手也见完
+  if (REALTIME && G.day === 1 && G.scriptedDone && G.scriptedDone[1] && G.npcs.drummer && G.npcs.drummer.met) {
     try { day1Intro(); } catch (e) {}
   }
   // 真实入夜后回主页：补触发晚间内容（白天不再走 goEvening 收尾，这些事改在这里发生；都有一次性守卫）
@@ -8091,8 +8092,8 @@ function weekdayOffsetFromText(text, fromDay) {
 
 async function generatePhoneContent() {
   const isZhPhone = G.lang==='zh-cn'||G.lang==='zh-tw';
-  // 序章还没走完不发早晨消息（用户实测：见经纪人半场手机角标+2，经纪人人在对面还发短信穿帮）
-  if (G.day === 1 && !(G.scriptedDone && G.scriptedDone[1])) return;
+  // 序章【全部】走完（见完经纪人+鼓手）才发早晨消息（用户实测：见经纪人半场手机角标+2，人在对面还发短信穿帮）
+  if (G.day === 1 && !(G.scriptedDone && G.scriptedDone[1] && G.npcs.drummer && G.npcs.drummer.met)) return;
   // 今天的NPC消息已经生成过就不再重复生成（"继续游戏"恢复到同一天、或startDay重复调用时）
   if ((G.phone.messages[G.day]||[]).some(m => m && !m.mine)) { updatePhoneBadge(); return; }
   const msgs = [];
@@ -9471,7 +9472,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.06 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.07 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

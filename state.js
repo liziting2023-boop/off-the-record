@@ -604,6 +604,12 @@ const STATE = {
       const cohabitingNote = npc._cohabiting
         ? `\nYOU LIVE TOGETHER NOW: you and ${playerName} share a home — let the easy domestic intimacy of living together (coming home to her, shared routines, her things next to yours) colour how you speak, naturally.`
         : '';
+      // 歌曲圣经（用户定稿）：音乐相关的人（经纪人/鼓手/对手歌手）提到她的歌/歌词只能用这几首，绝不现编
+      const _isZhLang = String(lang).indexOf('zh') >= 0 || String(lang).indexOf('中') >= 0;
+      const musicNote = (['agent','drummer','rival'].includes(npcKey) && STORY.songs && STORY.songs.length)
+        ? '\nHER MUSIC — CANON (when you mention her songs or quote a lyric, use ONLY these; NEVER invent other titles or lyrics; song TITLES stay in English even in other languages): ' +
+          STORY.songs.map(s => '"' + s.title + '" — ' + s.about + '; signature line: “' + (_isZhLang ? s.hook_zh : s.hook_en) + '”').join(' | ')
+        : '';
       // Add character's own culture note from story.js
       const charCulture = char.culture || '';
 
@@ -620,7 +626,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${musicNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}

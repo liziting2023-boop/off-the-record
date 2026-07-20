@@ -388,7 +388,7 @@ const STORY = {
     protagonist: {
       age: 30,
       profession: 'Singer-songwriter, newly signed artist',
-      background: 'Spent years busking on the streets for tips before finally being discovered. Talented and self-possessed — a grown woman getting her real shot after a long grind. Still learning the industry, but nobody\'s naive ingénue.',
+      background: 'A self-possessed singer-songwriter who busked the city streets by CHOICE — for the love of it and to be truly heard, never out of need (money was never her worry; she is comfortable and independent). Discovered doing the thing she loved. Talented and grounded, a grown woman finally getting her real shot at being heard. Still learning the industry, but nobody\'s naive ingénue and nobody\'s hard-luck case.',
       // 外形由玩家选择，存在 G.player 里
     },
 
@@ -923,6 +923,17 @@ const STORY = {
   },
 
   // ══════════════════════════════════════════════════════
+  // 歌曲圣经（用户定稿 2026-07-20）：女主的正典曲目。NPC 提到歌/歌词必须用这些，绝不现编。
+  // 英文正典（歌名永远英文）+ 中文金句；德/法/日金句进多语言总攻再补。
+  // ══════════════════════════════════════════════════════
+  songs: [
+    { title: "Tonight's Light", vibe: 'raw solo acoustic busker confession — quiet but devastating', hook_en: "I don't need you to remember me — I just need this light tonight.", hook_zh: '我不需要你记得我，我只需要今晚这盏灯。', about: 'the street song the agent first heard her sing; about singing for the moment and the dream, not to be remembered' },
+    { title: 'Off the Record', vibe: 'intimate indie-pop that builds, confessional', hook_en: 'Love me off the record — the take we never release.', hook_zh: '爱我，别上记录——那条我们永远不发行的。', about: 'wanting to be known as her real self, not the packaged version — her title track' },
+    { title: 'Louder', vibe: 'driving anthemic pop-rock, defiant', hook_en: "I didn't cross the city to whisper — I came to be loud.", hook_zh: '我穿过整座城不是来低语的——我是来放声的。', about: 'refusing to shrink; chasing the dream on her own terms' },
+    { title: 'Keep the Light On', vibe: 'slow, warm, aching ballad', hook_en: "Keep the light on — I'm not done being found.", hook_zh: '灯别关——我还没被找够。', about: 'longing, being found, love' },
+  ],
+
+  // ══════════════════════════════════════════════════════
   // 脚本化剧情事件（Day 1-5 详细版）
   // ══════════════════════════════════════════════════════
   scriptedEvents: {
@@ -941,8 +952,8 @@ const STORY = {
       },
       dialogRounds: [
         {
-          // Round 1: 冷酷评估
-          npcContext: 'Day 1 of the contract, her first official work meeting. You are her agent — warm, sharp, quietly thrilled you signed her. Open with a small host gesture: pour her a coffee or slide a water across the desk without asking. Then tell her ONE specific thing from her street sets that convinced you to sign her — a lyric that stuck with you for days, or how she held a rainy-night crowd of six like it was an arena. Specific, never flattery. Close the beat with what you expect of her this month, said like a promise you intend to keep together, not a threat.',
+          // Round 1: 认可与承诺（用户反馈修：删推咖啡、删重复递名片、时间线统一、别写"语气平静得像陈述事实"这类冷描述）
+          npcContext: 'Day 1 of the contract, her first official work meeting. You are her agent — warm, sharp, and quietly thrilled you signed her; let that warmth SHOW (she should feel he is genuinely excited about her, not a cold operator). She already has your card and called you a few days ago — do NOT hand her a card again, and do NOT pour/slide a coffee or water (overused). Instead, open by telling her ONE specific thing from the nights you watched her busk a few weeks ago that convinced you — quote the real signature line of "Tonight\'s Light" ("I don\'t need you to remember me — I just need this light tonight.") and say how it stuck with you, or how she held a small rainy-night crowd like it was an arena. Specific, never flattery. Close with what you two will build this month, said like a promise you intend to keep together. TIMELINE: you first heard her a few weeks ago; she called a few days ago; today she signed — keep it consistent, no contradicting numbers.',
           playerOptions: {
             'zh-cn': ['我准备好了。', '……好。', '你想从哪里开始？'],
             'en': ['I am ready.', '...Okay.', 'Where do you want to start?'],
@@ -953,7 +964,7 @@ const STORY = {
         },
         {
           // Round 2a: 只讲首月日历（用户定稿：原来日历+乐队一口气说完太长，提示被挤出屏幕——拆成两页）
-          npcContext: 'Now the work directive, PART ONE only — her first month, delivered like a gift you are proud of: you planned her ENTIRE first month — 3-4 working days a week (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; tell her to check it tonight, and warn her with a smile that extra work may appear on short notice. STOP THERE — do NOT mention the band or the drummer yet, that comes next. Keep it SHORT: 2-3 sentences maximum.',
+          npcContext: 'Now the work directive, PART ONE only — her first month, delivered like a gift you are proud of: you planned her first month — most days have something (vocal training, dance, demo recording, styling shoots, media training, producer meetings), already in her calendar; three of those demos are the songs you want cut this month. Tell her to check the calendar tonight, and — IMPORTANT — reassure her the schedule is not a cage: if a day does not work she can just message you (or your assistant) to move it, and you will make it work; only a few locked commitments like contracted shoots cannot move. Warn her with a smile that extra work may appear on short notice. STOP THERE — do NOT mention the band or the drummer yet. Keep it SHORT: 3-4 sentences maximum.',
           playerOptions: {
             'zh-cn': ['日程我今晚就看。', '听起来很满……我可以的。', '临时加班会很多吗？'],
             'en': ['I will check the calendar tonight.', 'That sounds packed... I can handle it.', 'Will there be a lot of last-minute work?'],
@@ -1321,10 +1332,10 @@ const STORY = {
   // ══════════════════════════════════════════════════════
   flashback: {
     narration: {
-      'zh-cn': '每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。',
-      'en': 'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.',
-      'ja': '毎晩、にぎやかな街角に陣取った。\nギターケースを地面に開けて。\nチップのために歌う——家賃のため、食費のため、夢のため。\n\n人々は足を緩め、時々立ち止まる人もいた。\nでも、本当に留まった人は、いなかった。',
-      'ko': '매일 밤, 활기찬 거리에 자리를 잡았다.\n기타 케이스를 바닥에 열어두고.\n팁을 위해 노래했다——집세, 식비, 꿈을 위해.\n\n사람들은 발걸음을 늦추고, 가끔 잠깐 멈추기도 했다.\n하지만 아무도, 진짜로 머물지는 않았다.',
+      'zh-cn': '每天晚上，我都在那条最热闹的街角唱歌。\n不是为了谋生——我从不缺那点钱。\n我唱，是因为心里那个梦太亮了，压不住。\n我想被听见，被真正地听见。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n可从没有人，真正地留下来。',
+      'en': 'Every night, I sang on the busiest corner in the city.\nNot to get by — money was never the reason.\nI sang because the dream burned too bright to keep quiet.\nI wanted to be heard. Really heard.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.',
+      'ja': '毎晩、街で一番にぎやかな角で歌った。\n生きるためじゃない——お金が理由だったことは一度もない。\n歌ったのは、胸の中の夢が眩しすぎて、抑えきれなかったから。\n聞いてほしかった。本当に、聞いてほしかった。\n\n人々は足を緩め、時々立ち止まる人もいた。\nでも、本当に留まった人は、いなかった。',
+      'ko': '매일 밤, 도시에서 가장 번화한 거리에서 노래했다.\n먹고살기 위해서가 아니라——돈이 이유였던 적은 없었다.\n가슴속 꿈이 너무 눈부셔서 참을 수 없었으니까.\n들리고 싶었다. 정말로, 들리고 싶었다.\n\n사람들은 발걸음을 늦추고, 가끔 멈추기도 했다.\n하지만 아무도, 진짜로 머물지는 않았다.',
     },
   },
 
