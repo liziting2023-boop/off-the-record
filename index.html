@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.09"></script>
-<script src="state.js?v=12.09"></script>
+<script src="story.js?v=12.10"></script>
+<script src="state.js?v=12.10"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -159,7 +159,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-npc-card{position:absolute;top:3%;left:50%;transform:translateX(-50%);z-index:1;width:min(92vw,430px);max-height:52vh;border-radius:16px;overflow:hidden;box-shadow:0 14px 48px rgba(15,8,12,0.45);border:3px solid rgba(255,255,255,0.85);cursor:pointer;}
 /* "看画面"模式：class 加在 #s-scene 上，!important 保证立绘/对话框/头像框全部收起——
    之前用 inline visibility 会被场景的异步渲染（立绘生成完 display:block 等）盖回来（用户实测夜跑立绘没收起） */
-#s-scene.vn-viewing #vn-content,#s-scene.vn-viewing #vn-avatars,#s-scene.vn-viewing .vn-npc-card{visibility:hidden !important;}
+#s-scene.vn-viewing #vn-content,#s-scene.vn-viewing #vn-avatars,#s-scene.vn-viewing .vn-npc-card,#s-scene.vn-viewing #portrait-full,#s-scene.vn-viewing #npc-trio{visibility:hidden !important;}
 .vn-npc-card img{max-height:52vh;object-fit:cover;}
 .vn-npc-card img{width:100%;display:block;}
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
@@ -173,7 +173,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-speaker{font-size:13px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,22px);font-style:italic;color:#E9DFE1;line-height:1.58;margin-bottom:10px;}
 /* 字体统一（用户定稿）：台词=玫瑰高亮·正体；动作/旁白=中性·斜体。双方（NPC和玩家）一致，无括号。 */
-.vn-text .speech{color:#FFB2C6;font-style:normal;text-shadow:0 0 10px rgba(255,150,180,0.28);}
+.vn-text .speech{color:#FF5C78;font-style:normal;font-weight:600;text-shadow:0 0 12px rgba(255,80,120,0.35);}
 .vn-text .narr{color:#E9DFE1;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
@@ -553,7 +553,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.09 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.10 · BETA ⏱</p>
   </div>
 </div>
 
@@ -855,8 +855,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="vn-bg-ph" id="vn-bg-ph" style="display:none"></div>
   <div class="vn-overlay" id="vn-overlay" style="display:none"></div>
   <div class="vn-npc-card" id="vn-npc-card" style="display:none" onclick="openLB(document.getElementById('vn-npc-img').src)"><img id="vn-npc-img" src="" alt=""></div>
-  <!-- 明显的"看画面"按钮：一键收起立绘+对话框欣赏整张场景图，再点恢复（用户实测点背景不好发现） -->
-  <div id="vn-viewbtn" onclick="toggleVNDialog()" style="position:absolute;top:calc(3% + 6px);left:12px;z-index:7;background:rgba(15,8,12,0.55);color:rgba(255,240,245,0.95);border:1px solid rgba(255,200,210,0.32);border-radius:16px;padding:6px 12px;font-size:12px;letter-spacing:1px;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)">🖼 看画面</div>
+  <!-- "看画面"按钮已移除（用户定稿）：直接点场景背景图即可收起立绘/对话框欣赏整张图，再点恢复；靠下方一次性提示引导 -->
+  <div id="vn-viewbtn" onclick="toggleVNDialog()" style="display:none"></div>
   <!-- 一次性提示：让玩家知道点图放大 / 点背景收起对话框看画面（对话框盖脸的替代解法） -->
   <div class="vn-tap-hint" id="vn-tap-hint" style="display:none"></div>
   <!-- 初见立绘全屏展示（三选一确认后先看大图，点击进入对话） -->
@@ -1149,7 +1149,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.09 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.10 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2436,7 +2436,7 @@ function toggleVNDialog() {
   const sc = document.getElementById('s-scene');
   const viewing = sc.classList.toggle('vn-viewing');
   // 清掉旧方案可能残留的 inline visibility（隐藏统一交给 class 规则）
-  ['vn-content','vn-avatars','vn-npc-card'].forEach(function(i){ var el = document.getElementById(i); if (el) el.style.visibility = ''; });
+  ['vn-content','vn-avatars','vn-npc-card','portrait-full','npc-trio'].forEach(function(i){ var el = document.getElementById(i); if (el) el.style.visibility = ''; });
   var vb = document.getElementById('vn-viewbtn');
   if (vb) { var isZhVb = G.lang==='zh-cn'||G.lang==='zh-tw';
     vb.textContent = viewing ? (isZhVb?'💬 回到对话':'💬 Back to text') : (isZhVb?'🖼 看画面':'🖼 View scene'); }
@@ -6486,7 +6486,7 @@ function renderToneHints(container, inp, npcKey) {
   TONES.forEach(function(t){
     var chip = document.createElement('div');
     chip.className = 'vn-opt';
-    chip.style.cssText = 'flex:1;justify-content:center;padding:8px 10px;min-height:36px;font-size:clamp(13px,3.8vw,15px);';
+    chip.style.cssText = 'flex:0 0 calc(33.333% - 4px);box-sizing:border-box;justify-content:center;text-align:center;padding:9px 6px;min-height:40px;font-size:clamp(12px,3.6vw,14px);';
     chip.textContent = t.label[toneLang] || t.label.en;
     // 表白灰锁（用户定稿 v11.84·欧美化）：还没发生过性行为（nights=0）时不可选——先激情、后把话说开（DTR）
     if (t.key === 'confess' && _toneNpc && G.npcs[_toneNpc] && !canConfessTo(_toneNpc)) {
@@ -9515,7 +9515,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.09 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.10 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
