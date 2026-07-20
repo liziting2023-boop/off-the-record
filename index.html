@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.07"></script>
-<script src="state.js?v=12.07"></script>
+<script src="story.js?v=12.08"></script>
+<script src="state.js?v=12.08"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -553,7 +553,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.07 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.08 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1149,7 +1149,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.07 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.08 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1562,7 +1562,7 @@ function day1Intro() {
 const G = STATE.data;
 
 // 男性 NPC 族裔候选池（与 state.js 的 npcAppearance / culturalTraits 键名一一对应）
-const AGENT_ORIGIN_VALS = ['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'];
+const AGENT_ORIGIN_VALS = ['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican','Greek','Portuguese','Dutch','Irish'];
 
 // 从候选池里随机抽取 n 个（不重复），用于每个男NPC的族裔选择界面，避免每次都是同一批选项
 function pickRandomOrigins(labels, subs, vals, n) {
@@ -3302,8 +3302,8 @@ const TX = {
     city_subs:['USA · East Coast','USA · West Coast','United Kingdom','France','USA · Midwest','Canada','Australia','USA · Music City'],
     decors:['Romantic Minimalist','Contemporary Organic','English Cottage','Modern Dark','Bohemian Warm'],
     decor_subs:['Soft voiles · Dreamy pastels','Natural curves · Oak & walnut','Vintage frames · Florals','Deep tones · Gold accents','Warm layers · Plants · Candlelight'],
-    agent_origins:['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican'],
-    agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara'],
+    agent_origins:['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican','Greek','Portuguese','Dutch','Irish'],
+    agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara','Athens · Thessaloniki','Lisbon · Porto','Amsterdam · Rotterdam','Dublin · Cork'],
   },
   'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'清晨 · 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
@@ -3316,8 +3316,8 @@ const TX = {
     city_subs:['美国东海岸','美国西海岸','英国','法国','美国·中西部','加拿大','澳大利亚','美国·音乐之城'],
     decors:['浪漫极简','现代有机','英式田园','都市摩登','波西米亚温暖'],
     decor_subs:['柔纱·梦幻粉彩','自然曲线·橡木胡桃','复古画框·花卉','深色调·金色点缀','温暖层次·植物·烛光'],
-    agent_origins:['英国人','美国人','法国人','意大利人','非裔美国人','巴西人','德国人','西班牙人','印度人','俄罗斯人','澳大利亚人','墨西哥人'],
-    agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','纽约·亚特兰大','圣保罗·里约','柏林·慕尼黑','马德里·巴塞罗那','孟买·新德里','莫斯科·圣彼得堡','悉尼·墨尔本','墨西哥城·瓜达拉哈拉'],
+    agent_origins:['英国人','美国人','法国人','意大利人','非裔美国人','巴西人','德国人','西班牙人','印度人','俄罗斯人','澳大利亚人','墨西哥人','希腊人','葡萄牙人','荷兰人','爱尔兰人'],
+    agent_origin_subs:['英格兰·苏格兰','东·西海岸','巴黎·法国南部','米兰·罗马','纽约·亚特兰大','圣保罗·里约','柏林·慕尼黑','马德里·巴塞罗那','孟买·新德里','莫斯科·圣彼得堡','悉尼·墨尔本','墨西哥城·瓜达拉哈拉','雅典·塞萨洛尼基','里斯本·波尔图','阿姆斯特丹·鹿特丹','都柏林·科克'],
   },
 };
 ['zh-tw','ja','ko','de','fr','es','pt','tr'].forEach(l => { if (!TX[l]) TX[l] = Object.assign({}, TX.en); });
@@ -3442,7 +3442,18 @@ function buildGrids() {
   mk('g-decor',t('decors'),t('decor_subs'),'decor',dv);
   var aPick = pickRandomOrigins(t('agent_origins'), t('agent_origin_subs'), AGENT_ORIGIN_VALS, 8);
   mk('g-aorigin', aPick.labels, aPick.subs, 'agentOrigin', aPick.vals);
+  // "混血"卡（用户反馈：经纪人开局也要能选混血）——点它进入选两个来源的模式
+  (function(){
+    var g = document.getElementById('g-aorigin'); if (!g) return;
+    var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+    var el = document.createElement('div'); el.className='card'; el.style.borderStyle='dashed';
+    el.dataset.key='agentOrigin'; el.dataset.val='__MIX__';
+    el.innerHTML=(isZh?'✦ 混血':'✦ Mixed')+'<span class="sub">'+(isZh?'选两个来源':'pick two')+'</span>';
+    el.onclick=function(){ selCard(this,'agentOrigin','__MIX__'); };
+    g.appendChild(el);
+  })();
 }
+var _agentMixMode = false, _agentMixFirst = null;
 function selCard(el, key, value) {
   el.closest('.cgrid')?.querySelectorAll('.card').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
@@ -3459,7 +3470,21 @@ function selCard(el, key, value) {
       G.player.fatherSkin = traits.skin;
     }
   } else if (key === 'agentOrigin') {
-    G.npcs.agent.origin = value;
+    var _isZhAo = G.lang==='zh-cn'||G.lang==='zh-tw';
+    if (value === '__MIX__') { // 进入混血模式：选两个来源
+      _agentMixMode = true; _agentMixFirst = null;
+      try { document.getElementById('btn-aorigin').style.visibility = 'hidden'; } catch(e){}
+      try { alert(_isZhAo ? '混血：先点第一个来源，再点第二个。' : 'Mixed: tap the FIRST origin, then the SECOND.'); } catch(e){}
+      return;
+    }
+    if (_agentMixMode) {
+      if (!_agentMixFirst) { _agentMixFirst = value; return; } // 记下第一个，等第二个
+      if (value === _agentMixFirst) return; // 两个不能相同
+      G.npcs.agent.origin = _agentMixFirst + '×' + value; // 存成 'A×B'
+      _agentMixMode = false;
+    } else {
+      G.npcs.agent.origin = value;
+    }
   } else {
     G[key] = value;
   }
@@ -4973,14 +4998,21 @@ function _showSecondaryIntro(npcKey, locKey) {
   var btn = document.createElement('button'); btn.className = 'vn-next';
   btn.textContent = isZh?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   btn.onclick = function(){
-    // 选族裔+发色 → 三选一 → 全屏欣赏 → 回到 startSecondaryMeet（此时已有立绘，直接建场景）
-    showNPCOrigin(npcKey, function(){
+    var afterFace = function(){
       showNPCTrioChooser(npcKey, G.day, function(){
         showPortraitFull(G.npcs[npcKey].portraitUrl, isZh, function(){
           startSecondaryMeet(npcKey, locKey, true);
         });
       });
-    });
+    };
+    if (NO_ORIGIN_PICK[npcKey]) {
+      // 参考真人的特级NPC（如球星Rafael）：不选族裔/发色，用固定设定，直接出3张脸让玩家选一张
+      if (!G.npcs[npcKey].origin) G.npcs[npcKey].origin = (STATE.imagePrompts.secondaryLooks[npcKey] && STATE.imagePrompts.secondaryLooks[npcKey].origin) || 'British';
+      afterFace();
+    } else {
+      // 普通NPC：选族裔+发色 → 三选一 → 全屏欣赏 → 建场景
+      showNPCOrigin(npcKey, afterFace);
+    }
   };
   document.getElementById('vn-opts').appendChild(btn);
 }
@@ -6279,6 +6311,8 @@ function advanceAfterScene(sc) {
 // 二线是生活里认识的、没那层顾虑（用户定稿）。门槛设得比一线最低(rival26)还低，走轻松随性路线。
 // 三线（反面）门槛极低（"很好推倒"是设计的一部分）——但走的是 tier3Night 负反馈流程，不是浪漫过夜
 const STAYOVER_MIN = { actor: 28, drummer: 32, rival: 26, butler: 30, agent: 78, detective: 60, rafael: 34, neighbor: 42, coffee: 20, clerk: 20, trainer: 20, engineer: 20, runner: 20, photog: 20, sleaze: 12, fboy: 10, thief: 12 };
+// 参考真人的特级NPC：初见不让玩家选族裔/发色，用固定设定、直接出3张脸选1（用户定稿）
+const NO_ORIGIN_PICK = { rafael: 1 };
 // 表白解锁（用户定稿 v11.84·欧美化）：**已发生过性行为（nights≥1）才解锁**——先激情、后把话说开，
 // 表白=事后"给这段关系定性"的 DTR 时刻（西方叙事顺序），不再是性行为前的中间里程碑。
 // 旧公式 confessMin=过夜线75% 保留给别处引用兜底，但闸门已改为按 nights 判。
@@ -9472,7 +9506,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.07 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.08 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

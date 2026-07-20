@@ -251,6 +251,10 @@ const STATE = {
       'Russian':         { features: 'Slavic Russian male, high cheekbones, pale striking eyes, angular face',                   hair: 'ash blonde short',                  skin: 'fair',        suit: 'black structured suit, no tie' },
       'Australian':      { features: 'caucasian Australian male, sun-weathered rugged features, easy confident face',            hair: 'sandy brown tousled',                skin: 'sun-tanned',  suit: 'light grey relaxed-fit suit, open collar' },
       'Mexican':         { features: 'Mexican male, warm Latin American features, strong jaw, expressive brown eyes',            hair: 'black short textured',               skin: 'warm tan',    suit: 'charcoal suit, open collar white shirt' },
+      'Greek':           { features: 'caucasian Greek male, classical Mediterranean bone structure, strong brow, deep-set dark eyes',hair: 'dark brown wavy',              skin: 'olive',       suit: 'charcoal fitted suit, open collar white shirt' },
+      'Portuguese':      { features: 'caucasian Portuguese male, warm Iberian features, expressive dark eyes, refined jaw',      hair: 'dark brown softly styled',          skin: 'light olive', suit: 'deep navy tailored suit, open collar' },
+      'Dutch':           { features: 'caucasian Dutch male, tall Northern European features, strong jaw, clear light eyes',      hair: 'blonde neatly combed',              skin: 'fair',        suit: 'slate grey minimalist suit' },
+      'Irish':           { features: 'caucasian Irish male, fair Celtic features, warm expressive eyes, subtle freckling',       hair: 'dark auburn tousled',               skin: 'fair',        suit: 'charcoal tweed-textured suit, open collar' },
     },
 
     // 族裔外形特征（用于女主）
