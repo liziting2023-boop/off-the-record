@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.15"></script>
-<script src="state.js?v=12.15"></script>
+<script src="story.js?v=12.16"></script>
+<script src="state.js?v=12.16"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -562,7 +562,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.15 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.16 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1152,7 +1152,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.15 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.16 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1663,16 +1663,17 @@ function formatPlayerText(raw) {
 
 // ── FAME DATA ──
 const FAME_DATA = [
-  {min:90,emoji:'👑',color:'#f4c840',en:'International Icon','zh-cn':'国际巨星','zh-tw':'國際巨星',ja:'国際的アイコン',ko:'국제적 아이콘'},
-  {min:75,emoji:'🌟',color:'#C4A882',en:'Acclaimed Star','zh-cn':'实力派明星','zh-tw':'實力派明星',ja:'実力派スター',ko:'실력파 스타'},
-  {min:60,emoji:'⭐',color:'#C4A882',en:'Hot Artist','zh-cn':'当红艺人','zh-tw':'當紅藝人',ja:'人気アーティスト',ko:'핫한 아티스트'},
-  {min:45,emoji:'✨',color:'#8A8078',en:'Rising Star','zh-cn':'人气新星','zh-tw':'人氣新星',ja:'人気新星',ko:'인기 신성'},
-  {min:30,emoji:'🎵',color:'#8A8078',en:'Breaking Through','zh-cn':'崭露头角','zh-tw':'嶄露頭角',ja:'頭角を現す',ko:'주목받는 신인'},
-  {min:15,emoji:'🎤',color:'#5a5a5a',en:'Rising Talent','zh-cn':'新人艺人','zh-tw':'新人藝人',ja:'新人アーティスト',ko:'신인 아티스트'},
-  {min:5, emoji:'🎸',color:'#5a5a5a',en:'Street Performer','zh-cn':'街头歌手','zh-tw':'街頭歌手',ja:'ストリートパフォーマー',ko:'버스킹 아티스트'},
-  {min:0, emoji:'⚠️',color:'#ef4444',en:'Fading Artist','zh-cn':'过气艺人','zh-tw':'過氣藝人',ja:'落ち目のアーティスト',ko:'사라져가는 아티스트',danger:true},
+  {min:90,emoji:'👑',color:'#f4c840',en:'International Icon','zh-cn':'国际巨星','zh-tw':'國際巨星',ja:'国際的アイコン',ko:'국제적 아이콘',de:'Internationaler Star',fr:'Icône internationale'},
+  {min:75,emoji:'🌟',color:'#C4A882',en:'Acclaimed Star','zh-cn':'实力派明星','zh-tw':'實力派明星',ja:'実力派スター',ko:'실력파 스타',de:'Gefeierter Star',fr:'Star acclamée'},
+  {min:60,emoji:'⭐',color:'#C4A882',en:'Hot Artist','zh-cn':'当红艺人','zh-tw':'當紅藝人',ja:'人気アーティスト',ko:'핫한 아티스트',de:'Angesagte Künstlerin',fr:'Artiste en vogue'},
+  {min:45,emoji:'✨',color:'#8A8078',en:'Rising Star','zh-cn':'人气新星','zh-tw':'人氣新星',ja:'人気新星',ko:'인기 신성',de:'Aufsteigender Star',fr:'Étoile montante'},
+  {min:30,emoji:'🎵',color:'#8A8078',en:'Breaking Through','zh-cn':'崭露头角','zh-tw':'嶄露頭角',ja:'頭角を現す',ko:'주목받는 신인',de:'Der Durchbruch',fr:'La percée'},
+  {min:15,emoji:'🎤',color:'#5a5a5a',en:'Rising Talent','zh-cn':'新人艺人','zh-tw':'新人藝人',ja:'新人アーティスト',ko:'신인 아티스트',de:'Nachwuchstalent',fr:'Nouveau talent'},
+  {min:5, emoji:'🎸',color:'#5a5a5a',en:'Street Performer','zh-cn':'街头歌手','zh-tw':'街頭歌手',ja:'ストリートパフォーマー',ko:'버스킹 아티스트',de:'Straßenmusikerin',fr:'Artiste de rue'},
+  {min:0, emoji:'⚠️',color:'#ef4444',en:'Fading Artist','zh-cn':'过气艺人','zh-tw':'過氣藝人',ja:'落ち目のアーティスト',ko:'사라져가는 아티스트',de:'Verblassender Star',fr:'Artiste sur le déclin',danger:true},
 ];
-function getFameLabel(lang, fd) { return fd[lang] || fd['zh-cn'] || fd.en; }
+// 回退顺序修正（用户实测 bug）：缺当前语言时回退【英文】而不是中文（原来 de/fr/ko 缺失时会冒出中文名气标签）
+function getFameLabel(lang, fd) { return fd[lang] || fd.en || fd['zh-cn']; }
 function getCurFame(f) { for (const fd of FAME_DATA) if (f >= fd.min) return fd; return FAME_DATA[FAME_DATA.length-1]; }
 
 // ── NPC 配置（emoji + 颜色，用于UI显示）──
@@ -2996,7 +2997,7 @@ function renderCalendar() {
     : ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('cal-month').textContent = monthNames[month] + ' ' + year;
   document.getElementById('cal-title').textContent = isZh ? '日历' : 'Calendar';
-  document.getElementById('bn-calendar-lbl').textContent = isZh ? '日历' : 'Calendar';
+  document.getElementById('bn-calendar-lbl').textContent = (function(l){ return l==='de'?'Kalender':l==='fr'?'Calendrier':l==='ja'?'カレンダー':l==='ko'?'캘린더':isZh?'日历':'Calendar'; })(G.lang);
 
   var dayHeaders = isZh
     ? ['日','一','二','三','四','五','六']
@@ -3455,6 +3456,12 @@ function applyLang() {
     s('lbl-fb-survey',     L('📝 反馈问卷','📝 Feedback survey','📝 フィードバック','📝 피드백 설문','📝 Feedback-Umfrage','📝 Sondage de retour'));
     s('lbl-fb-bug',        L('🐛 报告 Bug（可传截图）','🐛 Report a bug (screenshot)','🐛 バグ報告（画像可）','🐛 버그 신고 (스크린샷)','🐛 Fehler melden (Screenshot)','🐛 Signaler un bug (capture)'));
     ph('tester-code-input',L('测试码','Tester code','テスターコード','테스터 코드','Tester-Code','Code testeur'));
+    // 底部导航（原来 de/fr 回退英文；补齐原生）
+    s('bn-home-lbl',     L('主页','Home','ホーム','홈','Start','Accueil'));
+    s('bn-phone-lbl',    L('手机','Phone','スマホ','휴대폰','Handy','Téléphone'));
+    s('bn-affection-lbl',L('好感度','Affection','好感度','호감도','Zuneigung','Affection'));
+    s('bn-calendar-lbl', L('日历','Calendar','カレンダー','캘린더','Kalender','Calendrier'));
+    s('bn-settings-lbl', L('设置','Settings','設定','설정','Einstellungen','Réglages'));
     s('bedroom-title', L('选择你的卧室','Choose your bedroom','寝室を選ぶ','침실을 고르세요'));
     s('bedroom-sub',   L('一天结束的地方','Where the day ends','一日が終わる場所','하루가 끝나는 곳'));
     s('btn-bedroom',   L('就是我的卧室','This is my bedroom','これが私の寝室','내 침실이에요'));
@@ -9296,7 +9303,7 @@ function renderFame() {
     var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
     var s = G.stress || 0;
     document.getElementById('fame-bar-lbl').textContent = isZh?'⭐ 知名度':'⭐ Fame';
-    document.getElementById('stress-lbl').textContent = isZh?'😮‍💨 压力':'😮‍💨 Stress';
+    document.getElementById('stress-lbl').textContent = (function(l){ return l==='ja'?'😮‍💨 ストレス':l==='ko'?'😮‍💨 스트레스':isZh?'😮‍💨 压力':'😮‍💨 Stress'; })(G.lang);
     var bar = document.getElementById('stress-bar');
     bar.style.width = s + '%';
     bar.style.background = s >= 80 ? '#c0392b' : s >= 50 ? '#d98e3f' : '#7fb37f';
@@ -9649,7 +9656,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.15 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.16 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
