@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.10"></script>
-<script src="state.js?v=12.10"></script>
+<script src="story.js?v=12.11"></script>
+<script src="state.js?v=12.11"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,6 +509,14 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="dev-sec">🧪 新NPC初见（不用等 Day3/Day6）</div>
     <button class="dev-btn" onclick="devMeet('rafael')">初见 · 球星 Rafael</button>
     <button class="dev-btn" onclick="devMeet('neighbor')">初见 · 邻居单亲爸爸</button>
+    <div class="dev-sec">🎬 重要剧情节点·章节卡（看版式+音效）</div>
+    <button class="dev-btn" onclick="devMilestone('confess')">节点 · 表白</button>
+    <button class="dev-btn" onclick="devMilestone('intimate')">节点 · 亲密</button>
+    <button class="dev-btn" onclick="devMilestone('cohabit')">节点 · 同居</button>
+    <button class="dev-btn" onclick="devMilestone('propose')">节点 · 求婚</button>
+    <button class="dev-btn" onclick="devMilestone('marry')">节点 · 结婚</button>
+    <button class="dev-btn" onclick="devMilestone('company')">节点 · 开公司</button>
+    <button class="dev-btn" onclick="devMilestone('award')">节点 · 获奖</button>
     <div class="dev-sec">图像 / 额度</div>
     <button class="dev-btn" id="dev-imgtoggle" onclick="devToggleImg()">生图开关：加载中…</button>
     <button class="dev-btn" onclick="otrClearBg();closeDevPanel()">清背景缓存（重刷混人图）</button>
@@ -553,7 +561,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.10 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.11 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1149,7 +1157,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.10 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.11 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2149,7 +2157,22 @@ function devMeet(k) {
   var loc = (k === 'rafael') ? 'magazine_shoot' : (k === 'neighbor') ? 'apartment_lobby' : 'cafe';
   try { _showSecondaryIntro(k, loc); } catch(e){ console.warn(e); }
 }
-window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet;
+// 测试用：预览"重要剧情节点"章节卡（7类）——看版式+音效
+function devMilestone(type) {
+  closeDevPanel();
+  var isZh = typeof G !== 'undefined' && G && (G.lang==='zh-cn'||G.lang==='zh-tw');
+  var demo = {
+    confess:  isZh?'你和他，正式在一起了。\n心意说出了口——是恋人了。':'You are together now.\nSaid out loud — lovers.',
+    intimate: isZh?'这一夜之后，有些东西不一样了。\n更近了，也更真了。':'After tonight, something changed.\nCloser now. Truer.',
+    cohabit:  isZh?'你搬进了他的生活里。\n"家"是同一个屋檐了。':'You moved into his life.\nHome is one roof now.',
+    propose:  isZh?'他单膝跪下。\n"嫁给我。"':'He got down on one knee.\n"Marry me."',
+    marry:    isZh?'今天，你们结婚了。':'Today, you two married.',
+    company:  isZh?'你的公司，成立了。\n从今往后，规则你定。':'Your company is founded.\nYou set the rules now.',
+    award:    isZh?'你赢了。灯光，落在你身上。':'You won. The lights find you.',
+  };
+  try { playMilestone(type, { body: demo[type] || demo.confess }); } catch(e){ console.warn(e); }
+}
+window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet; window.devMilestone = devMilestone;
 
 function _sleepMs(ms) { return new Promise(function(res){ setTimeout(res, ms); }); }
 
@@ -2749,8 +2772,15 @@ function goHome()       {
   if (REALTIME && G.day >= 3 && G.npcs.neighbor && !G.npcs.neighbor.met && !(typeof _curSceneEv !== 'undefined' && _curSceneEv) && !_pendingConfessMilestone) {
     setTimeout(function(){ try { if (!G.npcs.neighbor.met && !(typeof _curSceneEv !== 'undefined' && _curSceneEv)) _showSecondaryIntro('neighbor', 'apartment_lobby'); } catch(e){} }, 500);
   }
-  // 表白里程碑：刚表白完的场景收尾回到主页 → 弹"正式在一起"卡
-  if (_pendingConfessMilestone) { var _cm = _pendingConfessMilestone; _pendingConfessMilestone = null; setTimeout(function(){ try { showConfessMilestone(_cm); } catch(e){} }, 350); }
+  // 里程碑章节卡（一次只弹一个，优先级：表白 > 第一次过夜 > 同居邀请）
+  if (_pendingConfessMilestone) { var _cm = _pendingConfessMilestone; _pendingConfessMilestone = null; _pendingIntimateMilestone = null; setTimeout(function(){ try { showConfessMilestone(_cm); } catch(e){} }, 350); }
+  else if (_pendingIntimateMilestone) {
+    var _im = _pendingIntimateMilestone; _pendingIntimateMilestone = null;
+    setTimeout(function(){ try {
+      var _isZhI = G.lang==='zh-cn'||G.lang==='zh-tw'; var _inm = getNPCName(_im);
+      playMilestone('intimate', { npcKey: _im, body: _isZhI ? ('这一夜之后，你和' + _inm + '之间，有些东西不一样了。\n更近了，也更真了。') : ('After tonight, something between you and ' + _inm + ' has changed.\nCloser now. Truer.') });
+    } catch(e){} }, 350);
+  }
   else { // 同居邀请（一次只弹一个）——里程碑那一屏不抢，下次回主页再弹
     try { for (var _ck in G.npcs) { if (maybeCohabInvite(_ck)) break; } } catch(e){}
   }
@@ -6360,30 +6390,76 @@ function evalIntimacyTone(npcKey, day) {
   _vnLastTone = null; // 消费掉：收尾和轮间不会重复结算
 }
 
-// 表白里程碑：场景收尾回主页时弹一张"你们正式在一起了"的卡（用户要的"表白后有事件发生"的落点）
+// ══════════════════════════════════════════════════════
+// 重要剧情节点·仪式感模板（用户定稿 2026-07-20）：全屏章节卡 + 合成音效
+// 7类：性行为 intimate / 表白 confess / 同居 cohabit / 求婚 propose / 结婚 marry / 开公司 company / 获奖 award
+// 现有触发点(表白/同居/性行为)已接；求婚/结婚/开公司/获奖 目前无玩法 → 模板已备，做到那些功能时接上。
+// ══════════════════════════════════════════════════════
+const MILESTONE_THEMES = {
+  intimate:{ zh:'亲密', en:'Closer',        emoji:'🌙', c1:'#E58BA4', c2:'#2a0f1a', chord:'warm' },
+  confess: { zh:'表白', en:'A Confession',  emoji:'💞', c1:'#E98BA4', c2:'#2a0f1c', chord:'warm' },
+  cohabit: { zh:'同居', en:'Moving In',     emoji:'🏡', c1:'#E9A27A', c2:'#2a160f', chord:'warm' },
+  propose: { zh:'求婚', en:'The Proposal',  emoji:'💍', c1:'#F0B7CE', c2:'#2a0f22', chord:'bright' },
+  marry:   { zh:'结婚', en:'The Wedding',   emoji:'💐', c1:'#F3C6D8', c2:'#2a0f22', chord:'bright' },
+  company: { zh:'成立公司', en:'Founded',   emoji:'🏢', c1:'#D4B45A', c2:'#221a08', chord:'bright' },
+  award:   { zh:'获奖', en:'The Award',     emoji:'🏆', c1:'#E6C14A', c2:'#221a08', chord:'bright' },
+};
+// 合成音效（WebAudio）：柔和琶音，暖/亮/柔三味——零文件零版权，随时可用
+function playMilestoneChord(flavor) {
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    var ctx = window._otrAudioCtx || (window._otrAudioCtx = new AC());
+    if (ctx.state === 'suspended') { try { ctx.resume(); } catch(e){} }
+    var now = ctx.currentTime;
+    var chords = { warm:[392.00,493.88,587.33,783.99], bright:[523.25,659.25,783.99,1046.50], cool:[349.23,440.00,523.25,659.25] };
+    var notes = chords[flavor] || chords.warm;
+    notes.forEach(function(f, i){
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      var t0 = now + i * 0.17;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(0.13, t0 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.0);
+      o.connect(g); g.connect(ctx.destination); o.start(t0); o.stop(t0 + 2.1);
+    });
+  } catch(e){}
+}
+// 全屏章节卡。opts: { body, npcKey }。返回 Promise（点"继续"后 resolve）。
+function playMilestone(type, opts) {
+  opts = opts || {};
+  var th = MILESTONE_THEMES[type] || MILESTONE_THEMES.confess;
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var label = isZh ? th.zh : th.en;
+  var body = (opts.body || '').replace(/\n/g, '<br>');
+  var npc = opts.npcKey && G.npcs[opts.npcKey];
+  try { playMilestoneChord(th.chord); } catch(e){}
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center;opacity:0;transition:opacity 1.1s ease;background:radial-gradient(circle at 50% 33%,' + th.c1 + '3d,' + th.c2 + 'f5 68%),' + th.c2 + ';';
+  ov.innerHTML =
+    '<div style="font-size:46px;margin-bottom:6px;filter:drop-shadow(0 4px 18px rgba(0,0,0,.55))">' + th.emoji + '</div>' +
+    '<div style="font-size:12px;letter-spacing:6px;text-transform:uppercase;color:' + th.c1 + ';margin-bottom:22px;font-family:Jost,sans-serif">' + label + '</div>' +
+    ((npc && npc.portraitUrl) ? '<img src="' + npc.portraitUrl + '" style="width:96px;height:128px;object-fit:cover;border-radius:14px;margin-bottom:24px;box-shadow:0 8px 34px rgba(0,0,0,.55);border:2px solid ' + th.c1 + '99">' : '') +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:clamp(21px,6.2vw,31px);line-height:1.75;color:#FFF3F6;max-width:560px;font-style:italic;text-shadow:0 2px 22px rgba(0,0,0,.65)">' + body + '</div>' +
+    '<button id="ms-cont" style="margin-top:36px;padding:13px 42px;border:1.5px solid ' + th.c1 + ';border-radius:30px;background:rgba(255,255,255,0.08);color:#FFF3F6;font-size:15px;letter-spacing:2px;cursor:pointer">' + (isZh?'继续':'Continue') + '</button>';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.style.opacity = '1'; });
+  return new Promise(function(resolve){
+    document.getElementById('ms-cont').onclick = function(){ ov.style.opacity='0'; setTimeout(function(){ try{ov.remove();}catch(e){} resolve(); }, 700); };
+  });
+}
+window.playMilestone = playMilestone;
+
+// 里程碑待弹标记：场景收尾回主页时触发（表白/第一次过夜）
 let _pendingConfessMilestone = null;
+let _pendingIntimateMilestone = null;
 function showConfessMilestone(npcKey) {
   if (!npcKey || !G.npcs[npcKey]) return;
-  var npc = G.npcs[npcKey];
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var name = getNPCName(npcKey);
-  var ov = document.createElement('div');
-  ov.style.cssText = 'position:fixed;inset:0;z-index:96;background:radial-gradient(circle at 50% 38%,rgba(196,96,122,0.35),rgba(15,8,12,0.94));display:flex;align-items:center;justify-content:center;padding:26px;';
-  var line1 = isZh ? '你们，正式在一起了' : "You're together now";
-  var line2 = isZh ? ('从今天起，你和' + name + '不再是"心照不宣"——\n心意说出了口，是恋人了。') : ('From today, you and ' + name + " aren't just implied —\nyou said it out loud. You're lovers now.");
-  var line3 = isZh ? '接下来 · 他会更主动、称呼会变、会和你许"我们"的将来；\n好感够深时，他会问你要不要住在一起。' : "From here · he'll be warmer and more forward, call you something tender, make plans as 'us';\nand when you're close enough, he'll ask you to move in together.";
-  var cont = isZh ? '继续' : 'Continue';
-  ov.innerHTML = '<div style="background:#fff8f5;border-radius:20px;max-width:340px;width:100%;padding:22px 22px 20px;text-align:center;box-shadow:0 18px 60px rgba(0,0,0,.5)">' +
-    (npc.portraitUrl ? '<img src="' + npc.portraitUrl + '" style="width:96px;height:128px;object-fit:cover;border-radius:14px;display:block;margin:0 auto 12px;box-shadow:0 6px 20px rgba(196,96,122,.4)">' : '') +
-    '<div style="font-size:30px;margin-bottom:2px">💞</div>' +
-    '<div style="font-size:19px;font-weight:800;color:#7A2442">' + line1 + '</div>' +
-    '<div style="font-size:13px;color:#5C1F35;line-height:1.7;margin-top:10px;white-space:pre-line">' + line2 + '</div>' +
-    '<div style="font-size:11.5px;color:#8a6070;line-height:1.7;margin-top:12px;white-space:pre-line;border-top:1px solid rgba(196,96,122,.2);padding-top:10px">' + line3 + '</div>' +
-    '<button id="cm-ok" style="margin-top:16px;width:100%;padding:12px;border:none;border-radius:12px;background:#C4607A;color:#fff;font-size:15px;font-weight:600;cursor:pointer">' + cont + '</button>' +
-    '</div>';
-  document.body.appendChild(ov);
-  document.getElementById('cm-ok').onclick = function(){ ov.remove(); };
-  ov.onclick = function(e){ if (e.target === ov) ov.remove(); };
+  var body = isZh
+    ? ('你和' + name + '，正式在一起了。\n心意说出了口——从今天起，是恋人。')
+    : ('You and ' + name + ' are together now.\nYou said it out loud — lovers, from today.');
+  playMilestone('confess', { body: body, npcKey: npcKey });
 }
 
 // 同居邀请（表白后三件套之三）：正式恋人 + 好感很高 + 已同床≥2次 → 他提出搬到一起住，弹一次
@@ -6414,9 +6490,12 @@ function maybeCohabInvite(npcKey) {
     npc._cohabiting = true;
     try { STATE.relationships.change(npcKey, 5); } catch(e){}
     try { STATE.memory.addEvent(npcKey, 'Day ' + G.day + ': she said YES to moving in together. You share one home now — home means her.', G.day); } catch(e){}
-    try { playSound('rel-up'); } catch(e){}
     try { STATE.save.saveGame(); } catch(e){}
     ov.remove();
+    // 同居里程碑章节卡（仪式感模板）
+    var _isZhC = G.lang==='zh-cn'||G.lang==='zh-tw';
+    var _nm = getNPCName(npcKey);
+    try { playMilestone('cohabit', { npcKey: npcKey, body: _isZhC ? ('你搬进了' + _nm + '的生活里。\n从今往后，"家"是同一个屋檐，是他，是你们。') : ('You moved into ' + _nm + "'s life.\nHome is one roof now — him, you, the two of you.") }); } catch(e){}
   };
   document.getElementById('cohab-no').onclick = function(){
     npc._cohabOffered = false; // 还没准备好：以后还能再问
@@ -7545,7 +7624,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
     G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
     // 第一夜之后：第二天早上他会发"公开/低调"立场消息（鼓手=邀你进他的圈子,其余=求低调,按性格）
-    if (G.npcs[npcKey].nights === 1) G.npcs[npcKey]._stanceDue = G.day + 1;
+    if (G.npcs[npcKey].nights === 1) { G.npcs[npcKey]._stanceDue = G.day + 1; _pendingIntimateMilestone = npcKey; } // 第一次过夜→回主页弹"亲密"里程碑章节卡
     STATE.memory.addEvent(npcKey,
       (destHers
         ? (G.npcs[npcKey].nights === 1 ? 'You stayed the night at HER place for the FIRST time' : 'You stayed the night at HER place')
@@ -9515,7 +9594,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.10 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.11 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
