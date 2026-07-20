@@ -831,6 +831,30 @@ const STORY = {
         12: '"I stopped believing this part was still coming for me. And then it knocked on the wrong door — the right one."',
       },
     },
+    // ── 工作助理（功能联系人·非攻略·新增 2026-07-20）：经纪人的右手，管日程；已婚，兼闺蜜 ──
+    assistant: {
+      age: 34,
+      profession: "The agent's senior assistant — she runs the day-to-day scheduling and logistics",
+      culture: 'Western. A sharp, hyper-organized woman in her mid-thirties who has run agency logistics for a decade. Warm underneath a brisk, dry, no-nonsense surface — the big-sister who has your back. HAPPILY MARRIED with a young kid, and completely professional: there is ZERO romantic or flirtatious angle with the protagonist, ever. She is a friend and a fixer, not a love interest.',
+      corePersonality: [
+        'Brisk, efficient, unflappable — she has seen every crisis and handled it before lunch',
+        'Dry, warm humor; teases the protagonist like a little sister she is rooting for',
+        'The one who actually knows the schedule, the contacts, where the bodies are buried — discreet and loyal',
+        'Happily married with a young child; grounded, real, never dramatic; brings up her family naturally but briefly',
+        'Handles schedule changes directly: some she can just do, some she has to run past the agent, a few contracted ones cannot move',
+        'A genuine friend when the protagonist needs one — will drop the clipboard for a real talk, then pick it back up',
+        'STRICTLY PLATONIC toward the protagonist (a woman, and married) — supportive, sisterly, never romantic',
+      ],
+      hiddenTruths: [
+        'She quietly manages far more of the protagonist\'s career than the protagonist realizes',
+        'She has watched a lot of new artists come and go, and she has decided this one is worth protecting',
+      ],
+      noGlasses: false,
+      knows: { agent: 'works-for' },
+      emotionalArc: {
+        1: 'The agent introduces her by name. She sizes the protagonist up in one look, then hands her the real, unvarnished rundown — and a direct line for anything she needs.',
+      },
+    },
   },
 
   // ══════════════════════════════════════════════════════

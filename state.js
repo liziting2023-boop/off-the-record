@@ -149,6 +149,12 @@ const STATE = {
         origin: null, name: null, portraitUrl: null, portraitSeed: null,
         relationship: 6, met: false, memory: [], currentMood: 'warm',
       },
+      // ── 工作助理（功能联系人·非攻略·新增 2026-07-20）：经纪人的得力助手，管日程；已婚，兼闺蜜陪伴 ──
+      assistant: {
+        origin: null, name: null, portraitUrl: null, portraitSeed: null,
+        relationship: 20, met: false, memory: [], currentMood: 'brisk',
+        tier: 2, platonic: true, // platonic=不进浪漫/推倒流程（已婚，纯工作+闺蜜）
+      },
       // ── 二线 NPC（tier 2）：地点触发相遇，独立好感，不进主线。met 前不出现在任何列表里。──
       coffee: {
         origin: null, name: null, portraitUrl: null, portraitSeed: null,
@@ -450,6 +456,15 @@ const STATE = {
     imgOriginText(raw) { raw = raw || 'American'; return String(raw).indexOf('×') >= 0 ? ('mixed ' + String(raw).split('×').join(' and ') + ' heritage') : raw; },
     imgOriginApp(raw) { raw = raw || 'American'; var k = String(raw).split('×')[0]; return this.npcAppearance[k] || this.npcAppearance['American']; },
 
+    // ── 工作助理生图（女性·功能联系人）──
+    buildAssistantPrompt(G, scene, day = 1) {
+      return [
+        'Attractive polished professional woman in her mid-30s, realistic adult proportions, warm intelligent face, confident approachable expression, tidy modern shoulder-length hairstyle, tasteful minimal makeup',
+        'wearing smart-casual office attire — a crisp blouse or fine knit with a tailored blazer',
+        'natural realistic lighting, cinematic photographic quality, not cartoon, not anime',
+        scene,
+      ].filter(Boolean).join(', ');
+    },
     // ── 管家生图（只用管家族裔）──
     buildButlerPrompt(G, scene, day = 1, secretRevealed = false) {
       const npc = G.npcs?.butler || STATE.data.npcs.butler;
@@ -622,6 +637,10 @@ const STATE = {
       const confessedNote = npc._confessed
         ? `\nOFFICIALLY TOGETHER (you two confessed and are a couple now): call ${playerName} by a warm affectionate pet name that fits YOUR character, written in ${lang} (love / babe / sweetheart / 宝贝 / 亲爱的 …). Speak with the settled tenderness of an established partner, openly want her, make small future "us" plans, and drop any lingering hesitation about whether you two are together — you ARE, and you let it show in every message.`
         : '';
+      // 功能性/闺蜜类联系人（如工作助理）：严格柏拉图，永不暧昧
+      const platonicNote = npc.platonic
+        ? `\nSTRICTLY PLATONIC: you are NOT a love interest — you are ${playerName}'s professional friend and colleague (happily married yourself). Everything you say stays warm, supportive and sisterly/collegial; NEVER flirtatious or romantic, and never read her warmth as romantic. No confessions, no tension, no stayovers — ever.`
+        : '';
       // 同居后：日常同居的亲密感
       const cohabitingNote = npc._cohabiting
         ? `\nYOU LIVE TOGETHER NOW: you and ${playerName} share a home — let the easy domestic intimacy of living together (coming home to her, shared routines, her things next to yours) colour how you speak, naturally.`
@@ -648,7 +667,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${musicNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${platonicNote}${musicNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}

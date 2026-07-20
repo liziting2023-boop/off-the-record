@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.11"></script>
-<script src="state.js?v=12.11"></script>
+<script src="story.js?v=12.12"></script>
+<script src="state.js?v=12.12"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -509,6 +509,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="dev-sec">🧪 新NPC初见（不用等 Day3/Day6）</div>
     <button class="dev-btn" onclick="devMeet('rafael')">初见 · 球星 Rafael</button>
     <button class="dev-btn" onclick="devMeet('neighbor')">初见 · 邻居单亲爸爸</button>
+    <button class="dev-btn" onclick="closeDevPanel();introduceAssistant();setABn('bn-phone');openPhone();">登场 · 工作助理（看名字+短信）</button>
     <div class="dev-sec">🎬 重要剧情节点·章节卡（看版式+音效）</div>
     <button class="dev-btn" onclick="devMilestone('confess')">节点 · 表白</button>
     <button class="dev-btn" onclick="devMilestone('intimate')">节点 · 亲密</button>
@@ -561,7 +562,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.11 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.12 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1157,7 +1158,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.11 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.12 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1563,7 +1564,32 @@ function day1Intro() {
       }
     } catch(e){} })();
   }
+  try { introduceAssistant(); } catch(e){} // 经纪人介绍工作助理（点名+她主动联系）
   STATE.save.saveGame();
+}
+// 工作助理登场（用户定稿）：经纪人点名介绍 → 助理主动发第一条 → 生成她的立绘。名字按玩家所选城市生成。
+async function introduceAssistant() {
+  if (!G.npcs.assistant || G.npcs.assistant.met) return;
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var a = G.npcs.assistant;
+  if (!a.name) {
+    try {
+      var place = G.player.city || 'a major Western city';
+      var nm = await claudeChat('Generate ONE realistic common FEMALE full name (first and last) for a professional woman in her 30s from ' + place + '. It must NOT be any of these already-used names: ' + (Object.values(G.npcs||{}).map(function(n){return n&&n.name;}).filter(Boolean).join(', ')||'none') + '. Return ONLY the name, nothing else.');
+      a.name = (nm||'').trim().replace(/[^\p{L} '\-]/gu,' ').replace(/\s+/g,' ').trim().split(' ').slice(0,2).join(' ') || (isZh?'助理':'Assistant');
+    } catch(e){ a.name = isZh?'助理':'Assistant'; }
+  }
+  a.met = true; a.contact = true;
+  if (a.portraitSeed == null) a.portraitSeed = Math.floor(Math.random()*1000000);
+  var nowMin = (REALTIME ? rtClockMin() + 3 : 20*60);
+  try { pushNpcMsg('agent', isZh ? ('对了——我的助理 ' + a.name + ' 会帮你盯所有日程。有事直接找她，比找我还快。她这就联系你。') : ("Oh — my assistant " + a.name + " runs all your scheduling. Anything you need, go straight to her, she's faster than me. She'll reach out now."), nowMin); } catch(e){}
+  (async function(){ try {
+    var t = await claudeChat(STATE.memory.buildDialoguePrompt('assistant', G.day, G.langName, G.player.name,
+      'You are ' + a.name + ", the agent's senior assistant, just introduced to her. Send her your FIRST text: brisk, warm, a touch dry — introduce yourself, say you run her schedule and she can message you anytime to move things (some you can just do, some you'll clear with him, a few are locked), and welcome her aboard like a big sister who has her back. 2-3 texting-style sentences. Output only the message text."));
+    if (t && t.trim()) { pushNpcMsg('assistant', t.trim(), nowMin + 4); ensureSecondaryName('assistant'); }
+    try { genNPCPortraitPlain('assistant', G.day, 'facing the camera directly', null); } catch(e){}
+    try { STATE.save.saveGame(); } catch(e){}
+  } catch(e){} })();
 }
 
 // ── 快捷访问 STATE ──
@@ -1665,6 +1691,7 @@ const NPC_UI = {
   rival:    { emoji:'🎤', color:'#d98cae' },
   rafael:   { emoji:'⚽', color:'#5aa06a' },
   neighbor: { emoji:'🏡', color:'#c48a6a' },
+  assistant:{ emoji:'📋', color:'#7aa0b0' },
   coffee:   { emoji:'☕', color:'#b89a7a' },
   clerk:    { emoji:'🌙', color:'#7a8cba' },
   trainer:  { emoji:'🏋️', color:'#8ab07a' },
@@ -1761,6 +1788,7 @@ const NPC_ROLES = {
   rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
   rafael:   { 'zh-cn':'球星','zh-tw':'球星',ja:'サッカー選手',ko:'축구 스타',en:'Footballer' },
   neighbor: { 'zh-cn':'邻居','zh-tw':'鄰居',ja:'隣人',ko:'이웃',en:'Neighbor' },
+  assistant:{ 'zh-cn':'工作助理','zh-tw':'工作助理',ja:'アシスタント',ko:'어시스턴트',en:'Assistant' },
   coffee:   { 'zh-cn':'咖啡师','zh-tw':'咖啡師',ja:'バリスタ',ko:'바리스타',en:'Barista' },
   clerk:    { 'zh-cn':'便利店员','zh-tw':'便利店員',ja:'コンビニ店員',ko:'편의점 직원',en:'Store Clerk' },
   trainer:  { 'zh-cn':'健身教练','zh-tw':'健身教練',ja:'トレーナー',ko:'트레이너',en:'Personal Trainer' },
@@ -1787,6 +1815,7 @@ const NPC_BIO = {
   rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
   rafael:   { zh:'当红球星。名气很大，人却意外地踏实——他记得你把他当普通人看。', en:'A star footballer. Huge fame, surprisingly grounded — he remembers you treated him like a person.', metZh:'一场饮料广告的拍摄现场', metEn:'A soda commercial shoot' },
   neighbor: { zh:'住你隔壁的单亲爸爸，独自带着女儿。温柔可靠，是那种让人安心的人。', en:'The single dad next door, raising his daughter alone. Warm, steady, the kind of man who makes you feel safe.', metZh:'公寓走廊', metEn:'The apartment hallway' },
+  assistant:{ zh:'经纪人的得力助手，帮你打理所有日程。已婚、利落、嘴上毒心里暖，把你当小妹一样罩着。改行程找她。', en:"The agent's right hand who runs all your scheduling. Married, sharp, dry-but-warm — she's got your back like a big sister. Message her to change work.", metZh:'签约后经纪人介绍', metEn:'Introduced by your agent after signing' },
   detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
   coffee:   { zh:'楼下咖啡馆的咖啡师。话不多，记性好——第三次来他就记住了你的单。', en:'The barista downstairs. Few words, long memory — he knew your order by the third visit.', metZh:'楼下咖啡馆', metEn:'The café downstairs' },
   clerk:    { zh:'便利店的夜班店员，白天读研究生。凌晨的坦诚只有他那里有。', en:'The night clerk at the 24h store, grad student by day. 3am honesty lives behind his counter.', metZh:'深夜便利店', metEn:'The late-night store' },
@@ -2333,6 +2362,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
+  if (npcKey === 'assistant')prompt = STATE.imagePrompts.buildAssistantPrompt(G, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day);
   if (!prompt && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, sceneComp + (seasonDesc ? ', ' + seasonDesc : ''), day); // 二线/三线 + 一级新NPC(rafael/neighbor) 走 secondaryLooks；主线有专属build的不会走到这（prompt已非空）
 
   if (detShadow) prompt += detShadow;
@@ -2415,6 +2445,7 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (npcKey === 'detective')prompt = STATE.imagePrompts.buildDetectivePrompt(G, plainComp, day, false);
   if (npcKey === 'butler')   prompt = STATE.imagePrompts.buildButlerPrompt(G, plainComp, day, secretRevealed);
   if (npcKey === 'rival')    prompt = STATE.imagePrompts.buildRivalPrompt(G, plainComp, day);
+  if (npcKey === 'assistant')prompt = STATE.imagePrompts.buildAssistantPrompt(G, plainComp, day);
   if (!prompt && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 二线/三线 + 一级新NPC 走 secondaryLooks；主线有专属build的prompt已非空
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt + PORTRAIT_CROP, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
@@ -8992,9 +9023,10 @@ async function sendChatReply() {
         G.npcs[npc]._careFollowup = { day: G.day, note: text.slice(0, 60) };
       } catch(e) {}
     }
-    // 经纪人专属：她可以在聊天里请经纪人帮忙改/取消已排工作，经纪人真能改到日历（修"口头答应改期、日历没变"）
+    // 经纪人 + 工作助理：可在聊天里帮玩家改/取消已排工作，真能改到日历（修"口头答应改期、日历没变"）
+    var _canResched = (npc === 'agent' || npc === 'assistant');
     let agentReschedCtx = '';
-    if (npc === 'agent' && G.calendar && G.calendar.events) {
+    if (_canResched && G.calendar && G.calendar.events) {
       const _wkd = (G.lang==='zh-cn'||G.lang==='zh-tw') ? ['周日','周一','周二','周三','周四','周五','周六'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
       const _upl = [];
       for (let dd = G.day; dd <= G.day + 9; dd++) {
@@ -9018,6 +9050,8 @@ async function sendChatReply() {
       'Judge her message against your personality: rel is -3 to +3 (inappropriate/rude/needy = negative; what YOU like = positive; neutral = 0). ' +
       (npc === 'agent'
         ? 'You are her AGENT and you run her work calendar, so when she asks to MOVE or CANCEL an existing work session you CAN do it right here and confirm it (see HER UPCOMING WORK + the "reschedule" field) — default to accommodating her. Do NOT invent brand-new recurring rehearsals out of nothing, and rehearsals never land on weekends (shows can). '
+        : npc === 'assistant'
+        ? 'You are her AGENT\'S ASSISTANT and you run her schedule, so when she asks to MOVE or CANCEL a work session you handle it right here (see HER UPCOMING WORK + the "reschedule" field): for a normal [movable] one just do it and confirm; for a bigger change you may say you\'ll clear it with him first but still set the reschedule (you have the authority); a [LOCKED] contracted shoot you cannot move — say so kindly. Do NOT invent brand-new recurring rehearsals, and weekends stay off for rehearsals. '
         : 'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ') +
       agentReschedCtx +
       (isNpcAsleep(npc)
@@ -9036,14 +9070,14 @@ async function sendChatReply() {
       _homeRule +
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (npc==='agent' ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
     // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
     const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null, rescheduleInfo = null;
     try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; rescheduleInfo = p.reschedule || null; }
     catch (e) { reply = (raw||'').trim(); }
     // 经纪人改期真正落到日历（修用户实测：跟经纪人说把周二工作改到晚6点，口头答应了、日历却没变）
-    if (npc === 'agent' && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
+    if (_canResched && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
       try {
         const _rd = rescheduleInfo.day;
         const _evs = G.calendar.events[getCalDateStr(_rd)] || [];
@@ -9066,7 +9100,8 @@ async function sendChatReply() {
             }
           }
           try { refreshCalBadge(); } catch(e){}
-          STATE.memory.addEvent('agent', 'She asked to change a work session and you sorted it on her calendar (day ' + _rd + ').', G.day);
+          STATE.memory.addEvent(npc, 'She asked to change a work session and you sorted it on her calendar (day ' + _rd + ').', G.day);
+          if (npc !== 'agent') { try { STATE.memory.addEvent('agent', 'Her schedule got adjusted on day ' + _rd + ' (handled via your assistant) — you are aware of it and can ask her about it warmly ("heard you moved X — everything okay?"), never annoyed.', G.day); } catch(e){} }
           STATE.save.saveGame();
         }
       } catch(e){}
@@ -9594,7 +9629,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.11 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.12 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
