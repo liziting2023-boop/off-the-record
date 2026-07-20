@@ -289,6 +289,23 @@ const STATE = {
       const fatherTraits = STATE.imagePrompts.heritageTraits[fatherOrigin] || { eyes: 'dark brown', skin: 'medium' };
       const hairColor = player.hairColor || 'dark brown';
 
+      // 服装多样化（用户反馈：每张图便装太像）：按场景+天数确定性挑一套，不同活动/不同天换装、同图稳定
+      const _outfits = [
+        'a chic oversized knit sweater with tailored trousers',
+        'a flowy midi slip dress with a cropped jacket',
+        'high-waisted jeans, a fitted ribbed top and layered necklaces',
+        'a soft silk blouse tucked into wide-leg trousers',
+        'a fine turtleneck under a structured blazer',
+        'a breezy sundress with delicate straps',
+        'a cropped cardigan over a camisole with a pleated midi skirt',
+        'an effortless linen shirt over a tank with tailored shorts',
+        'a satin camisole with a draped long cardigan and jeans',
+        'a tailored jumpsuit cinched at the waist',
+      ];
+      let _oh = 0; const _os = String(scene || '') + '|' + ((typeof STATE !== 'undefined' && STATE.data && STATE.data.day) || 1);
+      for (let _i = 0; _i < _os.length; _i++) { _oh = (_oh * 31 + _os.charCodeAt(_i)) >>> 0; }
+      const _outfit = _outfits[_oh % _outfits.length];
+
       const base = [
         `Naturally beautiful 23-year-old woman`, // 生图固定23岁保证画面年轻好看（用户定稿）；叙事年龄故意不订，见 _bgCtx
         `striking unmistakable ${hairColor} colored hair (hair color must be exactly ${hairColor}, this is important and non-negotiable), ${player.hairStyle || 'long wavy hair'} hairstyle`,
@@ -296,6 +313,7 @@ const STATE = {
         `mixed ${motherOrigin} and ${fatherOrigin} heritage ONLY`,
         `${motherTraits.eyes} eyes`,
         `${fatherTraits.skin} skin tone`,
+        `wearing ${_outfit}, stylish and fully dressed`,
         `editorial beauty with real character and warmth`,
         `NO glasses`,
       ].join(', ');

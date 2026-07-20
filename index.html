@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.08"></script>
-<script src="state.js?v=12.08"></script>
+<script src="story.js?v=12.09"></script>
+<script src="state.js?v=12.09"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -553,7 +553,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.08 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.09 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1149,7 +1149,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.08 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.09 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2238,7 +2238,7 @@ async function claude(prompt, sys = '', opts = {}) {
 // 改用【正向构图】PORTRAIT_CROP：胸部以上特写 + 手臂自然垂放（手自然出画），提示词里绝不出现 hands 字眼。
 // 只用于立绘类生成点（NPC立绘/女主三选一），不碰活动抓拍/美容院（那些是中远景，构图会打架）。
 // 切 dev 模型：IMG_DEV_PORTRAITS=true → 人物图走 flux/dev 28步，且 PORTRAIT_CROP 自动失效（dev 画手可靠，用户定稿）。
-const IMG_DEV_PORTRAITS = false;
+const IMG_DEV_PORTRAITS = true; // 用户定稿：一线NPC/女主等人物图默认走 flux/dev（更高画质、手更可靠）；背景仍 schnell 省钱
 const PORTRAIT_CROP = IMG_DEV_PORTRAITS ? '' : ', tight head-and-shoulders close-up portrait framed from the chest up, fully clothed, arms relaxed straight down at the sides';
 async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false, styleOverride = null) {
   if (DEV_MODE_IMG || (typeof G !== 'undefined' && G && G.imgOff)) return null; // G.imgOff = 设置里手动关掉生图(省钱,测剧情用)
@@ -3540,11 +3540,18 @@ function showHeritage() {
 // ══════════════════════════════════════════════════════
 // ROOMS
 // ══════════════════════════════════════════════════════
-const LIVING_LAYOUT = 'rectangular open-plan living dining room, shot from entrance looking deep into apartment toward window wall, LEFT dining area with wooden dining table and chairs, two glass pendant lights, CENTER BACK TV wall unit with LED underglow, RIGHT large three-seater sofa, round coffee table on area rug, curved accent armchair, FAR END floor-to-ceiling window with sheer curtains, large indoor plant, NO main ceiling light, recessed spotlights, large format tile flooring, warm neutral tones';
-// 图2：小户型出租公寓，客厅餐厅一体，家具简单但软装温馨（非豪华，符合女主刚出道、经济并不宽裕的设定）
-const LIVING_LAYOUT_B = 'compact open-plan living-dining room in a modest rented apartment, shot from the doorway looking toward the window, LEFT a small round wooden dining table with two mismatched chairs tucked near a kitchen pass-through, CENTER a simple two-seater loveseat sofa in soft fabric with a knitted throw blanket and patterned cushions, layered rugs over worn wood-look flooring, small vintage coffee table with candles and a stack of books, RIGHT a low bookshelf and a floor lamp with a warm fabric shade, string lights and a gallery of small framed photos and postcards on the walls, sheer curtains softly diffusing daylight, potted plants on the windowsill, lived-in cozy budget-friendly apartment feeling, warm inviting textures, simple affordable furniture with charming personal touches, NOT luxurious, NOT high-end';
-// 图3：二手/复古混搭出租屋，客厅餐厅一体，同样走温馨不奢华路线
-const LIVING_LAYOUT_C = 'small open-plan living and dining area in a rented walk-up apartment, view from the hallway entrance toward the far wall, LEFT a narrow dining nook with a drop-leaf wooden table against the wall and two mismatched vintage chairs, CENTER a well-worn two-seater sofa draped with a woven blanket and floor cushions on a faded area rug, small round side table with a fabric-shade lamp, RIGHT open shelving with books, plants and a small record player, walls decorated with framed art prints, dried flowers and a woven wall hanging, warm light from a paper lantern pendant, tall window with simple linen curtains, cozy eclectic thrifted-furniture charm, modest secondhand furniture full of warmth and character, NOT luxurious, NOT high-end';
+// 用户定稿：公寓=宽敞现代（女主经济无忧），三种为不同"布局"，风格由所选装修风格(DECOR_PROMPTS)决定
+const LIVING_LAYOUT = 'spacious modern open-plan living-dining room, shot from entrance looking deep toward a floor-to-ceiling window wall, LEFT dining area with a designer dining table and chairs under sculptural pendant lights, CENTER-BACK a media wall, RIGHT a large three-seater sofa and a curved accent armchair around a round coffee table on a generous area rug, tall indoor plants, high ceilings, wide airy floor plan, large-format flooring, recessed lighting';
+const LIVING_LAYOUT_B = 'spacious modern open-plan living-dining room with a different layout, shot from the doorway toward a wide corner window with a city view, LEFT an L-shaped sectional sofa around a low coffee table on a large rug, CENTER an open lounge area, RIGHT a long sideboard and a reading corner with an armchair and floor lamp, a dining table for four near the window, high ceilings, generous open floor plan, big windows flooding the room with light';
+const LIVING_LAYOUT_C = 'spacious modern loft-style open living-dining space with a third layout, view from the hallway toward tall windows, CENTER a plush modular sofa facing a low media console, an island-style dining counter with stools separating the kitchen, an accent lounge chair by the window, statement shelving with books and objects, high ceilings, wide airy loft proportions, abundant daylight';
+// 装修风格提示词（用户反馈：不同风格出图太像）——每种材质/色调/氛围拉开明显差异，注入到房间生成里
+const DECOR_PROMPTS = {
+  'Romantic Minimalist': 'ROMANTIC MINIMALIST style: soft blush, cream and ivory palette, lots of airy negative space, sheer flowing fabrics, brushed brass accents, fresh flowers in vases, curved soft-edged furniture, delicate feminine elegance, bright and serene',
+  'Contemporary Organic': 'CONTEMPORARY ORGANIC style: warm oak and walnut wood, natural travertine stone, chunky boucle and linen textures, abundant greenery and large plants, earthy beige-and-terracotta palette, sculptural handmade ceramics, grounded and tactile',
+  'English Cottage': 'ELEVATED MODERN-COTTAGE style: warm painted wainscoting, tasteful floral and botanical prints, vintage patterned rugs, built-in bookshelves, layered cozy textiles, antique-modern mix, timeless charm (refined and elegant, never shabby)',
+  'Modern Dark': 'MOODY MODERN DARK style: deep charcoal and ink-blue walls, matte black metal, rich dark walnut, brass and warm amber lighting against the dark, low dramatic lighting, sophisticated masculine glamour',
+  'Bohemian Warm': 'WARM BOHEMIAN style: terracotta, rust and ochre palette, layered kilim and moroccan rugs, rattan and cane furniture, macramé wall hangings, plants everywhere, eclectic global textiles, sun-baked cozy warmth',
+};
 let _roomsDone = false;
 let _roomUrls = { a: null, b: null, c: null };
 
@@ -3553,7 +3560,9 @@ async function preGenRooms() {
   const cityLandmarks = { 'New York':'Empire State Building and Times Square neon', 'Los Angeles':'Hollywood Hills and palm trees', 'London':'Tower Bridge and red double-decker bus', 'Paris':'Eiffel Tower and Haussmann rooftops', 'Chicago':'Willis Tower and Cloud Gate (the Bean) at Millennium Park', 'Toronto':'CN Tower over the downtown skyline and Lake Ontario', 'Sydney':'Opera House and Harbour Bridge', 'Nashville':'Broadway honky-tonk district and Music Row' };
   const lm = cityLandmarks[G.player.city] || 'city skyline';
   const layouts = [LIVING_LAYOUT, LIVING_LAYOUT_B, LIVING_LAYOUT_C];
-  const base = layout => layout + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance';
+  // 注入所选装修风格（用户反馈"不同风格出图太像"）：风格描述放最前权重最高，三种布局都染上这个风格
+  const decorStyle = DECOR_PROMPTS[G.player.decor] || '';
+  const base = layout => (decorStyle ? decorStyle + '. ' : '') + layout + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance';
   const a = await img(base(layouts[0]), 'Room A'); setRCard('ra','ra-ph',a,'a'); _roomUrls.a = a;
   const b = await img(base(layouts[1]), 'Room B'); setRCard('rb','rb-ph',b,'b'); _roomUrls.b = b;
   const c = await img(base(layouts[2]), 'Room C'); setRCard('rc','rc-ph',c,'c'); _roomUrls.c = c;
@@ -3576,7 +3585,7 @@ function selRoom(opt) {
   G.apartment.livingDayUrl = _roomUrls[opt];
   const layouts = { a: LIVING_LAYOUT, b: LIVING_LAYOUT_B, c: LIVING_LAYOUT_C };
   G.apartment.selectedLayout = layouts[opt];
-  G.apartment.selectedStyle = opt==='a'?'Romantic Minimalist, cozy modest apartment':opt==='b'?'warm budget-friendly rental apartment':'eclectic thrifted rental apartment';
+  G.apartment.selectedStyle = (DECOR_PROMPTS[G.player.decor] || 'spacious modern apartment') + ' — spacious modern apartment';
   document.getElementById('btn-rooms').style.visibility = 'visible';
 }
 
@@ -9506,7 +9515,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.08 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.09 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
