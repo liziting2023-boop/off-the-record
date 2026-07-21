@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.25"></script>
-<script src="state.js?v=12.25"></script>
+<script src="story.js?v=12.26"></script>
+<script src="state.js?v=12.26"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -380,8 +380,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .fi-pts{font-size:10px;color:var(--ink-muted);}
 
 /* ── GALLERY ── */
-#s-gallery{padding:60px 12px max(70px,env(safe-area-inset-bottom));}
-.ggrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;overflow-y:auto;max-height:calc(100vh - 140px);padding-bottom:12px;}
+#s-gallery{padding:60px 12px max(70px,env(safe-area-inset-bottom));justify-content:flex-start;}
+.ggrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(100dvh - 130px);padding-bottom:12px;}
 .gi{border-radius:8px;overflow:hidden;cursor:pointer;background:var(--night-warm);}
 .gi img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
 .gi .gl{background:var(--night-warm);padding:5px 7px;font-size:10px;color:var(--ink-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -573,7 +573,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.25 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.26 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1163,7 +1163,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.25 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.26 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1433,7 +1433,7 @@ async function checkProactiveOnOpen() {
   // 补发窗口只回溯【今天】（最早今天7:00；跨天离线的昨晚部分不补，避免消息 day 字段错乱）
   var winStart = Math.max(7 * 60, sameDay ? (_lod.getHours() * 60 + _lod.getMinutes()) : 7 * 60);
   var backfill = gapMin >= 90 && nowMin > winStart + 20; // 离线≥90分钟才算"错过了一段"
-  var maxSenders = backfill ? 3 : 1;
+  var maxSenders = backfill ? 2 : 1; // 一次最多补发2条（原3条，用户反馈"一下好几个人发来有些恐怖"）
   var isEve = nowMin >= 20*60, isMorning = nowMin < 11*60, isNoon = nowMin >= 11*60 && nowMin < 14*60;
   // 候选：已识、非侦探、非冷战、有联系方式、距上次主动≥冷却。
   // 注意"睡着"不在这里筛——补发要按【发送时刻】判他睡没睡（挑发送时间时再查）
@@ -1529,7 +1529,7 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
       stageCtx + _careF + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
       ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
-      ' BANNED OPENERS (wildly overused across this game): asking whether she has eaten / 吃饭了吗 / telling her to eat, asking whether she is still awake, and "are you tired/busy?" as the whole message. Open with something specific and alive instead — a real detail from your day, a genuine question about HER world, a callback to something you two shared. ' +
+      ' BANNED OPENERS (wildly overused across this game): asking whether she has eaten / 吃饭了吗 / telling her to eat, asking whether she is still awake, "are you tired/busy?" as the whole message, and — importantly — remarking that she is up early / awake at this hour, asking why she is awake, or commenting on her sleep schedule or body clock (several people all noticing she is awake reads like surveillance and unsettles her; a simple warm "morning" is fine, but do NOT make her being awake the subject). Open with something specific and alive instead — a real detail from your day, a genuine question about HER world, a callback to something you two shared. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
       ' Do NOT open with a random hyper-specific or mundane logistical note out of nowhere — NOT about HER work (e.g. "your breath control on bar 12") and NOT about YOUR OWN job\'s equipment/chores/schedule (e.g. a coffee machine that leaks, a delivery, a shift swap). That reads as a bizarre non-sequitur, especially in an early message. Open with something warm and human she can immediately connect to — a small genuine thought, a light question about her, something you noticed — not shop-talk. ' +
       'Output ONLY the exact words of the text message she receives — as if typed straight into a chat box. NO code fences (```), NO quotation marks around the whole thing, NO narration, and DO NOT describe yourself picking up your phone, unlocking it, typing, or setting it down. Just the message itself, nothing before or after.'));
@@ -1787,7 +1787,8 @@ const MAIN_NPCS = { agent:1, drummer:1, actor:1, detective:1, butler:1, rival:1 
 function isMainNpc(k) { return !!MAIN_NPCS[k]; }
 function npcTier(k) { return (G.npcs[k] && G.npcs[k].tier) || 1; }
 // 能不能收发短信（用户定稿）：一线随时；二线要交换过联系方式(contact)才行；管家例外(Day1短信即有)
-function npcHasContact(k) { return npcTier(k) < 2 || k === 'butler' || !!(G.npcs[k] && G.npcs[k].contact); }
+// 邻居（单亲爸爸）虽是一级，但相识于走廊、需先互留号才会发消息（用户定稿）——故排除在"一级自动有联系方式"之外。
+function npcHasContact(k) { return (npcTier(k) < 2 && k !== 'neighbor') || k === 'butler' || !!(G.npcs[k] && G.npcs[k].contact); }
 // 去/来家的门槛（用户定稿）：家=亲密专属。够亲密(好感到过夜线 或 已过夜)→双向随时；
 // 门槛前只有例外：经纪人/管家可来【她家】(工作/维修，非亲密)。其余一律不去/不来家。
 function homeVisitAllowed(k, locationKey) {
@@ -3047,17 +3048,26 @@ function closeCalendar() {
   setABn('bn-home');
 }
 
+// 两个约会/行程是否【真的】时间冲突：按各自时长算区间重叠（有 timeEnd 用 timeEnd，否则默认75分钟）。
+// 修用户实测："12:30 午餐"和"14:00 词曲创作"隔了一个半小时却被判冲突——以前只要同一天有两个约会就算冲突。
+function _evEndMin(e) { if (!e || !e.time) return null; return e.timeEnd ? parseHM(e.timeEnd) : parseHM(e.time) + 75; }
+function eventsTimeConflict(a, b) {
+  if (!a || !b || !a.time || !b.time) return false;
+  var as = parseHM(a.time), bs = parseHM(b.time), ae = _evEndMin(a), be = _evEndMin(b);
+  if (as == null || bs == null || ae == null || be == null) return false;
+  return as < be && bs < ae; // 区间重叠才算冲突
+}
 // Add event to calendar
 function calAddEvent(dateStr, event) {
   if (!G.calendar.events[dateStr]) G.calendar.events[dateStr] = [];
   // 按 id 去重：同一天重复进入 startDay（如"继续游戏"恢复）不会重复添加同一事件
   if (event.id && G.calendar.events[dateStr].some(e => e.id === event.id)) return;
   event._new = true; // 新加入的安排：日历角标计数+列表🆕标记，玩家打开日历查看后清除
-  // Check for conflicts (two NPC invites on same day)
+  // 冲突 = 同一天两个已接受约会【时间真的重叠】（不再"同一天就算冲突"）
   var existing = G.calendar.events[dateStr].filter(e => e.type === 'npc_invite' && e.status === 'accepted');
-  if (existing.length > 0 && event.type === 'npc_invite') {
-    event.status = 'conflict';
-    existing[0].status = 'conflict';
+  if (event.type === 'npc_invite') {
+    var clash = existing.find(function(e){ return eventsTimeConflict(e, event); });
+    if (clash) { event.status = 'conflict'; clash.status = 'conflict'; }
   }
   G.calendar.events[dateStr].push(event);
   STATE.save.saveGame();
@@ -3145,20 +3155,26 @@ function renderCalDayEvents(dateStr) {
     return;
   }
 
-  // Check conflicts
+  // 冲突 = 已接受约会里【时间真的重叠】的那些（不再"同一天两个约会就报冲突"）
   var acceptedInvites = events.filter(e => e.type==='npc_invite' && e.status==='accepted');
-  var hasConflict = acceptedInvites.length > 1;
+  var _clashSet = new Set();
+  for (var _ci = 0; _ci < acceptedInvites.length; _ci++) {
+    for (var _cj = _ci + 1; _cj < acceptedInvites.length; _cj++) {
+      if (eventsTimeConflict(acceptedInvites[_ci], acceptedInvites[_cj])) { _clashSet.add(acceptedInvites[_ci]); _clashSet.add(acceptedInvites[_cj]); }
+    }
+  }
+  var hasConflict = _clashSet.size > 0;
 
   if (hasConflict) {
     var warn = document.createElement('div');
     warn.style.cssText = 'background:rgba(220,100,60,0.1);border:1px solid rgba(220,100,60,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#c04020;text-align:center;';
-    warn.textContent = isZh ? '⚠️ 时间冲突！你答应了' + acceptedInvites.length + '个约会，小心赶场' : '⚠️ Conflict! You accepted ' + acceptedInvites.length + ' invitations';
+    warn.textContent = isZh ? '⚠️ 时间冲突！有约会时间撞在一起，小心赶场' : '⚠️ Conflict! Two plans overlap in time';
     container.appendChild(warn);
   }
 
   events.forEach(function(ev, idx) {
     var card = document.createElement('div');
-    card.className = 'cal-event-card' + (hasConflict && ev.type==='npc_invite' ? ' conflict' : '') + (ev.status==='accepted' && !hasConflict ? ' accepted' : '') + (ev.status==='declined' ? ' declined' : '');
+    card.className = 'cal-event-card' + (_clashSet.has(ev) ? ' conflict' : '') + (ev.status==='accepted' && !_clashSet.has(ev) ? ' accepted' : '') + (ev.status==='declined' ? ' declined' : '');
 
     var statusLabel = {
       pending: isZh?'待确认':'Pending',
@@ -5297,7 +5313,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
   const _eve = REALTIME ? (rtClockMin() >= 17 * 60 || rtClockMin() < 4 * 60) : (G.phase === 'evening' || (G.clockMin || 0) >= 17 * 60);
   if (_eve && (npc.relationship || 0) >= STAYOVER_MIN[npcKey]) {
     _afterDialogHook = function(){ maybeStayOver(npcKey, locKey); };
-  } else if (npcTier(npcKey) === 2 && npcKey !== 'butler' && !npc.contact) {
+  } else if ((npcTier(npcKey) === 2 || npcKey === 'neighbor') && npcKey !== 'butler' && !npc.contact) {
     _afterDialogHook = function(){ secondaryContactBeat(npcKey); };
   }
   const startBtn = document.createElement('button');
@@ -5323,10 +5339,13 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.25：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
-  if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10) {
+  // 用户定稿 v12.26：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
+  if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
       ? (isZh ? '「照片洗出来，我想发给你看看——留个联系方式？只放进我自己的独立影集，不作商用，你不同意我就不用。」' : '"The prints — I\'d like to send you a few. Leave me a way to reach you? Just for my own independent series, never commercial; if you say no, they don\'t get used."')
+      : npcKey === 'neighbor'
+      ? (isZh ? '他把最后一样东西搁稳，有点不好意思：「对了——我就住隔壁。留个联系方式吧？你要是有什么急事，或者……Lily 哪天赖着要找你玩，我也好提前跟你说一声。」' : 'He sets the last thing down, a little sheepish. "Hey — I\'m right next door. Want to swap numbers? In case anything comes up, or… Lily decides she wants to come say hi and I can give you a heads-up."')
       : (isZh ? '他顿了一下，还是开口了：「……方便留个联系方式吗？下次不用碰运气。」' : 'He hesitates, then just asks: "…Mind if I get your number? So it\'s not down to luck next time."');
     document.getElementById('vn-text').textContent = askLine;
     // 给号
@@ -5335,9 +5354,13 @@ function secondaryContactBeat(npcKey) {
     giveBtn.onclick = function(){
       document.getElementById('vn-text').textContent = npcKey === 'photog'
         ? (isZh ? '你把号码给了他。「谢谢——照片好了第一时间发你。」' : 'You give him your number. "Thank you — you\'ll be the first to see them."')
+        : npcKey === 'neighbor'
+        ? (isZh ? '你们互留了号码。「太好了——有事随时找我，真的。」他把手机收回口袋，Lily 在他腿后偷偷冲你挥了挥手。' : 'You swap numbers. "Great — anytime, really." He tucks his phone away; behind his leg, Lily sneaks you a little wave.')
         : (isZh ? '你把号码留给了他，他笑了笑收好手机。' : 'You leave him your number; he pockets his phone with a small smile.');
       grantAndGo(npcKey === 'photog'
         ? 'You swapped contacts so he can send you the photos (his own independent series, not commercial).'
+        : npcKey === 'neighbor'
+        ? 'You two swapped numbers as neighbours — he can text you now (and give a heads-up about Lily).'
         : 'You two swapped numbers — you can text each other now.');
     };
     // 婉拒（不给号，好感不变，自然收尾；下次见面他仍可能再问）
@@ -6690,7 +6713,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.25）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.26）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -8956,9 +8979,10 @@ function renderChatMsgs(npc, dividerIdx) {
             STATE.memory.addEvent(mm.npc, 'She said yes — you two are on for ' + mm.meet.time + (md === G.day ? ' today' : ' on day ' + md) + ' ("' + mm.meet.title + '").', G.day);
             refreshCalBadge(); try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
           };
-          // 冲突提醒：同一天90分钟内已有确认约会就问一句（提醒不禁止）
+          // 冲突提醒：同一天已有确认约会【时间真的重叠】才问一句（提醒不禁止）——不再"差90分钟就报"
           try {
-            var nearC = (G.calendar.events[getCalDateStr(md)] || []).find(function(x){ return x && x.type === 'npc_invite' && x.status === 'accepted' && x.time && mm.meet.time && Math.abs(parseHM(x.time) - parseHM(mm.meet.time)) <= 90; });
+            var _newEv = { time: mm.meet.time, timeEnd: mm.meet.timeEnd || null };
+            var nearC = (G.calendar.events[getCalDateStr(md)] || []).find(function(x){ return x && x.type === 'npc_invite' && x.status === 'accepted' && eventsTimeConflict(x, _newEv); });
             if (nearC) {
               var isZhC2 = G.lang==='zh-cn'||G.lang==='zh-tw';
               gameConfirm(isZhC2 ? '这和「' + nearC.title + ' · ' + nearC.time + '」只差不到一个半小时，爽约会伤感情。还要接受吗？'
@@ -9230,7 +9254,7 @@ async function sendChatReply() {
         ? 'You are her AGENT and you run her work calendar, so when she asks to MOVE or CANCEL an existing work session you CAN do it right here and confirm it (see HER UPCOMING WORK + the "reschedule" field) — default to accommodating her. Do NOT invent brand-new recurring rehearsals out of nothing, and rehearsals never land on weekends (shows can). '
         : npc === 'assistant'
         ? 'You are her AGENT\'S ASSISTANT and you run her schedule, so when she asks to MOVE or CANCEL a work session you handle it right here (see HER UPCOMING WORK + the "reschedule" field): for a normal [movable] one just do it and confirm the NEW time; for a bigger change you may say you\'ll clear it with him first but still set the reschedule (you have the authority). A [LOCKED] contracted shoot you CANNOT move — say so kindly and NEVER claim you changed it. CONSISTENCY: whatever new time you agree to, every time you mention in your reply must match it — do not agree to 11:00 and then say "see you at 10". You are a scheduling coordinator who is NOT personally at her shoots/sessions, so never say "see you there" / "见" as if you will be attending — you handle the calendar, you do not show up on set. Do NOT invent brand-new recurring rehearsals, and weekends stay off for rehearsals. '
-        : 'NEVER propose or promise a new rehearsal/session/work plan in chat — plans only get made through official channels, and weekends are always off. If she asks to schedule something, deflect to "we will settle it in person / my agent side will confirm". ') +
+        : 'You do NOT manage her work calendar — you are not her agent or her scheduler. If she asks you to MOVE, CANCEL, BOOK, or CONFIRM any work session, class, rehearsal, studio, shoot or appointment, you MUST NOT agree, confirm, or claim you handled or booked it — that is simply not yours to touch, and pretending you did would mislead her. Say plainly and warmly that it is not something you can do, and point her to her agent / her assistant Sarah for anything schedule-related. Likewise never propose or promise a NEW rehearsal/session/plan yourself, and weekends are always off. ') +
       agentReschedCtx +
       (isNpcAsleep(npc)
         ? 'It is past YOUR usual bedtime — you may naturally say you are heading to sleep and set "endChat": true (you will not reply again tonight); but if you two are close, you can choose to stay up a little longer for her instead. '
@@ -9818,7 +9842,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.25 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.26 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
