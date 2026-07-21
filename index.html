@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.29"></script>
-<script src="state.js?v=12.29"></script>
+<script src="story.js?v=12.30"></script>
+<script src="state.js?v=12.30"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -575,7 +575,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.29 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.30 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1165,7 +1165,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.29 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.30 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1559,7 +1559,7 @@ function day1Intro() {
   if (G.npcs.agent && G.npcs.agent.met) {
     (async function(){ try {
       var ta = await claudeChat(STATE.memory.buildDialoguePrompt('agent', G.day, G.langName, G.player.name,
-        'The signing meeting wrapped a little while ago and she is home now. Text her a short, warm professional follow-up: check she got back okay, remind her (lightly) that her whole first month is already in her calendar to look over tonight, and let a little quiet pride in signing her show through. NEVER open with "have you eaten" or any food question. 1-2 texting-style sentences.' + earlyToneNote('agent') + ' Output only the message text.'));
+        'She signed with you a few days ago; TODAY was her first real day on the job (she met the band at the studio this afternoon) and she is home now. Text her a short, warm professional follow-up: check she got back okay, remind her (lightly) that her whole first month is already in her calendar to look over tonight, and let a little quiet pride in having signed her show through. Do NOT say you signed her "today" — the signing already happened days ago; today was her first day of work. NEVER open with "have you eaten" or any food question. 1-2 texting-style sentences.' + earlyToneNote('agent') + ' Output only the message text.'));
       if (ta && ta.trim()) { pushNpcMsg('agent', ta.trim(), nowMin); ensureSecondaryName('agent'); }
     } catch(e){} })();
   }
@@ -1575,7 +1575,7 @@ function day1Intro() {
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
-        'You are the building\'s NEW summer concierge (a college student working a summer job at the front desk) and she moved into the building today. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the new concierge working the desk over the summer, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
+        'You are the building\'s new part-time concierge (a college student working the front desk while he studies) and she moved into the building a few days ago. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the concierge working the desk, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) {
         pushNpcMsg('butler', t.trim(), nowMin + 10);
         ensureSecondaryName('butler');
@@ -3869,13 +3869,34 @@ function isHomeNight() {
   // 凌晨0-5点也是夜（修0:04首页显示"早晨"+白天客厅图）
   return REALTIME ? (rtClockMin() >= 19 * 60 || rtClockMin() < 5 * 60) : (G.phase === 'evening');
 }
+// 同居后把家换成伴侣家：客厅白天用 HOME_PROMPTS[伴侣]，卧室夜晚用 OVERNIGHT_ACT2[伴侣].img（都已有）。后台生成、生成好即刷新首页。
+async function genCohabHome(npcKey) {
+  if (!G.apartment) return;
+  var home = (typeof HOME_PROMPTS !== 'undefined' && HOME_PROMPTS[npcKey]) || '';
+  var bed  = (typeof OVERNIGHT_ACT2 !== 'undefined' && OVERNIGHT_ACT2[npcKey] && OVERNIGHT_ACT2[npcKey].img) || '';
+  try {
+    if (home && !G.apartment.cohabLivingUrl) {
+      var lu = await img(home + ', bright natural daytime light, warm inviting lived-in home, no people', 'cohab-living-' + npcKey);
+      if (lu) { G.apartment.cohabLivingUrl = lu; try { STATE.save.saveGame(); } catch(e){} try { applyHomeTimeOfDay(); } catch(e){} }
+    }
+  } catch(e){}
+  try {
+    if (bed && !G.apartment.cohabBedroomUrl) {
+      var bu = await img(bed, 'cohab-bed-' + npcKey);
+      if (bu) { G.apartment.cohabBedroomUrl = bu; try { STATE.save.saveGame(); } catch(e){} try { applyHomeTimeOfDay(); } catch(e){} }
+    }
+  } catch(e){}
+}
 function applyHomeTimeOfDay() {
   const lang = G.lang, isZh = lang === 'zh-cn' || lang === 'zh-tw';
   const night = isHomeNight();
   const imgEl = document.getElementById('daily-room-img');
   const phEl = document.getElementById('daily-room-ph');
-  const url = night ? (G.apartment.bedroomNightUrl || G.apartment.livingDayUrl)
-                    : (G.apartment.livingDayUrl || G.apartment.bedroomNightUrl);
+  // 同居后优先用伴侣家的图（cohabWith 有值时）
+  const _coLiving = (G.apartment.cohabWith && G.apartment.cohabLivingUrl) || G.apartment.livingDayUrl;
+  const _coBed = (G.apartment.cohabWith && G.apartment.cohabBedroomUrl) || G.apartment.bedroomNightUrl;
+  const url = night ? (_coBed || _coLiving)
+                    : (_coLiving || _coBed);
   if (url && imgEl) {
     imgEl.src = url; imgEl.style.display = 'block';
     if (phEl) phEl.style.display = 'none';
@@ -5353,7 +5374,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.29：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.30：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -6707,6 +6728,8 @@ function maybeCohabInvite(npcKey) {
   document.body.appendChild(ov);
   document.getElementById('cohab-yes').onclick = function(){
     npc._cohabiting = true;
+    // 同居=搬进他家（用户定稿）：家的图从此换成伴侣家的（客厅白天 + 卧室夜晚），后台生成
+    try { if (G.apartment) { G.apartment.cohabWith = npcKey; genCohabHome(npcKey); } } catch(e){}
     try { STATE.relationships.change(npcKey, 5); } catch(e){}
     try { STATE.memory.addEvent(npcKey, 'Day ' + G.day + ': she said YES to moving in together. You share one home now — home means her.', G.day); } catch(e){}
     try { STATE.save.saveGame(); } catch(e){}
@@ -6727,7 +6750,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.29）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.30）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -9876,7 +9899,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.29 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.30 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
