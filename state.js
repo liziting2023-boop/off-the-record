@@ -479,7 +479,7 @@ const STATE = {
       // ⚠️ 措辞经验：boyish/college-age/innocent/slim youthful 这类词堆起来会把画风推向卡通
       // （用户实测管家出图像皮克斯、和经纪人/鼓手不一致且太瘦弱）。改成写实成人化描述+健壮体格。
       return [
-        `Handsome 20-year-old ${origin} young man, realistic adult proportions`,
+        `Handsome youthful fresh-faced 20-year-old ${origin} young man who clearly looks his real age — early-twenties, soft boyish charm and smooth young features, NOT a man in his late twenties or thirties`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
         `clean-shaven smooth face, completely beardless, clear bright eyes`,
@@ -527,7 +527,7 @@ const STATE = {
       rafael: {
         origin: 'British',
         // 用户定稿：身高/体型/发型对齐参考球星（英格兰10号中场·186cm），长相在其混血背景范围内生成（非克隆真人脸）。
-        line: 'Strikingly handsome, model-attractive tall 24-year-old man around 186cm / 6\'1", elite professional footballer\'s lean powerful athletic build — broad shoulders, defined muscular midfielder physique, mixed-heritage looks (mixed Black and White British), warm medium-brown skin, strong jawline with light stubble, confident magnetic good looks, intense warm eyes, very short black hair in a clean modern faded athlete\'s crop, wearing a fitted premium casual outfit (designer bomber over a plain tee)',
+        line: 'Strikingly handsome, model-attractive tall 24-year-old man around 186cm / 6\'1", elite professional footballer\'s lean powerful athletic build — broad shoulders, defined muscular midfielder physique, mixed-heritage looks (mixed Black and White British), warm medium-brown skin, strong jawline with light stubble, confident magnetic good looks, intense warm eyes, very short black hair in a clean modern faded athlete\'s crop, dressed in sharp high-fashion designer clothes — a tailored luxury jacket over a fine premium knit, elevated editorial streetwear with expensive tasteful details, the polished off-duty style of a star athlete on a magazine shoot',
       },
       neighbor: {
         origin: 'American',

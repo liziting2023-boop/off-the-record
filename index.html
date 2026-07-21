@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.28"></script>
-<script src="state.js?v=12.28"></script>
+<script src="story.js?v=12.29"></script>
+<script src="state.js?v=12.29"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -575,7 +575,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.28 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.29 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1165,7 +1165,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.28 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.29 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1896,7 +1896,7 @@ const NPC_BIO = {
   butler:   { zh:'一边念书一边在你公寓做门房打工的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A college student working part-time as your building\'s concierge while he studies. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
   rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
   rafael:   { zh:'当红球星。名气很大，人却意外地踏实——他记得你把他当普通人看。', en:'A star footballer. Huge fame, surprisingly grounded — he remembers you treated him like a person.', metZh:'一场饮料广告的拍摄现场', metEn:'A soda commercial shoot' },
-  neighbor: { zh:'住你隔壁的单亲爸爸，独自带着女儿。温柔可靠，是那种让人安心的人。', en:'The single dad next door, raising his daughter alone. Warm, steady, the kind of man who makes you feel safe.', metZh:'公寓走廊', metEn:'The apartment hallway' },
+  neighbor: { zh:'住你同层对门的单亲爸爸，独自带着女儿。温柔可靠，是那种让人安心的人。', en:'The single dad directly across the hall on your floor, raising his daughter alone. Warm, steady, the kind of man who makes you feel safe.', metZh:'同层的公寓走廊', metEn:'The hallway on your floor' },
   assistant:{ zh:'经纪人的得力助手，帮你打理所有日程。已婚、利落、嘴上毒心里暖，把你当小妹一样罩着。改行程找她。', en:"The agent's right hand who runs all your scheduling. Married, sharp, dry-but-warm — she's got your back like a big sister. Message her to change work.", metZh:'签约后经纪人介绍', metEn:'Introduced by your agent after signing' },
   detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
   coffee:   { zh:'楼下咖啡馆的咖啡师。话不多，记性好——第三次来他就记住了你的单。', en:'The barista downstairs. Few words, long memory — he knew your order by the third visit.', metZh:'楼下咖啡馆', metEn:'The café downstairs' },
@@ -2687,7 +2687,11 @@ async function genProtagonistScene(locKey, day) {
     recording_studio: 'in the vocal booth at the microphone, headphones on, mid-note',
   };
   const _act = PROTAG_SCENE_ACTION[locKey] || 'naturally engaged in the activity of this place, absorbed in her own moment';
-  const candidHead = 'candid documentary-style photo taken from a distance, medium-long shot, her figure seen small within the wide environment, she is ' + _act + ', eyes on what she is doing, face in profile or three-quarter view, NOT looking at the camera, unposed natural body language, ';
+  // 族裔锚点前置（用户实测：远景抓拍时脸变小，flux 默认漂成亚裔——把混血族裔+肤色明写在最前面压住）
+  const _mo = G.player.motherOrigin || 'East Asian', _fo = G.player.fatherOrigin || 'East Asian';
+  const _skinT = (STATE.imagePrompts.heritageTraits[_fo] || STATE.imagePrompts.heritageTraits[_mo] || { skin: 'medium' }).skin;
+  const _ethnAnchor = 'a woman of clearly mixed ' + _mo + ' and ' + _fo + ' heritage with ' + _skinT + ' skin (her ethnicity is unmistakable even at a distance), ';
+  const candidHead = 'candid documentary-style photo taken from a distance, medium-long shot, ' + _ethnAnchor + 'her figure seen within the wide environment, she is ' + _act + ', eyes on what she is doing, face in profile or three-quarter view, NOT looking at the camera, unposed natural body language, ';
   // 拍摄类行程（定妆/杂志/品牌/颁奖）：舞台感妆造+编辑大片感，不走抓拍构图
   const isGlam = (locKey === 'magazine_shoot' || locKey === 'brand_event' || locKey === 'award_ceremony');
   const glam = isGlam
@@ -3757,8 +3761,8 @@ function showHeritage() {
 // ══════════════════════════════════════════════════════
 // 用户定稿：公寓=宽敞现代（女主经济无忧），三种为不同"布局"，风格由所选装修风格(DECOR_PROMPTS)决定
 const LIVING_LAYOUT = 'spacious modern open-plan living-dining room, shot from entrance looking deep toward a floor-to-ceiling window wall, LEFT dining area with a designer dining table and chairs under sculptural pendant lights, CENTER-BACK a media wall, RIGHT a large three-seater sofa and a curved accent armchair around a round coffee table on a generous area rug, tall indoor plants, high ceilings, wide airy floor plan, large-format flooring, recessed lighting';
-const LIVING_LAYOUT_B = 'spacious modern open-plan living-dining room with a different layout, shot from the doorway toward a wide corner window with a city view, LEFT an L-shaped sectional sofa around a low coffee table on a large rug, CENTER an open lounge area, RIGHT a long sideboard and a reading corner with an armchair and floor lamp, a dining table for four near the window, high ceilings, generous open floor plan, big windows flooding the room with light';
-const LIVING_LAYOUT_C = 'spacious modern loft-style open living-dining space with a third layout, view from the hallway toward tall windows, CENTER a plush modular sofa facing a low media console, an island-style dining counter with stools separating the kitchen, an accent lounge chair by the window, statement shelving with books and objects, high ceilings, wide airy loft proportions, abundant daylight';
+const LIVING_LAYOUT_B = 'a cozy comfortable modern living-dining room of a normal-sized city apartment, shot from the doorway toward a regular window with a city view, LEFT a compact L-shaped sofa around a low coffee table on a rug, CENTER a small open lounge area, RIGHT a modest sideboard and a small reading corner with an armchair and floor lamp, a small dining table for two-to-four near the window, normal ceiling height, warm inviting and moderately sized (not grand or cavernous), soft natural light';
+const LIVING_LAYOUT_C = 'a warm inviting modern living-dining space of a normal-sized apartment with a third layout, view from the hallway, CENTER a comfortable modular sofa facing a low media console, a small breakfast counter with two stools by the kitchen, an accent lounge chair by the window, shelving with books and objects, normal ceiling height, snug and well-proportioned real-apartment scale (not a loft, not cavernous), gentle daylight';
 // 装修风格提示词（用户反馈：不同风格出图太像）——每种材质/色调/氛围拉开明显差异，注入到房间生成里
 const DECOR_PROMPTS = {
   'Romantic Minimalist': 'ROMANTIC MINIMALIST style: soft blush, cream and ivory palette, lots of airy negative space, sheer flowing fabrics, brushed brass accents, fresh flowers in vases, curved soft-edged furniture, delicate feminine elegance, bright and serene',
@@ -5295,7 +5299,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     runner:   'the running path you both use (he runs the same route at the same time, like clockwork)',
     photog:   'a street corner near the market (he is a street photographer; his camera noticed her before he did)',
     rafael:   'the set of the soda commercial you are both shooting (he is the OTHER celebrity face of the campaign; between takes he wanders over, no airs)',
-    neighbor: 'the mailboxes in the lobby of the building you both live in (you are the single dad who lives across the hall from her)',
+    neighbor: 'the hallway on your floor, right outside your two apartment doors — you live directly across the hall from her, same floor (do NOT relocate this to the lobby or the mailboxes; it is the shared corridor by your front doors)',
   };
   var whereWord = _t2where[npcKey] || _t2where.coffee;
   var _t2first = {
@@ -5345,10 +5349,11 @@ function secondaryContactBeat(npcKey) {
     npc.contact = true;
     STATE.memory.addEvent(npcKey, mem, G.day);
     try { STATE.save.saveGame(); } catch(e){}
+    vopts.innerHTML = ''; // 先清掉"给号/婉拒"两个选择按钮，否则每点一次就多堆一个"离开"（用户实测图7）
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.28：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.29：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -6722,7 +6727,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.28）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.29）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -7822,6 +7827,11 @@ async function maybeStayOver(npcKey, locKey, opts) {
   const _nightsSoFar = G.npcs[npcKey].nights || 0;
   // 两幕预生成句柄（性能，用户反馈两幕慢）：邀请台词一亮出来就后台先跑，点按钮时基本秒出
   let _pre1 = null, _pre1Bg = null, _pre2 = null, _pre2Bg = null;
+  // 按人设修借口（用户实测）：管家是本楼门房/维修，不能用"想看看你家的窗景"（他对这楼了如指掌）；
+  // 邻居就住同层对门，没有"上楼"、也没有"想看你老提的那个地方"（他早知道这楼）。
+  var _pretextNote = '';
+  if (npcKey === 'butler') _pretextNote = ' PRETEXT RULE — you are this building\'s concierge/maintenance staff and know it (and its views) inside out, so NEVER use "wanting to see your place / your view" as the reason (it makes no sense for you). Your natural in-character excuse is building/maintenance-flavored: something in her apartment you\'ve been meaning to check or fix (that window latch, the radiator, a fixture), or something you came to drop off — shy and staff-proper, the flimsy excuse barely hiding that you don\'t want to leave.';
+  else if (npcKey === 'neighbor') _pretextNote = ' PRETEXT RULE — you live directly across the hall on the SAME floor, so there is no "coming up" and no "seeing the place she always mentions" (you already know this building): phrase it as stepping IN for a moment / walking her the last steps to her own door / not wanting the evening to end — a warm, grounded neighborly reason, never a view or a place-you-are-curious-about.';
   const _stayCtx =
     dest === 'at_hers'
     ? (_nightsSoFar > 0
@@ -7839,7 +7849,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
   let line = '';
   if (!(opts && opts.direct)) {
     try {
-      line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _stayCtx));
+      line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _stayCtx + _pretextNote));
     } catch(e) {}
     if (!line || !line.trim()) { _vnEndLoc = locKey; runVNDialog([], npcKey, G.day, 0); return; }
     document.getElementById('vn-text').innerHTML = formatNPCText(line);
@@ -9866,7 +9876,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.28 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.29 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
