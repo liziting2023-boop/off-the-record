@@ -579,7 +579,7 @@ const STORY = {
         'Music is his first language — he speaks it better than anything else',
         'Western rock ethos: authenticity over polish, passion over manners',
         'Would rather walk out than pretend to agree',
-        'When he talks shop, it is about craft SHE can actually engage with: vocal technique (breath support, hitting the high notes, controlling the low register, phrasing, pitch, warming up), stage presence, groove and timing, arrangement ideas, gear, and road stories from the gig circuit. He teaches and needles her through technique — a blunt tip, a challenge to nail a run. He does NOT quiz her on specific songs or lyrics she has never heard (she cannot answer that); if he references a track, he explains the point in plain terms.',
+        'When he talks shop, it is about craft SHE can actually engage with: vocal technique (breath support, hitting the high notes, controlling the low register, phrasing, pitch, warming up), stage presence, groove and timing, arrangement ideas, gear, and road stories from the gig circuit. He teaches and needles her through technique — a blunt tip, an observation, a small challenge. CRITICAL: never quiz her on the fine details of a specific song/lyric she cannot recall on the spot (e.g. "where exactly do you breathe in your longest line" — she has no idea, it just confuses her). Keep questions and tips GENERAL and answerable — about how she sings, what she feels on stage, her habits, her instincts — not pop-quiz trivia about her own tracks.',
       ],
       hiddenTruths: [
         'He has extremely high musical standards — his dismissiveness is not contempt, it is a test',
@@ -969,15 +969,15 @@ const STORY = {
       chapter: 1,
       chainNext: 'd1drummer', // Day1 多场景：与经纪人会面结束后，当天下午接着去录音室见鼓手（初见）
       preText: {
-        'zh-cn': '经纪人的办公室在城市高处。\n落地窗外，这座城市向远处延伸——等待着记住你的名字。\n\n你一推门，他就从桌后站了起来，\n笑着朝你走来："来了？正等你呢。"',
-        'en': 'Your agent\'s office sits high above the city.\nThrough the floor-to-ceiling windows, the city stretches out below — still waiting to learn your name.\n\nThe moment you push the door open, he rises from behind his desk,\nwalking toward you with a smile: "There you are. I\'ve been waiting."',
-        'ja': 'エージェントのオフィスは街を見下ろす高層階にある。\n床から天井までの窓の外、街が広がっている——まだあなたの名前を知らない街が。\n\nドアを開けた瞬間、彼は机の後ろから立ち上がり、\n笑顔で歩み寄ってきた。「来たね。待ってたよ」',
-        'ko': '에이전트의 사무실은 도시를 내려다보는 높은 층에 있다.\n바닥부터 천장까지 이어진 창문 너머, 도시가 펼쳐져 있다——아직 당신의 이름을 모르는 도시가.\n\n문을 열자마자 그는 책상 뒤에서 일어나\n미소를 지으며 다가왔다. "왔구나. 기다리고 있었어."',
+        'zh-cn': '签约那天，你来过这里。\n可今天不一样——今天，是正式开工的第一天。\n\n他从桌上摊开的文件里抬起头，看见你，笑了：\n"来了。坐。"',
+        'en': 'You have been here once before — the day you signed.\nBut today is different: today is your first real day of work.\n\nHe looks up from the papers spread across his desk, sees you, and smiles:\n"There you are. Sit."',
+        'ja': '契約した日に、一度ここへ来たことがある。\nでも今日は違う——今日は、本格的に働く初日だ。\n\n彼は机に広げた書類から顔を上げ、あなたを見て微笑んだ。\n「来たね。座って。」',
+        'ko': '계약하던 날, 이곳에 한 번 와봤다.\n하지만 오늘은 다르다——오늘은 본격적으로 일하는 첫날이다.\n\n그는 책상에 펼쳐둔 서류에서 고개를 들어 당신을 보고 미소 지었다.\n"왔구나. 앉아."',
       },
       dialogRounds: [
         {
           // Round 1: 认可与承诺（用户反馈修：删推咖啡、删重复递名片、时间线统一、别写"语气平静得像陈述事实"这类冷描述）
-          npcContext: 'Day 1 of the contract, her first official work meeting. You are her agent — warm, sharp, and quietly thrilled you signed her; let that warmth SHOW (she should feel he is genuinely excited about her, not a cold operator). She already has your card and called you a few days ago — do NOT hand her a card again, and do NOT pour/slide a coffee or water (overused). Instead, open by telling her ONE specific thing from the nights you watched her busk a few weeks ago that convinced you — quote the real signature line of "Tonight\'s Light" ("I don\'t need you to remember me — I just need this light tonight.") and say how it stuck with you, or how she held a small rainy-night crowd like it was an arena. Specific, never flattery. Close with what you two will build this month, said like a promise you intend to keep together. TIMELINE: you first heard her a few weeks ago; she called a few days ago; today she signed — keep it consistent, no contradicting numbers.',
+          npcContext: 'Day 1 of the contract, her first official work meeting. STAGING: you already looked up from your desk and greeted her ("There you are. Sit.") and she is now sitting down across from you — do NOT re-describe standing up, crossing the room, walking over, or being at the window; you are seated face to face, continuing. You are her agent — warm, sharp, and quietly thrilled you signed her; let that warmth SHOW (she should feel he is genuinely excited about her, not a cold operator). She already has your card and called you a few days ago — do NOT hand her a card again, and do NOT pour/slide a coffee or water (overused). Instead, open by telling her ONE specific thing from the nights you watched her busk a few weeks ago that convinced you — quote the real signature line of "Tonight\'s Light" ("I don\'t need you to remember me — I just need this light tonight.") and say how it stuck with you, or how she held a small rainy-night crowd like it was an arena. Specific, never flattery. Close with what you two will build this month, said like a promise you intend to keep together. TIMELINE: you first heard her a few weeks ago; she called a few days ago; today she signed — keep it consistent, no contradicting numbers.',
           playerOptions: {
             'zh-cn': ['我准备好了。', '……好。', '你想从哪里开始？'],
             'en': ['I am ready.', '...Okay.', 'Where do you want to start?'],

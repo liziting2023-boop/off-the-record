@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.19"></script>
-<script src="state.js?v=12.19"></script>
+<script src="story.js?v=12.20"></script>
+<script src="state.js?v=12.20"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -64,7 +64,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .nar{font-family:'Cormorant Garamond',serif;font-size:clamp(17px,5vw,21px);font-weight:300;font-style:italic;line-height:1.85;color:var(--text-dark);margin-bottom:20px;opacity:0;animation:fadeInSlow 1s ease 0.2s forwards;text-align:center;}
 .nar em{color:var(--gold);font-style:normal;}
 .stamp{font-size:10px;letter-spacing:4px;color:var(--text-mid);text-transform:uppercase;margin-bottom:20px;opacity:0.8;}
-.clabel{font-size:10px;letter-spacing:4px;color:var(--pink-mid);text-transform:uppercase;margin-bottom:10px;opacity:0.9;text-align:center;}
+.clabel{font-size:12px;letter-spacing:4px;color:var(--pink-mid);text-transform:uppercase;margin-bottom:10px;opacity:0.9;text-align:center;}
 .sec-head{text-align:center;margin-bottom:14px;width:100%;}
 .sec-head h2{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,7vw,34px);font-weight:300;font-style:italic;color:var(--pink-deep);margin-bottom:4px;}
 .sec-head p{font-size:12px;color:var(--text-mid);line-height:1.6;}
@@ -134,7 +134,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-scene{position:relative;padding:0;}
 .vn-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .vn-bg-ph{position:absolute;inset:0;background:linear-gradient(160deg,#FFE8F0,#FFF0F5);z-index:0;display:flex;align-items:center;justify-content:center;}
-.vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;}
+.vn-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(15,8,12,0.55) 0%,rgba(15,8,12,0.15) 38%,transparent 62%);z-index:1;pointer-events:none;}
 /* 好感度页卡片 */
 .affection-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.65);border:1px solid rgba(196,96,122,0.15);border-radius:14px;padding:10px 12px;margin-bottom:10px;}
 .aff-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(196,96,122,0.35);cursor:pointer;}
@@ -566,7 +566,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.19 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.20 · BETA ⏱</p>
   </div>
 </div>
 
@@ -762,8 +762,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="btn-t" id="btn-rag" onclick="regenAgent()" style="display:none;margin-bottom:6px">↺ New options</button>
     <div id="agent-reveal-box" style="display:none;margin-bottom:12px;text-align:center">
       <div id="lbl-his-name" style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;opacity:0.7">HIS NAME</div>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--cream);margin-bottom:6px" id="agent-name-txt"></p>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-muted);line-height:1.7" id="agent-line-txt"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:25px;font-style:italic;color:var(--cream);margin-bottom:8px" id="agent-name-txt"></p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,19px);font-style:italic;color:var(--ink-muted);line-height:1.75" id="agent-line-txt"></p>
     </div>
     <button class="btn-p" id="btn-agent-ok" onclick="startSigningScene()" style="visibility:hidden">And so it began</button>
   </div>
@@ -1156,7 +1156,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.19 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.20 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3357,8 +3357,8 @@ const TX = {
   en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I sang on the busiest corner in the city.\nNot to get by — money was never the reason.\nI sang because the dream burned too bright to keep quiet.\nI wanted to be heard. Really heard.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Early morning · 7:14', mirror_stamp:'Bathroom mirror · morning', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East','North America'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran','USA · Canada'],
-    hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
-    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
+    hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun','High ponytail','Half-up','Braided','Side-swept','Blunt bangs','Shoulder layers'],
+    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun','sleek high ponytail','half-up half-down hairstyle','long braided hair','long side-swept hair','straight hair with blunt fringe bangs','shoulder-length layered hair'],
     hair_colors:['Jet black','Dark brown','Chestnut','Honey blonde','Burgundy','Silver lavender','Vivid purple'],
     hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender','vivid purple'],
     cities:['New York','Los Angeles','London','Paris','Chicago','Toronto','Sydney','Nashville'],
@@ -3371,8 +3371,8 @@ const TX = {
   'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在那条最热闹的街角唱歌。\n不是为了谋生——我从不缺那点钱。\n我唱，是因为心里那个梦太亮了，压不住。\n我想被听见，被真正地听见。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n可从没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'清晨 · 7:14', mirror_stamp:'洗手间镜子 · 清晨', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
     region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗','美国·加拿大'],
-    hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
-    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun'],
+    hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻','高马尾','半扎发','麻花辫','侧分长发','齐刘海','齐肩层次'],
+    hair_style_vals:['long straight hair','long wavy hair','long curly hair','shoulder-length bob','short pixie cut','loose messy bun','sleek high ponytail','half-up half-down hairstyle','long braided hair','long side-swept hair','straight hair with blunt fringe bangs','shoulder-length layered hair'],
     hair_colors:['漆黑','深棕','栗色','蜂蜜金','酒红','银紫','鲜紫色'],
     hair_color_vals:['jet black','dark brown','warm chestnut','honey blonde','deep burgundy','silver lavender','vivid purple'],
     cities:['纽约','洛杉矶','伦敦','巴黎','芝加哥','多伦多','悉尼','纳什维尔'],
@@ -3560,21 +3560,24 @@ function selCard(el, key, value) {
     }
   } else if (key === 'agentOrigin') {
     var _isZhAo = G.lang==='zh-cn'||G.lang==='zh-tw';
-    if (value === '__MIX__') { // 进入混血模式：选两个来源
+    if (value === '__MIX__') { // 进入混血模式：选两个来源（用户反馈：别弹带域名的浏览器提示，改卡内文字）
       _agentMixMode = true; _agentMixFirst = null;
       try { document.getElementById('btn-aorigin').style.visibility = 'hidden'; } catch(e){}
-      try { alert(_isZhAo ? '混血：先点第一个来源，再点第二个。' : 'Mixed: tap the FIRST origin, then the SECOND.'); } catch(e){}
+      try { el.classList.add('sel'); el.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + (_isZhAo?'先点第一个来源':'tap the FIRST origin') + '</span>'; } catch(e){}
       return;
     }
     if (_agentMixMode) {
-      // 混血卡在选两个来源期间保持高亮，别"变回原样"让人以为退出了（用户反馈）
-      try { var _mx=document.querySelector('.card[data-val="__MIX__"]'); if(_mx) _mx.classList.add('sel'); } catch(e){}
-      if (!_agentMixFirst) { // 记下第一个，等第二个（当前点的国家保持高亮=已选第一个）
+      var _mx=document.querySelector('.card[data-val="__MIX__"]');
+      if (_mx) _mx.classList.add('sel'); // 混血卡全程保持高亮，别"变回原样"
+      if (!_agentMixFirst) { // 记下第一个，卡内提示改成"再选第二个"（当前点的国家保持高亮=已选第一个）
         _agentMixFirst = value;
+        if (_mx) _mx.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + (_isZhAo?'已选 '+originDisplayName(value)+' × 再选第二个':'picked '+originDisplayName(value)+' × pick 2nd') + '</span>';
         try { document.getElementById('btn-aorigin').style.visibility='hidden'; } catch(e){}
         return;
       }
       if (value === _agentMixFirst) return; // 两个不能相同
+      // 清掉除"第一个来源+当前第二个"以外的高亮（修更换第二个时旧高亮不消）
+      document.querySelectorAll('#g-aorigin .card').forEach(function(c){ if(c!==el && c!==_mx && c.dataset.val!==_agentMixFirst) c.classList.remove('sel'); });
       G.npcs.agent.origin = _agentMixFirst + '×' + value; // 存成 'A×B'
       _agentMixMode = false;
     } else {
@@ -3644,7 +3647,7 @@ const DECOR_PROMPTS = {
   'Romantic Minimalist': 'ROMANTIC MINIMALIST style: soft blush, cream and ivory palette, lots of airy negative space, sheer flowing fabrics, brushed brass accents, fresh flowers in vases, curved soft-edged furniture, delicate feminine elegance, bright and serene',
   'Contemporary Organic': 'CONTEMPORARY ORGANIC style: warm oak and walnut wood, natural travertine stone, chunky boucle and linen textures, abundant greenery and large plants, earthy beige-and-terracotta palette, sculptural handmade ceramics, grounded and tactile',
   'English Cottage': 'ELEVATED MODERN-COTTAGE style: warm painted wainscoting, tasteful floral and botanical prints, vintage patterned rugs, built-in bookshelves, layered cozy textiles, antique-modern mix, timeless charm (refined and elegant, never shabby)',
-  'Modern Dark': 'MOODY MODERN DARK style: deep charcoal and ink-blue walls, matte black metal, rich dark walnut, brass and warm amber lighting against the dark, low dramatic lighting, sophisticated masculine glamour',
+  'Modern Dark': 'MOODY MODERN GLAM style: deep plum and warm charcoal walls, brushed brass and rose-gold accents, rich walnut, plush velvet upholstery, warm amber and candle lighting, soft layered textures, fresh flowers, dramatic yet cozy and inviting feminine glamour (NOT cold, NOT a bachelor pad)',
   'Bohemian Warm': 'WARM BOHEMIAN style: terracotta, rust and ochre palette, layered kilim and moroccan rugs, rattan and cane furniture, macramé wall hangings, plants everywhere, eclectic global textiles, sun-baked cozy warmth',
 };
 let _roomsDone = false;
@@ -3856,7 +3859,7 @@ async function genAgent() {
   G.npcs.agent.name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
 
   // Generate first line
-  const firstLine = await claude(G.npcs.agent.name + ' is a ' + origin + ' talent agent — warm, sharp, and genuinely moved by real talent. He approached a street singer named ' + (G.player.name||'her') + ' after her voice caught him three nights running. Write his very first words to her: WARM and quietly thrilled, moved by what he heard, letting it show (a real smile, bright eyes) — NEVER cold, aloof, or a detached weather-report tone. Tell her she has something rare. Do NOT frame it as "turning it into a career/a job" or anything about money — it is about the gift and about being truly heard. 1-2 sentences. No quotes. Language: ' + G.langName + '.');
+  const firstLine = await claude(G.npcs.agent.name + ' is a ' + origin + ' talent agent — warm, sharp, and genuinely moved by real talent. He approached a street singer named ' + (G.player.name||'her') + ' after her voice caught him three nights running. Write his very first words to her: WARM and quietly thrilled, moved by what he heard, letting it show (a real smile, bright eyes) — NEVER cold, aloof, or a detached weather-report tone. Tell her she has something rare. Do NOT frame it as "turning it into a career/a job" or anything about money — it is about the gift and about being truly heard. Do NOT mention or describe the business card (avoid awkward phrasings like "the card in your hand"). Keep the wording natural and clear in ' + G.langName + '. 1-2 sentences. No quotes. Language: ' + G.langName + '.');
 
   // Show name and line immediately
   document.getElementById('agent-reveal-box').style.display = 'block';
@@ -4141,8 +4144,11 @@ function selNPCOrigin(val, el) {
       return;
     }
     if (val === _mixFirst) return; // 两个来源不能相同
-    _selectedNPCOrigin = _mixFirst + '×' + val; // 存成 'A×B'
+    // 更换第二个来源时，先清掉旧高亮，只留"第一个来源+当前第二个"（修用户实测：换了选择旧的还亮着）
+    document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
+    try { var _f = document.querySelector('.nos-card[data-val="'+_mixFirst+'"]'); if (_f) _f.classList.add('sel'); } catch(e){}
     el.classList.add('sel');
+    _selectedNPCOrigin = _mixFirst + '×' + val; // 存成 'A×B'
     document.getElementById('nos-sub').textContent = (isZh?'混血：':'Mixed: ') + originDisplayName(_selectedNPCOrigin);
     document.getElementById('nos-confirm').style.visibility = 'visible';
     return;
@@ -9672,7 +9678,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.19 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.20 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
