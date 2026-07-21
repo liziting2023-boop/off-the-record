@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.16"></script>
-<script src="state.js?v=12.16"></script>
+<script src="story.js?v=12.17"></script>
+<script src="state.js?v=12.17"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -173,7 +173,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-speaker{font-size:13px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,22px);font-style:italic;color:#E9DFE1;line-height:1.58;margin-bottom:10px;}
 /* 字体统一（用户定稿）：台词=玫瑰高亮·正体；动作/旁白=中性·斜体。双方（NPC和玩家）一致，无括号。 */
-.vn-text .speech{color:#FF5C78;font-style:normal;font-weight:600;text-shadow:0 0 12px rgba(255,80,120,0.35);}
+.vn-text .speech{color:#FF7E9E;font-style:normal;font-weight:500;text-shadow:0 0 10px rgba(255,126,158,0.3);}
 .vn-text .narr{color:#E9DFE1;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
@@ -562,7 +562,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.16 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.17 · BETA ⏱</p>
   </div>
 </div>
 
@@ -704,7 +704,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 <!-- ══ PROTAGONIST ══ -->
 <div class="screen" id="s-proto">
   <div class="setup-screen">
-    <div class="stamp" id="mirror-stamp">Bathroom mirror · 7:31 AM</div>
+    <div class="stamp" id="mirror-stamp">Bathroom mirror · morning</div>
     <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(15px,4.5vw,18px);font-style:italic;color:var(--ink-muted);margin-bottom:10px;line-height:1.7;text-align:center" id="mirror-nar"></p>
     <div class="clabel" id="lbl-choose-refl">CHOOSE YOUR REFLECTION</div>
     <div class="trio" style="max-width:380px">
@@ -1152,7 +1152,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.16 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.17 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2286,7 +2286,10 @@ async function claude(prompt, sys = '', opts = {}) {
 // 只用于立绘类生成点（NPC立绘/女主三选一），不碰活动抓拍/美容院（那些是中远景，构图会打架）。
 // 切 dev 模型：IMG_DEV_PORTRAITS=true → 人物图走 flux/dev 28步，且 PORTRAIT_CROP 自动失效（dev 画手可靠，用户定稿）。
 const IMG_DEV_PORTRAITS = true; // 用户定稿：一线NPC/女主等人物图默认走 flux/dev（更高画质、手更可靠）；背景仍 schnell 省钱
-const PORTRAIT_CROP = IMG_DEV_PORTRAITS ? '' : ', tight head-and-shoulders close-up portrait framed from the chest up, fully clothed, arms relaxed straight down at the sides';
+// 用户实测：dev模式下人物图站太远、人太小——补回"贴近相机的头肩特写"框图（不写 arms/hands 词，避免怪手吸引子）
+const PORTRAIT_CROP = IMG_DEV_PORTRAITS
+  ? ', head-and-shoulders portrait, upper body close-up, subject close to camera filling most of the frame, fully clothed'
+  : ', tight head-and-shoulders close-up portrait framed from the chest up, fully clothed, arms relaxed straight down at the sides';
 async function img(prompt, label = '', save = false, retries = 2, seed = null, hq = false, styleOverride = null) {
   if (DEV_MODE_IMG || (typeof G !== 'undefined' && G && G.imgOff)) return null; // G.imgOff = 设置里手动关掉生图(省钱,测剧情用)
   // 风格描述放在提示词最前面，权重最高，确保同一批次生成的图片风格一致
@@ -3347,7 +3350,7 @@ function closeLB()      { document.getElementById('lb').classList.remove('open')
 // TRANSLATIONS
 // ══════════════════════════════════════════════════════
 const TX = {
-  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I set up on the same busy street corner.\nGuitar case open on the pavement.\nSinging for tips — for rent, for groceries, for the dream.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Early morning · 7:14', mirror_stamp:'Bathroom mirror · 7:31 AM', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
+  en:    { open_nar:'The light always comes in the same way here —\nslow, and a little golden.\n\nI lie still for a moment before I remember where I am.\nTwo months in this city. It still feels like a secret.', name_title:"What's your name?", name_sub:'The name you perform under.', mother_title:'My mother', mother_sub:'She always said I had her eyes.', father_title:'My father', father_sub:'He said my skin was just like his.', thats_right:"That's right", hair_title:'Yesterday', hair_sub:'I finally went to that salon.', city_title:'Two months ago', city_sub:'I packed two suitcases.', decor_title:'My apartment', decor_sub:'I made it mine.', rooms_title:'Choose your living room', rooms_sub:'Which one is home?', mirror_nar:'I looked at myself for a long moment.\nSame face. Different city.', flash_nar:'Every night, I sang on the busiest corner in the city.\nNot to get by — money was never the reason.\nI sang because the dream burned too bright to keep quiet.\nI wanted to be heard. Really heard.\n\nPeople would slow down. Some would stop for a moment.\nBut no one ever really stayed.', agent_intro_nar:'He walked toward me slowly.\nDark suit. No hurry about him.\n\nWho wears a suit on a Friday night?\n\nHe stopped in front of me.\nAnd looked at me the way people usually don\'t.', ch1_quote:'"Every story has a beginning.\nThis is yours."', open_stamp:'Early morning · 7:14', mirror_stamp:'Bathroom mirror · morning', flashback_stamp:'Every night, for months', your_world:'YOUR WORLD', name_key:'Name', city_key:'City', agent_key:'Agent', fame_key:'Fame', ch1_label:'Chapter One', signed:'The Beginning', wake_up:'Day 1', today:'TODAY', sleep:'Sleep · Next day', home:'Home', phone:'Phone', fame:'Fame', gallery_lbl:'Memories', settings_lbl:'Settings', lang_setting:'LANGUAGE', style_setting:'IMAGE STYLE', save_return:'Save & Return', her_origin:'HER ORIGIN', his_origin:'HIS ORIGIN', hair_style_lbl:'HAIR STYLE', hair_colour_lbl:'HAIR COLOUR', city_lbl:'WHERE DID YOU MOVE TO?', decor_lbl:'INTERIOR STYLE', close_lbl:'Closer', neutral_lbl:'Neutral', far_lbl:'Distance', choose_portrait:'CHOOSE HIS PORTRAIT', thats_him:"✓ That's him", choose_refl:'CHOOSE YOUR REFLECTION', this_is_me:'✓ This is me', end_day:'End the day', wc_chats:'Chats', wc_moments:'Updates', wc_industry:'Industry', wc_back:'Back', npc_origin_title:'Where is he from?', npc_origin_sub:'His background shapes who he is.', affection_title:'Affection', sound_setting:'SOUND EFFECTS', sound_on:'🔊 On', sound_off:'🔇 Off', sound_on_sub:'Button feedback sounds', sound_off_sub:'Silent mode',
     regions:['East Asia','Southeast Asia','South Asia','Northern Europe','Southern Europe','Africa','Latin America','Middle East','North America'],
     region_subs:['China · Japan · Korea','Philippines · Vietnam · Thailand','India · Pakistan · Sri Lanka','UK · Scandinavia · Germany','Italy · Spain · Greece','West · East · South','Brazil · Mexico · Colombia','Lebanon · Egypt · Iran','USA · Canada'],
     hair_styles:['Long straight','Long wavy','Long curly','Bob cut','Pixie cut','Loose bun'],
@@ -3361,7 +3364,7 @@ const TX = {
     agent_origins:['British','American','French','Italian','African-American','Brazilian','German','Spanish','Indian','Russian','Australian','Mexican','Greek','Portuguese','Dutch','Irish'],
     agent_origin_subs:['England · Scotland','East · West Coast','Paris · South France','Milan · Rome','New York · Atlanta','São Paulo · Rio','Berlin · Munich','Madrid · Barcelona','Mumbai · Delhi','Moscow · St. Petersburg','Sydney · Melbourne','Mexico City · Guadalajara','Athens · Thessaloniki','Lisbon · Porto','Amsterdam · Rotterdam','Dublin · Cork'],
   },
-  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在热闹的街道摆好位置。\n吉他盒打开在地上。\n靠唱歌收小费——为了房租，为了食物，为了梦想。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n但没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'清晨 · 7:14', mirror_stamp:'洗手间镜子 · 上午 7:31', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
+  'zh-cn': { open_nar:'光总是以同样的方式照进来——\n缓慢地，带着一点金色。\n\n我躺着，想起自己在哪里之前，先静了一会儿。\n来这座城市两个月了。感觉还像个秘密。', name_title:'你叫什么名字？', name_sub:'你用来演出的名字。', mother_title:'我的母亲', mother_sub:'她总说我有她的眼睛。', father_title:'我的父亲', father_sub:'他说我的肤色和他一模一样。', thats_right:'就是这样', hair_title:'昨天', hair_sub:'我终于去了那家发廊。', city_title:'两个月前', city_sub:'我拖着两个行李箱。', decor_title:'我的公寓', decor_sub:'我把它变成了我的样子。', rooms_title:'选择你的客厅', rooms_sub:'哪一个更像家？', mirror_nar:'我对着镜子看了很久。\n同一张脸。不同的城市。', flash_nar:'每天晚上，我都在那条最热闹的街角唱歌。\n不是为了谋生——我从不缺那点钱。\n我唱，是因为心里那个梦太亮了，压不住。\n我想被听见，被真正地听见。\n\n路过的人会放慢脚步，有时有人会停一会儿。\n可从没有人，真正地留下来。', agent_intro_nar:'他慢慢走过来。\n深色西装。不急不忙。\n\n周五晚上谁穿西装？\n\n他在我面前停下来。\n用一种普通人不会有的眼神看着我。', ch1_quote:'"每一个故事，都有一个起点。\n而你的，从今天开始。"', open_stamp:'清晨 · 7:14', mirror_stamp:'洗手间镜子 · 清晨', flashback_stamp:'每一个夜晚，几个月来', your_world:'你的世界', name_key:'名字', city_key:'城市', agent_key:'经纪人', fame_key:'知名度', ch1_label:'第一章', signed:'起点', wake_up:'第1天', today:'今天', sleep:'入睡 · 下一天', home:'主页', phone:'手机', fame:'知名度', gallery_lbl:'回忆', settings_lbl:'设置', lang_setting:'语言', style_setting:'画面风格', save_return:'保存并返回', her_origin:'母亲来源', his_origin:'父亲来源', hair_style_lbl:'发型', hair_colour_lbl:'发色', city_lbl:'你搬到了哪个城市？', decor_lbl:'室内风格', close_lbl:'亲近', neutral_lbl:'一般', far_lbl:'疏远', choose_portrait:'选择他的形象', thats_him:'✓ 就是他', choose_refl:'选择你的样子', this_is_me:'✓ 就是我', end_day:'结束今天', wc_chats:'消息', wc_moments:'动态', wc_industry:'行业资讯', wc_back:'返回', npc_origin_title:'他是哪里人？', npc_origin_sub:'他的背景造就了他。', affection_title:'好感度', sound_setting:'音效', sound_on:'🔊 开启', sound_off:'🔇 关闭', sound_on_sub:'按键反馈音效', sound_off_sub:'静音模式',
     regions:['东亚','东南亚','南亚','北欧','南欧','非洲','拉丁美洲','中东','北美'],
     region_subs:['中国·日本·韩国','菲律宾·越南·泰国','印度·巴基斯坦·斯里兰卡','英国·北欧·德国','意大利·西班牙·希腊','西·东·南','巴西·墨西哥·哥伦比亚','黎巴嫩·埃及·伊朗','美国·加拿大'],
     hair_styles:['长直发','长波浪发','长卷发','波波头','短发精灵切','慵懒发髻'],
@@ -3528,6 +3531,7 @@ function buildGrids() {
     var g = document.getElementById('g-aorigin'); if (!g) return;
     var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
     var el = document.createElement('div'); el.className='card'; el.style.borderStyle='dashed';
+    el.style.gridColumn='1 / -1'; // 整行铺满，不再落单在左下角（用户反馈排版不对称）
     el.dataset.key='agentOrigin'; el.dataset.val='__MIX__';
     el.innerHTML=(isZh?'✦ 混血':'✦ Mixed')+'<span class="sub">'+(isZh?'选两个来源':'pick two')+'</span>';
     el.onclick=function(){ selCard(this,'agentOrigin','__MIX__'); };
@@ -3559,7 +3563,13 @@ function selCard(el, key, value) {
       return;
     }
     if (_agentMixMode) {
-      if (!_agentMixFirst) { _agentMixFirst = value; return; } // 记下第一个，等第二个
+      // 混血卡在选两个来源期间保持高亮，别"变回原样"让人以为退出了（用户反馈）
+      try { var _mx=document.querySelector('.card[data-val="__MIX__"]'); if(_mx) _mx.classList.add('sel'); } catch(e){}
+      if (!_agentMixFirst) { // 记下第一个，等第二个（当前点的国家保持高亮=已选第一个）
+        _agentMixFirst = value;
+        try { document.getElementById('btn-aorigin').style.visibility='hidden'; } catch(e){}
+        return;
+      }
       if (value === _agentMixFirst) return; // 两个不能相同
       G.npcs.agent.origin = _agentMixFirst + '×' + value; // 存成 'A×B'
       _agentMixMode = false;
@@ -3681,7 +3691,8 @@ async function genBedrooms() {
   const ids = { a:'bra-ph', b:'brb-ph', c:'brc-ph' };
   const keys = ['a','b','c'];
   for (let i = 0; i < 3; i++) {
-    const url = await img(BEDROOM_LAYOUTS[i] + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + BEDROOM_MOODS[i] + ', NO sunset, NO orange sky, NO daylight, no people', 'Bedroom ' + keys[i], false, 2, seed, false, BEDROOM_STYLE);
+    const _bedDecor = (typeof DECOR_PROMPTS !== 'undefined' && DECOR_PROMPTS[G.player.decor]) ? DECOR_PROMPTS[G.player.decor] + '. ' : '';
+    const url = await img(_bedDecor + BEDROOM_LAYOUTS[i] + ', LATE NIGHT scene, pitch dark night sky outside the window, ' + BEDROOM_MOODS[i] + ', NO sunset, NO orange sky, NO daylight, no people', 'Bedroom ' + keys[i], false, 2, seed, false, BEDROOM_STYLE);
     if (url) { _bedroomUrls[keys[i]] = url; setRCard('br'+keys[i], ids[keys[i]], url, keys[i]); }
   }
   _bedroomDone = true;
@@ -3700,8 +3711,8 @@ function selBedroom(opt) {
 
 // 卧室夜景画风覆盖（用户实测：这套比全局cinematic生出的卧室更好看）——只用于卧室图，不影响别处
 const BEDROOM_STYLE = 'photorealistic, lifestyle photography, authentic textures';
-// 晚间卧室固定布局（用户指定）：小户型卧室书房一体，左墙衣柜+书桌+一体单人床+窗户
-const BEDROOM_LAYOUT = 'compact bedroom-study combo room, rectangular layout, full-height floor-to-ceiling wardrobe covering the entire left wall, a desk against the wall to the right of the wardrobe with a three-drawer mobile cabinet under its right side and a study chair in front, the desk connects to the single bed forming an integrated layout, single bed along the right wall with storage drawers underneath, bed directly below the window, two-tier open wall-mounted bookshelf above the desk filled with books folders and storage boxes, photo board on the wall behind the desk, large framed window with curtains in the middle of the right wall, green plants visible outside the window, wooden floor, compact space with ample storage, combined study and rest area';
+// 卧室布局A（用户实测：客厅豪华卧室简陋，改成宽敞现代和客厅同档）：宽敞现代卧室，大双人床+窗景+休息角
+const BEDROOM_LAYOUT = 'spacious modern bedroom, a large plush double bed centered against the back wall with a tall upholstered headboard, matching nightstands with soft lamps on both sides, a wide floor-to-ceiling window with sheer curtains and a city view, a comfortable seating nook with an accent armchair and a small side table, a long low bench at the foot of the bed, a full built-in wardrobe along one wall, a large area rug, high ceilings, generous airy open space, warm sophisticated upscale modern interior';
 // 卧室布局B（用户指定）：长方形卧室，中央双人床，两侧对称床头柜+窗户，床上吊灯，右侧梳妆台竖镜，床尾脚凳，左下角单人椅，大地毯
 const BEDROOM_LAYOUT_B = 'rectangular bedroom, a double bed centered against the back wall with its headboard against the wall, a symmetrical matching nightstand on each side of the bed, two windows with sheer curtains flanking the bed on both sides, a pendant chandelier hanging directly above the bed, on the right side a dressing table with a large tall standing floor mirror and a stool, a round upholstered ottoman footstool at the foot of the bed on the right side, a single lounge accent armchair in the lower-left corner, a large area rug covering the floor, richly layered multi-piece furniture arrangement, warm cozy home interior lighting';
 // 三张卧室夜景候选的布局与灯光氛围（genBedrooms 生成、selBedroom 记忆所选，晚上补生成夜图时保持一致）
@@ -3841,7 +3852,7 @@ async function genAgent() {
   G.npcs.agent.name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
 
   // Generate first line
-  const firstLine = await claude(G.npcs.agent.name + ' is a 32-year-old ' + origin + ' talent agent. Cold, precise. He approached a street busker named ' + (G.player.name||'her') + ' after secretly watching her for three nights. Write his very first words to her. 1-2 sentences, guarded but intrigued. No quotes. Language: ' + G.langName + '.');
+  const firstLine = await claude(G.npcs.agent.name + ' is a ' + origin + ' talent agent — warm, sharp, and genuinely moved by real talent. He approached a street singer named ' + (G.player.name||'her') + ' after her voice caught him three nights running. Write his very first words to her: WARM and quietly thrilled, moved by what he heard, letting it show (a real smile, bright eyes) — NEVER cold, aloof, or a detached weather-report tone. Tell her she has something rare. Do NOT frame it as "turning it into a career/a job" or anything about money — it is about the gift and about being truly heard. 1-2 sentences. No quotes. Language: ' + G.langName + '.');
 
   // Show name and line immediately
   document.getElementById('agent-reveal-box').style.display = 'block';
@@ -4095,6 +4106,7 @@ function showNPCOrigin(npcKey, callback) {
   var mixEl = document.createElement('div');
   mixEl.className = 'nos-card';
   mixEl.style.borderStyle = 'dashed';
+  mixEl.style.gridColumn = '1 / -1'; // 整行铺满，不落单（排版对称）
   mixEl.innerHTML = (isZhNos?'✦ 混血':'✦ Mixed') + '<br><span style="font-size:9px;color:var(--ink-muted)">' + (isZhNos?'选两个来源':'pick two') + '</span>';
   mixEl.onclick = function(){ enterMixMode(this); };
   nosGrid.appendChild(mixEl);
@@ -9656,7 +9668,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.16 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.17 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

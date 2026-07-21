@@ -295,25 +295,28 @@ const STATE = {
       const fatherTraits = STATE.imagePrompts.heritageTraits[fatherOrigin] || { eyes: 'dark brown', skin: 'medium' };
       const hairColor = player.hairColor || 'dark brown';
 
-      // 服装多样化（用户反馈：每张图便装太像）：按场景+天数确定性挑一套，不同活动/不同天换装、同图稳定
+      // 服装多样化（用户反馈：便装太像、都是衬衫西裤）：按场景+天数确定性挑一套，风格拉开——裙装/针织/皮衣/度假风等
       const _outfits = [
-        'a chic oversized knit sweater with tailored trousers',
-        'a flowy midi slip dress with a cropped jacket',
-        'high-waisted jeans, a fitted ribbed top and layered necklaces',
-        'a soft silk blouse tucked into wide-leg trousers',
-        'a fine turtleneck under a structured blazer',
-        'a breezy sundress with delicate straps',
-        'a cropped cardigan over a camisole with a pleated midi skirt',
-        'an effortless linen shirt over a tank with tailored shorts',
-        'a satin camisole with a draped long cardigan and jeans',
-        'a tailored jumpsuit cinched at the waist',
+        'a flowy floral midi dress with delicate straps',
+        'a chic oversized knit sweater in a soft pastel',
+        'high-waisted jeans with a cropped fitted top and layered gold necklaces',
+        'an elegant silk slip dress',
+        'a cozy off-shoulder knit with soft leggings',
+        'a breezy white sundress',
+        'a cropped cardigan over a lace camisole with a pleated skirt',
+        'a stylish leather jacket over a simple tee and skinny jeans',
+        'a satin camisole with a draped long cardigan',
+        'a fitted ribbed knit dress',
+        'a bohemian maxi dress with a suede jacket',
+        'a soft cashmere sweater tucked into a flowing midi skirt',
       ];
       let _oh = 0; const _os = String(scene || '') + '|' + ((typeof STATE !== 'undefined' && STATE.data && STATE.data.day) || 1);
       for (let _i = 0; _i < _os.length; _i++) { _oh = (_oh * 31 + _os.charCodeAt(_i)) >>> 0; }
       const _outfit = _outfits[_oh % _outfits.length];
 
       const base = [
-        `Naturally beautiful 23-year-old woman`, // 生图固定23岁保证画面年轻好看（用户定稿）；叙事年龄故意不订，见 _bgCtx
+        // 用户反馈"女主不够美"：加码到惊艳级美貌
+        `Stunningly beautiful, breathtaking 23-year-old woman with a captivating unforgettable face, flawless radiant skin, luminous expressive eyes, magazine-cover level beauty`,
         `striking unmistakable ${hairColor} colored hair (hair color must be exactly ${hairColor}, this is important and non-negotiable), ${player.hairStyle || 'long wavy hair'} hairstyle`,
         `slender and well-proportioned artist figure`,
         `mixed ${motherOrigin} and ${fatherOrigin} heritage ONLY`,
