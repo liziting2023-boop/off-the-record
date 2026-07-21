@@ -526,7 +526,8 @@ const STATE = {
       // ── 一级新增：球星 Rafael / 邻居单亲爸爸（借用二线生图管线，dispatch 已放行 tier1+有 secondaryLooks）──
       rafael: {
         origin: 'British',
-        line: 'Strikingly handsome, model-attractive 24-year-old man, elite professional footballer\'s lean powerful athletic build with broad shoulders and defined physique, confident magnetic good looks, strong jawline with light stubble, intense warm eyes, dark hair in a fresh modern athlete\'s cut, wearing a fitted premium casual outfit (designer bomber over a plain tee)',
+        // 用户定稿：身高/体型/发型对齐参考球星（英格兰10号中场·186cm），长相在其混血背景范围内生成（非克隆真人脸）。
+        line: 'Strikingly handsome, model-attractive tall 24-year-old man around 186cm / 6\'1", elite professional footballer\'s lean powerful athletic build — broad shoulders, defined muscular midfielder physique, mixed-heritage looks (mixed Black and White British), warm medium-brown skin, strong jawline with light stubble, confident magnetic good looks, intense warm eyes, very short black hair in a clean modern faded athlete\'s crop, wearing a fitted premium casual outfit (designer bomber over a plain tee)',
       },
       neighbor: {
         origin: 'American',
