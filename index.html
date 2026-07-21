@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.27"></script>
-<script src="state.js?v=12.27"></script>
+<script src="story.js?v=12.28"></script>
+<script src="state.js?v=12.28"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -575,7 +575,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.27 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.28 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1165,7 +1165,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.27 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.28 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5348,7 +5348,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.27：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.28：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -6722,7 +6722,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.27）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.28）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -7635,6 +7635,9 @@ const HOME_PROMPTS = {
   engineer: 'compact apartment doubling as a home studio, acoustic foam on one wall, a desk with monitors and a small mixing console, cables neatly coiled, dim warm practical lighting, headphone stands',
   runner:   'spare minimal apartment of a surgeon, almost monastic: neat bookshelf, running shoes lined at the door, a single framed photo, everything clean and quiet, soft morning light',
   photog:   'loft-ish rented room strung with drying photo prints on clips, camera bodies and lenses on a wooden table, stacks of photo books, brick wall, warm tungsten work lamp',
+  // 一级新增：球星（现代运动健将公寓）/ 单亲爸爸（温暖居家家庭公寓）——否则兜底成经纪人豪宅
+  rafael:   'sleek high-end modern apartment of a professional athlete, framed jerseys and a few quiet trophies on a shelf, floor-to-ceiling city view, clean minimalist warm luxury, disciplined and tidy',
+  neighbor: 'warm lived-in family apartment, a child\'s crayon drawings on the fridge and toys tidied into a corner, a soft comfortable couch, low bookshelves, homey and safe, gentle lamp light',
 };
 // 过夜暧昧文案的"举动风格"：按各NPC性格差异化（霸道/温柔/急切/青涩/克制），替代原来所有人共用的通用动作模板
 // 每个NPC的亲密语感，按用户选定的参考书校准（只学手法/register，不抄原文）：
@@ -7647,6 +7650,10 @@ const OVERNIGHT_STYLE = {
   butler:   'Warm and emotionally open, a little shy — for him intimacy is as much what he says as what he does. Tender and vulnerable, he lets the feeling out loud, half-confession between breaths; earnest wonder and devotion winning out over any swagger.',
   detective:'Restrained and deeply respectful — he asks, he waits for her yes, he reads her for every small signal and never assumes. Controlled, considerate heat; each move deliberate, each one an offer she can meet or turn. The quiet green-flag intensity of a man who needs her to be sure.',
   rival:    'Competitive and verbal even here — he flirts in dares and one-liners, keeping score, turning it into a game he is desperate to lose. But every clever line keeps slipping, and the cocky star comes apart in a way the cameras never get to see — undone, and stunned that she is the one who did it.',
+  // 球星（用户定稿）：自信、身体性强、真诚投入——不是场上那套表演，是把同样的全力以赴倾注给她。
+  rafael:   'Confident and deeply physical, and all the way present — an elite athlete completely at home in his own body, unhurried and unashamed of how much he wants her. His desire is direct, warm and generous: sure hands, total attention, giving more than he takes, savoring every reaction. None of the on-camera swagger — off the pitch, with her, he goes quiet and focused and real, pouring that same all-in intensity into her.',
+  // 单亲爸爸（用户定稿）：温柔、保护欲、情感深而慢热——把重新靠近一个人当成一件郑重的事。
+  neighbor: 'Tender, protective and slow — a grounded single dad who has not let anyone this close in a long time and treats opening that door as something that matters. Unhurried and deeply attentive, reading her, making sure; his want is real and steady but wrapped in care, gentle hands and quiet wonder. Emotionally present the whole way — for him this is trust as much as heat, and he lets her feel how much it means without wasting a word.',
 };
 // ══ 过夜后的关系动态（Batch2）══
 // 公开/低调立场按性格：鼓手=想公开(骄傲不藏) / 经纪人=要低调(利益冲突,暗里在意) /
@@ -7704,6 +7711,8 @@ const OVERNIGHT_ACT1 = {
   butler:   { scene:'at the small kitchen table of his cozy apartment, books and plants around', prop:'pouring her tea, his hands not quite steady', img:'a still-life close view of a small cozy round kitchen table at night, a teapot steeping and two mugs of tea, books and a small potted plant, warm lamp light, empty chairs, an unoccupied homey apartment interior' },
   detective:{ scene:'at the desk by the bookshelf in his apartment, a quiet noir hush', prop:'sliding a glass of whiskey across to her and watching her over the rim', img:'a still-life close view of a dark wood desk by a bookshelf at night, two low glasses of amber whiskey, a single warm desk lamp, a quiet noir mood, an empty unoccupied masculine study interior' },
   rival:    { scene:'in his sleek pop-star apartment, platinum records glinting on the wall, the city low behind him', prop:'turning it into a dare — a bet, a challenge, "last one to look away loses" — anything to keep the game running as the distance closes', img:'a still-life close view of a sleek modern pop-star apartment at night, framed platinum records on a dark wall, a bottle of champagne and two glasses on a low designer table, a grand piano silhouette, city lights blurred through the window, an empty unoccupied stylish apartment interior' },
+  rafael:   { scene:'in the open living room of his sleek modern apartment, framed shirts and quiet trophies a soft blur in the low light, the city glowing beyond the glass', prop:'handing her a drink, then setting both glasses aside — no games, just closing the distance, all his focus on her', img:'a still-life close view of a sleek high-end modern apartment living room at night, two glasses on a low table, framed sports memorabilia softly blurred on a dark wall, warm low lighting, city lights through floor-to-ceiling glass, an empty unoccupied stylish interior' },
+  neighbor: { scene:'in the warm, lived-in living room of his apartment on a quiet night his daughter is away at her grandparents\', a couple of her crayon drawings still pinned to the fridge', prop:'his hands careful and a little out of practice, pausing to be sure — you can see this matters to him', img:'a still-life close view of a warm lived-in family apartment living room at night, a soft couch with a throw blanket, a child\'s crayon drawings pinned near a fridge, one warm lamp, cozy and quiet, an empty unoccupied homey interior' },
 };
 const OVERNIGHT_ACT2 = {
   agent:    { scene:'his bedroom, the skyline glowing beyond the glass', img:'an empty unoccupied luxury bedroom at night, a wide low bed with rumpled fine dark linens turned back, a city skyline glow through floor-to-ceiling glass, dim warm light' },
@@ -7712,6 +7721,8 @@ const OVERNIGHT_ACT2 = {
   butler:   { scene:'his small tidy bedroom, warm and shy', img:'an empty unoccupied small tidy bedroom, soft simple bedding slightly turned down, one warm lamp, cozy intimate mood' },
   detective:{ scene:'his bedroom, dark wood and restrained warmth', img:'an empty unoccupied understated bedroom, dark wood, plain good linens turned back, a single warm lamp, quiet noir mood' },
   rival:    { scene:'his bedroom, city lights low, platinum records glinting on the wall', img:'an empty unoccupied sleek pop-star bedroom at night, a wide bed with dark designer linens turned back, city lights through floor-to-ceiling glass, moody low accent light' },
+  rafael:   { scene:'his calm modern bedroom, the city glowing low beyond the glass', img:'an empty unoccupied modern bedroom at night, a large low bed with clean dark linens turned back, warm dim light, a tidy athletic space, city glow beyond the window' },
+  neighbor: { scene:'his warm, simple, lived-in bedroom', img:'an empty unoccupied warm simple bedroom at night, a comfortable bed with soft well-worn linens turned back, one warm bedside lamp, a calm homey lived-in feel, no people' },
 };
 async function genNPCHomeActBg(npcKey, act) {
   const field = act === 2 ? 'homeAct2Url' : 'homeAct1Url';
@@ -9855,7 +9866,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.27 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.28 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
