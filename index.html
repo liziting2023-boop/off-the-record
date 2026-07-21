@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.23"></script>
-<script src="state.js?v=12.23"></script>
+<script src="story.js?v=12.24"></script>
+<script src="state.js?v=12.24"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -573,7 +573,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.23 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.24 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1163,7 +1163,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.23 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.24 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1710,6 +1710,24 @@ function gameConfirm(msg, onYes, onNo) {
   var yes = document.createElement('button'); yes.className='vn-next'; yes.textContent = isZh?'确定':'OK'; yes.style.borderColor='var(--rose)';
   yes.onclick = function(){ ov.style.display='none'; if (onYes) onYes(); };
   btns.appendChild(no); btns.appendChild(yes); ov.style.display = 'flex';
+}
+// 输入型弹窗（替代原生 prompt，同样不露网址）。okLabel/placeholder 可选；onOk(value) 仅在点确定时回调。
+function gamePrompt(msg, onOk, opts) {
+  opts = opts || {};
+  var ov = _ensureGameModal();
+  var isZh = (typeof G!=='undefined' && G && (G.lang==='zh-cn'||G.lang==='zh-tw'));
+  var msgEl = document.getElementById('game-modal-msg'); msgEl.textContent = msg;
+  var inp = document.createElement('input'); inp.type = 'text'; inp.value = opts.value || ''; if (opts.placeholder) inp.placeholder = opts.placeholder;
+  inp.style.cssText = 'width:100%;margin-top:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,200,210,0.3);border-radius:10px;padding:10px 12px;color:#FFF0F3;font-size:16px;outline:none;box-sizing:border-box;';
+  msgEl.appendChild(inp);
+  var btns = document.getElementById('game-modal-btns'); btns.innerHTML = '';
+  var no = document.createElement('button'); no.className='vn-next'; no.textContent = isZh?'取消':'Cancel'; no.style.opacity='0.7';
+  no.onclick = function(){ ov.style.display='none'; };
+  var yes = document.createElement('button'); yes.className='vn-next'; yes.textContent = isZh?'确定':'OK'; yes.style.borderColor='var(--rose)';
+  yes.onclick = function(){ var v = inp.value; ov.style.display='none'; if (onOk) onOk(v); };
+  inp.onkeydown = function(e){ if(e.key==='Enter'){ e.preventDefault(); yes.onclick(); } };
+  btns.appendChild(no); btns.appendChild(yes); ov.style.display = 'flex';
+  try { inp.focus(); } catch(e){}
 }
 
 function formatPlayerText(raw) {
@@ -2945,35 +2963,35 @@ function diagInfoStr() {
 }
 function copyDiagInfo(silent) {
   var s = diagInfoStr(); var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  try { navigator.clipboard.writeText(s); if (!silent) alert((isZh?'已复制，粘贴到问卷或邮件里即可：\n':'Copied — paste it into the survey/email:\n') + s); }
-  catch(e) { prompt(isZh?'手动复制：':'Copy:', s); }
+  try { navigator.clipboard.writeText(s); if (!silent) gameAlert((isZh?'已复制，粘贴到问卷或邮件里即可：\n':'Copied — paste it into the survey/email:\n') + s); }
+  catch(e) { gameAlert((isZh?'手动复制：\n':'Copy:\n') + s); }
 }
 // ── 同步码：设备ID即身份。复制留存；输入他人/旧机的码=接管那份云端进度（覆盖本机） ──
 function copySyncCode() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  try { navigator.clipboard.writeText(getDeviceId()); alert(isZh?'同步码已复制——抄在安全的地方，这是找回进度的唯一凭证。':'Sync code copied — keep it safe; it is the only key to your progress.'); }
-  catch(e) { prompt(isZh?'手动复制：':'Copy:', getDeviceId()); }
+  try { navigator.clipboard.writeText(getDeviceId()); gameAlert(isZh?'同步码已复制——抄在安全的地方，这是找回进度的唯一凭证。':'Sync code copied — keep it safe; it is the only key to your progress.'); }
+  catch(e) { gameAlert((isZh?'手动复制这串同步码：\n':'Copy this sync code:\n') + getDeviceId()); }
 }
 // 核心恢复流程（设置页和标题页共用）：语言可能还没选，提示一律纯英文（用户定稿）
 async function adoptSyncCode(code) {
   code = (code || '').trim();
-  if (code.length < 8) { alert('Please enter the full sync code.'); return; }
-  if (code === getDeviceId()) { alert('That is already this device\'s sync code.'); return; }
+  if (code.length < 8) { gameAlert('Please enter the full sync code.'); return; }
+  if (code === getDeviceId()) { gameAlert('That is already this device\'s sync code.'); return; }
   try {
     const r = await fetch(WORKER + '/save', { headers: { 'X-Device-Id': code } });
     const data = await r.json();
-    if (!(data && data.player && data.player.name)) { alert('No cloud save found for that code.'); return; }
-    if (!confirm('Found: ' + data.player.name + ' · Day ' + (data.day||1) + '\nThis will REPLACE this device\'s progress and adopt that sync code. Continue?')) return;
-    localStorage.setItem('otr_device_id', code);
-    localStorage.setItem('otr_save_v2', JSON.stringify(data));
-    location.reload(); // 重载后走 loadGame 原地合并；此后本机以该同步码继续云同步
-  } catch(e) { alert('Network error — please try again later.'); }
+    if (!(data && data.player && data.player.name)) { gameAlert('No cloud save found for that code.'); return; }
+    gameConfirm('Found: ' + data.player.name + ' · Day ' + (data.day||1) + '\nThis will REPLACE this device\'s progress and adopt that sync code. Continue?', function(){
+      localStorage.setItem('otr_device_id', code);
+      localStorage.setItem('otr_save_v2', JSON.stringify(data));
+      location.reload(); // 重载后走 loadGame 原地合并；此后本机以该同步码继续云同步
+    });
+  } catch(e) { gameAlert('Network error — please try again later.'); }
 }
 async function restoreBySyncCode() { await adoptSyncCode(document.getElementById('sync-code-input').value); }
 // 标题页入口：开局前就能找回（换新手机的测试者不用先开新档）
-async function titleSyncRestore() {
-  var code = prompt('Enter your sync code:');
-  if (code) await adoptSyncCode(code);
+function titleSyncRestore() {
+  gamePrompt('Enter your sync code:', function(code){ if (code) adoptSyncCode(code); }, { placeholder: 'sync code' });
 }
 // 存玩家生日（月/日）：生日当天 startDay 里触发特别问候/安排
 function setBirthday() {
@@ -3230,7 +3248,16 @@ const AGENT_PERF_TASKS = [
 // 排班专用确定性随机（v11.98）：种子=存档固定 _schedSeed × 天数——同一档同一天永远掷同一结果。
 // 即使日历因任何原因丢失，自愈重排出的行程【与原来完全一致】，玩家不会再看到"重进游戏工作全变了"（用户实测的重要bug）。
 function schedRand(d, salt) {
-  if (!G._schedSeed) { G._schedSeed = Math.floor(Math.random() * 1e9) + 1; try { STATE.save.saveGame(); } catch(e){} }
+  // 种子从【设备ID】确定性派生（不再用 Math.random）——这样即使存档里的 _schedSeed 因任何原因丢失，
+  // 同一台设备也永远重算出同一颗种子 ⇒ 同一份日程。根治用户反复反馈的"重进游戏日历全变"：
+  // 以前丢了种子就 Math.random 现摇一颗新的，整份工作日程随之全变；现在丢了也能一字不差地重建。
+  if (!G._schedSeed) {
+    var _ids = String((typeof getDeviceId === 'function' ? getDeviceId() : '') || 'otr-seed');
+    var _h = 2166136261 >>> 0;
+    for (var _i = 0; _i < _ids.length; _i++) { _h ^= _ids.charCodeAt(_i); _h = Math.imul(_h, 16777619); }
+    G._schedSeed = (_h >>> 0) || 1;
+    try { STATE.save.saveGame(); } catch(e){}
+  }
   var x = (G._schedSeed ^ Math.imul(d, 2654435761) ^ Math.imul(salt || 1, 40503)) >>> 0;
   x = Math.imul(x ^ (x >>> 15), 2246822519); x = Math.imul(x ^ (x >>> 13), 3266489917);
   return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
@@ -5242,6 +5269,8 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     engineer: 'the mixing desk of the studio where she records (he is the sound engineer usually behind the glass)',
     runner:   'the running path you both use (he runs the same route at the same time, like clockwork)',
     photog:   'a street corner near the market (he is a street photographer; his camera noticed her before he did)',
+    rafael:   'the set of the soda commercial you are both shooting (he is the OTHER celebrity face of the campaign; between takes he wanders over, no airs)',
+    neighbor: 'the mailboxes in the lobby of the building you both live in (you are the single dad who lives across the hall from her)',
   };
   var whereWord = _t2where[npcKey] || _t2where.coffee;
   var _t2first = {
@@ -5250,6 +5279,8 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     engineer: ' First time you actually speak beyond a nod through the glass. You are a man of few words with surgical ears — say something brief and TRUE about her sound, nothing polite or generic.',
     runner:   ' You two have nodded past each other on this route for a while; today is the first actual exchange. Keep it to a few unhurried words, the way runners talk — your opener was always going to be about her pace.',
     photog:   ' You just asked if you could take her picture — direct, unapologetic, respectful. Tell her plainly what you saw in the frame; no flattery, one true observation.',
+    rafael:   ' First time you two actually talk. You are a world-famous footballer and the co-star of this ad — grounded, warm, quietly magnetic, ZERO airs. You are NOT a director, acting coach or photographer: do NOT critique her performance, her eyes, her nerves, or how she looked on camera — that is not your place and it reads as presumptuous. Just be an easy, real person between takes: one light human observation or a bit of dry humor, treat her as a peer. Careful the way a famous man is with new people — friendly, not gushing.',
+    neighbor: ' First real conversation with your new neighbour. You are a warm, grounded single dad; your six-year-old daughter Lily may be with you, peeking out shyly. Introduce yourself simply as the neighbour from across the hall — do NOT recite her exact apartment/unit number as if you memorised it (at most vaguely place her as "just moved in down the hall"). If Lily is there, one small shy beat from her is lovely. Easy, kind, no agenda.',
   };
   var firstCtx = firstTime
     ? (_t2first[npcKey] || ' This is essentially the FIRST time you two really talk — you know her only as the regular who comes in. No shared history, no texts, do NOT reference past plans. Break the ice in your own understated way.')
@@ -5292,7 +5323,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.23：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.24：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10) {
     var askLine = npcKey === 'photog'
       ? (isZh ? '「照片洗出来，我想发给你看看——留个联系方式？只放进我自己的独立影集，不作商用，你不同意我就不用。」' : '"The prints — I\'d like to send you a few. Leave me a way to reach you? Just for my own independent series, never commercial; if you say no, they don\'t get used."')
@@ -6659,7 +6690,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.23）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.24）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -9787,7 +9818,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.23 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.24 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
