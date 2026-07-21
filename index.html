@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.24"></script>
-<script src="state.js?v=12.24"></script>
+<script src="story.js?v=12.25"></script>
+<script src="state.js?v=12.25"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -573,7 +573,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.24 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.25 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1163,7 +1163,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.24 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.25 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5280,7 +5280,7 @@ function startSecondaryMeet(npcKey, locKey, firstTime) {
     runner:   ' You two have nodded past each other on this route for a while; today is the first actual exchange. Keep it to a few unhurried words, the way runners talk — your opener was always going to be about her pace.',
     photog:   ' You just asked if you could take her picture — direct, unapologetic, respectful. Tell her plainly what you saw in the frame; no flattery, one true observation.',
     rafael:   ' First time you two actually talk. You are a world-famous footballer and the co-star of this ad — grounded, warm, quietly magnetic, ZERO airs. You are NOT a director, acting coach or photographer: do NOT critique her performance, her eyes, her nerves, or how she looked on camera — that is not your place and it reads as presumptuous. Just be an easy, real person between takes: one light human observation or a bit of dry humor, treat her as a peer. Careful the way a famous man is with new people — friendly, not gushing.',
-    neighbor: ' First real conversation with your new neighbour. You are a warm, grounded single dad; your six-year-old daughter Lily may be with you, peeking out shyly. Introduce yourself simply as the neighbour from across the hall — do NOT recite her exact apartment/unit number as if you memorised it (at most vaguely place her as "just moved in down the hall"). If Lily is there, one small shy beat from her is lovely. Easy, kind, no agenda.',
+    neighbor: ' First real conversation with your new neighbour. You are a warm, grounded single dad, and your six-year-old daughter Lily is with you, peeking out shyly from behind your leg. Introduce yourself simply as the neighbour from across the hall — do NOT recite her exact apartment/unit number as if you memorised it (at most vaguely place her as "just moved in down the hall"). Do the very normal parent thing: gently nudge Lily to say hello ("Lily, can you say hi?"), and she manages a shy little "hi" or a small wave before ducking back — keep it brief and sweet, in-character for a bashful six-year-old, never a speech. This is all TEXT only — do not describe generating any picture. Easy, kind, no agenda.',
   };
   var firstCtx = firstTime
     ? (_t2first[npcKey] || ' This is essentially the FIRST time you two really talk — you know her only as the regular who comes in. No shared history, no texts, do NOT reference past plans. Break the ice in your own understated way.')
@@ -5323,7 +5323,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.24：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.25：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10) {
     var askLine = npcKey === 'photog'
       ? (isZh ? '「照片洗出来，我想发给你看看——留个联系方式？只放进我自己的独立影集，不作商用，你不同意我就不用。」' : '"The prints — I\'d like to send you a few. Leave me a way to reach you? Just for my own independent series, never commercial; if you say no, they don\'t get used."')
@@ -6690,7 +6690,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.24）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.25）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -9818,7 +9818,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.24 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.25 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
