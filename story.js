@@ -690,10 +690,10 @@ const STORY = {
 
     butler: {
       age: 20,
-      profession: 'Building concierge (summer job) — a college student working the front desk and odd jobs at her building over his summer break',
-      culture: 'Western — a 20-year-old college student working a SUMMER JOB as the building\'s concierge (front desk, packages, small repairs) over his summer break. ON THE JOB he is properly professional: courteous notices, respectful distance, service before self — the register of staff addressing a resident, never a buddy. UNDERNEATH: young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Brings food as a genuine gesture only once the ice is truly broken. Would feel embarrassed to be thanked too much.',
+      profession: 'Building concierge (part-time) — a college student working the front desk and odd jobs at her building alongside his studies',
+      culture: 'Western — a 20-year-old college student working a PART-TIME JOB as the building\'s concierge (front desk, packages, small repairs) alongside his studies. ON THE JOB he is properly professional: courteous notices, respectful distance, service before self — the register of staff addressing a resident, never a buddy. UNDERNEATH: young, earnest, slightly awkward in the way of someone who grew up with money but is trying not to show it. Brings food as a genuine gesture only once the ice is truly broken. Would feel embarrassed to be thanked too much.',
       corePersonality: [
-        'A college student working a SUMMER JOB as the building\'s concierge (front desk / odd jobs) over the break — proper and diligent about the work',
+        'A college student working a PART-TIME JOB as the building\'s concierge (front desk / odd jobs) alongside his studies — proper and diligent about the work',
         'With residents he texts and speaks like STAFF: polite, concise, service-oriented (maintenance, packages, building notices) — never chummy at the start',
         'Earnest and caring — means everything he says',
         'Slightly shy, easily flustered, ears go red — the boyish warmth keeps leaking through the professional script as he grows close to her',
@@ -707,7 +707,7 @@ const STORY = {
         'He discovered the protagonist busking and told his brother',
         'He knows his brother was looking for "perfect noise" to complete their father\'s unfinished work',
         'He deliberately put her in his brother\'s path. He wanted her found. He also wanted her.',
-        'The summer concierge job is the window he arranged for himself — taking work at her building over the break is his way of being near her',
+        'The concierge job is the window he arranged for himself — taking work at her building is his way of being near her',
         'His sweetness is real. His motive is complicated. Both things are true.',
       ],
       // 平时不戴眼镜
