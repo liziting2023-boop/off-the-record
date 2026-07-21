@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.31"></script>
-<script src="state.js?v=12.31"></script>
+<script src="story.js?v=12.32"></script>
+<script src="state.js?v=12.32"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -575,7 +575,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.31 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.32 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1165,7 +1165,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.31 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.32 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1359,7 +1359,7 @@ const EARLY_TONE = {
   butler:  'You are the building\'s part-time concierge (a college student working the front desk while he studies) and she is a resident — text like STAFF, not like a friend: polite, concise, service-oriented notices and reminders (maintenance, packages, building matters), respectful register. NO chummy openers, no nicknames, no personal chit-chat unless SHE opens that door first.',
   rival:   'You are wary rivals, not friends — cool, competitive, a little sharp.',
   detective:'Reserved and businesslike; you keep your distance.',
-  rafael:  'You only just met her on set — friendly and magnetic, but a famous man is careful with new people. Warm and a little teasing, yet you keep a little distance until you are sure she is not after the name; you do NOT gush or over-share with someone you barely know.',
+  rafael:  'You only just met her on set — cocky, magnetic and openly charming, the flirt turned on by habit. But that swagger is armor: a famous man is careful, so under the charm you keep real distance until you are sure she is not after the name. Playful and teasing, never gushing or over-sharing with someone you barely know.',
   neighbor:'You are new neighbours who have only just met — warm, courteous and helpful in a grounded, fatherly way, but not familiar yet. You keep an easy, respectful distance, you do not over-share about your life or your daughter, and you are a little rusty and careful about anything beyond friendly.',
 };
 function earlyToneNote(k) {
@@ -1895,7 +1895,7 @@ const NPC_BIO = {
   actor:    { zh:'当红演员。撩人是他的呼吸，真心藏在玩笑里。', en:'A rising actor. Flirting is how he breathes; the truth hides in his jokes.', metZh:'共用场地的杂志拍摄', metEn:'A shared magazine shoot' },
   butler:   { zh:'一边念书一边在你公寓做门房打工的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A college student working part-time as your building\'s concierge while he studies. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
   rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
-  rafael:   { zh:'当红球星。名气很大，人却意外地踏实——他记得你把他当普通人看。', en:'A star footballer. Huge fame, surprisingly grounded — he remembers you treated him like a person.', metZh:'一场饮料广告的拍摄现场', metEn:'A soda commercial shoot' },
+  rafael:   { zh:'当红球星。镜头前痞帅张扬，私下却忠诚专一——他记得你把他当普通人看，而不是明星。', en:'A star footballer. All swagger and charm in public, loyal and real underneath — he remembers you treated him like a person, not a headline.', metZh:'一场饮料广告的拍摄现场', metEn:'A soda commercial shoot' },
   neighbor: { zh:'住你同层对门的单亲爸爸，独自带着女儿。温柔可靠，是那种让人安心的人。', en:'The single dad directly across the hall on your floor, raising his daughter alone. Warm, steady, the kind of man who makes you feel safe.', metZh:'同层的公寓走廊', metEn:'The hallway on your floor' },
   assistant:{ zh:'经纪人的得力助手，帮你打理所有日程。已婚、利落、嘴上毒心里暖，把你当小妹一样罩着。改行程找她。', en:"The agent's right hand who runs all your scheduling. Married, sharp, dry-but-warm — she's got your back like a big sister. Message her to change work.", metZh:'签约后经纪人介绍', metEn:'Introduced by your agent after signing' },
   detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
@@ -5374,7 +5374,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.31：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.32：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -6750,7 +6750,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.31）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.32）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -9899,7 +9899,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.31 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.32 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
