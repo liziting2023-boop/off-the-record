@@ -1342,10 +1342,10 @@ const STORY = {
         isAuto: true,
         respond: true, // 这一轮经纪人的台词改为AI生成，回应玩家上一轮输入（脚本getNPCLine作方向+兜底）
         autoText: {
-          'zh-cn': '你看着他消失在人群里。\n\n名片还带着体温。\n\n三天后，你拨了那个号码。\n他的办公室在城市高处，落地窗外天际线一路铺开——可让你安心的不是窗外的景，是他起身、笑着朝你走来的样子。\n\n他把合同轻轻推到你面前，目光一直落在你身上：\n「一年，独家代理。剩下的路，我们一起走。」\n\n你拿起笔，一笔一划签下自己的名字。\n从这一刻起，一切都不一样了。',
-          'en': 'You watched him disappear into the crowd.\n\nThe card was still warm.\n\nThree days later, you called.\nHis office sat high above the city, the whole skyline spread beyond the glass — but what put you at ease was not the view. It was the way he stood and crossed the room to meet you, smiling.\n\nHe slid the contract to you gently, his eyes never leaving yours.\n"One year. Exclusive representation. The rest of the road, we walk together."\n\nYou picked up the pen and signed your name, stroke by stroke.\nFrom this moment, everything was different.',
-          'ja': 'あなたは人混みの中で彼が去るのを見ていた。\n\n名刺はまだ少し温かかった。\n\n三日後、あなたはその番号に電話した。\n彼のオフィスは街を見下ろす高層階にあり、ガラスの向こうに地平線が広がっていた——けれど、あなたを安心させたのは景色ではなく、立ち上がって笑顔で歩み寄ってくる彼の姿だった。\n\n彼は契約書をそっとあなたの前に滑らせ、まっすぐに見つめた。\n「一年、専属契約。この先の道は、一緒に歩こう」\n\nあなたはペンを取り、一文字ずつ名前を書いた。\nこの瞬間から、すべてが変わった。',
-          'ko': '당신은 인파 속에서 그가 떠나는 걸 바라봤다.\n\n명함이 아직 온기를 품고 있었다.\n\n사흘 후, 당신은 그 번호로 전화를 걸었다.\n그의 사무실은 도시를 내려다보는 높은 층에 있었고, 유리 너머로 스카이라인이 펼쳐져 있었다——하지만 당신을 안심시킨 건 풍경이 아니라, 자리에서 일어나 미소 지으며 다가오는 그의 모습이었다.\n\n그는 계약서를 부드럽게 밀어주며, 당신에게서 눈을 떼지 않았다.\n"1년, 전속 계약. 남은 길은, 함께 걸어요."\n\n당신은 펜을 들어 한 획 한 획 이름을 적었다.\n이 순간부터, 모든 것이 달라졌다.',
+          'zh-cn': '三天后，你拨了那个号码。\n\n他把合同轻轻推到你面前，目光一直落在你身上：\n「一年，独家代理。剩下的路，我们一起走。」\n\n你拿起笔，一笔一划签下自己的名字。\n从这一刻起，一切都不一样了。',
+          'en': 'Three days later, you called.\n\nHe slid the contract to you gently, his eyes never leaving yours.\n"One year. Exclusive representation. The rest of the road, we walk together."\n\nYou picked up the pen and signed your name, stroke by stroke.\nFrom this moment, everything was different.',
+          'ja': '三日後、あなたはその番号に電話した。\n\n彼は契約書をそっとあなたの前に滑らせ、まっすぐに見つめた。\n「一年、専属契約。この先の道は、一緒に歩こう」\n\nあなたはペンを取り、一文字ずつ名前を書いた。\nこの瞬間から、すべてが変わった。',
+          'ko': '사흘 후, 당신은 그 번호로 전화를 걸었다.\n\n그는 계약서를 부드럽게 밀어주며, 당신에게서 눈을 떼지 않았다.\n"1년, 전속 계약. 남은 길은, 함께 걸어요."\n\n당신은 펜을 들어 한 획 한 획 이름을 적었다.\n이 순간부터, 모든 것이 달라졌다.',
         },
       },
     ],

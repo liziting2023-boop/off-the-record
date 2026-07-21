@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.20"></script>
-<script src="state.js?v=12.20"></script>
+<script src="story.js?v=12.21"></script>
+<script src="state.js?v=12.21"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -177,7 +177,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-speaker{font-size:13px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
 .vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,22px);font-style:italic;color:#E9DFE1;line-height:1.58;margin-bottom:10px;}
 /* 字体统一（用户定稿）：台词=玫瑰高亮·正体；动作/旁白=中性·斜体。双方（NPC和玩家）一致，无括号。 */
-.vn-text .speech{color:#FF7E9E;font-style:normal;font-weight:500;text-shadow:0 0 10px rgba(255,126,158,0.3);}
+/* 用户定稿：台词去掉标色更欧美——只用引号，颜色同旁白；靠"正体 vs 斜体"区分说话/叙述 */
+.vn-text .speech{color:inherit;font-style:normal;font-weight:400;}
 .vn-text .narr{color:#E9DFE1;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
 .vn-opts{display:grid;gap:6px;}
@@ -566,7 +567,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.20 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.21 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1156,7 +1157,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.20 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.21 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1585,7 +1586,15 @@ async function introduceAssistant() {
     var t = await claudeChat(STATE.memory.buildDialoguePrompt('assistant', G.day, G.langName, G.player.name,
       'You are ' + a.name + ", the agent's senior assistant, just introduced to her. Send her your FIRST text: brisk, warm, a touch dry — introduce yourself, say you run her schedule and she can message you anytime to move things (some you can just do, some you'll clear with him, a few are locked), and welcome her aboard like a big sister who has her back. 2-3 texting-style sentences. Output only the message text."));
     if (t && t.trim()) { pushNpcMsg('assistant', t.trim(), nowMin + 4); ensureSecondaryName('assistant'); }
-    try { genNPCPortraitPlain('assistant', G.day, 'facing the camera directly', null); } catch(e){}
+    // 生成并【存进头像】——之前只生成没赋值给 portraitUrl，所以头像一直是emoji（用户反馈）
+    try {
+      var _apu = await genNPCPortraitPlain('assistant', G.day, 'facing the camera directly', null);
+      if (_apu) { G.npcs.assistant.portraitUrl = _apu;
+        try { var _ph = document.getElementById('s-phone'); if (_ph && _ph.classList.contains('active') && typeof renderPhone==='function') renderPhone(); } catch(e){}
+        try { if (_openChatNpc === 'assistant' && typeof renderChatMsgs==='function') renderChatMsgs('assistant'); } catch(e){}
+        try { STATE.save.saveGame(); } catch(e){}
+      }
+    } catch(e){}
     try { STATE.save.saveGame(); } catch(e){}
   } catch(e){} })();
 }
@@ -4010,7 +4019,10 @@ function showSigningAuto(round) {
   const speaker = document.getElementById('signing-speaker');
   const text = document.getElementById('signing-text');
   const opts = document.getElementById('signing-opts');
-  speaker.textContent = '';
+  // 签约=重要节点仪式感（用户定稿）：加章节标签 + 合成音效，旁白独占一屏
+  var _isZhSg = lang==='zh-cn'||lang==='zh-tw';
+  speaker.innerHTML = '<span style="font-size:12px;letter-spacing:6px;text-transform:uppercase;color:#8aa0c8;font-family:Jost,sans-serif">' + (_isZhSg?'签约 · The Contract':'The Contract') + '</span>';
+  try { if (typeof playMilestoneChord === 'function') playMilestoneChord('cool'); } catch(e){}
   // 这段是时间蒙太奇（三天后拨号→签约），不是他站在眼前——隐藏立绘背景，让旁白独占一屏、不被大脸挤到要滚动
   var _sbg = document.getElementById('signing-bg'); if (_sbg) _sbg.style.display = 'none';
   var _sph = document.getElementById('signing-bg-ph'); if (_sph) _sph.style.display = 'flex';
@@ -8242,6 +8254,7 @@ function buildScheduleContext(days, onlyNpc) {
   }
   if (onlyNpc) {
     return (lines.length ? 'Shared plans you know about (ONLY these — you are part of them): ' + lines.join('; ') + '. ' : '') +
+      'When you tell her to come to something on a specific date, use the EXACT event already on that date and its correct type/name — a "show/performance/演出" is NOT a "rehearsal/排练"; do NOT relabel it, and do NOT invent a separate rehearsal on a day that already has one of these events. ' +
       'Beyond these you do NOT know her work calendar or schedule — NEVER claim to know her plans, appointments or what she has tomorrow unless she told you in this conversation.';
   }
   return 'Her REAL schedule (from her calendar): ' + (lines.join('; ') || 'nothing scheduled') +
@@ -9357,7 +9370,8 @@ function renderFame() {
 function renderAffection() {
   const lang = G.lang;
   // 三线（反面）不进好感度页（用户定稿）：渣男/油腻男/小偷不配占一行
-  const ranked = STATE.relationships.getRanked().filter(function(n){ return npcTier(n.key) < 3; });
+  // 三线不进好感页；柏拉图功能联系人(工作助理)也不进（用户定稿：她是闺蜜/助理，不是攻略对象）
+  const ranked = STATE.relationships.getRanked().filter(function(n){ return npcTier(n.key) < 3 && !(G.npcs[n.key] && G.npcs[n.key].platonic); });
   if (ranked.length === 0) {
     document.getElementById('affection-list').innerHTML = '<p style="color:var(--ink-muted);font-size:14px;text-align:center;padding:40px 0">' + (lang==='zh-cn'?'还没有认识任何人':'No connections yet') + '</p>';
     return;
@@ -9678,7 +9692,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.20 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.21 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
