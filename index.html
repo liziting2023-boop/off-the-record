@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.21"></script>
-<script src="state.js?v=12.21"></script>
+<script src="story.js?v=12.22"></script>
+<script src="state.js?v=12.22"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -187,6 +187,12 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-input:focus{border-color:rgba(255,180,200,0.5);background:rgba(255,255,255,0.15);}
 .vn-input::placeholder{color:rgba(255,200,210,0.5);font-style:italic;}
 .vn-send{background:linear-gradient(135deg,#C4847A,#B5536A);border:none;border-radius:10px;width:40px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;flex-shrink:0;}
+/* 双输入框（动作 + 说话，欧美习惯）：动作=斜体旁白，说话=引号台词 */
+.vn-dual{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.vn-dual-row{display:flex;gap:6px;align-items:flex-start;}
+.vn-dual-tag{flex-shrink:0;width:24px;text-align:center;padding-top:12px;font-size:15px;opacity:.8;}
+.vn-dual .vn-input{min-height:46px;}
+.vn-input-act{font-style:italic;color:#E9DFE1;}
 .vn-quick-label{font-size:9px;letter-spacing:2px;color:rgba(255,200,210,0.5);text-transform:uppercase;margin-bottom:4px;}
 .vn-opt{background:rgba(255,255,255,0.08);border:1px solid rgba(255,200,210,0.2);border-radius:10px;padding:11px 14px;cursor:pointer;text-align:left;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.8vw,20px);color:#FFF0F3;display:flex;align-items:center;justify-content:space-between;min-height:44px;transition:all 0.15s;}
 .vn-opt:active{border-color:rgba(255,180,200,0.5);background:rgba(255,200,210,0.15);}
@@ -567,7 +573,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.21 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.22 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1157,7 +1163,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.21 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.22 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1659,6 +1665,41 @@ function formatNPCText(raw) {
 
 // 玩家台词显示（字体统一，用户定稿）：括号()内=动作(中性斜体·去括号)，括号外=台词(玫瑰高亮)。
 // 和 NPC 显示视觉一致——都是"台词高亮、动作旁白斜体"，只是标记方式不同（NPC用引号标台词，玩家用括号标动作）。
+// ── 游戏内提示框（替代原生 alert/confirm）──
+// 原生 alert()/confirm() 会强制显示页面网址（liziting2023-boop.github.io），玩家不想露出账号名/域名。
+// 这个自绘弹窗不带任何网址，纯游戏内观感。玩家可见的提示统一走这里；开发者面板的 alert 不影响玩家。
+function _ensureGameModal() {
+  var ov = document.getElementById('game-modal');
+  if (ov) return ov;
+  ov = document.createElement('div'); ov.id = 'game-modal';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;background:rgba(10,6,10,0.66);backdrop-filter:blur(2px);padding:24px;';
+  ov.innerHTML = '<div style="max-width:340px;width:100%;background:linear-gradient(160deg,#2a1a22,#1c1218);border:1px solid rgba(255,200,210,0.22);border-radius:18px;padding:22px 20px 16px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">'
+    + '<div id="game-modal-msg" style="font-family:\'Cormorant Garamond\',serif;font-size:17px;line-height:1.5;color:#F3E7EA;white-space:pre-wrap;"></div>'
+    + '<div id="game-modal-btns" style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;"></div></div>';
+  document.body.appendChild(ov);
+  return ov;
+}
+function gameAlert(msg, onOk) {
+  var ov = _ensureGameModal();
+  var isZh = (typeof G!=='undefined' && G && (G.lang==='zh-cn'||G.lang==='zh-tw'));
+  document.getElementById('game-modal-msg').textContent = msg;
+  var btns = document.getElementById('game-modal-btns'); btns.innerHTML = '';
+  var ok = document.createElement('button'); ok.className='vn-next'; ok.textContent = isZh?'好':'OK';
+  ok.onclick = function(){ ov.style.display='none'; if (onOk) onOk(); };
+  btns.appendChild(ok); ov.style.display = 'flex';
+}
+function gameConfirm(msg, onYes, onNo) {
+  var ov = _ensureGameModal();
+  var isZh = (typeof G!=='undefined' && G && (G.lang==='zh-cn'||G.lang==='zh-tw'));
+  document.getElementById('game-modal-msg').textContent = msg;
+  var btns = document.getElementById('game-modal-btns'); btns.innerHTML = '';
+  var no = document.createElement('button'); no.className='vn-next'; no.textContent = isZh?'取消':'Cancel'; no.style.opacity='0.7';
+  no.onclick = function(){ ov.style.display='none'; if (onNo) onNo(); };
+  var yes = document.createElement('button'); yes.className='vn-next'; yes.textContent = isZh?'确定':'OK'; yes.style.borderColor='var(--rose)';
+  yes.onclick = function(){ ov.style.display='none'; if (onYes) onYes(); };
+  btns.appendChild(no); btns.appendChild(yes); ov.style.display = 'flex';
+}
+
 function formatPlayerText(raw) {
   if (!raw) return '';
   var t = String(raw).replace(/[<>]/g, '').trim();
@@ -1944,16 +1985,17 @@ function addLongPress(el, fn) {
 }
 function reportAIContent(npcKey, text) {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  if (!confirm(isZh ? '举报这条AI生成的内容不当？' : 'Report this AI-generated content as inappropriate?')) return;
-  var payload = { npc: npcKey, text: String(text || '').slice(0, 500), day: G.day, ts: Date.now() };
-  try {
-    fetch(WORKER + '/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': (typeof getDeviceId === 'function' ? getDeviceId() : '') }, body: JSON.stringify(payload) }).catch(function(){});
-  } catch(e) {}
-  try {
-    var r = JSON.parse(localStorage.getItem('otr_reports') || '[]');
-    r.push(payload); localStorage.setItem('otr_reports', JSON.stringify(r.slice(-50)));
-  } catch(e) {}
-  alert(isZh ? '已收到举报，感谢反馈，我们会尽快核查。' : 'Report received — thank you. We will review it.');
+  gameConfirm(isZh ? '举报这条AI生成的内容不当？' : 'Report this AI-generated content as inappropriate?', function(){
+    var payload = { npc: npcKey, text: String(text || '').slice(0, 500), day: G.day, ts: Date.now() };
+    try {
+      fetch(WORKER + '/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Device-Id': (typeof getDeviceId === 'function' ? getDeviceId() : '') }, body: JSON.stringify(payload) }).catch(function(){});
+    } catch(e) {}
+    try {
+      var r = JSON.parse(localStorage.getItem('otr_reports') || '[]');
+      r.push(payload); localStorage.setItem('otr_reports', JSON.stringify(r.slice(-50)));
+    } catch(e) {}
+    gameAlert(isZh ? '已收到举报，感谢反馈，我们会尽快核查。' : 'Report received — thank you. We will review it.');
+  });
 }
 function getNPCName(key) {
   const npc = G.npcs[key];
@@ -1992,7 +2034,7 @@ function warnQuota() {
   if (G._quotaWarned) return;
   G._quotaWarned = true;
   const isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
-  alert(isZh ? '今日 AI 用量已达上限，内容生成会暂停——明天会自动恢复。已有的进度不受影响。'
+  gameAlert(isZh ? '今日 AI 用量已达上限，内容生成会暂停——明天会自动恢复。已有的进度不受影响。'
              : 'Daily AI usage limit reached — generation will pause and resume tomorrow. Your progress is safe.');
 }
 
@@ -3974,27 +4016,13 @@ async function runSigningDialog(round) {
   } else {
     // 自由输入（和正式对话一致）
     var isZhSign = lang==='zh-cn'||lang==='zh-tw';
-    var inputWrap = document.createElement('div');
-    inputWrap.className = 'vn-input-wrap';
-    var inp = document.createElement('textarea');
-    inp.className = 'vn-input';
-    inp.placeholder = isZhSign?'输入你想说的话...':lang==='ja'?'何か言いたいことを入力...':lang==='ko'?'하고 싶은 말을 입력...':'Type your response...';
-    inp.rows = 1;
-    inp.oninput = function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; };
-    var sendBtn = document.createElement('button');
-    sendBtn.className = 'vn-send';
-    sendBtn.innerHTML = '➤';
-    sendBtn.onclick = (function(rnd){ return function(){
-      var reply = inp.value.trim();
+    var _dual = (function(rnd){ return buildDualInput(opts, 'agent', function(reply, silent){
       // 空发送 = 无言地划过（沉默回应）
-      if (!reply) { chooseSigningOpt(rnd, 0, isZhSign?'……':'...'); return; }
+      if (silent) { chooseSigningOpt(rnd, 0, isZhSign?'……':'...'); return; }
       chooseSigningOpt(rnd, judgeRelChange('agent', reply), reply);
-    };})(round);
-    inp.onkeydown = function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendBtn.onclick();} };
-    inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn);
-    opts.appendChild(inputWrap);
+    }); })(round);
     // 签约场景同样只给"💡语气提示"，不给整句快捷回复（用户定的）
-    renderToneHints(opts, inp, 'agent');
+    renderToneHints(opts, _dual.spInp, 'agent', _dual.actInp);
   }
 }
 
@@ -4674,7 +4702,7 @@ function buildDayOpts() {
     const _workEv = (G.calendar.events[_todayStr] || []).find(e => e.type === 'work' && e.status === 'accepted' && !e.source);
     if (_workEv && !ev.isWork) {
       if (workNotYet(_workEv)) {
-        opts.appendChild(makeOpt(_workEv.title + ' · ' + _workEv.time, isZh?'还没到时间 · 到点解锁':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Starts at ' + _workEv.time, 'locked', () => alert(workNotYetMsg(_workEv))));
+        opts.appendChild(makeOpt(_workEv.title + ' · ' + _workEv.time, isZh?'还没到时间 · 到点解锁':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Starts at ' + _workEv.time, 'locked', () => gameAlert(workNotYetMsg(_workEv))));
       } else {
         opts.appendChild(makeOpt(_workEv.title + (_workEv.time ? ' · ' + _workEv.time : ''), isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today', 'work', () => playScheduledEvent(_todayStr, _workEv)));
       }
@@ -4766,7 +4794,7 @@ function buildDayOpts() {
         return;
       }
       if (st === 'before') {
-        slots.push(makeOpt(w.title + timeLabel, isZh?'还没到时间':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Not yet', 'locked', () => alert(workNotYetMsg(w))));
+        slots.push(makeOpt(w.title + timeLabel, isZh?'还没到时间':lang==='ja'?'まだ時間前':lang==='ko'?'아직 시간 전':'Not yet', 'locked', () => gameAlert(workNotYetMsg(w))));
       } else {
         const sub = st === 'makeup' ? (isZh?'错过了时段 · 现在补上':lang==='ja'?'遅れて参加':lang==='ko'?'늦게라도 참여':'Missed the slot · catch up now')
           : (w.source === 'agent_mandate' ? (isZh?'你和团队定的计划 · 可改期':lang==='ja'?'チームと決めた予定':lang==='ko'?'팀과 정한 일정':'Your plan with the team') : (isZh?'今日工作':lang==='ja'?'今日の仕事':lang==='ko'?'오늘의 일':'Work today'));
@@ -4777,7 +4805,7 @@ function buildDayOpts() {
     todayCalEvents.filter(e => e && e.type === 'npc_invite' && e.status === 'accepted').forEach(inv => {
       const st = inviteState(inv);
       if (st === 'before') {
-        slots.push(makeOpt('💌 ' + inv.title + ' · ' + (inv.time||''), isZh?'提前1小时可赴约':lang==='ja'?'1時間前から':lang==='ko'?'1시간 전부터':'Opens 1 hour early', 'locked', () => alert(inviteNotYetMsg(inv))));
+        slots.push(makeOpt('💌 ' + inv.title + ' · ' + (inv.time||''), isZh?'提前1小时可赴约':lang==='ja'?'1時間前から':lang==='ko'?'1시간 전부터':'Opens 1 hour early', 'locked', () => gameAlert(inviteNotYetMsg(inv))));
       } else if (st === 'open') {
         slots.push(makeOpt('💌 ' + inv.title + (inv.time ? ' · ' + inv.time : ''), (isZh?'赴约 · 和':'Date with ') + (inv.npcName||getNPCName(inv.npcKey)), 'work', () => playInviteScene(inv)));
       }
@@ -5249,16 +5277,37 @@ function secondaryContactBeat(npcKey) {
     try { STATE.save.saveGame(); } catch(e){}
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
-  // NPC 主动要联系方式（用户定稿 v11.64：不再给玩家"主动要号"的按钮/提示）——
-  // 触发 = 见过≥2次，或这次见面好感已到门槛（NPC 达到好感后主动在见面时开口）。摄影师=为发照片。
+  // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
+  // 用户定稿 v12.22：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10) {
     var askLine = npcKey === 'photog'
       ? (isZh ? '「照片洗出来，我想发给你看看——留个联系方式？只放进我自己的独立影集，不作商用，你不同意我就不用。」' : '"The prints — I\'d like to send you a few. Leave me a way to reach you? Just for my own independent series, never commercial; if you say no, they don\'t get used."')
       : (isZh ? '他顿了一下，还是开口了：「……方便留个联系方式吗？下次不用碰运气。」' : 'He hesitates, then just asks: "…Mind if I get your number? So it\'s not down to luck next time."');
     document.getElementById('vn-text').textContent = askLine;
-    grantAndGo(npcKey === 'photog'
-      ? 'You swapped contacts so he can send you the photos (his own independent series, not commercial).'
-      : 'You two swapped numbers — you can text each other now.');
+    // 给号
+    var giveBtn = document.createElement('button'); giveBtn.className = 'vn-next';
+    giveBtn.textContent = isZh ? '留个联系方式' : 'Give him your number';
+    giveBtn.onclick = function(){
+      document.getElementById('vn-text').textContent = npcKey === 'photog'
+        ? (isZh ? '你把号码给了他。「谢谢——照片好了第一时间发你。」' : 'You give him your number. "Thank you — you\'ll be the first to see them."')
+        : (isZh ? '你把号码留给了他，他笑了笑收好手机。' : 'You leave him your number; he pockets his phone with a small smile.');
+      grantAndGo(npcKey === 'photog'
+        ? 'You swapped contacts so he can send you the photos (his own independent series, not commercial).'
+        : 'You two swapped numbers — you can text each other now.');
+    };
+    // 婉拒（不给号，好感不变，自然收尾；下次见面他仍可能再问）
+    var noBtn = document.createElement('button'); noBtn.className = 'vn-next';
+    noBtn.textContent = isZh ? '这次先不用了' : 'Not this time';
+    noBtn.onclick = function(){
+      document.getElementById('vn-text').textContent = isZh
+        ? '你笑着摇摇头。他也不勉强，退开半步：「也好——那，回头见。」'
+        : 'You smile and shake your head. He doesn\'t push it, just steps back. "Fair enough — see you around, then."';
+      STATE.memory.addEvent(npcKey, 'She politely declined to swap numbers this time — no hard feelings.', G.day);
+      try { STATE.save.saveGame(); } catch(e){}
+      vopts.innerHTML = '';
+      contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
+    };
+    vopts.appendChild(giveBtn); vopts.appendChild(noBtn);
     return;
   }
   // 好感还不够 + 见面不足2次 → 这次不换联系方式，自然收尾。
@@ -5445,7 +5494,7 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   // 打烊检查放在一切状态变更之前：不进场景、不扣行程、不标翘班、不生图
   var _closed = placeClosedMsg(key, label);
-  if (_closed) { alert(_closed); return; }
+  if (_closed) { gameAlert(_closed); return; }
   bumpFreeAct(); // 计入当前时段（白天/夜间各3次）的自由活动次数
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
@@ -6057,15 +6106,11 @@ async function runQuickNPCChat(npcKey, ctx, onDone) {
     b.onclick = onDone;
     vopts.appendChild(b);
   };
-  var inputWrap = document.createElement('div'); inputWrap.className = 'vn-input-wrap';
-  var inp = document.createElement('textarea'); inp.className = 'vn-input'; inp.rows = 1;
-  inp.placeholder = isZh?'输入你想说的话...':lang==='ja'?'何か言いたいことを入力...':lang==='ko'?'하고 싶은 말을 입력...':'Type your response...';
-  inp.oninput = function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; };
-  var sendBtn = document.createElement('button'); sendBtn.className = 'vn-send'; sendBtn.innerHTML = '➤';
-  sendBtn.onclick = function(){ var r = inp.value.trim(); if (r) finish(r, Math.max(-5, Math.min(8, judgeRelChange(npcKey, r)))); else finish(isZh?'……':'...', 0); };
-  inp.onkeydown = function(e){ if (e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); sendBtn.onclick(); } };
-  inputWrap.appendChild(inp); inputWrap.appendChild(sendBtn); vopts.appendChild(inputWrap);
-  renderToneHints(vopts, inp, npcKey); // 统一"自由输入+💡语气提示"，不再给三句整句（用户定的）
+  var _dual = buildDualInput(vopts, npcKey, function(r, silent){
+    if (silent) { finish(isZh?'……':'...', 0); return; }
+    finish(r, Math.max(-5, Math.min(8, judgeRelChange(npcKey, r))));
+  });
+  renderToneHints(vopts, _dual.spInp, npcKey, _dual.actInp); // 统一"自由输入+💡语气提示"，不再给三句整句（用户定的）
 }
 
 // ── 生病休养日：卧床 + 按好感度轮流有NPC上门探望 ──
@@ -6600,7 +6645,42 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-function renderToneHints(container, inp, npcKey) {
+// 双输入框（用户定稿 v12.22）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
+// onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
+function buildDualInput(container, npcKey, onSend) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw'; var lang = G.lang;
+  var actPh = isZh?'做个动作…（可留空）':lang==='ja'?'動作…（任意）':lang==='ko'?'행동…（선택）':'An action… (optional)';
+  var spPh  = isZh?'说点什么…（可留空）':lang==='ja'?'セリフ…（任意）':lang==='ko'?'대사…（선택）':'Say something… (optional)';
+  var wrap = document.createElement('div'); wrap.className = 'vn-dual';
+  var mkInp = function(cls, ph){ var t=document.createElement('textarea'); t.className='vn-input '+cls; t.rows=1; t.placeholder=ph;
+    t.oninput=function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; }; return t; };
+  // 动作行（右侧留一个与发送键等宽的占位，让两个输入框对齐）
+  var actRow = document.createElement('div'); actRow.className='vn-dual-row';
+  var actTag = document.createElement('div'); actTag.className='vn-dual-tag'; actTag.textContent='🎬';
+  var actInp = mkInp('vn-input-act', actPh);
+  var actSpacer = document.createElement('div'); actSpacer.style.cssText='width:40px;flex-shrink:0;';
+  actRow.appendChild(actTag); actRow.appendChild(actInp); actRow.appendChild(actSpacer);
+  // 说话行 + 发送键
+  var spRow = document.createElement('div'); spRow.className='vn-dual-row';
+  var spTag = document.createElement('div'); spTag.className='vn-dual-tag'; spTag.textContent='💬';
+  var spInp = mkInp('vn-input-speech', spPh);
+  var sendBtn = document.createElement('button'); sendBtn.className='vn-send'; sendBtn.innerHTML='➤';
+  spRow.appendChild(spTag); spRow.appendChild(spInp); spRow.appendChild(sendBtn);
+  var doSend = function(){
+    var act = actInp.value.trim().replace(/^[（(]+/,'').replace(/[）)]+$/,'').trim(); // 玩家自己打了括号就去掉，避免双层
+    var sp  = spInp.value.trim();
+    if (!act && !sp) { onSend(isZh?'……':'...', true); return; }
+    onSend((act ? '（' + act + '）' : '') + sp, false);
+  };
+  sendBtn.onclick = doSend;
+  actInp.onkeydown = function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); spInp.focus(); } }; // 动作框回车=跳去说话框
+  spInp.onkeydown  = function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){ e.preventDefault(); doSend(); } };
+  wrap.appendChild(actRow); wrap.appendChild(spRow); container.appendChild(wrap);
+  return { actInp: actInp, spInp: spInp };
+}
+
+function renderToneHints(container, inp, npcKey, actInp) {
   var isZhOpt = G.lang==='zh-cn'||G.lang==='zh-tw';
   // 表白灰锁判定用的NPC：调用方传入优先，否则取进行中场景的NPC
   var _toneNpc = npcKey || (typeof _curSceneEv !== 'undefined' && _curSceneEv && _curSceneEv.npc) || null;
@@ -6665,7 +6745,7 @@ function renderToneHints(container, inp, npcKey) {
       chip.style.borderStyle = 'dashed';
       chip.textContent = '🔒 ' + chip.textContent;
       chip.onclick = function(){
-        alert(isZhOpt ? '这句话的分量……还不到说的时候。等你们真正亲密过之后。'
+        gameAlert(isZhOpt ? '这句话的分量……还不到说的时候。等你们真正亲密过之后。'
           : G.lang==='ja' ? 'その言葉はまだ早い——本当に近づいてから。'
           : G.lang==='ko' ? '그 말은 아직 일러요——정말 가까워진 후에.'
           : "Those words carry weight — they come after you two have truly been close.");
@@ -6722,9 +6802,19 @@ function renderToneHints(container, inp, npcKey) {
   var _actPool = isZhOpt
     ? ['（我深吸一口气，', '（我走到他面前，', '（我看着他，', '（我笑了笑，']
     : ['(I take a deep breath and ', '(I walk over to him and ', '(I look at him and ', '(I smile and '];
+  // 双输入框模式（有独立动作框）：动作胶囊填【纯动作文字·无括号】进动作框
+  var _actPoolPlain = isZhOpt
+    ? ['深吸一口气', '走到他面前', '看着他', '笑了笑', '轻轻靠近他', '别开视线']
+    : ['take a deep breath', 'step closer to him', 'hold his gaze', 'let a smile slip', 'lean in a little', 'look away for a beat'];
   var _ai = Math.floor(Math.random() * 9);
   actChip.onclick = function(){
     _ai++;
+    if (actInp) { // 双输入框：填到动作框
+      actInp.value = _actPoolPlain[_ai % _actPoolPlain.length];
+      actInp.oninput && actInp.oninput.call(actInp);
+      try { actInp.scrollIntoView({block:'nearest'}); actInp.style.transition='box-shadow .15s'; actInp.style.boxShadow='0 0 0 2px var(--rose)'; setTimeout(function(){actInp.style.boxShadow='';},650); } catch(e){}
+      return;
+    }
     var _act = _actPool[_ai % _actPool.length];
     // 动作段：替换自己那段（重复点=换动作，不叠加——用户实测bug）；玩家已自改则前插并去掉旧动作头
     if (inp.value === '' || inp.value === inp._scaffold) {
@@ -6949,37 +7039,14 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
   vopts2.innerHTML = '';
   var isZhOpt = G.lang==='zh-cn'||G.lang==='zh-tw';
 
-  // Free input
-  var inputWrap = document.createElement('div');
-  inputWrap.className = 'vn-input-wrap';
-  var inp = document.createElement('textarea');
-  inp.className = 'vn-input';
-  inp.placeholder = isZhOpt?'输入你想说的话...':G.lang==='ja'?'何か言いたいことを入力...':G.lang==='ko'?'하고 싶은 말을 입력...':'Type your response...';
-  inp.rows = 1;
-  inp.oninput = function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; };
-  var sendBtn = document.createElement('button');
-  sendBtn.className = 'vn-send';
-  sendBtn.innerHTML = '➤';
-  sendBtn.onclick = function(){
-    var reply = inp.value.trim();
-    // 空发送 = 无言地划过（沉默回应），不加不减好感
-    if(!reply) {
-      var silent = isZhOpt?'……':'...';
-      chooseVNOpt(npcKey, 0, silent, dialogRounds, day, round);
-      return;
-    }
-    var rc = judgeRelChange(npcKey, reply);
-    // 好感音效由 chooseVNOpt 统一播（这里不再预播——之前同一声连响两遍）
-    chooseVNOpt(npcKey, rc, reply, dialogRounds, day, round);
-  };
-  // Send on Enter (not Shift+Enter)
-  inp.onkeydown = function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.onclick();} };
-  inputWrap.appendChild(inp);
-  inputWrap.appendChild(sendBtn);
-  vopts2.appendChild(inputWrap);
-
+  // Free input（双输入框：动作 + 说话）。空发送 = 无言地划过（沉默回应），不加不减好感。
+  var _dual = buildDualInput(vopts2, npcKey, function(reply, silent){
+    if (silent) { chooseVNOpt(npcKey, 0, reply, dialogRounds, day, round); return; }
+    chooseVNOpt(npcKey, judgeRelChange(npcKey, reply), reply, dialogRounds, day, round);
+  });
+  var inp = _dual.spInp;
   // 所有轮次统一"自由输入 + 💡语气提示"（用户定的：初见剧本轮也不再给三句整句，只给提示）
-  renderToneHints(vopts2, inp, npcKey);
+  renderToneHints(vopts2, _dual.spInp, npcKey, _dual.actInp);
 
   // 长对白分页（用户需求：NPC话太长且以问句收尾时，先读前半→点"继续"→第二页问句+回复UI，防止选项在一屏放不下）。
   // 注意：台词被动作夹断的问题由 v10.77 的 OUTPUT RULES 解决（禁止动作插在两段台词中间），和这个分页不冲突。
@@ -8837,20 +8904,24 @@ function renderChatMsgs(npc, dividerIdx) {
         var acc = document.createElement('button'); acc.className='cal-btn-accept'; acc.style.cssText='margin-right:8px'; acc.textContent = isZhMb?'接受':'Accept';
         var dec = document.createElement('button'); dec.className='cal-btn-decline'; dec.textContent = isZhMb?'婉拒':'Decline';
         acc.onclick = (function(mm, md){ return function(){
+          var _doAccept = function(){
+            var id = 'chat_meet_' + mm.npc + '_' + md + '_' + String(mm.meet.time).replace(':','');
+            calAddEvent(getCalDateStr(md), { id:id, type:'npc_invite', npcKey:mm.npc, npcName:getNPCName(mm.npc), title:mm.meet.title, status:'accepted', time:mm.meet.time, locKey:mm.meet.locationKey, gathering: mm.meet.gathering || undefined, description:mm.meet.desc||'' });
+            mm.meet.invId = id; mm.meet.pending = false;
+            STATE.memory.addEvent(mm.npc, 'She said yes — you two are on for ' + mm.meet.time + (md === G.day ? ' today' : ' on day ' + md) + ' ("' + mm.meet.title + '").', G.day);
+            refreshCalBadge(); try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
+          };
           // 冲突提醒：同一天90分钟内已有确认约会就问一句（提醒不禁止）
           try {
             var nearC = (G.calendar.events[getCalDateStr(md)] || []).find(function(x){ return x && x.type === 'npc_invite' && x.status === 'accepted' && x.time && mm.meet.time && Math.abs(parseHM(x.time) - parseHM(mm.meet.time)) <= 90; });
             if (nearC) {
               var isZhC2 = G.lang==='zh-cn'||G.lang==='zh-tw';
-              if (!confirm(isZhC2 ? '这和「' + nearC.title + ' · ' + nearC.time + '」只差不到一个半小时，爽约会伤感情。还要接受吗？'
-                : 'This is within 90 minutes of "' + nearC.title + ' · ' + nearC.time + '". Accept anyway?')) return;
+              gameConfirm(isZhC2 ? '这和「' + nearC.title + ' · ' + nearC.time + '」只差不到一个半小时，爽约会伤感情。还要接受吗？'
+                : 'This is within 90 minutes of "' + nearC.title + ' · ' + nearC.time + '". Accept anyway?', _doAccept);
+              return;
             }
           } catch(err) {}
-          var id = 'chat_meet_' + mm.npc + '_' + md + '_' + String(mm.meet.time).replace(':','');
-          calAddEvent(getCalDateStr(md), { id:id, type:'npc_invite', npcKey:mm.npc, npcName:getNPCName(mm.npc), title:mm.meet.title, status:'accepted', time:mm.meet.time, locKey:mm.meet.locationKey, gathering: mm.meet.gathering || undefined, description:mm.meet.desc||'' });
-          mm.meet.invId = id; mm.meet.pending = false;
-          STATE.memory.addEvent(mm.npc, 'She said yes — you two are on for ' + mm.meet.time + (md === G.day ? ' today' : ' on day ' + md) + ' ("' + mm.meet.title + '").', G.day);
-          refreshCalBadge(); try { STATE.save.saveGame(); } catch(e){} renderChatMsgs(npc);
+          _doAccept();
         }; })(m, _mday);
         dec.onclick = (function(mm){ return function(){
           mm.meet.pending = false; mm.meet.declined = true;
@@ -8867,11 +8938,11 @@ function renderChatMsgs(npc, dividerIdx) {
           // 已接受、日子还没到：锁定态显示日期
           mbtn.style.cssText = greyCss + ';cursor:pointer';
           mbtn.textContent = '🕐 ' + m.text;
-          mbtn.onclick = (function(md){ return function(){ alert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '约好了——到那天再来赴约。' : "It's a date — come back that day."); }; })(_mday);
+          mbtn.onclick = (function(md){ return function(){ gameAlert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '约好了——到那天再来赴约。' : "It's a date — come back that day."); }; })(_mday);
         }
         else {
           var mSt = inviteState(mInv);
-          if (mSt === 'before') { mbtn.style.cssText = greyCss + ';cursor:pointer'; mbtn.textContent = '🕐 ' + m.text; mbtn.onclick = (function(iv){ return function(){ alert(inviteNotYetMsg(iv)); }; })(mInv); }
+          if (mSt === 'before') { mbtn.style.cssText = greyCss + ';cursor:pointer'; mbtn.textContent = '🕐 ' + m.text; mbtn.onclick = (function(iv){ return function(){ gameAlert(inviteNotYetMsg(iv)); }; })(mInv); }
           else if (mSt === 'open') { mbtn.style.cssText = activeCss; mbtn.textContent = '🤝 ' + m.text; mbtn.onclick = (function(iv){ return function(){ playInviteScene(iv); }; })(mInv); }
           else { mbtn.style.cssText = greyCss; mbtn.textContent = '⌛ ' + m.text + (isZhMb?' · 已过期':' · Expired'); }
         }
@@ -8882,7 +8953,7 @@ function renderChatMsgs(npc, dividerIdx) {
         // 兜底：未来日的约无论数据状态如何，都不许"当场就进"（用户实测：日历事件丢失后7/18的聚会当天就能点进去）
         mbtn.style.cssText = greyCss + ';cursor:pointer';
         mbtn.textContent = '🕐 ' + m.text;
-        mbtn.onclick = function(){ alert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '约好了——到那天再来赴约。' : "It's a date — come back that day."); };
+        mbtn.onclick = function(){ gameAlert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '约好了——到那天再来赴约。' : "It's a date — come back that day."); };
       } else {
         mbtn.style.cssText = activeCss;
         mbtn.textContent = '🤝 ' + m.text;
@@ -8910,7 +8981,7 @@ function renderChatMsgs(npc, dividerIdx) {
 function openWCChat(npc) {
   // 手机被偷当天：聊天入口也堵上（日历"发消息说明"等旁路入口）
   if (G._phoneStolen && G._phoneStolen.day === G.day) {
-    alert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '手机被偷了——今天联系不上任何人，新机明天到。' : 'Your phone was stolen — you can\'t reach anyone today. Replacement arrives tomorrow.');
+    gameAlert((G.lang==='zh-cn'||G.lang==='zh-tw') ? '手机被偷了——今天联系不上任何人，新机明天到。' : 'Your phone was stolen — you can\'t reach anyone today. Replacement arrives tomorrow.');
     return;
   }
   // 先记下第一条未读的位置（用于"以下是新消息"分隔线），再标记已读
@@ -9460,33 +9531,37 @@ function continueGame() {
 // ── 存档模型（用户定稿）：网络游戏心智，只有一段人生——"继续游戏"或"新的开始"，没有多备份槽。
 //    旧版本的 otr_save_slot_1/2/3 键不再读取（留在浏览器里无害）。云端存档照常（换设备找回进度用）。──
 function startNewGame() {
+  // 彻底清档 + 整页 reload：不仅重置 G，还让所有模块级 JS 变量（生图缓存 _roomUrls/_bedroomUrls、
+  // 设置流程标志、_day1Intro/_signingLastReply 等）随重载全部复位——否则上一局状态会漏进新游戏
+  // （老玩家实测"新游戏没有Day1经纪人行程/不让选发色"就是这个坑）。reload 后凭 sessionStorage 标记自动进设置。
+  var _doFresh = function(){
+    STATE.save.clearSave();
+    try { localStorage.removeItem('otr_save_v1'); } catch(e){}
+    try { sessionStorage.setItem('otr_start_fresh', '1'); } catch(e){}
+    // 存档"代数"+1：手机上常有另一个后台标签页还开着旧局（内存里全是旧状态），
+    // 它随时可能把旧存档写回 localStorage=旧局复活。代数变了，旧标签页会拒绝写档并自动重载。
+    try { localStorage.setItem('otr_gen', String(Date.now())); } catch(e){}
+    location.reload();
+  };
   if (hasResumableSave()) {
     var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
     var msg = isZh ? '新开一段人生会清除当前进度（第' + G.day + '天）和所有NPC的记忆与好感，无法找回。确定吗？'
                    : 'Starting a new life will erase your current progress (Day ' + G.day + ') and every relationship — permanently. Continue?';
-    if (!confirm(msg)) return;
+    gameConfirm(msg, _doFresh);
+    return;
   }
-  // 彻底清档 + 整页 reload：不仅重置 G，还让所有模块级 JS 变量（生图缓存 _roomUrls/_bedroomUrls、
-  // 设置流程标志、_day1Intro/_signingLastReply 等）随重载全部复位——否则上一局状态会漏进新游戏
-  // （老玩家实测"新游戏没有Day1经纪人行程/不让选发色"就是这个坑）。reload 后凭 sessionStorage 标记自动进设置。
-  STATE.save.clearSave();
-  try { localStorage.removeItem('otr_save_v1'); } catch(e){}
-  try { sessionStorage.setItem('otr_start_fresh', '1'); } catch(e){}
-  // 存档"代数"+1：手机上常有另一个后台标签页还开着旧局（内存里全是旧状态），
-  // 它随时可能把旧存档写回 localStorage=旧局复活。代数变了，旧标签页会拒绝写档并自动重载。
-  try { localStorage.setItem('otr_gen', String(Date.now())); } catch(e){}
-  location.reload();
+  _doFresh();
 }
 
 function clearSaveData() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   var msg = isZh ? '确定要清除所有存档吗？游戏将重新开始。' : 'Clear all save data? The game will restart.';
-  if (confirm(msg)) {
+  gameConfirm(msg, function(){
     STATE.save.clearSave();
     // Also clear old save keys
     try { localStorage.removeItem('otr_save_v1'); } catch(e){}
     location.reload();
-  }
+  });
 }
 
 function devSkipToDay() {
@@ -9692,7 +9767,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.21 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.22 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
