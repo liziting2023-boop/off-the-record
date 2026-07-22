@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.50"></script>
-<script src="state.js?v=12.50"></script>
+<script src="story.js?v=12.51"></script>
+<script src="state.js?v=12.51"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.50 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.51 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.50 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.51 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4688,14 +4688,20 @@ async function startDay() {
       ? 'DAILY ENCORE 每周一发布新人热度榜，综合近期演出活动、话题度与业内评价。\n\n本周，'+(G.player.name||'她')+' 位列第 '+rank+' 位'+move+'。\n\n榜单前列意味着更多的资源与曝光机会。业内人士提醒：热度既要靠持续的工作积累，也需要状态管理——过度消耗反而会跌出视野。'
       : 'DAILY ENCORE publishes the Rising Artists chart every Monday, weighing recent work, buzz and industry word-of-mouth.\n\nThis week, '+(G.player.name||'she')+' lands at #'+rank+move+'.\n\nA higher chart position brings resources and exposure — but insiders note that burnout drops artists out of sight fast.';
     if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+    // 用户定稿 v12.51：周榜=团队的目标和成绩单，改由【助理】转发（她管后勤/信息同步）；助理未登场时仍由经纪人发。
+    // 错过周会也没关系——这条消息每周一照发，消息里就能看到名次。
+    var _chartSender = (G.npcs.assistant && G.npcs.assistant.met && !(G.npcs.assistant._professionalEnd)) ? 'assistant' : 'agent';
     G.phone.messages[G.day].push({
-      npc:'agent', name: getNPCName('agent'),
-      text: isZhC?'周榜出来了，看一下。':'Weekly chart is out — take a look.',
+      npc:_chartSender, name: getNPCName(_chartSender),
+      text: _chartSender === 'assistant'
+        ? (isZhC?'周榜出来了——咱们这周的成绩单，看一眼。':'Weekly chart is out — our scorecard for the week, take a look.')
+        : (isZhC?'周榜出来了，看一下。':'Weekly chart is out — take a look.'),
       news: { headline: chartHeadline, body: chartBody, imgUrl: null, day: G.day },
       day: G.day, time: nextMsgTime(G.day, 7*60+2, true),
     });
-    // 写进经纪人记忆：榜单一周一更的事实（防止聊天时说出"练完舞回来数字就会动"这种当日可变的错误暗示）
+    // 写进记忆：榜单一周一更的事实（防止聊天时说出"练完舞回来数字就会动"这种当日可变的错误暗示）。经纪人/助理都记。
     STATE.memory.addEvent('agent', 'Weekly chart posted: she is at #' + rank + '. FACT: the chart updates ONLY once a week (next Monday) — nothing she does today changes the number before then; never imply otherwise.', G.day);
+    try { if (G.npcs.assistant && G.npcs.assistant.met) STATE.memory.addEvent('assistant', 'She is #' + rank + ' on this week\'s Rising Artists chart — the team treats it as the shared scorecard. It updates only on Mondays.', G.day); } catch(e){}
   }
   // ── 玩家生日（设置里填的月/日）：祝福消息 + 名气低=高好感NPC约今晚过生日 / 名气高=歌迷庆生活动 ──
   if (G.player.birthMonth && G.player.birthDay && G._bdayCelebrated !== G.day) {
@@ -5651,9 +5657,14 @@ function startTeamMeeting() {
   var _fameLbl = (typeof getCurFame === 'function') ? (getCurFame(G.fame || 0) || {}) : {};
   var _band = '';
   try { if (STORY.band && STORY.band.members) _band = 'Her band is "' + STORY.band.name + '"; besides ' + (getNPCName('drummer') || 'the producer') + ' (drums & production), the members are ' + STORY.band.members.map(function(m){ return m.name + ' (' + m.instrument + ')'; }).join(', ') + '. If a bandmate is referenced, use these real names — never invent others.'; } catch(e){}
+  // 周榜=团队的目标和成绩单（用户定稿 v12.51）：会上要过一下当前名次、把它当共同目标聊
+  var _chart = (G._chartRank != null)
+    ? ('TEAM SCOREBOARD: she is currently #' + G._chartRank + ' on the DAILY ENCORE Rising Artists weekly chart (updates Mondays only — nothing done today moves the number before next Monday). The team treats this chart as their shared goal and scorecard: it is a natural agenda point — where the rank stands, what this week\'s work does for it, what the next target is (e.g. breaking into a round number). The assistant is the one who circulates the chart each Monday.')
+    : '';
   var _ground = (_agenda.length ? ('Her actual upcoming work on the calendar:\n' + _agenda.join('\n') + '\n') : 'Her calendar is light in the next stretch — part of the agenda is filling it well.\n')
     + (_song ? (_song + '\n') : '')
     + (_band ? (_band + '\n') : '')
+    + (_chart ? (_chart + '\n') : '')
     + 'Her current career level: ' + ((_fameLbl.en) || 'rising') + ' (fame ' + (G.fame || 0) + '). Stress: ' + (G.stress || 0) + '/100.';
   runGroupScene(participants, {
     locKey: 'agent_office',
@@ -8328,6 +8339,76 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom) 
   var _prose = await claude(user, sys);
   return heatOK(_prose) ? _prose : ''; // 露骨词闸：命中→返回空，调用处自动落到含蓄兜底文案
 }
+
+// ── 亲密两幕·互动化（用户定稿 v12.51）：每幕开场散文后加 2 个来回（他一拍→你双输入→他回应）──
+// 他必须具体回应你的动作/说话（describeHerTurn，绝不无视、绝不把动作当台词）；热度曲线固定向前推
+// （走向只由幕间的选择改变）；例外=你明确说停/拒绝时他体面放缓（绿旗）。尺度守 HEAT_LEVEL + heatOK 词闸。
+async function _intimateBeat(npcKey, act, destHers, reply, hist, isFinal) {
+  const name = getNPCName(npcKey);
+  const style = OVERNIGHT_STYLE[npcKey] || '';
+  const isButler = npcKey === 'butler';
+  const sys = 'You are an award-winning contemporary romance novelist writing an INTERACTIVE intimate scene for an adult (18+) otome visual novel — lush, sensory, in the register of a bestselling steamy romance, never crude or clinical. Write in ' + G.langName + '. Second person for the heroine (你/you, NEVER 她/her); the man\'s actions in third person (他/he); his spoken words wrapped in 「」 for Chinese or quotes otherwise. HARD BANS: the line "别动"/"Don\'t move"; sliding a cup/glass toward her; tucking or brushing a strand of her hair; the word "余温". Plain text only — no headings, no meta.';
+  const ceil = act === 1
+    ? 'HEAT CEILING for this beat: charged and suggestive only — closing distance, a touch, an almost-kiss; do NOT go beyond a first kiss yet.'
+    : ((typeof HEAT_LEVEL !== 'undefined' && HEAT_LEVEL === 'A')
+      ? 'Keep it implicit and tasteful.'
+      : 'Be genuinely steamy but never explicit (app-store-safe): breaking-restraint kisses, clothing loosening, his mouth and hands on bare shoulders/throat/waist, vivid rising heat — NO explicit sexual acts or anatomy.');
+  const user = 'Continue the intimate scene with ONE beat. The man is ' + name + '. His manner when things turn intimate: ' + style + ' ' +
+    (isButler ? 'IMPORTANT — HE is the shy, passive one: SHE leads, he follows flustered, ears burning, adoring. ' : '') +
+    'SCENE SO FAR (most recent last):\n' + hist.slice(-4).join('\n---\n') + '\n' +
+    'NOW — ' + describeHerTurn(reply) + '\n' +
+    'Write HIS response beat in 2-3 sentences: respond SPECIFICALLY to what she just did or said, in his own manner — NEVER ignore it, NEVER repeat her action back as if she had spoken it. The heat keeps RISING through this beat (the trajectory is fixed) — UNLESS she clearly refused or asked to stop, in which case he eases off gracefully and warmly, zero pressure. ' + ceil + ' ' +
+    (isFinal
+      ? (act === 2
+        ? 'This is the FINAL beat: let it crest — build to the sharpest, most charged moment and FADE TO BLACK right there; do not narrate past it.'
+        : 'End this beat at a held look or a first charged touch — the choice of going further is hers.')
+      : 'End mid-tension, on a moment that invites her next move.');
+  let t = '';
+  try { t = await claude(user, sys); } catch(e){}
+  return (t && heatOK(t)) ? t.trim() : '';
+}
+function runIntimateRounds(npcKey, act, destHers, hist, onDone, extraBtns) {
+  const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  const vo = document.getElementById('vn-opts');
+  let turn = 0;
+  const CHIPS = isZh ? ['迎上去','挑逗他','慢一点','羞涩地躲开一下'] : ['Lean in','Tease him','Slow it down','Shy away for a beat'];
+  function ask() {
+    vo.innerHTML = '';
+    const io = buildDualInput(vo, npcKey, function(reply, silent){
+      turn++;
+      const r = silent ? (isZh?'（安静地看着他）':'(just holds his gaze)') : reply;
+      hist.push('HER: ' + r);
+      vnSpeak('player');
+      document.getElementById('vn-speaker').textContent = G.player.name || (isZh?'你':'You');
+      document.getElementById('vn-text').innerHTML = formatPlayerText(r);
+      vo.innerHTML = '';
+      const c = document.createElement('button'); c.className='vn-next'; c.textContent = isZh?'继续':'Continue';
+      c.onclick = async function(){
+        vnSpeak(null);
+        document.getElementById('vn-speaker').textContent = '';
+        document.getElementById('vn-text').innerHTML = '<span style="opacity:.55">…</span>';
+        vo.innerHTML = '';
+        const isFinal = turn >= 2;
+        let beat = await _intimateBeat(npcKey, act, destHers, r, hist, isFinal);
+        if (!beat) beat = isZh ? '他低低地应了一声，朝你又近了一步，掌心的温度隔着衣料一路烫上来，目光没有离开过你。' : 'He answers low, a step closer now, the warmth of his palm burning through the fabric — his eyes never leaving yours.';
+        hist.push(beat);
+        document.getElementById('vn-text').innerHTML = formatNPCText(beat);
+        if (isFinal) { onDone(); return; }
+        const n = document.createElement('button'); n.className='vn-next'; n.textContent = isZh?'继续':'Continue'; n.onclick = ask; vo.appendChild(n);
+        if (extraBtns) extraBtns();
+      };
+      vo.appendChild(c);
+    });
+    // 快捷语气：一点填进动作框，可改可直接发
+    try {
+      const row = document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px';
+      CHIPS.forEach(function(ch){ const b=document.createElement('button'); b.className='vn-opt'; b.style.cssText='padding:6px 10px;font-size:13px;flex:0 0 auto'; b.textContent=ch; b.onclick=function(){ io.actInp.value=ch; io.actInp.focus(); try{ io.actInp.dispatchEvent(new Event('input')); }catch(e){} }; row.appendChild(b); });
+      vo.appendChild(row);
+    } catch(e){}
+    if (extraBtns) extraBtns();
+  }
+  ask();
+}
 // opts.direct=true：玩家在"家场景"里主动发起（表白/更进一步）→ 跳过他的询问，直接进第一幕；
 // opts.seamlessFrom=他刚才的台词 → 第一幕衔接当下动作续写，不写"刚进门/打量房间"（用户定稿）
 async function maybeStayOver(npcKey, locKey, opts) {
@@ -8419,24 +8500,28 @@ async function maybeStayOver(npcKey, locKey, opts) {
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(act2Nar.trim());
     vopts.innerHTML = '';
-    // 夜幕旁白：同一种暗示，多句随机（用户反馈"每次过夜后都是同一句"）
-    const _narPool = isZh
-      ? ['这一夜，城市的灯替你们守住了秘密。','这一夜很长，也很短。','窗外的城市亮了一整夜，没有人知道这里发生了什么。','夜把一切都收进了它的口袋里。','这一夜之后，有些东西再也回不到从前了。']
-      : ['Tonight, the city lights keep your secret.','The night is long, and somehow not long enough.','The city glows all night outside the window; no one knows what happened here.','The night folds everything into its pocket.','After tonight, some things will never go back to how they were.'];
-    const nar = _narPool[Math.floor(Math.random() * _narPool.length)];
-    const sleepBtn2 = document.createElement('button');
-    sleepBtn2.className = 'vn-next';
-    sleepBtn2.textContent = isZh?'夜，还很长……':'The night is still young…';
-    sleepBtn2.onclick = () => {
-      showNightTransition();
-      G._eveNar = nar;
-      G.phase = 'evening';
-      addStress(-10);
-      // REALTIME：绝不手动翻天（G.day++会跟真实日历脱轨，用户实测日期跳到未来）——
-      // 夜幕转场后回晚间画面，天由真实日历翻，晨后消息由次日 startDay 发
-      setTimeout(() => { if (REALTIME) { endNightTransition(nar); goEvening(); } else { G.day++; startDay(); } }, 400);
-    };
-    vopts.appendChild(sleepBtn2);
+    // 互动化（用户定稿 v12.51）：第二幕开场后同样来 2 个来回，最后一拍在热度顶点淡出，然后才是夜幕按钮。
+    const _h2 = [act2Nar.trim()];
+    runIntimateRounds(npcKey, 2, destHers, _h2, function(){
+      // 夜幕旁白：同一种暗示，多句随机（用户反馈"每次过夜后都是同一句"）
+      const _narPool = isZh
+        ? ['这一夜，城市的灯替你们守住了秘密。','这一夜很长，也很短。','窗外的城市亮了一整夜，没有人知道这里发生了什么。','夜把一切都收进了它的口袋里。','这一夜之后，有些东西再也回不到从前了。']
+        : ['Tonight, the city lights keep your secret.','The night is long, and somehow not long enough.','The city glows all night outside the window; no one knows what happened here.','The night folds everything into its pocket.','After tonight, some things will never go back to how they were.'];
+      const nar = _narPool[Math.floor(Math.random() * _narPool.length)];
+      const sleepBtn2 = document.createElement('button');
+      sleepBtn2.className = 'vn-next';
+      sleepBtn2.textContent = isZh?'夜，还很长……':'The night is still young…';
+      sleepBtn2.onclick = () => {
+        showNightTransition();
+        G._eveNar = nar;
+        G.phase = 'evening';
+        addStress(-10);
+        // REALTIME：绝不手动翻天（G.day++会跟真实日历脱轨，用户实测日期跳到未来）——
+        // 夜幕转场后回晚间画面，天由真实日历翻，晨后消息由次日 startDay 发
+        setTimeout(() => { if (REALTIME) { endNightTransition(nar); goEvening(); } else { G.day++; startDay(); } }, 400);
+      };
+      vopts.appendChild(sleepBtn2);
+    });
   };
   // ── 第一幕后选择离开：来了他家但没留下，小幅好感，回家睡到第二天 ──
   const leaveAfterAct1 = async () => {
@@ -8482,10 +8567,14 @@ async function maybeStayOver(npcKey, locKey, opts) {
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(act1Nar.trim());
     vopts.innerHTML = '';
-    mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2);
+    // 互动化（用户定稿 v12.51）：开场散文后先来 2 个来回（你做动作/说话→他具体回应），再给"继续/离开"的选择。
     // 拒绝文案按"在谁家"分支：在她家=请他回去（她不可能离开自己家）；在他家=自己起身离开（用户实测）
-    mk(destHers ? (isZh?'今晚到这里就好（送他回去）':'Stop here tonight (see him out)')
-                : (isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)'), leaveAfterAct1);
+    const _leaveLbl = destHers ? (isZh?'今晚到这里就好（送他回去）':'Stop here tonight (see him out)')
+                               : (isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)');
+    const _h1 = [act1Nar.trim()];
+    runIntimateRounds(npcKey, 1, destHers, _h1,
+      function(){ mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2); mk(_leaveLbl, leaveAfterAct1); },
+      function(){ const lv = document.createElement('div'); lv.className='vn-opt'; lv.style.opacity='.72'; lv.textContent = _leaveLbl; lv.onclick = leaveAfterAct1; vopts.appendChild(lv); });
     // 第二幕预生成：第一幕一显示就后台先跑（此时 nights 还没+1，nights===0 等价于进幕后的 <=1）
     try {
       _pre2 = genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) === 0, destHers).catch(function(){ return ''; });
@@ -10402,7 +10491,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.50 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.51 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
