@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.39"></script>
-<script src="state.js?v=12.39"></script>
+<script src="story.js?v=12.40"></script>
+<script src="state.js?v=12.40"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.39 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.40 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.39 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.40 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5322,13 +5322,28 @@ async function runGroupScene(participants, opts) {
   var _names = participants.map(function(p){ return p.name; });
   var setDesc = (STORY.locations[locKey] || {}).composition || locKey;
   var history = [], turn = 0, maxTurns = opts.rounds || 4;
+  // 在场"和她过夜过"的男人（吃醋张力用）。⚠️必须定在这层作用域——_finishMeeting 也要读它，之前误定在 npcBeat 内导致 ReferenceError→散会卡死+私信不发。
+  var _loverKeys = participants.filter(function(p){ return p.isNpc && G.npcs[p.key] && (G.npcs[p.key].nights || 0) > 0; });
+  var _stungKeys = {}; // 会上被冷落刺到的人→散会私信（关键词兜底，不依赖散会纪要那步AI）
+  var _affKw = /抱|搂|摟|挽|亲|親|吻|坐.{0,4}腿|大腿|依偎|贴身|贴着|搂腰|摟腰|kiss|hug|\blap\b|cuddl|embrac|snuggl|nuzzl|straddl|make out/i;
   function contBtn(label, fn) { var b = document.createElement('button'); b.className = 'vn-next'; b.textContent = label; b.onclick = fn; document.getElementById('vn-opts').appendChild(b); }
   var _summarized = false;
   function _reallyEnd() {
     participants.forEach(function(p){ if (p.isNpc && G.npcs[p.key]) { try { STATE.relationships.change(p.key, 2); } catch(e){} try { STATE.memory.addEvent(p.key, 'A group get-together' + (opts.occasionCtx ? ' (' + String(opts.occasionCtx).slice(0,48) + ')' : '') + ' on day ' + G.day + ' — the others were there too.', G.day); } catch(e){} } });
+    // 会上被冷落刺到的恋人 → 标记会后私信质问（关键词兜底，独立于散会纪要 AI；纪要那步若也判到会先设好、这里不覆盖）
+    var _willFlush = false;
+    try {
+      Object.keys(_stungKeys).forEach(function(k){
+        if (G.npcs[k] && (G.npcs[k].nights || 0) > 0 && !G.npcs[k]._jealousDue) {
+          G.npcs[k]._jealousDue = { rivalName: _stungKeys[k], day: G.day }; _willFlush = true;
+        } else if (G.npcs[k] && G.npcs[k]._jealousDue) { _willFlush = true; }
+      });
+    } catch(e){}
     try { STATE.save.saveGame(); } catch(e){}
     var r = document.getElementById('group-roster'); if (r) r.remove();
     _curSceneEv = null; _curSceneOriginDay = null;
+    // 散会后马上把吃醋私信发出来（离开会场、回到日常时就能看到那条质问）
+    if (_willFlush) { try { setTimeout(function(){ try { flushJealousMeetMsgs(); } catch(e){} }, 1500); } catch(e){} }
     if (opts.onEnd) opts.onEnd(); else goEvening();
   }
   // 会议散会前：让 AI 把"这次会上真商定的行程"整理出来 → 写进日历（会上说的一一对应）+ 弹一张会议纪要卡
@@ -5387,15 +5402,19 @@ async function runGroupScene(participants, opts) {
   }
   async function npcBeat(playerLine) {
     if (playerLine) history.push('HER: ' + playerLine);
+    // 关键词兜底：当场就记下"她对其中一个恋人做了亲密举动"→ 另一个恋人被冷落 → 散会必发私信（不靠散会纪要那步 AI，防它卡/超时导致私信不发）
+    if (playerLine && _loverKeys.length >= 2 && _affKw.test(playerLine)) {
+      var _tgt = _loverKeys.find(function(p){ return p.name && playerLine.indexOf(p.name) >= 0; });
+      _loverKeys.forEach(function(p){ if (!_tgt || p.key !== _tgt.key) _stungKeys[p.key] = (_tgt ? _tgt.name : (isZh ? '别人' : 'someone else')); });
+    }
     document.getElementById('vn-opts').innerHTML = '';
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-text').innerHTML = '<span style="opacity:.55">…</span>';
     var _meeting = opts.tone === 'meeting';
     var _nearEnd = turn >= (maxTurns - 1);
     // 在场有两个以上"和她过夜过"的男人 → 吃醋张力（绿旗底线：含蓄受伤、绝不暴力/闹场，重的放会后私聊）
-    var _loverKeys = participants.filter(function(p){ return p.isNpc && G.npcs[p.key] && (G.npcs[p.key].nights || 0) > 0; });
     var _loversNote = (_loverKeys.length >= 2)
-      ? ' INTIMACY TENSION: more than one man here (' + _loverKeys.map(function(p){ return p.name; }).join(' and ') + ') has been intimate with her. If she is openly affectionate, flirtatious or provocative toward ONE of them, the OTHER(S) react like a grown man who is into her and just got stung — a flicker of hurt, a cooler/clipped line, going quiet, a jaw tightening — but NEVER violence, NEVER a brawl, NEVER cruelty or a public scene (they are green-flag adults). Any sharper reckoning comes later and privately, not a fight in the room.'
+      ? ' INTIMACY TENSION (make this LAND — do not play it cool): more than one man here (' + _loverKeys.map(function(p){ return p.name; }).join(' and ') + ') has been intimate with her. If she is openly affectionate or physical with ONE of them — a hug, a kiss, sitting in his lap — the OTHER visibly REACTS, hard and unmistakably: his voice goes cold and clipped, a jealous/stung edge he cannot fully hide, a pointed or biting line, a tight "…seriously?", a jaw set hard, maybe he goes dangerously quiet or shoots the other man a look. He is clearly thrown and it shows. He does NOT just sit there unbothered. BUT — still NEVER violence, NEVER throwing hands or a brawl, NEVER cruelty, threats, or a screaming public blowup (they are green-flag adults); the sharper reckoning comes later and privately. So: strongly, obviously affected in the room — but no physical fight.'
       : '';
     var prompt = 'You are writing a short, natural GROUP scene — several people in one room, each in their OWN distinct voice, talking to each other and to the woman this story follows.\n' +
       'PRESENT:\n' + _people + '\n' +
@@ -10180,7 +10199,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.39 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.40 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
