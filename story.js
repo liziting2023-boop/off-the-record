@@ -569,9 +569,10 @@ const STORY = {
 
     drummer: {
       age: 26,
-      profession: 'Drummer and band leader',
-      culture: 'Western rock music culture. Behaves like a musician who came up through gigs, not conservatories. Casual, physical, anti-authoritarian. Does not bow or defer. Swears occasionally. Comfortable with silence and sarcasm.',
+      profession: 'Music producer and multi-instrumentalist — plays drums, guitar, bass and keys, arranges and writes, and runs the recording sessions. He came up as a drummer and still leads her band from behind the kit, but his real job is producing her music and directing what happens in the studio.',
+      culture: 'Western rock music culture. Behaves like a musician who came up through gigs, not conservatories. Casual, physical, anti-authoritarian. Does not bow or defer. Swears occasionally. Comfortable with silence and sarcasm. In the studio he is the one in charge of the sound — arranging, calling takes, coaching performances.',
       corePersonality: [
+        'A true multi-instrumentalist and producer: he can pick up almost any instrument, hears the whole arrangement in his head, and shapes a song from the ground up — the drummer label undersells what he actually does',
         'Direct and blunt — says exactly what he thinks',
         'Rough around the edges but deeply loyal',
         'Terrible at expressing feelings with words',
@@ -957,6 +958,17 @@ const STORY = {
     { title: 'Louder', vibe: 'driving anthemic pop-rock, defiant', hook_en: "I didn't cross the city to whisper — I came to be loud.", hook_zh: '我穿过整座城不是来低语的——我是来放声的。', hook_de: 'Ich bin nicht durch die Stadt gekommen, um zu flüstern — ich kam, um laut zu sein.', hook_fr: "Je n'ai pas traversé la ville pour murmurer — je suis venue pour être forte.", hook_ja: '囁くために街を越えてきたんじゃない——大声で歌うために来たの。', about: 'refusing to shrink; chasing the dream on her own terms' },
     { title: 'Keep the Light On', vibe: 'slow, warm, aching ballad', hook_en: "Keep the light on — I'm not done being found.", hook_zh: '灯别关——我还没被找够。', hook_de: 'Lass das Licht an — ich bin noch nicht fertig damit, gefunden zu werden.', hook_fr: "Laisse la lumière allumée — je n'ai pas fini d'être trouvée.", hook_ja: '灯りを消さないで——まだ、見つけられ足りないの。', about: 'longing, being found, love' },
   ],
+
+  // 乐队（用户定稿 v12.50）：女主的伴奏乐队 = 制作人 Callum（鼓手出身）带的这支。给成员起名，供对话/乐队场景一致提及；
+  // 目前不做独立头像、不可攻略——只当有名有姓的背景角色，让"乐队"真实存在、别再是影子。名字将来可改。
+  band: {
+    name: 'Lantern Hours',
+    members: [
+      { name: 'Devon', instrument: 'bass',        note: 'easygoing anchor of the low end, cracks the jokes between takes' },
+      { name: 'Priya', instrument: 'lead guitar', note: 'fierce and precise, always the loudest idea in the room' },
+      { name: 'Mateo', instrument: 'keys',        note: 'quiet, textural, forever tweaking a synth patch' },
+    ],
+  },
 
   // ══════════════════════════════════════════════════════
   // 脚本化剧情事件（Day 1-5 详细版）

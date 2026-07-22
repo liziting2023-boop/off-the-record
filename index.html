@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.49"></script>
-<script src="state.js?v=12.49"></script>
+<script src="story.js?v=12.50"></script>
+<script src="state.js?v=12.50"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.49 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.50 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.49 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.50 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1986,7 +1986,7 @@ function npcAcquaintanceNote(npcKey) {
 // ── NPC 角色名称（多语言）──
 const NPC_ROLES = {
   agent:    { 'zh-cn':'经纪人','zh-tw':'經紀人',ja:'エージェント',ko:'에이전트',en:'Talent Agent' },
-  drummer:  { 'zh-cn':'鼓手','zh-tw':'鼓手',ja:'ドラマー',ko:'드러머',en:'Drummer' },
+  drummer:  { 'zh-cn':'制作人','zh-tw':'製作人',ja:'音楽プロデューサー',ko:'프로듀서',en:'Producer' },
   actor:    { 'zh-cn':'演员','zh-tw':'演員',ja:'俳優',ko:'배우',en:'Actor' },
   detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
   butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Concierge' },
@@ -2014,7 +2014,7 @@ function getNPCRole(key, lang) {
 //    主线NPC用下表的固定出身句兜底。──
 const NPC_BIO = {
   agent:    { zh:'在街头发掘你、签下你的人。要求高，但比谁都信你。', en:'The man who found you busking and signed you. Demanding — and your biggest believer.', metZh:'雨夜的街头，他听完了你整场', metEn:'A rainy street at night — he stayed for your whole set' },
-  drummer:  { zh:'你乐队的主心骨。嘴硬，耳朵毒，从不说软话。', en:'The backbone of your band. Sharp tongue, sharper ears, allergic to flattery.', metZh:'开工第一天的录音室', metEn:'The studio, your first day on the job' },
+  drummer:  { zh:'你乐队和音乐的主心骨——制作人、多面手（鼓/吉他/贝斯/键盘都来），编曲、创作、盯录音都是他。嘴硬，耳朵毒，从不说软话。', en:'The backbone of your band and your sound — producer and multi-instrumentalist (drums, guitar, bass, keys), arranger, and the one who runs the studio. Sharp tongue, sharper ears, allergic to flattery.', metZh:'开工第一天的录音室', metEn:'The studio, your first day on the job' },
   actor:    { zh:'当红演员。撩人是他的呼吸，真心藏在玩笑里。', en:'A rising actor. Flirting is how he breathes; the truth hides in his jokes.', metZh:'共用场地的杂志拍摄', metEn:'A shared magazine shoot' },
   butler:   { zh:'一边念书一边在你公寓做门房打工的大学生。公事公办的话里，总漏出一点笨拙的关心。', en:'A college student working part-time as your building\'s concierge while he studies. Clumsy warmth keeps leaking through the staff script.', metZh:'公寓大堂', metEn:'The lobby of your building' },
   rival:    { zh:'和你同期爬榜的唱作歌手。斗嘴是你们共同的语言。', en:'The singer-songwriter climbing the charts beside you. Bickering is your shared language.', metZh:'这个圈子', metEn:'The industry circuit' },
@@ -2161,7 +2161,7 @@ function getNPCName(key) {
   const isJa = G.lang==='ja'; const isKo = G.lang==='ko';
   const fallbacks = {
     agent:    isZh?'经纪人':isJa?'エージェント':isKo?'에이전트':'Agent',
-    drummer:  isZh?'鼓手':isJa?'ドラマー':isKo?'드러머':'Drummer',
+    drummer:  isZh?'制作人':isJa?'音楽プロデューサー':isKo?'프로듀서':'Producer',
     actor:    isZh?'演员':isJa?'俳優':isKo?'배우':'Actor',
     detective:isZh?'侦探':isJa?'探偵':isKo?'탐정':'Detective',
     butler:   isZh?'管家':isJa?'管理人':isKo?'관리인':'Butler',
@@ -5649,8 +5649,11 @@ function startTeamMeeting() {
   var _song = '';
   try { var _sg = (STORY.songs || [])[(G.day) % Math.max(1, (STORY.songs || []).length)]; if (_sg) _song = 'Current song in the works: "' + _sg.title + '" (' + (_sg.vibe || _sg.about || '') + ').'; } catch(e){}
   var _fameLbl = (typeof getCurFame === 'function') ? (getCurFame(G.fame || 0) || {}) : {};
+  var _band = '';
+  try { if (STORY.band && STORY.band.members) _band = 'Her band is "' + STORY.band.name + '"; besides ' + (getNPCName('drummer') || 'the producer') + ' (drums & production), the members are ' + STORY.band.members.map(function(m){ return m.name + ' (' + m.instrument + ')'; }).join(', ') + '. If a bandmate is referenced, use these real names — never invent others.'; } catch(e){}
   var _ground = (_agenda.length ? ('Her actual upcoming work on the calendar:\n' + _agenda.join('\n') + '\n') : 'Her calendar is light in the next stretch — part of the agenda is filling it well.\n')
     + (_song ? (_song + '\n') : '')
+    + (_band ? (_band + '\n') : '')
     + 'Her current career level: ' + ((_fameLbl.en) || 'rising') + ' (fame ' + (G.fame || 0) + '). Stress: ' + (G.stress || 0) + '/100.';
   runGroupScene(participants, {
     locKey: 'agent_office',
@@ -10399,7 +10402,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.49 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.50 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
