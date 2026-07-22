@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.55"></script>
-<script src="state.js?v=12.55"></script>
+<script src="story.js?v=12.56"></script>
+<script src="state.js?v=12.56"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.55 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.56 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.55 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.56 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -9952,7 +9952,7 @@ async function sendChatReply() {
         });
       }
       if (_upl.length) {
-        agentReschedCtx = ' HER UPCOMING WORK (you are her agent and you run her calendar): ' + _upl.join('; ') + '. If she asks to MOVE or CANCEL one of these, you CAN actually do it: for a [movable] one, agree warmly and fill "reschedule" = {"day": <the GAME day number of that session — the integer right after "day" in the list above, NEVER the calendar date (if she says "28号/the 28th", find the list entry whose calendar date is x/28 and use ITS day number)>, "newTime": "HH:MM" or null, "newDaysFromNow": <int 1-9 if moving to another day> or null, "cancel": <bool>}, and confirm the change in plain words in your reply. For a [LOCKED] one, kindly explain it is a contracted shoot whose date is fixed and cannot be moved, and leave "reschedule" null. Fill "reschedule" ONLY when she actually asked to change a specific session and you agreed.';
+        agentReschedCtx = ' HER UPCOMING WORK (you are her agent and you run her calendar): ' + _upl.join('; ') + '. If she asks to MOVE or CANCEL one of these, you CAN actually do it: for a [movable] one, agree warmly and fill "reschedule" = {"day": <the GAME day number of that session — the integer right after "day" in the list above, NEVER the calendar date (if she says "28号/the 28th", find the list entry whose calendar date is x/28 and use ITS day number)>, "newTime": "HH:MM" or null, "newDaysFromNow": <int 1-31 if moving to another day — count precisely from today, next month is fine> or null, "cancel": <bool>}, and confirm the change in plain words in your reply. For a [LOCKED] one, kindly explain it is a contracted shoot whose date is fixed and cannot be moved, and leave "reschedule" null. Fill "reschedule" ONLY when she actually asked to change a specific session and you agreed.';
       }
     }
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
@@ -9986,7 +9986,7 @@ async function sendChatReply() {
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
       '\nPLAN SANITY (users caught all of these): ① NEVER anchor a plan to a work session that is NOT in the schedule facts above ("排练之后/after rehearsal" when no rehearsal exists that day = broken). ② Time-of-day must match the meal/activity: lunch lands 11:30-13:30, dinner 18:00-20:30, and if you say "下午/afternoon" the time you give must BE an afternoon time (never 上午10点 for an afternoon plan). ③ If you JUST said you are busy/unavailable on some day, do not turn around and propose that same day unless you explicitly said you moved things — and then the invite must match the plan you actually described. ④ "meet" is STRICTLY for TODAY: if her message says 明天/后天/tomorrow, use futureInvite with the right daysFromNow, never meet.' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-9 matching what you both agreed — e.g. 下个周五/next Friday can be 7-9 days out>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-30 matching what you both agreed — 下个周五/next Friday ≈7-9; for farther dates like next month, count the EXACT days from today using the DATE REFERENCE anchor>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
     // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
     const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null, rescheduleInfo = null;
@@ -10020,10 +10020,12 @@ async function sendChatReply() {
             if (/^\d{1,2}:\d{2}$/.test(rescheduleInfo.newTime||'')) {
               const _dur = _wev.timeEnd ? (parseHM(_wev.timeEnd) - parseHM(_wev.time)) : 180;
               _wev.time = rescheduleInfo.newTime;
-              const _em = parseHM(rescheduleInfo.newTime) + Math.max(60, _dur);
-              _wev.timeEnd = String(Math.floor(_em/60)%24).padStart(2,'0') + ':' + String(_em%60).padStart(2,'0');
+              // 结束时间钳在当天 23:59 内——晚场（如22:00开演）加时长会跨到次日"00:30"，
+              // timeEnd 反而比 time 小，行程的"进行中/已结束"判定会乱
+              const _em = Math.min(parseHM(rescheduleInfo.newTime) + Math.max(60, _dur), 23*60+59);
+              _wev.timeEnd = String(Math.floor(_em/60)).padStart(2,'0') + ':' + String(_em%60).padStart(2,'0');
             }
-            if (Number.isInteger(rescheduleInfo.newDaysFromNow) && rescheduleInfo.newDaysFromNow >= 1 && rescheduleInfo.newDaysFromNow <= 14) {
+            if (Number.isInteger(rescheduleInfo.newDaysFromNow) && rescheduleInfo.newDaysFromNow >= 1 && rescheduleInfo.newDaysFromNow <= 31) {
               const _nd = G.day + rescheduleInfo.newDaysFromNow;
               // 记下"被搬空的那天"——否则重进游戏时自动排班发现这天空了，又用确定性种子把原行程一模一样地补回来（用户实测：改过的行程还原）
               G._clearedWorkDays = G._clearedWorkDays || [];
@@ -10110,7 +10112,7 @@ async function sendChatReply() {
       }
       // 聊天里谈成的未来约会（用户定稿 v11.57）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
-      if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 9) {
+      if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 30) {
         // 日期以回复文字里点名的星期几为准（修"说周四却排到周一"）：文字没点名才用 AI 的 daysFromNow
         const _wOff = weekdayOffsetFromText(reply, G.day);
         const fiDaysFromNow = (_wOff && _wOff >= 1 && _wOff <= 9) ? _wOff : futureInv.daysFromNow;
@@ -10578,7 +10580,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.55 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.56 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
