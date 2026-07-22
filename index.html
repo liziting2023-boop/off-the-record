@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.52"></script>
-<script src="state.js?v=12.52"></script>
+<script src="story.js?v=12.53"></script>
+<script src="state.js?v=12.53"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.52 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.53 · BETA ⏱</p>
   </div>
 </div>
 
@@ -784,10 +784,10 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 
 <!-- ══ AGENT SIGNING (VN scene) ══ -->
 <div class="screen" id="s-agent-signing">
-  <img class="vn-bg" id="signing-bg" src="" alt="" style="object-fit:cover;width:100%;height:100%;position:absolute;inset:0;z-index:0;cursor:pointer" onclick="openLB(this.src)">
+  <img class="vn-bg" id="signing-bg" src="" alt="" style="object-fit:cover;width:100%;height:100%;position:absolute;inset:0;z-index:0;cursor:pointer" onclick="toggleSigningDialog()">
   <div class="vn-bg-ph" id="signing-bg-ph" style="position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FFE8F0,#FFF0F5)"></div>
   <div class="vn-overlay"></div>
-  <div style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom))">
+  <div id="signing-dialog-wrap" style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom))">
     <div class="vn-dialog">
       <div class="vn-speaker" id="signing-speaker"></div>
       <div class="vn-text" id="signing-text"></div>
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.52 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.53 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3835,10 +3835,18 @@ function selCard(el, key, value) {
     }
   } else if (key === 'agentOrigin') {
     var _isZhAo = G.lang==='zh-cn'||G.lang==='zh-tw';
-    if (value === '__MIX__') { // 进入混血模式：选两个来源（用户反馈：别弹带域名的浏览器提示，改卡内文字）
+    if (value === '__MIX__') { // 混血模式开关（用户实测：进了混血就出不来了→再点一次=退出混血、回到单选）
+      if (_agentMixMode || (G.npcs.agent.origin || '').indexOf('×') >= 0) { // 已在混血中（选择中/已选完）→ 退出
+        _agentMixMode = false; _agentMixFirst = null;
+        if ((G.npcs.agent.origin || '').indexOf('×') >= 0) G.npcs.agent.origin = null;
+        try { el.classList.remove('sel'); el.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + (_isZhAo?'选两个来源':'pick two origins') + '</span>'; } catch(e){}
+        document.querySelectorAll('#g-aorigin .card').forEach(function(c){ c.classList.remove('sel'); });
+        try { document.getElementById('btn-aorigin').style.visibility = 'hidden'; } catch(e){}
+        return;
+      }
       _agentMixMode = true; _agentMixFirst = null;
       try { document.getElementById('btn-aorigin').style.visibility = 'hidden'; } catch(e){}
-      try { el.classList.add('sel'); el.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + (_isZhAo?'先点第一个来源':'tap the FIRST origin') + '</span>'; } catch(e){}
+      try { el.classList.add('sel'); el.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + (_isZhAo?'先点第一个来源 · 再点我取消':'tap the FIRST origin · tap me again to cancel') + '</span>'; } catch(e){}
       return;
     }
     if (_agentMixMode) {
@@ -3851,12 +3859,18 @@ function selCard(el, key, value) {
         return;
       }
       if (value === _agentMixFirst) return; // 两个不能相同
-      // 清掉除"第一个来源+当前第二个"以外的高亮（修更换第二个时旧高亮不消）
+      // 清掉除"第一个来源+当前第二个"以外的高亮（修更换第二个时旧高亮不消）；第一个来源要重新点亮（函数开头把全部高亮清了）
       document.querySelectorAll('#g-aorigin .card').forEach(function(c){ if(c!==el && c!==_mx && c.dataset.val!==_agentMixFirst) c.classList.remove('sel'); });
+      try { var _f1 = document.querySelector('#g-aorigin .card[data-val="'+_agentMixFirst+'"]'); if (_f1) _f1.classList.add('sel'); } catch(e){}
       G.npcs.agent.origin = _agentMixFirst + '×' + value; // 存成 'A×B'
+      // 混血卡文字更新成最终结果（用户实测：选完了卡上还写着"再选第二个"）
+      if (_mx) _mx.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + originDisplayName(G.npcs.agent.origin) + (_isZhAo?' · 点我取消':' · tap to cancel') + '</span>';
       _agentMixMode = false;
     } else {
       G.npcs.agent.origin = value;
+      // 单选一个国家=自动退出/清掉混血状态（用户定稿：混血不该是单行道）
+      _agentMixFirst = null;
+      try { var _mx2 = document.querySelector('#g-aorigin .card[data-val="__MIX__"]'); if (_mx2) { _mx2.classList.remove('sel'); _mx2.innerHTML = (_isZhAo?'✦ 混血':'✦ Mixed') + '<span class="sub">' + (_isZhAo?'选两个来源':'pick two origins') + '</span>'; } } catch(e){}
     }
   } else {
     G[key] = value;
@@ -4000,7 +4014,9 @@ const BEDROOM_LAYOUT = 'spacious modern bedroom, a large plush double bed center
 // 卧室布局B（用户指定）：长方形卧室，中央双人床，两侧对称床头柜+窗户，床上吊灯，右侧梳妆台竖镜，床尾脚凳，左下角单人椅，大地毯
 const BEDROOM_LAYOUT_B = 'rectangular bedroom, a double bed centered against the back wall with its headboard against the wall, a symmetrical matching nightstand on each side of the bed, two windows with sheer curtains flanking the bed on both sides, a pendant chandelier hanging directly above the bed, on the right side a dressing table with a large tall standing floor mirror and a stool, a round upholstered ottoman footstool at the foot of the bed on the right side, a single lounge accent armchair in the lower-left corner, a large area rug covering the floor, richly layered multi-piece furniture arrangement, warm cozy home interior lighting';
 // 三张卧室夜景候选的布局与灯光氛围（genBedrooms 生成、selBedroom 记忆所选，晚上补生成夜图时保持一致）
-const BEDROOM_LAYOUTS = [BEDROOM_LAYOUT, BEDROOM_LAYOUT_B, BEDROOM_LAYOUT];
+// 用户实测：原来 A/C 是同一布局只差灯光，三张看着一样没得选。C 改成独立第三布局（床靠侧墙+角窗+窗边躺椅）。
+const BEDROOM_LAYOUT_C = 'a bedroom with the double bed placed against the LEFT side wall seen at an angle, a large corner window wrapping two walls with a chaise longue reading spot right by the window, an open clothes rack and a tall bookshelf on the right wall, a small writing desk tucked under the window, framed art gallery wall above the bed, a round bedside table with a stack of books, layered rugs, asymmetric relaxed layout clearly different from a symmetric centered-bed room, warm cozy lighting';
+const BEDROOM_LAYOUTS = [BEDROOM_LAYOUT, BEDROOM_LAYOUT_B, BEDROOM_LAYOUT_C];
 const BEDROOM_MOODS = [
   'warm amber bedside lamp glow, soft and intimate',
   'symmetrical warm table lamps on both nightstands plus the pendant light above the bed, soft ambient home glow',
@@ -4157,7 +4173,7 @@ async function genAgent() {
   G.npcs.agent.name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
 
   // Generate first line
-  const firstLine = await claude(G.npcs.agent.name + ' is a ' + origin + ' talent agent — warm, sharp, and genuinely moved by real talent. He approached a street singer named ' + (G.player.name||'her') + ' after her voice caught him three nights running. Write his very first words to her: WARM and quietly thrilled, moved by what he heard, letting it show (a real smile, bright eyes) — NEVER cold, aloof, or a detached weather-report tone. Tell her she has something rare. Do NOT frame it as "turning it into a career/a job" or anything about money — it is about the gift and about being truly heard. Do NOT mention or describe the business card (avoid awkward phrasings like "the card in your hand"). Keep the wording natural and clear in ' + G.langName + '. 1-2 sentences. No quotes. Language: ' + G.langName + '.');
+  const firstLine = await claude(G.npcs.agent.name + ' is a ' + origin + ' talent agent — warm, sharp, and genuinely moved by real talent. He approached a street singer named ' + (G.player.name||'her') + ' after her voice caught him three nights running. Write his very first words to her: WARM and quietly thrilled, moved by what he heard, letting it show (a real smile, bright eyes) — NEVER cold, aloof, or a detached weather-report tone. Tell her she has something rare. Do NOT frame it as "turning it into a career/a job" or anything about money — it is about the gift and about being truly heard. Do NOT mention or describe the business card (avoid awkward phrasings like "the card in your hand"). NEVER state how many nights he has been listening ("three nights"/三个晚上) — that detail is delivered once in the narration and must not be repeated by him. Keep the wording natural and clear in ' + G.langName + '. 1-2 sentences. No quotes. Language: ' + G.langName + '.');
 
   // Show name and line immediately
   document.getElementById('agent-reveal-box').style.display = 'block';
@@ -4215,6 +4231,12 @@ function selAgent(opt) {
 // ══════════════════════════════════════════════════════
 let _signingRound = 0;
 
+// 点经纪人图片=收起对话框只看图，再点一下恢复（用户定稿 v12.53：原来点图开灯箱，收不起前面的对话框）
+function toggleSigningDialog() {
+  var w = document.getElementById('signing-dialog-wrap');
+  if (w) w.style.visibility = (w.style.visibility === 'hidden') ? '' : 'hidden';
+}
+
 function startSigningScene() {
   if (G.npcs.agent.portraitUrl) { G.gallery.push({ url: G.npcs.agent.portraitUrl, label: G.npcs.agent.name || 'Agent' }); }
   go('s-agent-signing');
@@ -4244,6 +4266,7 @@ async function runSigningDialog(round) {
     try {
       gen = await claude(STATE.memory.buildDialoguePrompt('agent', 0, G.langName, G.player.name,
         'This is the very first meeting, on the street where she busks — moments ago you approached her, gave her your card, and said you have been listening for three nights. She just replied: "' + _signingLastReply + '". ' +
+        'NEVER repeat the three-nights detail (三个晚上/three nights) — you already said it once and repeating it reads robotic; build on it, do not restate it. ' +
         'FIRST respond to what she actually said, genuinely and specifically (never ignore it or talk past it). THEN, warmly and confidently (you are a warm, encouraging agent, NOT cold or aloof), make clear you do not do this for just anyone and you mean it, and tell her to call you when she is ready so you two can sit down and talk properly — no pressure, but you hope she will not wait too long. ' +
         'ABSOLUTE REGISTER (real players flagged this scene going cold): he is warm, genuinely moved by her talent, and lets it show — eyes bright, a real smile. BANNED beats: flicking/tossing the card at her or her guitar case (he already handed it gently — do NOT re-describe giving the card); any "no warmth in his eyes"; telling her she is "wasting her time"; aloof talent-scout clichés. ' +
         '2-4 short sentences. Spoken words in 「」 for Chinese or quotes otherwise; any action of yourself in THIRD person. Plain text only.'));
@@ -4301,6 +4324,15 @@ function showSigningAuto(round) {
   // 这段是时间蒙太奇（三天后拨号→签约），不是他站在眼前——隐藏立绘背景，让旁白独占一屏、不被大脸挤到要滚动
   var _sbg = document.getElementById('signing-bg'); if (_sbg) _sbg.style.display = 'none';
   var _sph = document.getElementById('signing-bg-ph'); if (_sph) _sph.style.display = 'flex';
+  // 仪式感（用户实测：纯粉底像背景图没加载出来的 bug 画面）：签约时刻=暗色典礼底 + 金环印章 + 章节感排版
+  if (_sph) {
+    _sph.style.background = 'radial-gradient(ellipse at 50% 28%, #2b3352 0%, #1a2036 55%, #101322 100%)';
+    _sph.innerHTML = '<div style="text-align:center;transform:translateY(-16vh)">' +
+      '<div style="width:96px;height:96px;border:1px solid rgba(212,175,55,.55);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:\'Cormorant Garamond\',serif;font-size:42px;color:#d4af37;text-shadow:0 0 18px rgba(212,175,55,.35)">' + (_isZhSg ? '契' : '✦') + '</div>' +
+      '<div style="letter-spacing:8px;font-size:11px;color:rgba(212,175,55,.85);font-family:Jost,sans-serif;text-transform:uppercase">The Contract</div>' +
+      '<div style="margin-top:10px;font-family:\'Cormorant Garamond\',serif;font-size:14px;color:rgba(240,235,225,.55)">' + (_isZhSg ? '从这一刻起，一切都不一样了' : 'From this moment, everything changes') + '</div>' +
+      '</div>';
+  }
   text.innerHTML = (dlg.autoText[lang] || dlg.autoText['en']).replace(/\n/g, '<br>');
   const contLabel = lang==='zh-cn'||lang==='zh-tw'?'继续':lang==='ja'?'続ける':lang==='ko'?'계속':'Continue';
   const btn = document.createElement('button'); btn.className = 'vn-next'; btn.textContent = contLabel;
@@ -4412,11 +4444,19 @@ function showNPCOrigin(npcKey, callback) {
 
 var _mixMode = false, _mixFirst = null;
 function enterMixMode(el) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  // 再点一次 ✦混血 = 退出混血、回到单选（用户实测：选了混血就改不回单个国家了）
+  if (_mixMode || (_selectedNPCOrigin || '').indexOf('×') >= 0) {
+    _mixMode = false; _mixFirst = null; _selectedNPCOrigin = null;
+    document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
+    document.getElementById('nos-sub').textContent = isZh?'已退出混血——直接点一个国家即可':'Mixed cancelled — just tap one origin';
+    document.getElementById('nos-confirm').style.visibility = 'hidden';
+    return;
+  }
   _mixMode = true; _mixFirst = null; _selectedNPCOrigin = null;
   document.querySelectorAll('.nos-card').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
-  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  document.getElementById('nos-sub').textContent = isZh?'混血：先选第一个来源':'Mixed: pick the FIRST origin';
+  document.getElementById('nos-sub').textContent = isZh?'混血：先选第一个来源（再点混血可取消）':'Mixed: pick the FIRST origin (tap Mixed again to cancel)';
   document.getElementById('nos-confirm').style.visibility = 'hidden';
 }
 function selNPCOrigin(val, el) {
@@ -4457,13 +4497,10 @@ function showNPCHairStep() {
   document.getElementById('nos-sub').textContent = isZhH?'「保持本色」则跟随他的族裔气质':G.lang==='ja'?'「そのまま」で自然な色に':G.lang==='ko'?'「자연색」이면 기본 색상':'"Natural" keeps his default shade';
   var grid = document.getElementById('nos-grid');
   grid.innerHTML = '';
+  // 用户定稿 v12.53：发色只留两个——保持本色 / 金发（原来6色选择过载，多数色和本色看不出差别）
   var colors = [
     [null,             isZhH?'保持本色':G.lang==='ja'?'そのまま':G.lang==='ko'?'자연색':'Natural'],
-    ['jet black',      isZhH?'乌黑':G.lang==='ja'?'漆黒':G.lang==='ko'?'칠흑':'Jet black'],
-    ['dark brown',     isZhH?'深棕':G.lang==='ja'?'ダークブラウン':G.lang==='ko'?'다크브라운':'Dark brown'],
-    ['chestnut brown', isZhH?'栗棕':G.lang==='ja'?'栗色':G.lang==='ko'?'밤색':'Chestnut'],
     ['golden blonde',  isZhH?'金发':G.lang==='ja'?'ブロンド':G.lang==='ko'?'금발':'Blonde'],
-    ['ash grey',       isZhH?'雾灰':G.lang==='ja'?'アッシュグレー':G.lang==='ko'?'애쉬그레이':'Ash grey'],
   ];
   colors.forEach(function(c) {
     var el = document.createElement('div');
@@ -10508,7 +10545,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.52 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.53 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

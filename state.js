@@ -478,18 +478,20 @@ const STATE = {
       // flux 对否定词无效甚至反向诱导。这里只做正向描述：光洁无须的脸、双手空垂、只穿polo工作衫
       // ⚠️ 措辞经验：boyish/college-age/innocent/slim youthful 这类词堆起来会把画风推向卡通
       // （用户实测管家出图像皮克斯、和经纪人/鼓手不一致且太瘦弱）。改成写实成人化描述+健壮体格。
+      // 用户定稿 v12.53（参考图=欧美少年偶像感）：真正的"大男孩"——绝对光洁无一点胡茬的少年脸 + 软刘海 + 清瘦挺拔。
+      // 现在人物图走 flux/dev（IMG_DEV_PORTRAITS），写实少年脸没问题，不再有 schnell 时代"boyish=卡通"的顾虑。
       return [
-        `Handsome youthful fresh-faced 20-year-old ${origin} young man who clearly looks his real age — early-twenties, soft boyish charm and smooth young features, NOT a man in his late twenties or thirties`,
+        `Very youthful boyishly-pretty 20-year-old ${origin} college-sophomore — a fresh-faced boy-next-door who looks 19, soft boyish charm, absolutely NOT a grown man in his late twenties`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
-        `clean-shaven smooth face, completely beardless, clear bright eyes`,
-        `sturdy athletic build with broad shoulders, fit and strong from hands-on building maintenance work`,
+        `baby-smooth completely hairless face like a teenage idol — porcelain-clean skin with zero facial hair of any kind, soft rounded youthful jawline, clear bright innocent-but-sharp eyes`,
+        `lean fit young athletic build, slender and upright`,
         `building concierge / front-desk staff`,
-        `${STATE.imagePrompts.applyHair(app, npc)} clean and neat`,
+        `${STATE.imagePrompts.applyHair(app, npc)} styled as a soft textured boyish fringe falling naturally over his forehead (young idol haircut)`,
         `${app.skin} skin`,
         `wearing only a simple neat polo work shirt with a small staff badge`,
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
-        `warm genuine smile, kind earnest expression`,
+        `bright warm boyish smile, kind earnest expression`,
         scene,
       ].filter(Boolean).join(', ');
     },
