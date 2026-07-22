@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.44"></script>
-<script src="state.js?v=12.44"></script>
+<script src="story.js?v=12.45"></script>
+<script src="state.js?v=12.45"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.44 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.45 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.44 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.45 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1435,7 +1435,7 @@ function flushJealousMeetMsgs() {
     n._stungCoolUntil = G.day + 3; // 这几天聊天明显更冷、更设防（buildDialoguePrompt 注入；不屏蔽消息，仍可联系）
     n._needsBeat = true;           // 下一次和他的约会他会先推掉一次，诚实说"我需要缓一下"
     (async function(){ try {
-      var ctx = 'Earlier today, in the team meeting, she was openly affectionate/flirtatious with ' + (due.rivalName || 'another man') + ' right in front of you — and you two have been intimate. It stung more than you let show in the room. Now, PRIVATELY by text, say your piece: hurt underneath, controlled on the surface; you want to hear from HER what that was about. You do NOT control her, threaten, guilt-trip, or issue ultimatums — you are a grown, green-flag man: state honestly that it got to you, ask her directly but without cruelty, and stay reachable. 1-2 sentences, in ' + G.langName + '. Output only the message text.';
+      var ctx = 'Earlier today, in the team meeting, she was openly affectionate/flirtatious with ' + (due.rivalName || 'another man') + ' right in front of you — and you two have been intimate. It stung more than you let show in the room. Now, PRIVATELY by text, say your piece. Say it entirely in YOUR OWN voice and register — do NOT use a generic soft template: a blunt, possessive man is blunt, direct and lets the possessive/hurt edge show plainly (short, no cushioning); a composed man is quiet and precise; a playful man\'s humour goes brittle. Whatever your character, you want to hear from HER what that was. GREEN-FLAG LINE you never cross: no controlling her, no threats, no guilt-trips, no ultimatums, no "you\'re mine / you can\'t" — the jealousy comes out ONLY as being honestly hurt and wanting her, and you stay reachable. 1-2 sentences, in ' + G.langName + '. Output only the message text.';
       var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, ctx));
       if (t && t.trim()) {
         if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
@@ -5342,6 +5342,7 @@ async function runGroupScene(participants, opts) {
   var _loverKeys = participants.filter(function(p){ return p.isNpc && G.npcs[p.key] && (G.npcs[p.key].nights || 0) > 0; });
   var _stungKeys = {}; // 会上被冷落刺到的人→散会私信（关键词兜底，不依赖散会纪要那步AI）
   var _affWithKeys = {}; // 会上"她主动亲密的对象"→绝不能被当成吃醋的人（她亲谁，谁就不该吃谁自己的醋）
+  var _derailed = false; // 会上当众亲密引爆吃醋 → 会议开不下去了，提前僵住散场（用户实测：这种时候还继续背议程不合理）
   var _affKw = /抱|搂|摟|挽|亲|親|吻|坐.{0,4}腿|大腿|依偎|贴身|贴着|搂腰|摟腰|kiss|hug|\blap\b|cuddl|embrac|snuggl|nuzzl|straddl|make out/i;
   function contBtn(label, fn) { var b = document.createElement('button'); b.className = 'vn-next'; b.textContent = label; b.onclick = fn; document.getElementById('vn-opts').appendChild(b); }
   var _summarized = false;
@@ -5420,13 +5421,14 @@ async function runGroupScene(participants, opts) {
   }
   async function npcBeat(playerLine) {
     if (playerLine) history.push('HER: ' + playerLine);
+    var _stungThisBeat = false; // 这一拍就是吃醋引爆点（她这句就是当众亲密）——本拍反应最激烈、且会把会议引爆
     // 关键词兜底：当场就记下"她对其中一个恋人做了亲密举动"→ 另一个恋人被冷落 → 散会必发私信（不靠散会纪要那步 AI，防它卡/超时导致私信不发）
     if (playerLine && _loverKeys.length >= 2 && _affKw.test(playerLine)) {
       // 认"她亲的是谁"：名字 + 角色词（"鼓手""经纪人"…各语言）都算——玩家常用角色称呼而非名字
       var _idsOf = function(p){ var a = [p.name]; var r = NPC_ROLES[p.key]; if (r) Object.keys(r).forEach(function(lk){ if (r[lk]) a.push(r[lk]); }); return a; };
       var _tgt = _loverKeys.find(function(p){ return _idsOf(p).some(function(s){ return s && playerLine.indexOf(s) >= 0; }); });
       // 只有明确认出目标才标记被冷落的另一位；认不出就交给散会纪要 AI，绝不把在场所有恋人都标成吃醋（否则她亲的那个人自己也会误发吃醋私信）
-      if (_tgt) { _affWithKeys[_tgt.key] = true; _loverKeys.forEach(function(p){ if (p.key !== _tgt.key) _stungKeys[p.key] = _tgt.name; }); }
+      if (_tgt) { _affWithKeys[_tgt.key] = true; _loverKeys.forEach(function(p){ if (p.key !== _tgt.key) _stungKeys[p.key] = _tgt.name; }); _stungThisBeat = true; _derailed = true; }
     }
     document.getElementById('vn-opts').innerHTML = '';
     document.getElementById('vn-speaker').textContent = '';
@@ -5446,11 +5448,11 @@ async function runGroupScene(participants, opts) {
       _loversNote + (_loversNote ? '\n' : '') +
       (history.length ? ('SO FAR (most recent last):\n' + history.slice(-8).join('\n') + '\n') : (_meeting ? 'The meeting is just getting going.\n' : 'The scene is just opening — they are mid-banter as she settles in.\n')) +
       (playerLine ? ('The woman (' + (G.player.name || 'she') + ') just took her turn — ' + describeHerTurn(playerLine) + ' REACT TO THIS FIRST and truthfully — if she did something surprising, flirtatious, disruptive or shocking (even wildly out of place for the setting), the room VISIBLY responds to THAT in character (shock, fluster, someone looking away, a lover\'s charged reaction, a scramble) — NEVER ignore it, NEVER repeat her action back as if she spoke it, NEVER plough on with the agenda as if nothing happened. Then, if it fits, they get back to business.\n') : '') +
-      (_stungKeys && Object.keys(_stungKeys).length ? ('JEALOUSY — LANDING NOW: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. His very next line is NOT smooth meeting-business — do NOT have him calmly recite schedule dates or agenda points. He is genuinely thrown: suppressed shock and anger cracking through a thin surface — he loses the thread of the meeting for a beat, goes curt / clipped / pointedly quiet, maybe a stung one-liner or a hard look at the other man. Real, rattled, human. (Still green-flag: no violence, no blow-up, no cruelty — the real reckoning is later and private.)\n') : '') +
-      (_meeting
+      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). If ' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ' or anyone speaks, it is about the tension in the room, not business. Nobody smoothly gets back to the agenda. Absolutely NO calm date-reciting. (Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
+      (_meeting && !_stungThisBeat
         ? ('This is a REAL working meeting with a purpose — NOT aimless chatter. Each beat must ADVANCE a concrete agenda point using the REAL FACTS above (an actual dated session, the song/release, a scheduling call, a real decision), give useful specifics, and visibly MOVE things toward getting settled. A little dry humor or personality is fine as seasoning, but the meeting must accomplish something. ' + (_nearEnd ? 'This is near the END — land a CLEAR takeaway: what is decided and the concrete next step(s), in character. ' : ''))
         : '') +
-      'Write ' + (playerLine ? '2 to 4' : '2 to 3') + ' short lines — each ' + (_meeting ? 'purposeful and moving the agenda, ' : 'overlapping and alive, a little humor is good, ') + 'unmistakably in that speaker\'s own voice. Do NOT write HER lines or actions, only the others. Keep it in ' + G.langName + '.\n' +
+      'Write ' + (_stungThisBeat ? '2 to 3' : (playerLine ? '2 to 4' : '2 to 3')) + ' short lines — each ' + (_stungThisBeat ? 'raw and rattled, the fallout of what just happened, ' : (_meeting ? 'purposeful and moving the agenda, ' : 'overlapping and alive, a little humor is good, ')) + 'unmistakably in that speaker\'s own voice. Do NOT write HER lines or actions, only the others. Keep it in ' + G.langName + '.\n' +
       'EACH line\'s "text" is what THAT person SAYS, with at most a short action in parentheses BEFORE or AFTER the words. Every line MUST contain actual spoken words — never a line that is pure stage direction with nothing said (unless a person is deliberately, pointedly silent, and then keep it to one short action). NEVER write the room or setting name as a label, and NEVER append the location (e.g. "— 会议室", "the meeting room") to the end of a line.\n' +
       'Output ONLY valid JSON, no fences: {"lines":[{"speaker":"<exactly one of: ' + _names.join(' | ') + '>","text":"..."}]}';
     // ⚠️ 群戏要返回一段 JSON 数组，token 需求比普通聊天大——不能用 claudeChat(max_tokens=200，会把 JSON 截断成半截→解析失败)。
@@ -5489,6 +5491,8 @@ async function runGroupScene(participants, opts) {
     _hi(null);
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-opts').innerHTML = '';
+    // 吃醋引爆 → 会议开不下去了，僵住直接散场（不再走完剩下几轮议程；用户实测：这种时候还继续开会不合理）
+    if (_derailed) { document.getElementById('vn-text').textContent = isZh ? '（空气一下子僵住——这个会，没法再往下开了。）' : '(The air goes taut — there is no carrying the meeting on from here.)'; contBtn(isZh ? '散会' : 'Break it up', endGroup); return; }
     if (turn >= maxTurns) { document.getElementById('vn-text').textContent = (opts.tone === 'meeting') ? (isZh ? '（会议差不多到这儿了。）' : '(That about wraps the meeting.)') : (isZh ? '（聊得差不多了，气氛正好。）' : '(A good place to leave it — the room is warm.)'); contBtn((opts.tone === 'meeting') ? (isZh ? '散会' : 'Adjourn') : (isZh ? '散会 · 离开' : 'Head out'), endGroup); return; }
     document.getElementById('vn-text').textContent = turn === 0 ? (isZh ? '轮到你插句话——或者就这样听着。' : 'Jump in — or just take it in.') : (isZh ? '你想说点什么？' : 'Say something?');
     buildDualInput(document.getElementById('vn-opts'), null, function(reply, silent){
@@ -10270,7 +10274,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.44 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.45 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
