@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.42"></script>
-<script src="state.js?v=12.42"></script>
+<script src="story.js?v=12.43"></script>
+<script src="state.js?v=12.43"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.42 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.43 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.42 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.43 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1430,7 +1430,10 @@ function flushJealousMeetMsgs() {
     var n = G.npcs[k];
     if (!n || !n._jealousDue) return;
     var due = n._jealousDue; n._jealousDue = null;
-    try { STATE.relationships.change(k, -4); } catch(e){}
+    // 加牙齿·仍绿旗（用户定稿 v12.43）：更重的好感代价 + 几天聊天变冷淡 + 下一次约会被推掉一次；但绝不拉黑/掉0，你哄/说开就回暖。
+    try { STATE.relationships.change(k, -12); } catch(e){}
+    n._stungCoolUntil = G.day + 3; // 这几天聊天明显更冷、更设防（buildDialoguePrompt 注入；不屏蔽消息，仍可联系）
+    n._needsBeat = true;           // 下一次和他的约会他会先推掉一次，诚实说"我需要缓一下"
     (async function(){ try {
       var ctx = 'Earlier today, in the team meeting, she was openly affectionate/flirtatious with ' + (due.rivalName || 'another man') + ' right in front of you — and you two have been intimate. It stung more than you let show in the room. Now, PRIVATELY by text, say your piece: hurt underneath, controlled on the surface; you want to hear from HER what that was about. You do NOT control her, threaten, guilt-trip, or issue ultimatums — you are a grown, green-flag man: state honestly that it got to you, ask her directly but without cruelty, and stay reachable. 1-2 sentences, in ' + G.langName + '. Output only the message text.';
       var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, ctx));
@@ -7851,6 +7854,24 @@ async function playInviteScene(inv) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   const npcKey = inv.npcKey;
   const isDayDate = invTimeMin(inv) < 17 * 60;
+  // 加牙齿·仍绿旗（v12.43）：会上当众吃醋后，他把接下来这一次约会诚实地推掉一次——发消息说需要缓一下，不拉黑、不惩罚、你哄就回暖。
+  if (G.npcs[npcKey] && G.npcs[npcKey]._needsBeat && !inv.gathering) {
+    G.npcs[npcKey]._needsBeat = false;
+    try { inv.status = 'completed'; } catch(e){}
+    (async function(){ try {
+      var _bctx = 'She had a private date planned with you today, but you are still hurting from the team meeting a day or two ago where she was openly affectionate, right in front of you, with another man she has also slept with. Text her now to POSTPONE just this one date — honest, not cold: you are not up for it just yet, you need a beat / a couple of days, but keep the door open. You are NOT ending anything and NOT punishing her (green-flag). 1-2 sentences, in ' + G.langName + '. Output only the message text.';
+      var t = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _bctx));
+      if (t && t.trim()) {
+        if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+        var _tm = (typeof nextMsgTime === 'function') ? nextMsgTime(G.day, (typeof rtClockMin === 'function' ? rtClockMin() : (G.clockMin||1200))) : fmtClock(G.clockMin||1200);
+        G.phone.messages[G.day].push({ npc:npcKey, name:getNPCName(npcKey), text:t.trim(), isVoice:false, emoji:(NPC_UI[npcKey]||{}).emoji||'💬', color:(NPC_UI[npcKey]||{}).color||'#C4A882', day:G.day, time:_tm });
+        try { STATE.memory.addEvent(npcKey, 'Still hurt from the team meeting, he postponed their planned date (day ' + G.day + '), honestly asking for a beat instead of going through with it.', G.day); } catch(e){}
+        notifyNewMessage(npcKey); STATE.save.saveGame();
+      }
+    } catch(e){} })();
+    gameAlert(isZh ? (getNPCName(npcKey) + ' 把今天的约会往后推了——给你发了条消息。') : (getNPCName(npcKey) + ' pushed today\'s plan back — he texted you.'), function(){ goHome(); });
+    return;
+  }
   // 地点：邀约生成时带的locKey优先，否则按NPC性格+昼夜时段挑（修中午约饭却出夜晚酒吧图）
   const locKey = (inv.locKey && (STORY.locations[inv.locKey] || /_home$/.test(inv.locKey))) ? inv.locKey : pickDateSpot(npcKey, isDayDate);
   // 标准场景入口：白天赴约是从首页直接点进来的（没经过 showEveningInviteChoice 的 go('s-scene')），
@@ -10204,7 +10225,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.40 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.43 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

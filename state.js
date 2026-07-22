@@ -641,6 +641,10 @@ const STATE = {
       const confessedNote = npc._confessed
         ? `\nOFFICIALLY TOGETHER (you two confessed and are a couple now): call ${playerName} by a warm affectionate pet name that fits YOUR character, written in ${lang} (love / babe / sweetheart / 宝贝 / 亲爱的 …). Speak with the settled tenderness of an established partner, openly want her, make small future "us" plans, and drop any lingering hesitation about whether you two are together — you ARE, and you let it show in every message.`
         : '';
+      // 会上当众吃醋后的几天（用户定稿 v12.43 "加牙齿·仍绿旗"）：明显更冷、更设防，但仍可联系、你哄就回暖，绝不冷暴力。
+      const stungNote = (npc._stungCoolUntil && npc._stungCoolUntil > day)
+        ? `\nHURTING RIGHT NOW: a day or two ago, at a team meeting, ${playerName} was openly affectionate with another man she has also slept with, right in front of you. It genuinely hurt and it has NOT blown over. For these few days you are noticeably COOLER and more guarded with her than usual — shorter replies, a little distance, the easy warmth and playfulness dialled back; the hurt shows as restraint, never as cruelty. You still answer her and stay reachable (NEVER the silent treatment, never controlling — you are green-flag), but you will not pretend nothing happened. If she genuinely reaches out — owns it, reassures you, makes it right — you start to thaw and warm back toward her.`
+        : '';
       // 功能性/闺蜜类联系人（如工作助理）：严格柏拉图，永不暧昧
       const platonicNote = npc.platonic
         ? `\nSTRICTLY PLATONIC: you are NOT a love interest — you are ${playerName}'s professional friend and colleague (happily married yourself). Everything you say stays warm, supportive and sisterly/collegial; NEVER flirtatious or romantic, and never read her warmth as romantic. No confessions, no tension, no stayovers — ever.`
@@ -676,7 +680,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${platonicNote}${musicNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${stungNote}${platonicNote}${musicNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
