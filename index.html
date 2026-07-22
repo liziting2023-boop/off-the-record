@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.32"></script>
-<script src="state.js?v=12.32"></script>
+<script src="story.js?v=12.33"></script>
+<script src="state.js?v=12.33"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -522,6 +522,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <div class="dev-sec">🧪 新NPC初见（不用等 Day3/Day6）</div>
     <button class="dev-btn" onclick="devMeet('rafael')">初见 · 球星 Rafael</button>
     <button class="dev-btn" onclick="devMeet('neighbor')">初见 · 邻居单亲爸爸</button>
+    <button class="dev-btn" onclick="devTeamMeeting()">群戏 · 团队碰头会</button>
     <button class="dev-btn" onclick="closeDevPanel();introduceAssistant();setABn('bn-phone');openPhone();">登场 · 工作助理（看名字+短信）</button>
     <div class="dev-sec">🎬 重要剧情节点·章节卡（看版式+音效）</div>
     <button class="dev-btn" onclick="devMilestone('confess')">节点 · 表白</button>
@@ -575,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.32 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.33 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1165,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.32 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.33 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2284,7 +2285,14 @@ function devMilestone(type) {
   };
   try { playMilestone(type, { body: demo[type] || demo.confess }); } catch(e){ console.warn(e); }
 }
-window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet; window.devMilestone = devMilestone;
+// 测试用：直接进"团队碰头会"群戏（自动把经纪人/鼓手/助理设为已认识）
+function devTeamMeeting() {
+  closeDevPanel();
+  if (typeof G === 'undefined' || !G || !G.npcs) { try { alert('请先进入游戏再测。'); } catch(e){} return; }
+  ['agent','drummer','assistant'].forEach(function(k){ if (G.npcs[k]) { G.npcs[k].met = true; try { ensureSecondaryName(k); } catch(e){} } });
+  try { startTeamMeeting(); } catch(e){ console.warn(e); }
+}
+window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet; window.devMilestone = devMilestone; window.devTeamMeeting = devTeamMeeting;
 
 function _sleepMs(ms) { return new Promise(function(res){ setTimeout(res, ms); }); }
 
@@ -3302,6 +3310,21 @@ function ensureAgentSchedule(untilDay) {
       calAddEvent(_rds, { id:'rafael_adshoot', type:'work', source:'agent_mandate', title:(isZh?'饮料广告拍摄':'Soda commercial shoot'), locKey:'magazine_shoot', status:'accepted', time:'13:00', timeEnd:'18:00', _introNpc:'rafael', locked:true, description:(isZh?'品牌代言拍摄 · 档期已定':'Brand campaign shoot · fixed date') });
     }
     G._rafaelShootSet = true;
+  }
+  // 团队碰头会（群戏）：经纪人+鼓手+助理都已登场时，未来~7天内保证排一次（时间可改期，别撞已有安排/被搬空日）。
+  if (['agent','drummer','assistant'].every(function(k){ return G.npcs[k] && G.npcs[k].met; })) {
+    var _teamFrom = Math.max(2, (G.day || 1) + 1);
+    var _hasTeam = false;
+    for (var _tt = _teamFrom; _tt <= Math.min(_teamFrom + 9, untilDay); _tt++) { if ((G.calendar.events[getCalDateStr(_tt)] || []).some(function(e){ return e && e.id && String(e.id).indexOf('teamsync') === 0; })) { _hasTeam = true; break; } }
+    if (!_hasTeam) {
+      for (var _td = _teamFrom + 1; _td <= Math.min(_teamFrom + 7, untilDay); _td++) {
+        if (STORY.utils.getScriptedEvent(_td) || isGameWeekend(_td)) continue;
+        if ((G.calendar.events[getCalDateStr(_td)] || []).some(function(e){ return e && (e.type === 'work' || e.type === 'npc_invite'); })) continue;
+        if (G._clearedWorkDays && G._clearedWorkDays.indexOf(getCalDateStr(_td)) >= 0) continue;
+        calAddEvent(getCalDateStr(_td), { id:'teamsync_' + _td, type:'work', source:'agent_mandate', title:(isZh?'团队碰头会':'Team sync'), locKey:'agent_office', status:'accepted', time:'11:00', timeEnd:'12:30', _group:'team', description:(isZh?'和团队碰个头（经纪人·鼓手·助理）':'Sync with the team (agent · drummer · assistant)') });
+        break;
+      }
+    }
   }
   // 自愈式（v11.85）：每次都从"明天"起重扫到 untilDay，不再依赖 plannedUntil 一次性标记——
   // calAddEvent 按 id 去重 + 下面的周额度检查天然幂等；行程若因任何原因丢失（用户实测新开局
@@ -5226,6 +5249,119 @@ const T2_INTRO = {
   neighbor: { zh:'公寓走廊。隔壁的门开着，一个男人正单手抱着一摞东西跟门锁较劲，\n一个扎着小辫的小女孩从他腿后探出头看你。\n他回头，冲你歉意又温和地笑了笑。', en:'The apartment hallway. The door next to yours is open; a man is wrestling the lock one-handed, an armful of things balanced against him,\na little girl with braids peeking out from behind his leg.\nHe glances back and gives you an apologetic, gentle smile.' },
 };
 // 二线首遇：先播介绍旁白 → 选族裔/发色 → 三选一 → 全屏立绘 → 进相遇场景（和一线出场一致）
+// ══ 多人群戏引擎（用户定稿 v12.33）══════════════════════════════════════
+// participants: [{key,name,role,emoji,isNpc,persona}] —— 完整NPC(有立绘/好感) 或 场景专属角色(女儿/乐队朋友,无好感)。
+// 每一轮：一次 AI 调用生成在场几人"你一句我一句"的交叉对话(逐句显示、谁说话高亮谁的头像)，然后轮到玩家插话。
+function _groupPersonaOf(key) {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var b = (typeof NPC_BIO !== 'undefined') && NPC_BIO[key];
+  return (b ? (isZh ? b.zh : b.en) : '') || (getNPCRole(key, G.lang) || key);
+}
+async function runGroupScene(participants, opts) {
+  opts = opts || {};
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var locKey = opts.locKey || 'agent_office';
+  go('s-scene');
+  var _e = document.getElementById('vn-loading'); if (_e) _e.style.display = 'none';
+  document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none';
+  document.getElementById('vn-npc-card').style.display = 'none';
+  document.getElementById('vn-avatars').style.display = 'none';
+  document.getElementById('npc-trio').style.display = 'none';
+  document.getElementById('portrait-full').style.display = 'none';
+  document.getElementById('vn-overlay').style.display = 'block';
+  document.getElementById('vn-content').style.display = 'flex';
+  // 顶部"在场者"头像排（谁说话谁亮）
+  var content = document.getElementById('vn-content');
+  var roster = document.getElementById('group-roster');
+  if (!roster) { roster = document.createElement('div'); roster.id = 'group-roster'; roster.style.cssText = 'display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;'; content.insertBefore(roster, content.firstChild); }
+  roster.style.display = 'flex'; roster.innerHTML = '';
+  participants.forEach(function(p){
+    var chip = document.createElement('div'); chip.id = 'grp-av-' + p.key; chip.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:3px;opacity:.5;transition:opacity .2s;';
+    var url = p.isNpc && G.npcs[p.key] && G.npcs[p.key].portraitUrl, av;
+    if (url) { av = document.createElement('img'); av.src = url; av.style.cssText = 'width:44px;height:58px;object-fit:cover;border-radius:9px;border:2px solid transparent;transition:border-color .2s'; }
+    else { av = document.createElement('div'); av.textContent = p.emoji || '🙂'; av.style.cssText = 'width:44px;height:58px;display:flex;align-items:center;justify-content:center;font-size:26px;background:rgba(255,255,255,.1);border-radius:9px;border:2px solid transparent;transition:border-color .2s'; }
+    av.className = 'grp-av-img';
+    var nm = document.createElement('div'); nm.textContent = p.name; nm.style.cssText = "font-size:10px;color:#F3E7EA;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Jost',sans-serif";
+    chip.appendChild(av); chip.appendChild(nm); roster.appendChild(chip);
+  });
+  function _hi(key) { participants.forEach(function(p){ var c = document.getElementById('grp-av-' + p.key); if (c) { c.style.opacity = (p.key === key ? '1' : '.5'); var im = c.querySelector('.grp-av-img'); if (im) im.style.borderColor = (p.key === key ? 'var(--rose)' : 'transparent'); } }); }
+  document.getElementById('vn-speaker').textContent = '';
+  document.getElementById('vn-text').textContent = opts.sceneNar || (isZh ? '你到了。' : 'You arrive.');
+  document.getElementById('vn-opts').innerHTML = '';
+  var _firstNpc = (participants.filter(function(p){ return p.isNpc; })[0] || {}).key || null;
+  resolveSceneBg(locKey, _firstNpc).then(function(url){ if (url) { var bg = document.getElementById('vn-bg'); bg.src = url; bg.style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; } });
+  _curSceneEv = { npc: _firstNpc, location: locKey, _group: true };
+  _curSceneOriginDay = G.day;
+  var _people = participants.map(function(p){ return '- ' + p.name + (p.role ? ' (' + p.role + ')' : '') + ': ' + p.persona; }).join('\n');
+  var _names = participants.map(function(p){ return p.name; });
+  var setDesc = (STORY.locations[locKey] || {}).composition || locKey;
+  var history = [], turn = 0, maxTurns = opts.rounds || 4;
+  function contBtn(label, fn) { var b = document.createElement('button'); b.className = 'vn-next'; b.textContent = label; b.onclick = fn; document.getElementById('vn-opts').appendChild(b); }
+  function endGroup() {
+    participants.forEach(function(p){ if (p.isNpc && G.npcs[p.key]) { try { STATE.relationships.change(p.key, 2); } catch(e){} try { STATE.memory.addEvent(p.key, 'A group get-together' + (opts.occasionCtx ? ' (' + String(opts.occasionCtx).slice(0,48) + ')' : '') + ' on day ' + G.day + ' — the others were there too.', G.day); } catch(e){} } });
+    try { STATE.save.saveGame(); } catch(e){}
+    var r = document.getElementById('group-roster'); if (r) r.remove();
+    _curSceneEv = null; _curSceneOriginDay = null;
+    if (opts.onEnd) opts.onEnd(); else goEvening();
+  }
+  async function npcBeat(playerLine) {
+    if (playerLine) history.push('HER: ' + playerLine);
+    document.getElementById('vn-opts').innerHTML = '';
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-text').innerHTML = '<span style="opacity:.55">…</span>';
+    var prompt = 'You are writing a short, natural GROUP scene — several people in a room talking over each other and to the woman this story follows. Keep every voice DISTINCT and true to each person.\n' +
+      'PRESENT:\n' + _people + '\n' +
+      (opts.occasionCtx ? ('OCCASION: ' + opts.occasionCtx + '\n') : '') +
+      'They all know each other; keep who-does-what straight. SETTING: ' + setDesc + '. Time now: ' + gameClockStr() + '.\n' +
+      (history.length ? ('SO FAR (most recent last):\n' + history.slice(-8).join('\n') + '\n') : 'The scene is just opening — they are mid-banter as she settles in.\n') +
+      (playerLine ? ('The woman (' + (G.player.name || 'she') + ') just said/did: "' + playerLine + '". The others react to HER and to each other.\n') : '') +
+      'Write ' + (playerLine ? '2 to 4' : '2 to 3') + ' short lines — them talking TO EACH OTHER and reacting to her, overlapping and alive, each unmistakably in their own voice; a little humor is good. Do NOT write HER lines or actions, only the others. Keep it in ' + G.langName + '.\n' +
+      'Output ONLY valid JSON, no fences: {"lines":[{"speaker":"<exactly one of: ' + _names.join(' | ') + '>","text":"..."}]}';
+    var raw = await claudeChat(prompt);
+    var lines = [];
+    try { var pj = JSON.parse((raw || '').replace(/```json|```/g, '').trim()); lines = (pj.lines || []).filter(function(l){ return l && l.text; }); } catch(e){}
+    if (!lines.length) { document.getElementById('vn-text').textContent = (typeof aiFailMsg === 'function' ? aiFailMsg() : '…'); document.getElementById('vn-opts').innerHTML = ''; contBtn(isZh ? '离开' : 'Leave', endGroup); return; }
+    var i = 0;
+    (function showLine() {
+      if (i >= lines.length) { playerTurn(); return; }
+      var ln = lines[i]; i++;
+      var sp = participants.find(function(p){ return p.name === ln.speaker || (ln.speaker && ln.speaker.indexOf(p.name) >= 0); }) || participants.find(function(p){ return p.role && ln.speaker && ln.speaker.indexOf(p.role) >= 0; });
+      _hi(sp ? sp.key : null);
+      document.getElementById('vn-speaker').textContent = (sp ? sp.name : ln.speaker) || '';
+      document.getElementById('vn-text').innerHTML = formatNPCText(ln.text);
+      history.push((sp ? sp.name : ln.speaker) + ': ' + ln.text);
+      document.getElementById('vn-opts').innerHTML = '';
+      contBtn(isZh ? '继续' : 'Continue', showLine);
+    })();
+  }
+  function playerTurn() {
+    _hi(null);
+    document.getElementById('vn-speaker').textContent = '';
+    document.getElementById('vn-opts').innerHTML = '';
+    if (turn >= maxTurns) { document.getElementById('vn-text').textContent = isZh ? '（聊得差不多了，气氛正好。）' : '(A good place to leave it — the room is warm.)'; contBtn(isZh ? '散会 · 离开' : 'Head out', endGroup); return; }
+    document.getElementById('vn-text').textContent = turn === 0 ? (isZh ? '轮到你插句话——或者就这样听着。' : 'Jump in — or just take it in.') : (isZh ? '你想说点什么？' : 'Say something?');
+    buildDualInput(document.getElementById('vn-opts'), null, function(reply, silent){ turn++; npcBeat(silent ? '' : reply); });
+    if (turn >= 1) contBtn(isZh ? '差不多了，散会' : 'Wrap it up', endGroup);
+  }
+  contBtn(isZh ? '加入他们' : 'Join them', function(){ npcBeat(''); });
+}
+// 团队碰头会（经纪人+鼓手+助理同场群戏）
+function startTeamMeeting() {
+  var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
+  var pool = ['agent','drummer','assistant'].filter(function(k){ return G.npcs[k] && G.npcs[k].met; });
+  if (pool.length < 2) { try { goEvening(); } catch(e){} return; }
+  pool.forEach(function(k){ try { ensureSecondaryName(k); } catch(e){} });
+  var participants = pool.map(function(k){ return { key:k, isNpc:true, name:getNPCName(k), role:getNPCRole(k, G.lang), emoji:(NPC_UI[k]||{}).emoji, persona:_groupPersonaOf(k) }; });
+  runGroupScene(participants, {
+    locKey: 'agent_office',
+    sceneNar: (isZh ? '经纪公司的会议室。' + participants.map(function(p){return p.name;}).join('、') + ' 已经在了，正你一句我一句地聊着，看见你进来。' : 'The agency meeting room. ' + participants.map(function(p){return p.name;}).join(', ') + ' are already here, mid-banter, and look up as you walk in.'),
+    occasionCtx: (isZh ? '一次团队碰头会：过一遍她近期的行程、新歌进度、接下来的安排——工作氛围但彼此熟络、有玩笑。助理管日程、经纪人拍板、鼓手只在乎音乐。' : 'A team sync: running through her schedule, the new song, what is next — work talk but familiar, with banter. The assistant runs logistics, the agent calls the shots, the drummer only cares about the music.'),
+    rounds: 4
+  });
+}
+window.runGroupScene = runGroupScene; window.startTeamMeeting = startTeamMeeting;
+
 function _showSecondaryIntro(npcKey, locKey) {
   const lang = G.lang; const isZh = lang==='zh-cn'||lang==='zh-tw';
   go('s-scene');
@@ -5374,7 +5510,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.32：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.33：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -6298,6 +6434,13 @@ async function playScheduledEvent(dateStr, event) {
     try { _showSecondaryIntro(event._introNpc, event.locKey || 'magazine_shoot'); } catch(e){}
     return;
   }
+  // 团队碰头会（群戏：经纪人+鼓手+助理同场）
+  if (event && event._group === 'team') {
+    event.status = 'completed';
+    try { STATE.save.saveGame(); } catch(e){}
+    try { startTeamMeeting(); } catch(e){}
+    return;
+  }
   go('s-scene');
   document.getElementById('vn-loading').style.display = 'none';
   document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -6750,7 +6893,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.32）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.33）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -9899,7 +10042,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.32 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.33 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
