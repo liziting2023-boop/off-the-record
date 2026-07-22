@@ -28,9 +28,11 @@ function cors(extra = {}) {
 }
 
 // 每设备每日限额 + 全局日上限（防止 Worker 地址被抓包后刷爆账单）
+// ⚠️ 2026-07 开发期【临时上调】：作者高强度自测，把上限拉高避免频繁撞墙。
+//    全局上限仍留作"防跑账单"的保险。★发放封测账号前必须调回★（原值 device 400/150、global 5000/2000）。
 const LIMITS = {
-  device: { claude: 400, image: 150 },
-  global: { claude: 5000, image: 2000 },
+  device: { claude: 2000, image: 800 },
+  global: { claude: 15000, image: 8000 },
 };
 
 async function bumpQuota(env, kind, did) {
