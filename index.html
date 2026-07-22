@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.46"></script>
-<script src="state.js?v=12.46"></script>
+<script src="story.js?v=12.47"></script>
+<script src="state.js?v=12.47"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.46 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.47 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.46 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.47 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1430,18 +1430,20 @@ function flushJealousMeetMsgs() {
     var n = G.npcs[k];
     if (!n || !n._jealousDue) return;
     var due = n._jealousDue; n._jealousDue = null;
-    // 加牙齿·仍绿旗（用户定稿 v12.43）：更重的好感代价 + 几天聊天变冷淡 + 下一次约会被推掉一次；但绝不拉黑/掉0，你哄/说开就回暖。
-    try { STATE.relationships.change(k, -12); } catch(e){}
-    n._stungCoolUntil = G.day + 3; // 这几天聊天明显更冷、更设防（buildDialoguePrompt 注入；不屏蔽消息，仍可联系）
-    n._needsBeat = true;           // 下一次和他的约会他会先推掉一次，诚实说"我需要缓一下"
+    // 自尊式强反应·仍守不施虐底线（用户定稿 v12.47）：当面被劈腿是重罪——真愤怒、更重代价、更长冷淡期、
+    // 下"要他还是要我"的关系最后通牒（这是他自己的去留边界，不是控制她）；但绝不辱骂/威胁/控制/监视。
+    try { STATE.relationships.change(k, -18); } catch(e){}
+    n._stungCoolUntil = G.day + 5; // 冷淡设防期更长（buildDialoguePrompt 注入；不屏蔽消息，仍可联系）
+    n._needsBeat = true;           // 下一次约会先推掉一次
+    n._mustChoose = { rival: (due.rivalName || 'the other man'), since: G.day }; // 已划下"你得选一个"的硬边界，冷淡期内一直等她表态
     (async function(){ try {
-      var ctx = 'Earlier today, in the team meeting, she was openly affectionate/flirtatious with ' + (due.rivalName || 'another man') + ' right in front of you — and you two have been intimate. It stung more than you let show in the room. Now, PRIVATELY by text, say your piece. Say it entirely in YOUR OWN voice and register — do NOT use a generic soft template: a blunt, possessive man is blunt, direct and lets the possessive/hurt edge show plainly (short, no cushioning); a composed man is quiet and precise; a playful man\'s humour goes brittle. Whatever your character, you want to hear from HER what that was. GREEN-FLAG LINE you never cross: no controlling her, no threats, no guilt-trips, no ultimatums, no "you\'re mine / you can\'t" — the jealousy comes out ONLY as being honestly hurt and wanting her, and you stay reachable. 1-2 sentences, in ' + G.langName + '. Output only the message text.';
+      var ctx = 'Earlier today, at the team meeting, she was openly, deliberately intimate/affectionate with ' + (due.rivalName || 'another man') + ' RIGHT IN FRONT OF YOU — and you two are lovers. This is not small: she is involved with YOU and with HIM at once, and she flaunted it in your face. You are genuinely ANGRY and hurt, not merely wistful. Now, PRIVATELY by text, say your piece in YOUR OWN voice and register (a blunt/possessive man is blunt and hard-edged and short; a composed man is icy and precise; a playful man goes cold). Draw a REAL line and mean it: you are NOT going to be one of two — she needs to CHOOSE, him or you — and make plain you are ready to walk if she will not. This is a self-respecting boundary about YOUR OWN choice to stay or leave, NOT control of hers. GREEN-FLAG LINE you STILL never cross even now: no insulting or demeaning her, no threats, no trying to control, monitor or track her, no forbidding her from seeing anyone, no "you belong to me". 2-3 sentences, in ' + G.langName + '. Output only the message text.';
       var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, ctx));
       if (t && t.trim()) {
         if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
         var _tm = (typeof nextMsgTime === 'function') ? nextMsgTime(G.day, (typeof rtClockMin === 'function' ? rtClockMin() : (G.clockMin || 1200))) : fmtClock(G.clockMin || 1200);
         G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:(NPC_UI[k]||{}).emoji||'💬', color:(NPC_UI[k]||{}).color||'#C4A882', day:G.day, time:_tm });
-        try { STATE.memory.addEvent(k, 'He saw her be affectionate with ' + (due.rivalName||'another man') + ' in front of him at the team meeting (day ' + G.day + ') and, hurt but not controlling, texted her about it privately.', G.day); } catch(e){}
+        try { STATE.memory.addEvent(k, 'He saw her be intimate with ' + (due.rivalName||'another man') + ' in front of him at the team meeting (day ' + G.day + '); genuinely angry and hurt, he drew a hard line by text — he will not be one of two and told her to choose (him or the other man), ready to walk, but without insulting, threatening or controlling her.', G.day); } catch(e){}
         notifyNewMessage(k); STATE.save.saveGame();
         try { var ph = document.getElementById('s-phone'); if (ph && ph.classList.contains('active') && typeof renderPhone === 'function') renderPhone(); } catch(e){}
       }
@@ -10287,7 +10289,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.46 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.47 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
