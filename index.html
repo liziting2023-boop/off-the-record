@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.36"></script>
-<script src="state.js?v=12.36"></script>
+<script src="story.js?v=12.37"></script>
+<script src="state.js?v=12.37"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.36 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.37 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.36 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.37 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1422,7 +1422,32 @@ function _cleanMsgText(t) {
   return t;
 }
 
+// 会后私信质问（吃醋·绿旗版）：会上她当着你的面跟另一个也过夜过的人亲热 → 你受伤了，私下问她一句。
+// 绝不控制/威胁/道德绑架，说出来仍可联系。下次回主页/开手机时发出。
+function flushJealousMeetMsgs() {
+  if (!G || !G.npcs || !G.phone) return;
+  Object.keys(G.npcs).forEach(function(k){
+    var n = G.npcs[k];
+    if (!n || !n._jealousDue) return;
+    var due = n._jealousDue; n._jealousDue = null;
+    try { STATE.relationships.change(k, -4); } catch(e){}
+    (async function(){ try {
+      var ctx = 'Earlier today, in the team meeting, she was openly affectionate/flirtatious with ' + (due.rivalName || 'another man') + ' right in front of you — and you two have been intimate. It stung more than you let show in the room. Now, PRIVATELY by text, say your piece: hurt underneath, controlled on the surface; you want to hear from HER what that was about. You do NOT control her, threaten, guilt-trip, or issue ultimatums — you are a grown, green-flag man: state honestly that it got to you, ask her directly but without cruelty, and stay reachable. 1-2 sentences, in ' + G.langName + '. Output only the message text.';
+      var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, ctx));
+      if (t && t.trim()) {
+        if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
+        var _tm = (typeof nextMsgTime === 'function') ? nextMsgTime(G.day, (typeof rtClockMin === 'function' ? rtClockMin() : (G.clockMin || 1200))) : fmtClock(G.clockMin || 1200);
+        G.phone.messages[G.day].push({ npc:k, name:getNPCName(k), text:t.trim(), isVoice:false, emoji:(NPC_UI[k]||{}).emoji||'💬', color:(NPC_UI[k]||{}).color||'#C4A882', day:G.day, time:_tm });
+        try { STATE.memory.addEvent(k, 'He saw her be affectionate with ' + (due.rivalName||'another man') + ' in front of him at the team meeting (day ' + G.day + ') and, hurt but not controlling, texted her about it privately.', G.day); } catch(e){}
+        notifyNewMessage(k); STATE.save.saveGame();
+        try { var ph = document.getElementById('s-phone'); if (ph && ph.classList.contains('active') && typeof renderPhone === 'function') renderPhone(); } catch(e){}
+      }
+    } catch(e){} })();
+  });
+}
+
 async function checkProactiveOnOpen() {
+  try { flushJealousMeetMsgs(); } catch(e){}
   if (!REALTIME || !G.phone) return;
   var now = Date.now();
   var nowMin = rtClockMin();
@@ -5249,7 +5274,7 @@ const T2_INTRO = {
   neighbor: { zh:'公寓走廊。隔壁的门开着，一个男人正单手抱着一摞东西跟门锁较劲，\n一个扎着小辫的小女孩从他腿后探出头看你。\n他回头，冲你歉意又温和地笑了笑。', en:'The apartment hallway. The door next to yours is open; a man is wrestling the lock one-handed, an armful of things balanced against him,\na little girl with braids peeking out from behind his leg.\nHe glances back and gives you an apologetic, gentle smile.' },
 };
 // 二线首遇：先播介绍旁白 → 选族裔/发色 → 三选一 → 全屏立绘 → 进相遇场景（和一线出场一致）
-// ══ 多人群戏引擎（用户定稿 v12.36）══════════════════════════════════════
+// ══ 多人群戏引擎（用户定稿 v12.37）══════════════════════════════════════
 // participants: [{key,name,role,emoji,isNpc,persona}] —— 完整NPC(有立绘/好感) 或 场景专属角色(女儿/乐队朋友,无好感)。
 // 每一轮：一次 AI 调用生成在场几人"你一句我一句"的交叉对话(逐句显示、谁说话高亮谁的头像)，然后轮到玩家插话。
 function _groupPersonaOf(key) {
@@ -5315,10 +5340,23 @@ async function runGroupScene(participants, opts) {
       'TRANSCRIPT (most recent last):\n' + history.slice(-16).join('\n') + '\n' +
       (opts.groundCtx ? ('Already-known facts (do NOT re-add these):\n' + opts.groundCtx + '\n') : '') +
       'Also write a one-sentence plain-language takeaway of what the meeting settled. Text language: ' + G.langName + '.\n' +
-      'Output ONLY valid JSON, no fences: {"takeaway":"one sentence in ' + G.langName + '","schedule":[{"title":"short name in ' + G.langName + '","daysFromNow":<int 1-14>,"time":"HH:MM"}]}. If nothing concrete was scheduled, use an empty schedule array.';
-    var raw = await claude(sp, '', { max_tokens: 500 });
-    var takeaway = '', plan = [];
-    try { var s = (raw || '').replace(/```json|```/g, '').trim(); var a = s.indexOf('{'), b = s.lastIndexOf('}'); if (a >= 0 && b > a) s = s.slice(a, b + 1); var pj = JSON.parse(s); takeaway = (pj.takeaway || '').trim(); plan = (pj.schedule || []).filter(function(x){ return x && x.title; }); } catch(e){}
+      (_loverKeys && _loverKeys.length >= 2
+        ? ('JEALOUSY CHECK: these men present have BOTH been intimate with her: ' + _loverKeys.map(function(p){ return p.name; }).join(', ') + '. If during this meeting she was openly affectionate/flirtatious/physical toward ONE of them and it visibly STUNG another of them, report which one got stung and toward whom. If no such moment happened, leave it empty.\n')
+        : '') +
+      'Output ONLY valid JSON, no fences: {"takeaway":"one sentence in ' + G.langName + '","schedule":[{"title":"short name in ' + G.langName + '","daysFromNow":<int 1-14>,"time":"HH:MM"}]' + (_loverKeys && _loverKeys.length >= 2 ? ',"jealousy":{"stung":"<exact name of the man who got stung, or empty>","toward":"<exact name of the man she was affectionate with, or empty>"}' : '') + '}. If nothing concrete was scheduled, use an empty schedule array.';
+    var raw = await claude(sp, '', { max_tokens: 520 });
+    var takeaway = '', plan = [], _jz = null;
+    try { var s = (raw || '').replace(/```json|```/g, '').trim(); var a = s.indexOf('{'), b = s.lastIndexOf('}'); if (a >= 0 && b > a) s = s.slice(a, b + 1); var pj = JSON.parse(s); takeaway = (pj.takeaway || '').trim(); plan = (pj.schedule || []).filter(function(x){ return x && x.title; }); _jz = pj.jealousy || null; } catch(e){}
+    // 会上吃醋 → 标记那个受伤的 NPC 会后私信质问（绿旗：受伤不控制；下次回主页/开手机时发出）
+    try {
+      if (_jz && _jz.stung) {
+        var _stungP = participants.find(function(p){ return p.isNpc && (p.name === _jz.stung || _jz.stung.indexOf(p.name) >= 0); });
+        var _rivalP = participants.find(function(p){ return p.isNpc && _jz.toward && (p.name === _jz.toward || _jz.toward.indexOf(p.name) >= 0); });
+        if (_stungP && G.npcs[_stungP.key] && (G.npcs[_stungP.key].nights || 0) > 0 && _stungP.key !== (_rivalP && _rivalP.key)) {
+          G.npcs[_stungP.key]._jealousDue = { rivalName: (_rivalP ? _rivalP.name : (isZh ? '别人' : 'the other guy')), day: G.day };
+        }
+      }
+    } catch(e){}
     var added = [];
     plan.forEach(function(x, i){
       var dfn = parseInt(x.daysFromNow, 10); if (!(dfn >= 1 && dfn <= 14)) return;
@@ -5597,7 +5635,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.36：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.37：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -6980,7 +7018,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.36）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.37）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -10129,7 +10167,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.36 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.37 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
