@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.51"></script>
-<script src="state.js?v=12.51"></script>
+<script src="story.js?v=12.52"></script>
+<script src="state.js?v=12.52"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.51 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.52 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.51 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.52 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3921,7 +3921,7 @@ const LIVING_LAYOUT_C = 'a warm inviting modern living-dining space of a normal-
 const DECOR_PROMPTS = {
   'Romantic Minimalist': 'ROMANTIC MINIMALIST style: soft blush, cream and ivory palette, lots of airy negative space, sheer flowing fabrics, brushed brass accents, fresh flowers in vases, curved soft-edged furniture, delicate feminine elegance, bright and serene',
   'Contemporary Organic': 'CONTEMPORARY ORGANIC style: warm oak and walnut wood, natural travertine stone, chunky boucle and linen textures, abundant greenery and large plants, earthy beige-and-terracotta palette, sculptural handmade ceramics, grounded and tactile',
-  'English Cottage': 'ELEVATED MODERN-COTTAGE style: warm painted wainscoting, tasteful floral and botanical prints, vintage patterned rugs, built-in bookshelves, layered cozy textiles, antique-modern mix, timeless charm (refined and elegant, never shabby)',
+  'English Cottage': 'ENGLISH COUNTRY COTTAGE style interior: sage-green painted wainscoting panels on the walls, a floral chintz-upholstered sofa with piped edges, botanical-print curtains, a vintage Persian rug, dark-wood antique furniture with turned legs, table lamps with pleated fabric shades, framed botanical prints, a jug of fresh garden flowers, a plaid wool throw, layered cozy English textiles — unmistakably English countryside charm, refined and elegant, never shabby',
   'Modern Dark': 'MOODY MODERN GLAM style: deep plum and warm charcoal walls, brushed brass and rose-gold accents, rich walnut, plush velvet upholstery, warm amber and candle lighting, soft layered textures, fresh flowers, dramatic yet cozy and inviting feminine glamour (NOT cold, NOT a bachelor pad)',
   'Bohemian Warm': 'WARM BOHEMIAN style: terracotta, rust and ochre palette, layered kilim and moroccan rugs, rattan and cane furniture, macramé wall hangings, plants everywhere, eclectic global textiles, sun-baked cozy warmth',
 };
@@ -3935,7 +3935,9 @@ async function preGenRooms() {
   const layouts = [LIVING_LAYOUT, LIVING_LAYOUT_B, LIVING_LAYOUT_C];
   // 注入所选装修风格（用户反馈"不同风格出图太像"）：风格描述放最前权重最高，三种布局都染上这个风格
   const decorStyle = DECOR_PROMPTS[G.player.decor] || '';
-  const base = layout => (decorStyle ? decorStyle + '. ' : '') + layout + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance';
+  // 风格必须压过布局串里的"modern"默认词（用户实测：选英式田园出来仍是普通现代暖居）——
+  // 明确声明"每件家具/织物/材质都按此风格来，风格优先于下面布局中的任何现代描述"
+  const base = layout => (decorStyle ? decorStyle + '. EVERY piece of furniture, fabric, wall finish and decor object follows THIS style above — the style OVERRIDES any modern/designer default wording in the layout below (the layout only dictates room shape and furniture placement). ' : '') + layout + ', abundant natural light at 10am morning, bright daylight, ' + lm + ' faintly visible through the window in the distance';
   const a = await img(base(layouts[0]), 'Room A'); setRCard('ra','ra-ph',a,'a'); _roomUrls.a = a;
   const b = await img(base(layouts[1]), 'Room B'); setRCard('rb','rb-ph',b,'b'); _roomUrls.b = b;
   const c = await img(base(layouts[2]), 'Room C'); setRCard('rc','rc-ph',c,'c'); _roomUrls.c = c;
@@ -3958,7 +3960,7 @@ function selRoom(opt) {
   G.apartment.livingDayUrl = _roomUrls[opt];
   const layouts = { a: LIVING_LAYOUT, b: LIVING_LAYOUT_B, c: LIVING_LAYOUT_C };
   G.apartment.selectedLayout = layouts[opt];
-  G.apartment.selectedStyle = (DECOR_PROMPTS[G.player.decor] || 'spacious modern apartment') + ' — spacious modern apartment';
+  G.apartment.selectedStyle = (DECOR_PROMPTS[G.player.decor] || 'spacious modern apartment') + ' — apartment interior'; // 后缀别再带"modern"（会在后续重生成里盖掉田园/复古类风格）
   document.getElementById('btn-rooms').style.visibility = 'visible';
 }
 
@@ -8343,6 +8345,19 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom) 
 // ── 亲密两幕·互动化（用户定稿 v12.51）：每幕开场散文后加 2 个来回（他一拍→你双输入→他回应）──
 // 他必须具体回应你的动作/说话（describeHerTurn，绝不无视、绝不把动作当台词）；热度曲线固定向前推
 // （走向只由幕间的选择改变）；例外=你明确说停/拒绝时他体面放缓（绿旗）。尺度守 HEAT_LEVEL + heatOK 词闸。
+// 亲密节奏·按性格分（用户定稿 v12.52）：有的NPC听她的、她能真的改节奏走向；有的按自己的节奏来、听见但不交出主导权。
+// 铁律例外（绿旗，无一例外）：她真正拒绝/说停 → 谁都立刻体面停下、零压力。
+const INTIMATE_LEAD = {
+  butler:    'PACING — HE IS ENTIRELY HERS TO DIRECT: whatever pace or direction she sets, he follows it, flushed and eager; he never takes over. Her word IS the rhythm.',
+  detective: 'PACING — HE FOLLOWS HER CUES COMPLETELY (it is who he is): if she slows things down he genuinely slows and savors; if she leans in he matches her heat; if she redirects, he goes exactly where she points. Watching her set the pace is part of what undoes him.',
+  neighbor:  'PACING — HE FOLLOWS HER CUES, tender and unhurried: her input truly steers this beat — slower means slower, closer means closer; he checks her eyes and goes where she leads.',
+  agent:     'PACING — ATTENTIVE BUT ASSURED: he reads her the way he reads a room. When she asks for slower he gives it to her deliberately, savoring, still radiating control; when she pushes for more he answers in kind. Her cues genuinely shape the beat — he just never loses his composed, knowing edge while following them.',
+  actor:     'PACING — HER CUES BECOME PART OF THE PERFORMANCE: whatever she asks — slower, closer, wait — he obliges with theatrical grace… then bends it into his own playful direction; equal parts listening and mischief. She steers, he embellishes.',
+  drummer:   'PACING — HE KEEPS HIS OWN RHYTHM: he HEARS what she says and answers it in character (a low laugh against her skin, a murmured half-reply) — but he does NOT hand over the reins. The tempo stays HIS: driving, unhurried, certain; her requests get folded into his rhythm rather than changing it.',
+  rival:     'PACING — HE TAKES HER CUES AS A CHALLENGE: she asks for slower and he grins like she just raised the stakes — he keeps his own competitive pace, teasing her for asking, giving ground only when it amuses him to.',
+  rafael:    'PACING — EASY CONFIDENT RHYTHM OF HIS OWN: he mostly keeps his own unhurried athlete\'s pace, grinning at her cues, playful about them — he adjusts a little for her, but the momentum stays his.',
+};
+const _INTIMATE_LEAD_DEFAULT = 'PACING — HE FOLLOWS HER CUES: her input steers this beat — if she slows it down he slows, if she takes charge he lets her, if she redirects he follows.';
 async function _intimateBeat(npcKey, act, destHers, reply, hist, isFinal) {
   const name = getNPCName(npcKey);
   const style = OVERNIGHT_STYLE[npcKey] || '';
@@ -8357,7 +8372,9 @@ async function _intimateBeat(npcKey, act, destHers, reply, hist, isFinal) {
     (isButler ? 'IMPORTANT — HE is the shy, passive one: SHE leads, he follows flustered, ears burning, adoring. ' : '') +
     'SCENE SO FAR (most recent last):\n' + hist.slice(-4).join('\n---\n') + '\n' +
     'NOW — ' + describeHerTurn(reply) + '\n' +
-    'Write HIS response beat in 2-3 sentences: respond SPECIFICALLY to what she just did or said, in his own manner — NEVER ignore it, NEVER repeat her action back as if she had spoken it. The heat keeps RISING through this beat (the trajectory is fixed) — UNLESS she clearly refused or asked to stop, in which case he eases off gracefully and warmly, zero pressure. ' + ceil + ' ' +
+    'Write HIS response beat in 2-3 sentences: respond SPECIFICALLY to what she just did or said, in his own manner — NEVER ignore it, NEVER repeat her action back as if she had spoken it. ' +
+    (INTIMATE_LEAD[npcKey] || _INTIMATE_LEAD_DEFAULT) + ' ' +
+    'ABSOLUTE EXCEPTION overriding all pacing above: if she genuinely refused or asked to STOP, he eases off gracefully and warmly at once, zero pressure, no coaxing (green-flag, no matter his personality). ' + ceil + ' ' +
     (isFinal
       ? (act === 2
         ? 'This is the FINAL beat: let it crest — build to the sharpest, most charged moment and FADE TO BLACK right there; do not narrate past it.'
@@ -10491,7 +10508,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.51 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.52 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
