@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.38"></script>
-<script src="state.js?v=12.38"></script>
+<script src="story.js?v=12.39"></script>
+<script src="state.js?v=12.39"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.38 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.39 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.38 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.39 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5274,7 +5274,7 @@ const T2_INTRO = {
   neighbor: { zh:'公寓走廊。隔壁的门开着，一个男人正单手抱着一摞东西跟门锁较劲，\n一个扎着小辫的小女孩从他腿后探出头看你。\n他回头，冲你歉意又温和地笑了笑。', en:'The apartment hallway. The door next to yours is open; a man is wrestling the lock one-handed, an armful of things balanced against him,\na little girl with braids peeking out from behind his leg.\nHe glances back and gives you an apologetic, gentle smile.' },
 };
 // 二线首遇：先播介绍旁白 → 选族裔/发色 → 三选一 → 全屏立绘 → 进相遇场景（和一线出场一致）
-// ══ 多人群戏引擎（用户定稿 v12.38）══════════════════════════════════════
+// ══ 多人群戏引擎（用户定稿 v12.39）══════════════════════════════════════
 // participants: [{key,name,role,emoji,isNpc,persona}] —— 完整NPC(有立绘/好感) 或 场景专属角色(女儿/乐队朋友,无好感)。
 // 每一轮：一次 AI 调用生成在场几人"你一句我一句"的交叉对话(逐句显示、谁说话高亮谁的头像)，然后轮到玩家插话。
 function _groupPersonaOf(key) {
@@ -5336,6 +5336,8 @@ async function runGroupScene(participants, opts) {
     document.getElementById('vn-speaker').textContent = '';
     document.getElementById('vn-opts').innerHTML = '';
     document.getElementById('vn-text').innerHTML = '<span style="opacity:.55">' + (isZh ? '整理会议纪要…' : 'Wrapping up…') + '</span>';
+    // 立刻放一个"散会"出口：纪要哪怕慢/卡/旧缓存，玩家也永远能离开（用户实测卡在这步过不去）。
+    contBtn(isZh ? '散会' : 'Done', _reallyEnd);
     var sp = 'From the team-meeting transcript below, extract ONLY the concrete NEW or MOVED work sessions the team ACTUALLY AGREED to schedule (rehearsal / recording / shoot / class / meeting) — NOT things already on her calendar, NOT vague ideas or maybes. Weekdays only (never a weekend), each within the next 14 days.\n' +
       'TRANSCRIPT (most recent last):\n' + history.slice(-16).join('\n') + '\n' +
       (opts.groundCtx ? ('Already-known facts (do NOT re-add these):\n' + opts.groundCtx + '\n') : '') +
@@ -5646,7 +5648,7 @@ function secondaryContactBeat(npcKey) {
     contBtn(isZh?'离开':'Leave', function(){ _curSceneEv=null; _curSceneOriginDay=null; goEvening(); });
   };
   // NPC 主动要联系方式——触发 = 见过≥2次，或这次见面好感已到门槛。摄影师=为发照片。
-  // 用户定稿 v12.38：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
+  // 用户定稿 v12.39：他开口要号后，【玩家来决定】给不给（原来是自动给了就只剩"离开"，玩家没得选）。
   // 邻居（单亲爸爸）：初次见面就自然地互留号（住隔壁，天经地义）——不必等见过2次。
   if ((npc._meets || 0) >= 2 || (npc.relationship || 0) >= 10 || npcKey === 'neighbor') {
     var askLine = npcKey === 'photog'
@@ -7029,7 +7031,7 @@ function maybeCohabInvite(npcKey) {
 
 // ── 语气镜头（共享）：默认只有输入框；点💡展开3个语气；点语气往输入框填一个"悬着的半句"，
 //    玩家续写或直接发都行。剧情初见/签约/动态轮统一用它——只给提示、不给整句（用户定的）。──
-// 双输入框（用户定稿 v12.38）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
+// 双输入框（用户定稿 v12.39）：动作框 + 说话框（欧美习惯——动作=斜体旁白无括号、说话=引号台词）。
 // 发送时把动作自动包成（…）拼在说话前，下游 formatPlayerText 就渲染成"斜体动作 + 引号台词"、AI 也读得懂。
 // onSend(combinedText, isSilent) 由调用方处理（判好感、进下一轮等）。返回 {actInp, spInp} 供 renderToneHints 填充。
 function buildDualInput(container, npcKey, onSend) {
@@ -10178,7 +10180,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.38 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.39 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
