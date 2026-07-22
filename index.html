@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.53"></script>
-<script src="state.js?v=12.53"></script>
+<script src="story.js?v=12.54"></script>
+<script src="state.js?v=12.54"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.53 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.54 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.53 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.54 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1426,6 +1426,13 @@ function _cleanMsgText(t) {
 
 // 会后私信质问（吃醋·绿旗版）：会上她当着你的面跟另一个也过夜过的人亲热 → 你受伤了，私下问她一句。
 // 绝不控制/威胁/道德绑架，说出来仍可联系。下次回主页/开手机时发出。
+// 会上吃醋"发生在什么时候"的准确措辞（今天/昨天/N天前）——多处提示词共用，防 AI 把当天的事说成"昨天"
+function stungWhenPhrase(npcKey) {
+  var n = G.npcs[npcKey]; if (!n) return 'recently';
+  var d = (n._mustChoose && n._mustChoose.since) || (n._stungCoolUntil ? n._stungCoolUntil - 5 : null);
+  if (d == null || d >= G.day) return 'EARLIER TODAY';
+  return (G.day - d === 1) ? 'YESTERDAY' : (G.day - d) + ' days ago';
+}
 function flushJealousMeetMsgs() {
   if (!G || !G.npcs || !G.phone) return;
   Object.keys(G.npcs).forEach(function(k){
@@ -5609,7 +5616,7 @@ async function runGroupScene(participants, opts) {
           ? ('COVERT MOVE — ONLY ' + _covert.name + ' NOTICES: the woman (' + (G.player.name || 'she') + ') just did something HIDDEN aimed only at ' + _covert.name + ' — ' + describeHerTurn(playerLine) + ' It is under the table / out of sight / too discreet for anyone else to catch. ONLY ' + _covert.name + ' registers it: he gives a small, quickly-masked tell (a caught breath, a flicker, his hand catching hers to still it, one sharp private glance at her) and covers it instantly. EVERYONE ELSE saw and felt NOTHING — they carry on exactly as before; do NOT have anyone else react, glance, pause or comment, and NO jealousy from the others (they do not know it happened).\n')
           : ('The woman (' + (G.player.name || 'she') + ') just took her turn — ' + describeHerTurn(playerLine) + ' REACT TO THIS FIRST and truthfully — anything she says out loud or any big, visible action is seen by EVERYONE in the room, so each person present responds in their OWN way and NOBODY just ignores it or ploughs on with the agenda: a lover reacts with a charged/possessive/hurt beat, and a non-romantic colleague present (an assistant, a bandmate) reacts with plain surprise, a fluster, looking away, an awkward throat-clear — real people cannot un-see it. NEVER repeat her action back as if she spoke it. Then, only if it fits, they get back to business.\n')
       ) : '') +
-      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). If ' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ' or anyone speaks, it is about the tension in the room, not business. Nobody smoothly gets back to the agenda. Absolutely NO calm date-reciting. (Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
+      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). If ' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ' or anyone speaks, it is about the tension in the room, not business. Nobody smoothly gets back to the agenda. HARD BANS for EVERY line of this beat (violating any of these ruins the moment): any calendar date (7/24, 周六, "23号"…), any session/shoot/styling/training logistics, any work instruction to an assistant or anyone ("Sarah, 盯一下…" = BANNED), any mention of reference images, agendas or deliverables. A man who just watched his lover kiss another man does NOT dictate schedule details through his teeth — he loses the room entirely. His lines are short and raw, about what just happened — or he is pointedly silent, stands, walks to the window, ends the meeting. (Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
       (_meeting && !_stungThisBeat
         ? ('This is a REAL working meeting with a purpose — NOT aimless chatter. Each beat must ADVANCE a concrete agenda point using the REAL FACTS above (an actual dated session, the song/release, a scheduling call, a real decision), give useful specifics, and visibly MOVE things toward getting settled. A little dry humor or personality is fine as seasoning, but the meeting must accomplish something. ' + (_nearEnd ? 'This is near the END — land a CLEAR takeaway: what is decided and the concrete next step(s), in character. ' : ''))
         : '') +
@@ -5704,7 +5711,8 @@ function startTeamMeeting() {
     + (_song ? (_song + '\n') : '')
     + (_band ? (_band + '\n') : '')
     + (_chart ? (_chart + '\n') : '')
-    + 'Her current career level: ' + ((_fameLbl.en) || 'rising') + ' (fame ' + (G.fame || 0) + '). Stress: ' + (G.stress || 0) + '/100.';
+    + 'Her current career level: ' + ((_fameLbl.en) || 'rising') + '. She currently seems ' + ((G.stress || 0) >= 70 ? 'visibly worn down and overworked' : (G.stress || 0) >= 40 ? 'a bit tired but holding up' : 'rested and in good shape') + '.\n'
+    + 'PRIVATE DASHBOARD RULE: the facts above are YOUR grounding only — NEVER speak raw stat numbers or system words aloud ("stress 24", "fame 30", "压力值/数值"). Humans say it humanly: "你最近状态不错", "别把自己耗干" — never like a game HUD.';
   runGroupScene(participants, {
     locKey: 'agent_office',
     tone: 'meeting',
@@ -6626,7 +6634,7 @@ function runMeetupScene(npcKey, locKey, title) {
   const escortNote = _escort ? ' THIS MEETUP IS YOU TAKING HER SOMEWHERE ("' + title + '"): YOU are escorting HER — carry her bag, open the car door for her, walk her in, stay with her until she is where she is going. The setting is the journey itself (her door → the car/road → the destination), NOT an office or a living room; every action must fit being on the move. NEVER end with her walking YOU out and you leaving — the scene follows HER and ends at the destination.' : '';
   // 会上吃醋后还在受伤时的见面（用户实测：他上门是来听解释的，却软软地说"我来了"还盯着歌词纸）：开场就该设防、直奔主题
   const stungMeetNote = (G.npcs[npcKey] && G.npcs[npcKey]._stungCoolUntil && G.npcs[npcKey]._stungCoolUntil > G.day)
-    ? ' STILL HURTING: a day or two ago she was openly affectionate, right in front of you, with another man she has also slept with — and this meetup is really about THAT. Open GUARDED and a little cool, and get to the point: you came to hear from HER what that was. No easy "I\'m here" softness, no browsing her room or glancing at her notes/props, no chasing seduction — the hurt shows as restraint and directness. If she genuinely owns it and reassures you, you slowly begin to thaw.'
+    ? ' STILL HURTING: ' + stungWhenPhrase(npcKey) + ', she was openly affectionate, right in front of you, with another man she has also slept with — and this meetup is really about THAT. (Refer to when it happened exactly that way — if it was earlier today, NEVER say "yesterday"/昨天.) Open GUARDED and a little cool, and get to the point: you came to hear from HER what that was. No easy "I\'m here" softness, no browsing her room or glancing at her notes/props, no chasing seduction — the hurt shows as restraint and directness. If she genuinely owns it and reassures you, you slowly begin to thaw.'
     : '';
   const meetStyle = intentBlock(npcKey, _mrel) + intentActionRule(locKey) + homeNoticeHint(npcKey, locKey) + submissiveHomeHint(npcKey, locKey) + workNote + bdayNote + escortNote + stungMeetNote + ' ' + scheduleCtxFor(npcKey, 2);
   // 带情绪奔赴的见面（用户实测：倾诉创伤后他上门却先翻唱片/看纸条）：第一拍必须先接住情绪
@@ -8078,7 +8086,7 @@ async function playInviteScene(inv) {
     G.npcs[npcKey]._needsBeat = false;
     try { inv.status = 'completed'; } catch(e){}
     (async function(){ try {
-      var _bctx = 'She had a private date planned with you today, but you are still hurting from the team meeting a day or two ago where she was openly affectionate, right in front of you, with another man she has also slept with. Text her now to POSTPONE just this one date — honest, not cold: you are not up for it just yet, you need a beat / a couple of days, but keep the door open. You are NOT ending anything and NOT punishing her (green-flag). 1-2 sentences, in ' + G.langName + '. Output only the message text.';
+      var _bctx = 'She had a private date planned with you today, but you are still hurting from the team meeting (' + stungWhenPhrase(npcKey) + ') where she was openly affectionate, right in front of you, with another man she has also slept with. (Refer to when it happened exactly that way — if it was earlier today, NEVER say "yesterday"/昨天.) Text her now to POSTPONE just this one date — honest, not cold: you are not up for it just yet, you need a beat / a couple of days, but keep the door open. You are NOT ending anything and NOT punishing her (green-flag). 1-2 sentences, in ' + G.langName + '. Output only the message text.';
       var t = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _bctx));
       if (t && t.trim()) {
         if (!G.phone.messages[G.day]) G.phone.messages[G.day] = [];
@@ -9933,12 +9941,12 @@ async function sendChatReply() {
       for (let dd = G.day; dd <= G.day + 9; dd++) {
         (G.calendar.events[getCalDateStr(dd)] || []).forEach(function(e){
           if (e && e.type === 'work' && e.status === 'accepted') {
-            _upl.push('day ' + dd + ' (' + _wkd[getGameWeekday(dd)] + (dd===G.day?', TODAY':'') + ') "' + e.title + '" at ' + (e.time||'?') + (e.locked ? ' [LOCKED contracted shoot — CANNOT move]' : ' [movable]'));
+            _upl.push('day ' + dd + ' = ' + getCalDateStr(dd).slice(5).replace('-','/') + ' (' + _wkd[getGameWeekday(dd)] + (dd===G.day?', TODAY':'') + ') "' + e.title + '" at ' + (e.time||'?') + (e.locked ? ' [LOCKED contracted shoot — CANNOT move]' : ' [movable]'));
           }
         });
       }
       if (_upl.length) {
-        agentReschedCtx = ' HER UPCOMING WORK (you are her agent and you run her calendar): ' + _upl.join('; ') + '. If she asks to MOVE or CANCEL one of these, you CAN actually do it: for a [movable] one, agree warmly and fill "reschedule" = {"day": <the day number of that session>, "newTime": "HH:MM" or null, "newDaysFromNow": <int 1-9 if moving to another day> or null, "cancel": <bool>}, and confirm the change in plain words in your reply. For a [LOCKED] one, kindly explain it is a contracted shoot whose date is fixed and cannot be moved, and leave "reschedule" null. Fill "reschedule" ONLY when she actually asked to change a specific session and you agreed.';
+        agentReschedCtx = ' HER UPCOMING WORK (you are her agent and you run her calendar): ' + _upl.join('; ') + '. If she asks to MOVE or CANCEL one of these, you CAN actually do it: for a [movable] one, agree warmly and fill "reschedule" = {"day": <the GAME day number of that session — the integer right after "day" in the list above, NEVER the calendar date (if she says "28号/the 28th", find the list entry whose calendar date is x/28 and use ITS day number)>, "newTime": "HH:MM" or null, "newDaysFromNow": <int 1-9 if moving to another day> or null, "cancel": <bool>}, and confirm the change in plain words in your reply. For a [LOCKED] one, kindly explain it is a contracted shoot whose date is fixed and cannot be moved, and leave "reschedule" null. Fill "reschedule" ONLY when she actually asked to change a specific session and you agreed.';
       }
     }
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
@@ -9971,6 +9979,7 @@ async function sendChatReply() {
       _homeRule +
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
+      '\nPLAN SANITY (users caught all of these): ① NEVER anchor a plan to a work session that is NOT in the schedule facts above ("排练之后/after rehearsal" when no rehearsal exists that day = broken). ② Time-of-day must match the meal/activity: lunch lands 11:30-13:30, dinner 18:00-20:30, and if you say "下午/afternoon" the time you give must BE an afternoon time (never 上午10点 for an afternoon plan). ③ If you JUST said you are busy/unavailable on some day, do not turn around and propose that same day unless you explicitly said you moved things — and then the invite must match the plan you actually described. ④ "meet" is STRICTLY for TODAY: if her message says 明天/后天/tomorrow, use futureInvite with the right daysFromNow, never meet.' +
       '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
     // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
     const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
@@ -9978,9 +9987,23 @@ async function sendChatReply() {
     try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; rescheduleInfo = p.reschedule || null; }
     catch (e) { reply = (raw||'').trim(); }
     // 经纪人改期真正落到日历（修用户实测：跟经纪人说把周二工作改到晚6点，口头答应了、日历却没变）
+    // "明天/后天"守卫（用户实测：说"明天中午12点吃饭"仍弹出【今天】的见面按钮）：meet 只许今天——
+    // 玩家这句话里点名了明天/后天，就把 meet 转成对应天数的 futureInvite（待确认邀约），绝不当成今天。
+    if (meetInfo && !futureInv) {
+      const _relDay = /后天|day after tomorrow/i.test(text) ? 2 : (/明天|明晚|明早|明儿|tomorrow/i.test(text) ? 1 : 0);
+      if (_relDay > 0) { futureInv = { daysFromNow: _relDay, time: (meetInfo.time || '12:00'), locationKey: meetInfo.locationKey, title: meetInfo.title }; meetInfo = null; }
+    }
     if (_canResched && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
       try {
-        const _rd = rescheduleInfo.day;
+        let _rd = rescheduleInfo.day;
+        // 兜底：AI 有时把"28号"当成游戏天数填进 day（用户实测：助理说改好了、日历纹丝没动——那天根本没行程）。
+        // 若按游戏天数找不到可改的工作，就把它当【日历日号】在未来31天里找回真正的那天。
+        if (!((G.calendar.events[getCalDateStr(_rd)] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; }))) {
+          for (let _sd = G.day; _sd <= G.day + 31; _sd++) {
+            const _ds2 = getCalDateStr(_sd);
+            if (parseInt(_ds2.slice(-2), 10) === (rescheduleInfo.day % 100) && (G.calendar.events[_ds2] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; })) { _rd = _sd; break; }
+          }
+        }
         const _evs = G.calendar.events[getCalDateStr(_rd)] || [];
         const _wev = _evs.find(function(e){ return e && e.type === 'work' && e.status === 'accepted'; });
         if (_wev && !_wev.locked) {
@@ -10088,7 +10111,11 @@ async function sendChatReply() {
         const fiDay = G.day + fiDaysFromNow;
         const isZhF = G.lang==='zh-cn'||G.lang==='zh-tw';
         const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
-        const fiTime = /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30';
+        let fiTime = /^\d{1,2}:\d{2}$/.test(futureInv.time||'') ? futureInv.time : '19:30';
+        // 时段常识兜底（用户实测："周六午餐"排到了19:30）：标题是午餐就落中午、晚餐就落晚上
+        if (/午餐|午饭|brunch|lunch/i.test(fiTitle) && (parseHM(fiTime) >= 16*60 || parseHM(fiTime) < 10*60)) fiTime = '12:00';
+        else if (/晚餐|晚饭|dinner/i.test(fiTitle) && parseHM(fiTime) < 16*60) fiTime = '19:00';
+        else if (/早餐|breakfast/i.test(fiTitle) && parseHM(fiTime) >= 11*60) fiTime = '09:00';
         const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training'];
         let fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
         if (/_home$/.test(fiLoc) && !homeVisitAllowed(npc, fiLoc)) fiLoc = 'cafe'; // 家门槛兜底（同 meet）
@@ -10545,7 +10572,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.53 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.54 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
