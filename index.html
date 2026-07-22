@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.54"></script>
-<script src="state.js?v=12.54"></script>
+<script src="story.js?v=12.55"></script>
+<script src="state.js?v=12.55"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.54 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.55 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.54 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.55 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2483,7 +2483,7 @@ async function claude(prompt, sys = '', opts = {}) {
   let _castGuard = '';
   try {
     const _castNames = Object.values(G.npcs || {}).map(n => n && n.name).filter(Boolean);
-    _castGuard = ' CAST GUARD: The heroine is a woman. All five main love interests (talent agent, drummer, actor, building manager, detective) are MEN — men always carry male names. If you ever need to name a minor side character (a producer, stylist, journalist, executive...), NEVER reuse any main-cast name' + (_castNames.length ? ' (' + _castNames.join(', ') + ')' : '') + ' — invent a clearly different one.';
+    _castGuard = ' CAST GUARD: The heroine is a woman. All five main love interests (talent agent, drummer, actor, building manager, detective) are MEN — men always carry male names. If you ever need to name a minor side character (a producer, stylist, journalist, executive...), NEVER reuse any main-cast name' + (_castNames.length ? ' (' + _castNames.join(', ') + ')' : '') + ' — invent a clearly different one. The name "Lily" belongs EXCLUSIVELY to the neighbor\'s 6-year-old daughter — no other character\'s child, relative or friend may be called Lily (the assistant\'s own family must use a clearly different name).';
   } catch(e) {}
   const _culturalCtx = 'CULTURAL CONTEXT: This story is set in the Western entertainment industry (' + (G.player.city||'a major Western city') + '). All characters behave according to Western social and professional norms. They are direct, individualistic, and do NOT follow Chinese cultural norms. No face-saving, no indirect language, no WeChat-style communication. Dialogue should feel like it belongs in a Western TV drama or film, not a Chinese drama. The language used is ' + G.langName + ' but the cultural context is always Western.' + _castGuard;
   // 便宜模型/短输出走 opts（日常闲聊省钱）；默认仍 sonnet。Worker 若不透传 model 字段则回退默认，安全兼容
@@ -5616,7 +5616,7 @@ async function runGroupScene(participants, opts) {
           ? ('COVERT MOVE — ONLY ' + _covert.name + ' NOTICES: the woman (' + (G.player.name || 'she') + ') just did something HIDDEN aimed only at ' + _covert.name + ' — ' + describeHerTurn(playerLine) + ' It is under the table / out of sight / too discreet for anyone else to catch. ONLY ' + _covert.name + ' registers it: he gives a small, quickly-masked tell (a caught breath, a flicker, his hand catching hers to still it, one sharp private glance at her) and covers it instantly. EVERYONE ELSE saw and felt NOTHING — they carry on exactly as before; do NOT have anyone else react, glance, pause or comment, and NO jealousy from the others (they do not know it happened).\n')
           : ('The woman (' + (G.player.name || 'she') + ') just took her turn — ' + describeHerTurn(playerLine) + ' REACT TO THIS FIRST and truthfully — anything she says out loud or any big, visible action is seen by EVERYONE in the room, so each person present responds in their OWN way and NOBODY just ignores it or ploughs on with the agenda: a lover reacts with a charged/possessive/hurt beat, and a non-romantic colleague present (an assistant, a bandmate) reacts with plain surprise, a fluster, looking away, an awkward throat-clear — real people cannot un-see it. NEVER repeat her action back as if she spoke it. Then, only if it fits, they get back to business.\n')
       ) : '') +
-      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). If ' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ' or anyone speaks, it is about the tension in the room, not business. Nobody smoothly gets back to the agenda. HARD BANS for EVERY line of this beat (violating any of these ruins the moment): any calendar date (7/24, 周六, "23号"…), any session/shoot/styling/training logistics, any work instruction to an assistant or anyone ("Sarah, 盯一下…" = BANNED), any mention of reference images, agendas or deliverables. A man who just watched his lover kiss another man does NOT dictate schedule details through his teeth — he loses the room entirely. His lines are short and raw, about what just happened — or he is pointedly silent, stands, walks to the window, ends the meeting. (Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
+      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). THE MAN SHE KISSED (' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ') must REACT TO THE KISS ITSELF, not smooth it over: first his own unguarded split-second feeling in his register (caught off guard and secretly thrilled / flustered heat / a low exhale — being kissed by her LANDS on him), and then — because their relationship was PRIVATE until this second — his immediate instinct about the room: if he wanted discretion he is now scrambling, looking at the others, and SAYS something to contain it ("这事出不了这间屋子" / asking everyone to keep it in the room), visibly shaken that it is out. He does NOT step back into work mode, does NOT run the agenda, does NOT hand out deadlines — the relationship just became the only subject in the room. If anyone else speaks, it is about the tension, not business. Nobody smoothly gets back to the agenda. HARD BANS for EVERY line of this beat (violating any of these ruins the moment): any calendar date (7/24, 周六, "23号"…), any session/shoot/styling/training logistics, any work instruction to an assistant or anyone ("Sarah, 盯一下…" = BANNED), any mention of reference images, agendas or deliverables. A man who just watched his lover kiss another man does NOT dictate schedule details through his teeth — he loses the room entirely. His lines are short and raw, about what just happened — or he is pointedly silent, stands, walks to the window, ends the meeting. (Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
       (_meeting && !_stungThisBeat
         ? ('This is a REAL working meeting with a purpose — NOT aimless chatter. Each beat must ADVANCE a concrete agenda point using the REAL FACTS above (an actual dated session, the song/release, a scheduling call, a real decision), give useful specifics, and visibly MOVE things toward getting settled. A little dry humor or personality is fine as seasoning, but the meeting must accomplish something. ' + (_nearEnd ? 'This is near the END — land a CLEAR takeaway: what is decided and the concrete next step(s), in character. ' : ''))
         : '') +
@@ -9097,7 +9097,13 @@ function buildScheduleContext(days, onlyNpc) {
 }
 // 按NPC给日程上下文：经纪人=全知（他排的班）；其他NPC只知道自己参与的活动，不知道她的日历
 function scheduleCtxFor(npcKey, days) {
-  return npcKey === 'agent' ? buildScheduleContext(days) : buildScheduleContext(days, npcKey);
+  // 非团队NPC（邻居/咖啡师…）不但看不到她的日历，也接触不到她的工作团队——
+  // 禁止说"我可以问Sarah/你助理帮你确认档期"这类话（用户实测：邻居张口就要找Sarah对档期，穿帮）
+  var _teamKeys = ['agent', 'assistant', 'drummer'];
+  var _noTeam = _teamKeys.indexOf(npcKey) < 0
+    ? ' You have NO access to her calendar, and NO contact with her work team — you do NOT know or reach her agent\'s assistant; NEVER offer to "check with Sarah / her assistant / her team" about her availability. If you want to know whether she is free, just ASK HER.'
+    : '';
+  return (npcKey === 'agent' ? buildScheduleContext(days) : buildScheduleContext(days, npcKey)) + _noTeam;
 }
 
 // 未来几天的"第几天→星期几·几月几号"对照表 + 绝对日期措辞要求。
@@ -9106,7 +9112,7 @@ function scheduleCtxFor(npcKey, days) {
 function upcomingDatesRef(fromDay, n) {
   var wd = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var parts = [];
-  for (var i = 1; i <= (n || 6); i++) parts.push('daysFromNow=' + i + ' → ' + wd[getGameWeekday(fromDay + i)] + ', ' + getGameDate(fromDay + i));
+  for (var i = 1; i <= (n || 9); i++) parts.push('daysFromNow=' + i + ' → ' + wd[getGameWeekday(fromDay + i)] + ', ' + getGameDate(fromDay + i));
   return ' DATE REFERENCE: ' + parts.join('; ') + '. In the message TEXT, always name the day EXPLICITLY by weekday and/or date (e.g. "Friday evening", "on the 5th") — NEVER use relative words like "tomorrow"/"明天"/"the day after": she may read the message later and relative words become wrong.';
 }
 
@@ -9980,7 +9986,7 @@ async function sendChatReply() {
       'UNKNOWN PLACE RULE: if she names a place that is not in the list (e.g. a trampoline park, an aquarium), do NOT silently relocate the plan to a home — either map it to the closest real option (shopping_mall/park/livehouse...) and NAME that actual place in your reply, or say honestly you don\'t know it and suggest one. Your reply text and the chosen locationKey MUST describe the same place. ' +
       'TITLE RULES: a natural short name of the place/activity (e.g. 咖啡/看电影/来我家吃饭) — NEVER meta descriptions like 深夜即兴见面/上门找她, and NEVER include her name in the title. ' +
       '\nPLAN SANITY (users caught all of these): ① NEVER anchor a plan to a work session that is NOT in the schedule facts above ("排练之后/after rehearsal" when no rehearsal exists that day = broken). ② Time-of-day must match the meal/activity: lunch lands 11:30-13:30, dinner 18:00-20:30, and if you say "下午/afternoon" the time you give must BE an afternoon time (never 上午10点 for an afternoon plan). ③ If you JUST said you are busy/unavailable on some day, do not turn around and propose that same day unless you explicitly said you moved things — and then the invite must match the plan you actually described. ④ "meet" is STRICTLY for TODAY: if her message says 明天/后天/tomorrow, use futureInvite with the right daysFromNow, never meet.' +
-      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-6 matching what you both agreed>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
+      '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-9 matching what you both agreed — e.g. 下个周五/next Friday can be 7-9 days out>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
     // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
     const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null, rescheduleInfo = null;
@@ -10104,10 +10110,10 @@ async function sendChatReply() {
       }
       // 聊天里谈成的未来约会（用户定稿 v11.57）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
-      if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 6) {
+      if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 9) {
         // 日期以回复文字里点名的星期几为准（修"说周四却排到周一"）：文字没点名才用 AI 的 daysFromNow
         const _wOff = weekdayOffsetFromText(reply, G.day);
-        const fiDaysFromNow = (_wOff && _wOff >= 1 && _wOff <= 6) ? _wOff : futureInv.daysFromNow;
+        const fiDaysFromNow = (_wOff && _wOff >= 1 && _wOff <= 9) ? _wOff : futureInv.daysFromNow;
         const fiDay = G.day + fiDaysFromNow;
         const isZhF = G.lang==='zh-cn'||G.lang==='zh-tw';
         const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
@@ -10572,7 +10578,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.54 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.55 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
