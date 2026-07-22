@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.40"></script>
-<script src="state.js?v=12.40"></script>
+<script src="story.js?v=12.41"></script>
+<script src="state.js?v=12.41"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -576,7 +576,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.40 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.41 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1166,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.40 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.41 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5404,8 +5404,11 @@ async function runGroupScene(participants, opts) {
     if (playerLine) history.push('HER: ' + playerLine);
     // 关键词兜底：当场就记下"她对其中一个恋人做了亲密举动"→ 另一个恋人被冷落 → 散会必发私信（不靠散会纪要那步 AI，防它卡/超时导致私信不发）
     if (playerLine && _loverKeys.length >= 2 && _affKw.test(playerLine)) {
-      var _tgt = _loverKeys.find(function(p){ return p.name && playerLine.indexOf(p.name) >= 0; });
-      _loverKeys.forEach(function(p){ if (!_tgt || p.key !== _tgt.key) _stungKeys[p.key] = (_tgt ? _tgt.name : (isZh ? '别人' : 'someone else')); });
+      // 认"她亲的是谁"：名字 + 角色词（"鼓手""经纪人"…各语言）都算——玩家常用角色称呼而非名字
+      var _idsOf = function(p){ var a = [p.name]; var r = NPC_ROLES[p.key]; if (r) Object.keys(r).forEach(function(lk){ if (r[lk]) a.push(r[lk]); }); return a; };
+      var _tgt = _loverKeys.find(function(p){ return _idsOf(p).some(function(s){ return s && playerLine.indexOf(s) >= 0; }); });
+      // 只有明确认出目标才标记被冷落的另一位；认不出就交给散会纪要 AI，绝不把在场所有恋人都标成吃醋（否则她亲的那个人自己也会误发吃醋私信）
+      if (_tgt) _loverKeys.forEach(function(p){ if (p.key !== _tgt.key) _stungKeys[p.key] = _tgt.name; });
     }
     document.getElementById('vn-opts').innerHTML = '';
     document.getElementById('vn-speaker').textContent = '';
