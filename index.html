@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.47"></script>
-<script src="state.js?v=12.47"></script>
+<script src="story.js?v=12.48"></script>
+<script src="state.js?v=12.48"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -523,6 +523,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <button class="dev-btn" onclick="devMeet('rafael')">初见 · 球星 Rafael</button>
     <button class="dev-btn" onclick="devMeet('neighbor')">初见 · 邻居单亲爸爸</button>
     <button class="dev-btn" onclick="devTeamMeeting()">群戏 · 团队碰头会</button>
+    <button class="dev-btn" onclick="devProRupture('agent')">职业破裂 · 经纪人解约（按2次：警告→解约）</button>
+    <button class="dev-btn" onclick="devProRupture('drummer')">职业破裂 · 鼓手辞职（按2次：警告→辞职）</button>
     <button class="dev-btn" onclick="closeDevPanel();introduceAssistant();setABn('bn-phone');openPhone();">登场 · 工作助理（看名字+短信）</button>
     <div class="dev-sec">🎬 重要剧情节点·章节卡（看版式+音效）</div>
     <button class="dev-btn" onclick="devMilestone('confess')">节点 · 表白</button>
@@ -576,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.47 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.48 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1166,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.47 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.48 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1430,12 +1432,16 @@ function flushJealousMeetMsgs() {
     var n = G.npcs[k];
     if (!n || !n._jealousDue) return;
     var due = n._jealousDue; n._jealousDue = null;
+    // 是否"再犯"：他之前已因此警告过/下过通牒 → 这次当众亲密=第二次引爆 → 推进职业破裂（触发①）
+    var _repeat = !!(n._proWarned || n._mustChoose);
     // 自尊式强反应·仍守不施虐底线（用户定稿 v12.47）：当面被劈腿是重罪——真愤怒、更重代价、更长冷淡期、
     // 下"要他还是要我"的关系最后通牒（这是他自己的去留边界，不是控制她）；但绝不辱骂/威胁/控制/监视。
     try { STATE.relationships.change(k, -18); } catch(e){}
     n._stungCoolUntil = G.day + 5; // 冷淡设防期更长（buildDialoguePrompt 注入；不屏蔽消息，仍可联系）
     n._needsBeat = true;           // 下一次约会先推掉一次
     n._mustChoose = { rival: (due.rivalName || 'the other man'), since: G.day }; // 已划下"你得选一个"的硬边界，冷淡期内一直等她表态
+    // 再犯 + 有职业关系（经纪人/鼓手恋人）→ 走两阶段职业破裂（警告→解约/辞职）；这条消息取代普通吃醋私信，避免重复发两条
+    if (_repeat && proRelevant(k)) { try { escalateProRupture(k, 'she did it again — openly with the other man, in front of you'); } catch(e){} return; }
     (async function(){ try {
       var ctx = 'Earlier today, at the team meeting, she was openly, deliberately intimate/affectionate with ' + (due.rivalName || 'another man') + ' RIGHT IN FRONT OF YOU — and you two are lovers. This is not small: she is involved with YOU and with HIM at once, and she flaunted it in your face. You are genuinely ANGRY and hurt, not merely wistful. Now, PRIVATELY by text, say your piece in YOUR OWN voice and register (a blunt/possessive man is blunt and hard-edged and short; a composed man is icy and precise; a playful man goes cold). Draw a REAL line and mean it: you are NOT going to be one of two — she needs to CHOOSE, him or you — and make plain you are ready to walk if she will not. This is a self-respecting boundary about YOUR OWN choice to stay or leave, NOT control of hers. GREEN-FLAG LINE you STILL never cross even now: no insulting or demeaning her, no threats, no trying to control, monitor or track her, no forbidding her from seeing anyone, no "you belong to me". 2-3 sentences, in ' + G.langName + '. Output only the message text.';
       var t = await claude(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name, ctx));
@@ -1451,8 +1457,75 @@ function flushJealousMeetMsgs() {
   });
 }
 
+// ── 关系破裂波及职业：经纪人解约 / 鼓手辞职（用户定稿 v12.48）──────────────────
+// 两阶段：先"最后通牒"(_proWarned)，仍触发才"永久执行"(_professionalEnd)。只有 agent/drummer 有职业关系，且须是恋人。
+// 三种触发（任一即推进一阶段）：①会上再次当众亲密 ②聊天里明确提分手 ③冷淡期好感跌破底线。
+// 始终绿旗：体面地走、不辱骂/不威胁/不报复。经纪人走后【助理暂代·名气变慢】防卡死（G._agentGone）。
+function proRelevant(npcKey){ return (npcKey==='agent'||npcKey==='drummer') && G.npcs[npcKey] && G.npcs[npcKey].met && (G.npcs[npcKey].nights||0)>0; }
+async function escalateProRupture(npcKey, reason) {
+  var n = G.npcs[npcKey]; if (!n || !proRelevant(npcKey) || n._professionalEnd) return;
+  if (!n._proWarned) {
+    n._proWarned = { day: G.day, reason: reason || '' };
+    try { STATE.save.saveGame(); } catch(e){}
+    await sendProRuptureMsg(npcKey, 'warn', reason);
+  } else {
+    n._professionalEnd = { day: G.day, reason: reason || '' };
+    doProfessionalEnd(npcKey);
+    await sendProRuptureMsg(npcKey, 'end', reason);
+    try { STATE.save.saveGame(); } catch(e){}
+  }
+}
+function doProfessionalEnd(npcKey){
+  var n = G.npcs[npcKey];
+  n.coldUntil = G.day + 3650; n._thawed = false; // 借用现有冷却机制=基本永久沉默、不再主动发消息/秒回
+  if (npcKey==='agent'){ G._agentGone = { since: G.day }; G._needNewAgent = true; try { queueAssistantCoverMsg(); } catch(e){} }
+  if (npcKey==='drummer'){ G._drummerLeftBand = { since: G.day }; }
+}
+async function sendProRuptureMsg(npcKey, kind, reason){
+  var role = npcKey==='agent' ? 'her talent agent/manager — the one who signed her and has been building her whole career' : 'the drummer in her band and her working bandmate';
+  var act  = npcKey==='agent' ? 'end the management contract and stop representing her' : 'quit the band and stop being her bandmate';
+  var handover = npcKey==='agent' ? 'your assistant will keep her schedule running while she finds new management' : 'the band will bring in another drummer';
+  var ctx;
+  if (kind==='warn') {
+    ctx = 'FINAL PROFESSIONAL WARNING: you are ' + role + ', and also her lover — but she has now hurt you over this other man (' + (reason||'seeing her with him') + '). You have realised you cannot keep pouring yourself into ' + (npcKey==='agent'?'building her career':'this band with her') + ' while she treats you like this. Text her ONE clear, hard last-chance line: if it happens again, or if she is choosing him, you will ' + act + ' — and you mean it. Calm, final, self-respecting — NOT a tantrum. GREEN-FLAG: no insults, no threats beyond this one honest consequence, no controlling her; you are simply telling her you have a limit too. 2-3 sentences, in ' + G.langName + '. Output only the message text.';
+  } else {
+    ctx = 'THIS ENDS IT — PROFESSIONALLY TOO: you are ' + role + ' and her lover, and after everything you have decided you are done. You are now going to ' + act + ' — this text is you telling her that decision, for real. Dignified and final, genuinely hurt or cold in YOUR own register, never cruel: you gave her a chance, this is your line, and you will hand things over cleanly (' + handover + '). GREEN-FLAG: no insults, no threats, no revenge, no sabotaging her — you step away with your self-respect intact. 2-3 sentences, in ' + G.langName + '. Output only the message text.';
+  }
+  try {
+    var t = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, ctx));
+    if (t && t.trim()) {
+      pushNpcMsg(npcKey, t.trim(), (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||1200)));
+      try { STATE.memory.addEvent(npcKey, (kind==='warn' ? 'Gave her a final warning that he will ' : 'Told her he is now going to ') + act + ' (day ' + G.day + '), because she is involved with another man — dignified and green-flag, no cruelty.', G.day); } catch(e){}
+      STATE.save.saveGame();
+    }
+  } catch(e){}
+}
+async function queueAssistantCoverMsg(){
+  if (!G.npcs.assistant || !G.npcs.assistant.met) return;
+  try {
+    var t = await claude(STATE.memory.buildDialoguePrompt('assistant', G.day, G.langName, G.player.name,
+      'Big news just landed: ' + (G.npcs.agent.name||'the agent') + ' has ended his management contract with her (personal fallout between them). You are her scheduling assistant and you will NOT let her career stall. Text her now — steady, warm, big-sister competent: you will keep her bookings and calendar running for now, it will be a little lighter and slower without him, and you two should start looking for new management together. Do NOT badmouth him or take sides in the personal mess. 2-3 texting sentences, in ' + G.langName + '. Output only the message text.'));
+    if (t && t.trim()) pushNpcMsg('assistant', t.trim(), (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||1200))+6);
+  } catch(e){}
+}
+// 名气增速：经纪人走后由助理暂代，明显变慢（用户定稿"助理暂代·名气变慢"）
+function fameGainAmt(base){ return (G._agentGone) ? Math.max(1, Math.round(base * 0.4)) : base; }
+// 触发③：划下"你得选"的硬边界后，冷淡期已过、她始终没选他、好感还跌到很低 → 他自己决定走（每天最多推进一阶段）
+function checkProRuptureDrift(){
+  try {
+    ['agent','drummer'].forEach(function(k){
+      var n = G.npcs[k]; if (!n || !proRelevant(k) || n._professionalEnd) return;
+      if (n._mustChoose && n._stungCoolUntil && G.day >= n._stungCoolUntil && (n.relationship||0) < 25 && (n._proDriftDay||0) < G.day) {
+        n._proDriftDay = G.day;
+        escalateProRupture(k, 'the standoff never lifted — she kept her attention on the other man and her feelings for you slid too far');
+      }
+    });
+  } catch(e){}
+}
+
 async function checkProactiveOnOpen() {
   try { flushJealousMeetMsgs(); } catch(e){}
+  try { checkProRuptureDrift(); } catch(e){}
   if (!REALTIME || !G.phone) return;
   var now = Date.now();
   var nowMin = rtClockMin();
@@ -2322,7 +2395,15 @@ function devTeamMeeting() {
   ['agent','drummer','assistant'].forEach(function(k){ if (G.npcs[k]) { G.npcs[k].met = true; try { ensureSecondaryName(k); } catch(e){} } });
   try { startTeamMeeting(); } catch(e){ console.warn(e); }
 }
-window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet; window.devMilestone = devMilestone; window.devTeamMeeting = devTeamMeeting;
+// 测试用：直接推进"关系破裂波及职业"（经纪人解约/鼓手辞职）——按2次=先警告、再解约/辞职
+function devProRupture(k) {
+  k = k || 'agent'; closeDevPanel();
+  if (typeof G === 'undefined' || !G || !G.npcs || !G.npcs[k]) { try { alert('请先进入游戏再测。'); } catch(e){} return; }
+  G.npcs[k].met = true; if (!((G.npcs[k].nights||0) > 0)) G.npcs[k].nights = 1; // 保证是恋人（proRelevant）
+  try { setABn('bn-phone'); openPhone(); } catch(e){}
+  try { escalateProRupture(k, '（测试）'); } catch(e){ console.warn(e); }
+}
+window.devLovers = devLovers; window.devIntimate = devIntimate; window.devMeet = devMeet; window.devMilestone = devMilestone; window.devTeamMeeting = devTeamMeeting; window.devProRupture = devProRupture;
 
 function _sleepMs(ms) { return new Promise(function(res){ setTimeout(res, ms); }); }
 
@@ -3342,7 +3423,7 @@ function ensureAgentSchedule(untilDay) {
     G._rafaelShootSet = true;
   }
   // 团队碰头会（群戏）：经纪人+鼓手+助理都已登场时，未来~7天内保证排一次（时间可改期，别撞已有安排/被搬空日）。
-  if (['agent','drummer','assistant'].every(function(k){ return G.npcs[k] && G.npcs[k].met; })) {
+  if (!G._agentGone && !G._drummerLeftBand && ['agent','drummer','assistant'].every(function(k){ return G.npcs[k] && G.npcs[k].met && !G.npcs[k]._professionalEnd; })) {
     var _teamFrom = Math.max(2, (G.day || 1) + 1);
     var _hasTeam = false;
     for (var _tt = _teamFrom; _tt <= Math.min(_teamFrom + 9, untilDay); _tt++) { if ((G.calendar.events[getCalDateStr(_tt)] || []).some(function(e){ return e && e.id && String(e.id).indexOf('teamsync') === 0; })) { _hasTeam = true; break; } }
@@ -5527,7 +5608,8 @@ async function runGroupScene(participants, opts) {
 // 团队碰头会（经纪人+鼓手+助理同场群戏）
 function startTeamMeeting() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
-  var pool = ['agent','drummer','assistant'].filter(function(k){ return G.npcs[k] && G.npcs[k].met; });
+  // 已解约的经纪人 / 已辞职退出乐队的鼓手 不再出现在团队会里（关系破裂波及职业）
+  var pool = ['agent','drummer','assistant'].filter(function(k){ return G.npcs[k] && G.npcs[k].met && !G.npcs[k]._professionalEnd; });
   if (pool.length < 2) { try { goEvening(); } catch(e){} return; }
   pool.forEach(function(k){ try { ensureSecondaryName(k); } catch(e){} });
   var participants = pool.map(function(k){ return { key:k, isNpc:true, name:getNPCName(k), role:getNPCRole(k, G.lang), emoji:(NPC_UI[k]||{}).emoji, persona:_groupPersonaOf(k) }; });
@@ -5950,7 +6032,7 @@ async function playFree(key, label, isWork, thenScripted, kind) {
   document.getElementById('vn-text').textContent = '';
   document.getElementById('vn-opts').innerHTML = '';
 
-  if (isWork) { G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0; } else { G.daysWithoutWork = (G.daysWithoutWork||0) + 1; }
+  if (isWork) { G.fame = Math.min(100, G.fame + fameGainAmt(3)); G.daysWithoutWork = 0; } else { G.daysWithoutWork = (G.daysWithoutWork||0) + 1; }
   // 压力系统：职业投资小幅涨知名度但累压力；休息类降压（周末休息降得更多）
   if (kind === 'career') { G.fame = Math.min(100, G.fame + 1); addStress(8); }
   else if (kind === 'leisure') { addStress(isGameWeekend(G.day) ? -20 : -15); }
@@ -6672,7 +6754,7 @@ async function playScheduledEvent(dateStr, event) {
   document.getElementById('vn-text').textContent = '';
   document.getElementById('vn-opts').innerHTML = '';
 
-  G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0;
+  G.fame = Math.min(100, G.fame + fameGainAmt(3)); G.daysWithoutWork = 0;
   addStress(12); // 工作日累压力
   G.today = { label: event.title, isWork: true, npc: event.npcKey || null };
   event.status = 'completed'; STATE.save.saveGame(); // 做过的行程标记完成，首页不再重复出现
@@ -6815,7 +6897,7 @@ async function startScriptedScene(ev, day, skipPre) {
   // 独立单场（管家/演员/章节里程碑）保持原行为：开场即标记。
   if (!G.scriptedDone) G.scriptedDone = {};
   if (!ev.chainNext && !(G.chainProgress && G.chainProgress[day])) G.scriptedDone[day] = true;
-  if (ev.isWork) { G.fame = Math.min(100, G.fame + 3); G.daysWithoutWork = 0; addStress(12); } else { addStress(5); }
+  if (ev.isWork) { G.fame = Math.min(100, G.fame + fameGainAmt(3)); G.daysWithoutWork = 0; addStress(12); } else { addStress(5); }
   if (!G.npcs[ev.npc].met) G.npcs[ev.npc].met = true;
   G.npcs[ev.npc]._reachAt = Date.now(); // 刚见过面=近期有过接触：主动消息冷却重置（修"刚说完'爱来不来'下一秒就发消息嘘寒问暖"）
   // 注：经纪人排班改到"离开办公室之后"才发（见 advanceAfterScene），不再在场景一开始就发。
@@ -9620,6 +9702,14 @@ async function sendChatReply() {
   if (G.npcs[npc]) G.npcs[npc]._reachAt = Date.now();
   btn.disabled = false; // 玩家可以连续发，不用等回复
 
+  // 触发②：聊天里明确对恋人（经纪人/鼓手）提分手/选了别人 → 走两阶段职业破裂（先警告，再犯/再提才解约·辞职）
+  var _breakupRe = /分手|我们(?:就此)?(?:结束了?|完了|到此为止)|(?:不想|不要)(?:再)?(?:和你|跟你|与你)(?:在一起|做恋人|谈了)|我选(?:了|择了)?(?:别人|他)|咱们?(?:还是)?别(?:在一起|处|谈)了?|break(?:ing)?\s?up|we(?:'re| are)\s+(?:over|done|through)|it'?s over between us|i(?:'m| am)\s+(?:choosing|going with|leaving you for)\s+(?:him|someone)|i (?:pick|choose) him/i;
+  if (_breakupRe.test(text) && proRelevant(npc)) {
+    try { await escalateProRupture(npc, 'she told you she is breaking up with you / choosing the other man'); } catch(e){}
+    try { renderChatMsgs(npc); } catch(e){}
+    updatePhoneBadge(); STATE.save.saveGame(); return;
+  }
+
   // 冷战中（因她公开了和别人的关系而生气）：不读不回，玩家发消息石沉大海（Batch2）
   if (npcIsCold(npc)) { updatePhoneBadge(); STATE.save.saveGame(); return; }
   // NPC道过"去睡/先忙"→暂不回。REALTIME下只锁约3真实小时(不锁整个真实天)；旧模式锁当天
@@ -10289,7 +10379,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.47 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.48 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
