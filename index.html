@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.48"></script>
-<script src="state.js?v=12.48"></script>
+<script src="story.js?v=12.49"></script>
+<script src="state.js?v=12.49"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.48 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.49 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.48 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.49 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1478,13 +1478,32 @@ async function escalateProRupture(npcKey, reason) {
 function doProfessionalEnd(npcKey){
   var n = G.npcs[npcKey];
   n.coldUntil = G.day + 3650; n._thawed = false; // 借用现有冷却机制=基本永久沉默、不再主动发消息/秒回
-  if (npcKey==='agent'){ G._agentGone = { since: G.day }; G._needNewAgent = true; try { queueAssistantCoverMsg(); } catch(e){} }
+  if (npcKey==='agent'){
+    G._agentGone = { since: G.day }; G._needNewAgent = true;
+    _clearAgentWork();                 // 事业清零：今天起所有工作行程全部清空（用户定稿：解约后没有事业了）
+    try { queueAssistantCoverMsg(); } catch(e){}
+  }
   if (npcKey==='drummer'){ G._drummerLeftBand = { since: G.day }; }
+}
+// 解约=事业归零：从今天起清掉日历上所有工作类行程（拍摄/排练/录音/团队会等），保留和其他NPC的私人约会。
+// 玩家仍可逛街/健身/和二线NPC互动，但没有事业线、接触不到靠广告/演唱会才认识的特级NPC（人际降级）。
+function _clearAgentWork(){
+  try {
+    if (!G.calendar || !G.calendar.events) return;
+    var todayStr = getCalDateStr(G.day);
+    Object.keys(G.calendar.events).forEach(function(ds){
+      if (ds >= todayStr) {
+        G.calendar.events[ds] = (G.calendar.events[ds] || []).filter(function(e){ return !(e && (e.type === 'work' || e.source === 'agent_mandate')); });
+        if (!G.calendar.events[ds].length) delete G.calendar.events[ds];
+      }
+    });
+    if (typeof refreshCalBadge === 'function') refreshCalBadge();
+  } catch(e){}
 }
 async function sendProRuptureMsg(npcKey, kind, reason){
   var role = npcKey==='agent' ? 'her talent agent/manager — the one who signed her and has been building her whole career' : 'the drummer in her band and her working bandmate';
   var act  = npcKey==='agent' ? 'end the management contract and stop representing her' : 'quit the band and stop being her bandmate';
-  var handover = npcKey==='agent' ? 'your assistant will keep her schedule running while she finds new management' : 'the band will bring in another drummer';
+  var handover = npcKey==='agent' ? 'the campaigns, shows and bookings you built for her are off — without you managing her there is no career machine anymore, and she will have to find new management if she wants one' : 'the band will bring in another drummer';
   var ctx;
   if (kind==='warn') {
     ctx = 'FINAL PROFESSIONAL WARNING: you are ' + role + ', and also her lover — but she has now hurt you over this other man (' + (reason||'seeing her with him') + '). You have realised you cannot keep pouring yourself into ' + (npcKey==='agent'?'building her career':'this band with her') + ' while she treats you like this. Text her ONE clear, hard last-chance line: if it happens again, or if she is choosing him, you will ' + act + ' — and you mean it. Calm, final, self-respecting — NOT a tantrum. GREEN-FLAG: no insults, no threats beyond this one honest consequence, no controlling her; you are simply telling her you have a limit too. 2-3 sentences, in ' + G.langName + '. Output only the message text.';
@@ -1504,12 +1523,12 @@ async function queueAssistantCoverMsg(){
   if (!G.npcs.assistant || !G.npcs.assistant.met) return;
   try {
     var t = await claude(STATE.memory.buildDialoguePrompt('assistant', G.day, G.langName, G.player.name,
-      'Big news just landed: ' + (G.npcs.agent.name||'the agent') + ' has ended his management contract with her (personal fallout between them). You are her scheduling assistant and you will NOT let her career stall. Text her now — steady, warm, big-sister competent: you will keep her bookings and calendar running for now, it will be a little lighter and slower without him, and you two should start looking for new management together. Do NOT badmouth him or take sides in the personal mess. 2-3 texting sentences, in ' + G.langName + '. Output only the message text.'));
+      'Bad news just landed: ' + (G.npcs.agent.name||'the agent') + ' has ended his management contract with her (personal fallout between them), and with him gone the campaigns, shows and bookings have all been cancelled — there is no career pipeline anymore. You WERE her scheduling assistant. Text her now, warm but honest and a little sad, big-sister register: tell her straight that without him there is no more work coming through and the calendar is clear, that you are sorry, that you will still be around for her as a person, and that if she ever wants a career again she will need to find new management. Do NOT pretend you can keep her career going, and do NOT badmouth him or take sides in the personal mess. 2-3 texting sentences, in ' + G.langName + '. Output only the message text.'));
     if (t && t.trim()) pushNpcMsg('assistant', t.trim(), (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||1200))+6);
   } catch(e){}
 }
-// 名气增速：经纪人走后由助理暂代，明显变慢（用户定稿"助理暂代·名气变慢"）
-function fameGainAmt(base){ return (G._agentGone) ? Math.max(1, Math.round(base * 0.4)) : base; }
+// 事业归零：经纪人一走，没有事业=名气不再增长（用户定稿：解约后事业清零，不是"变慢"）
+function fameGainAmt(base){ return (G._agentGone) ? 0 : base; }
 // 触发③：划下"你得选"的硬边界后，冷淡期已过、她始终没选他、好感还跌到很低 → 他自己决定走（每天最多推进一阶段）
 function checkProRuptureDrift(){
   try {
@@ -3410,6 +3429,7 @@ function schedRand(d, salt) {
 }
 function ensureAgentSchedule(untilDay) {
   if (!G.calendar) return;
+  if (G._agentGone) return; // 经纪人已解约：事业清零，不再安排任何工作/拍摄/团队会（也就接触不到靠广告/演唱会才认识的特级NPC）
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   untilDay = Math.min(untilDay, 360);
   // 球星 Rafael 首遇（用户#13）：排一场"饮料广告拍摄"，玩到=在片场结识球星（一次性，锁死档期）
@@ -10379,7 +10399,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.48 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.49 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
