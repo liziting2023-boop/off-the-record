@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.72"></script>
-<script src="state.js?v=12.72"></script>
+<script src="story.js?v=12.73"></script>
+<script src="state.js?v=12.73"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.72 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.73 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.72 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.73 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2172,7 +2172,7 @@ function openNpcProfile(npcKey) {
     (npc.origin ? '<div style="font-size:12px;color:#8a8078;margin-top:10px">' + (isZh ? '来自' : 'From') + '：' + originDisplayName(npc.origin) + '</div>' : '') +
     '<div style="font-size:12px;color:#8a8078;margin-top:' + (npc.origin ? '4' : '10') + 'px">' + (isZh ? '相遇' : 'Met') + '：' + met + '</div>' +
     '<div style="font-size:13px;color:#3a2e33;line-height:1.7;margin-top:8px">' + (isZh ? (bio.zh || '') : (bio.en || '')) + '</div>' +
-    '<div style="font-size:13px;color:#C4607A;margin-top:10px">' + hearts + ' ' + rel + '/100' + ((npc.nights || 0) > 0 ? ' 🌙' : '') + '</div>' +
+    '<div style="font-size:13px;color:#C4607A;margin-top:10px">' + hearts + ' ' + rel + '/100' + (npc._confessed ? ' 💞' : '') + ((npc.nights || 0) > 0 ? ' 🌙' : '') + (npc._cohabiting ? ' 🏠' : '') + '</div>' +
     '</div></div>';
   ov.style.display = 'flex';
 }
@@ -7667,8 +7667,8 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
       // 住一起就没有"谁送谁走"这回事，收尾必须是"今晚就这样一起待着"。放在地点分支【之前】兜住全部地点。
       if (npcKey && G.npcs[npcKey] && G.npcs[npcKey]._cohabiting) {
         _endPool = isZhEnd2
-          ? ['厨房的灯还亮着。你们谁也没有要走的意思——这里就是你们两个人的家。','他把碗收进水槽，随手把你揽了一下。今晚哪儿也不用去。','夜深了，屋子里只剩你们两个人的动静。回家这件事，现在不用再赶路了。']
-          : ['The kitchen light is still on. Neither of you is going anywhere — this is home for you both.','He stacks the bowls in the sink and pulls you in with one arm on the way past. Nowhere to be tonight.','It gets late, and the only sounds in the place are the two of you. Going home is not a trip anymore.'];
+          ? ['他把碗收进水槽，顺手在路过时揽了你一下。水声、电视声，寻常得让人安心。','灯一盏一盏关掉，最后只剩卧室那一盏。这样的夜晚，你们已经过了很多个了。','他先去洗澡，你把没看完的谱子摊在茶几上。隔着水声，他喊了你一句什么，你笑着应了。']
+          : ['He stacks the bowls in the sink, catching you around the waist as he passes. Running water, the TV murmuring — ordinary, and steadying.','The lights go off one by one until only the bedroom lamp is left. You have had a lot of nights like this now.','He goes to shower first while you spread the unfinished charts across the coffee table. He calls something through the water; you laugh and answer.'];
       } else if (_vnEndLoc === 'her_home') {
         // 在她家：是"送他走"，不是"各自回去"（用户实测文案穿帮）
         _endPool = _endRel >= 70 ? (isZhEnd2
@@ -8643,7 +8643,10 @@ async function maybeStayOver(npcKey, locKey, opts) {
   // 场所模式：已在他家=留下；在她家=让他留下；在外面=随机"跟他走(他家)"或"送她回家、他找借口上来(她家)"
   const _atHers0 = locKey === 'her_home';
   const _atHis0 = !!(locKey && /_home$/.test(locKey)) && !_atHers0;
-  const dest = _atHers0 ? 'at_hers' : (_atHis0 ? 'at_his' : (Math.random() < 0.5 ? 'go_his' : 'walk_hers'));
+  // 管家/邻居的"借口规则"只在【去她家】的方向讲得通（管家=本楼门房，借口是她屋里那个窗锁/暖气片；
+  // 邻居=同层对门，没有"去我家"这一说）。抛硬币抛到 go_his 就会出现"他说要来你家、按钮却写跟他走"（用户实测图3）。
+  const _mustHers = (npcKey === 'butler' || npcKey === 'neighbor');
+  let dest = _atHers0 ? 'at_hers' : (_atHis0 ? 'at_his' : (_mustHers ? 'walk_hers' : (Math.random() < 0.5 ? 'go_his' : 'walk_hers')));
   // 二次过夜邀请：已过夜后不再用"再喝一杯"这类初次借口，措辞更亲密直接（但仍含蓄）
   const _nightsSoFar = G.npcs[npcKey].nights || 0;
   // 两幕预生成句柄（性能，用户反馈两幕慢）：邀请台词一亮出来就后台先跑，点按钮时基本秒出
@@ -8673,6 +8676,14 @@ async function maybeStayOver(npcKey, locKey, opts) {
       line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _stayCtx + _pretextNote));
     } catch(e) {}
     if (!line || !line.trim()) { _vnEndLoc = locKey; runVNDialog([], npcKey, G.day, 0); return; }
+    // 安全网：按他【实际说出口的话】校正去向，让按钮文案永远对得上台词（只在"在外面"的两种随机之间纠正，
+    // 已经在谁家里的情形不动）。修"他说来你家、选项却是跟他走"。
+    if (dest === 'go_his' || dest === 'walk_hers') {
+      var _toHers = /你家|你那儿|你那裡|你那里|你的公寓|上去看|上来坐|来你这|来你這|帮你看|幫你看|送你回|your place|walk you (home|up)|come up/i.test(line);
+      var _toHis  = /我家|我那儿|我那裡|我那里|我的公寓|去我那|回我|跟我走|my place|back to mine|come back with me/i.test(line);
+      if (_toHers && !_toHis) dest = 'walk_hers';
+      else if (_toHis && !_toHers) dest = 'go_his';
+    }
     document.getElementById('vn-text').innerHTML = formatNPCText(line);
     // 邀请画面背景跟上地点（用户实测：走到她家楼下，背景却还是上一场的海边）——她家→她公寓夜景；他家→他家；在外面(go_his)保留约会地点
     try {
@@ -8737,7 +8748,9 @@ async function maybeStayOver(npcKey, locKey, opts) {
       sleepBtn2.textContent = isZh?'夜，还很长……':'The night is still young…';
       sleepBtn2.onclick = () => {
         showNightTransition();
-        G._eveNar = nar;
+        // 第一次过夜后紧接着要弹"亲密"里程碑卡，两处话几乎一模一样（用户实测图4+图5连着来）——
+        // 第一夜就把夜幕旁白让给里程碑卡，不再重复说一遍。
+        G._eveNar = (_pendingIntimateMilestone === npcKey) ? '' : nar;
         G.phase = 'evening';
         addStress(-10);
         // REALTIME：绝不手动翻天（G.day++会跟真实日历脱轨，用户实测日期跳到未来）——
@@ -10514,12 +10527,15 @@ function renderAffection() {
       ? '<img class="aff-avatar" src="' + pUrl + '" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">'
       : '<div class="aff-avatar aff-avatar-emoji" onclick="event.stopPropagation();openNpcProfile(\'' + npc.key + '\')">' + (NPC_UI[npc.key]?.emoji||'💬') + '</div>';
     // 好感图标（用户定稿 v11.88）：🌙=已发生过性行为。💗已移除——表白按钮到点自然亮起，图标重复（用户拍板）。
+    // 关系阶段暗示标记（用户定稿）：💞已表白在一起 · 🌙已亲密 · 🏠已同居。沿用月亮那套"懂的自然懂"、不写字。
     const nights = (G.npcs[npc.key] && G.npcs[npc.key].nights) || 0;
-    const confessIcon = '';
+    const _n0 = G.npcs[npc.key] || {};
+    const confessIcon = _n0._confessed ? ' <span style="font-size:11px;opacity:0.85" title="已表白">💞</span>' : '';
     const moon = nights > 0 ? ' <span style="font-size:11px;opacity:0.8" title="已亲密">🌙</span>' : '';
+    const cohabIcon = _n0._cohabiting ? ' <span style="font-size:11px;opacity:0.85" title="已同居">🏠</span>' : '';
     return '<div class="affection-card" style="cursor:pointer" onclick="openNpcProfile(\'' + npc.key + '\')">' + avatar +
       '<div class="aff-info">' +
-        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + confessIcon + moon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
+        '<div class="aff-topline"><span class="aff-name">' + (npc.name||getNPCName(npc.key)) + confessIcon + moon + cohabIcon + '</span><span class="aff-role">' + getNPCRole(npc.key, lang) + '</span></div>' +
         // 进度条带"亲密线"刻度（用户定稿 v11.98：涨好感要有可见目标）：竖线=该NPC的推倒门槛；过线后填充变深红=已解锁
         '<div class="aff-bar-bg" style="position:relative;overflow:visible">' +
           '<div class="aff-bar-fill" style="width:' + pct + '%;background:' + (pct >= (STAYOVER_MIN[npc.key] || 60) ? '#E0356B' : color) + '"></div>' +
@@ -10841,7 +10857,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.72 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.73 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
