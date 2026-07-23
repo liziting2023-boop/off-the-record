@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.71"></script>
-<script src="state.js?v=12.71"></script>
+<script src="story.js?v=12.72"></script>
+<script src="state.js?v=12.72"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.71 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.72 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.71 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.72 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1342,13 +1342,41 @@ function festivalChatNote(npcKey) {
 // ── 日常闲聊用便宜模型省钱（Haiku + 短输出）；便宜模型空回(账号没开该模型/Worker没透传)→自动用sonnet重试，
 //    保证聊天永不因省钱而断。连续失败2次则本会话停用Haiku(避免每条都双调浪费)。──
 let _cheapFails = 0, _cheapOff = false;
-async function claudeChat(prompt, sys) {
+// 聊天JSON截断自救（用户实测：助理改期的回复原始JSON漏进聊天框、且改期整个丢了）。
+// 根因=回复被 max_tokens 截断 → JSON.parse 抛错 → 老代码把原始串当回复显示、reschedule 直接没了。
+// 这里用正则从半截 JSON 里把 reply / rel / reschedule 捞回来，保证"说改了"和"真改了"一致。
+function _salvageChatJson(raw) {
+  var s = String(raw || '').replace(/```json|```/g, '').trim();
+  if (!s) return null;
+  try { return JSON.parse(s); } catch (e) {}
+  var out = {}, m;
+  m = s.match(/"reply"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (m) { try { out.reply = JSON.parse('"' + m[1] + '"'); } catch (e2) { out.reply = m[1]; } }
+  if (!out.reply) return null; // 连回复都没捞到就别硬撑
+  m = s.match(/"rel"\s*:\s*(-?\d+)/);         if (m) out.rel = parseInt(m[1], 10);
+  m = s.match(/"endChat"\s*:\s*(true|false)/); if (m) out.endChat = (m[1] === 'true');
+  m = s.match(/"call"\s*:\s*(true|false)/);    if (m) out.call = (m[1] === 'true');
+  var rs = s.match(/"reschedule"\s*:\s*\{([\s\S]*?)(?:\}|$)/);
+  if (rs) {
+    var b = rs[1], o = {}, x;
+    x = b.match(/"day"\s*:\s*(\d+)/);             if (x) o.day = parseInt(x[1], 10);
+    x = b.match(/"newTime"\s*:\s*"(\d{1,2}:\d{2})"/); if (x) o.newTime = x[1];
+    x = b.match(/"newDaysFromNow"\s*:\s*(\d+)/);  if (x) o.newDaysFromNow = parseInt(x[1], 10);
+    x = b.match(/"cancel"\s*:\s*(true|false)/);   if (x) o.cancel = (x[1] === 'true');
+    if (Number.isInteger(o.day)) out.reschedule = o;
+  }
+  try { console.warn('[OTR] 聊天JSON被截断，已自救', out); } catch (e3) {}
+  return out;
+}
+async function claudeChat(prompt, sys, opts) {
+  // max_tokens 是【上限】不是目标，调高不会多花钱（只在真写更长时才多算），但调太低会把 JSON 截断。
+  var _mt = (opts && opts.max_tokens) || 200;
   if (!_cheapOff) {
-    var r = await claude(prompt, sys, { model: CHAT_MODEL, max_tokens: 200 });
+    var r = await claude(prompt, sys, { model: CHAT_MODEL, max_tokens: _mt });
     if (r && r.trim()) { _cheapFails = 0; return r; }
     _cheapFails++; if (_cheapFails >= 2) { _cheapOff = true; try { console.warn('[OTR] 便宜模型(Haiku)不可用，本会话改用 sonnet。检查 Worker/账号是否支持 ' + CHAT_MODEL); } catch(e){} }
   }
-  return claude(prompt, sys, { max_tokens: 200 }); // sonnet 兜底（若真是额度满/网络，sonnet也回空，无害）
+  return claude(prompt, sys, { max_tokens: _mt }); // sonnet 兜底（若真是额度满/网络，sonnet也回空，无害）
 }
 
 // ── 日常内容引擎：打开游戏就检查有没有NPC该主动来消息（治"空"的主食）──
@@ -1719,6 +1747,7 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
       (backfill && sendMin < nowMin - 10 ? 'She is away from her phone right now — you are texting knowing she will read it later; do NOT expect an instant reply, do NOT reference her being online or ask her to respond right away. ' : '') +
       stageCtx + _careF + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
       ' ' + scheduleCtxFor(k, 3) +
+      ' TENSE RULE — anything in that upcoming schedule (and any date the two of you agreed on) has NOT happened yet. Today is ' + getCalDateStr(G.day) + '. NEVER speak about a future plan in the past tense: do not ask how it went, whether she enjoyed it, what she thought of it, or refer back to it as a shared memory. You may look forward to it, but you must never treat something still in the future as already done. ' +
       ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
       ' BANNED OPENERS (wildly overused across this game): asking whether she has eaten / 吃饭了吗 / telling her to eat, asking whether she is still awake, "are you tired/busy?" as the whole message, and — importantly — remarking that she is up early / awake at this hour, asking why she is awake, or commenting on her sleep schedule or body clock (several people all noticing she is awake reads like surveillance and unsettles her; a simple warm "morning" is fine, but do NOT make her being awake the subject). Open with something specific and alive instead — a real detail from your day, a genuine question about HER world, a callback to something you two shared. ' +
       ' Keep it to 1-2 short, natural texting-style sentences — NOT a monologue. Do NOT invent events or plans that are not in your shared history — NO made-up auditions, screen tests, interviews, livestreams, producer calls or industry buzz (if it is not in the schedule or shared history, it did NOT happen). ' +
@@ -7634,7 +7663,13 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     if (isMeetup) {
       const _endRel = (npcKey && G.npcs[npcKey]) ? (G.npcs[npcKey].relationship || 0) : 0;
       let _endPool;
-      if (_vnEndLoc === 'her_home') {
+      // 已同居（用户实测：和经纪人同居后在家做晚饭，结尾却是"他送你到楼下看着你上了车"）——
+      // 住一起就没有"谁送谁走"这回事，收尾必须是"今晚就这样一起待着"。放在地点分支【之前】兜住全部地点。
+      if (npcKey && G.npcs[npcKey] && G.npcs[npcKey]._cohabiting) {
+        _endPool = isZhEnd2
+          ? ['厨房的灯还亮着。你们谁也没有要走的意思——这里就是你们两个人的家。','他把碗收进水槽，随手把你揽了一下。今晚哪儿也不用去。','夜深了，屋子里只剩你们两个人的动静。回家这件事，现在不用再赶路了。']
+          : ['The kitchen light is still on. Neither of you is going anywhere — this is home for you both.','He stacks the bowls in the sink and pulls you in with one arm on the way past. Nowhere to be tonight.','It gets late, and the only sounds in the place are the two of you. Going home is not a trip anymore.'];
+      } else if (_vnEndLoc === 'her_home') {
         // 在她家：是"送他走"，不是"各自回去"（用户实测文案穿帮）
         _endPool = _endRel >= 70 ? (isZhEnd2
             ? ['你送他到门口。关上门以后，屋子里好像还留着他的温度。','他在门口回头看了你一眼才走。你靠着门站了一会儿。','门关上了。你回到沙发上，发现自己还在笑。']
@@ -10133,10 +10168,17 @@ async function sendChatReply() {
       '\nPLAN SANITY (users caught all of these): ① NEVER anchor a plan to a work session that is NOT in the schedule facts above ("排练之后/after rehearsal" when no rehearsal exists that day = broken). ② Time-of-day must match the meal/activity: lunch lands 11:30-13:30, dinner 18:00-20:30, and if you say "下午/afternoon" the time you give must BE an afternoon time (never 上午10点 for an afternoon plan). ③ If you JUST said you are busy/unavailable on some day, do not turn around and propose that same day unless you explicitly said you moved things — and then the invite must match the plan you actually described. ④ "meet" is STRICTLY for TODAY: if her message says 明天/后天/tomorrow, use futureInvite with the right daysFromNow, never meet. ⑤ If the date she proposes is MORE THAN A MONTH away, do NOT fill futureInvite — instead say warmly and in character that it\'s a bit far to pin down now, you\'d love to, and suggest firming it up when it\'s closer (a week or two before). ⑥ If she names an explicit date (7月31日 / the 31st), your daysFromNow MUST land exactly on that date — verify against the DATE REFERENCE, off-by-one is a real bug players notice.' +
       '\nRespond ONLY valid JSON, no fences: {"reply":"...","rel":<-3..3>,"endChat":<bool>,"call":<bool, true ONLY on the rare occasion the topic deserves a real phone call instead of texting — then "reply" is your OPENING SPOKEN LINE on that call>,"meet": null or {"locationKey": one of "her_home"|"his_home"|"cafe"|"art_gallery"|"night_bar"|"street_market"|"bookshop"|"shopping_mall"|"rooftop"|"livehouse"|"magazine_shoot"|"recording_studio"|"music_training", "title":"short natural title in ' + G.langName + '", "time": null or "HH:MM" (ONLY when you agreed on a specific later time today; null = right now)},"futureInvite": null or {"daysFromNow": <integer 1-30 matching what you both agreed — 下个周五/next Friday ≈7-9; for farther dates like next month, count the EXACT days from today using the DATE REFERENCE anchor>, "time":"HH:MM", "locationKey": same options as meet, "title":"short natural title in ' + G.langName + '"}' + (_canResched ? ',"reschedule": null or {"day": <int>, "newTime": "HH:MM" or null, "newDaysFromNow": <int> or null, "cancel": <bool>}' : '') + '}');
     // 情绪时刻走 Sonnet（claude()），日常闲聊仍走 Haiku（claudeChat()）——接住情绪的质量差距就在模型上
-    const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt)), new Promise(r => setTimeout(r, delay * 0.35))]);
+    const [raw] = await Promise.all([(_isEmotional ? claude(prompt) : claudeChat(prompt, null, { max_tokens: 800 })), new Promise(r => setTimeout(r, delay * 0.35))]);
     let reply = '', rel = 0, endChat = false, wantsCall = false, meetInfo = null, futureInv = null, rescheduleInfo = null;
-    try { const p = JSON.parse(raw.replace(/```json|```/g,'').trim()); reply = (p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(p.rel)||0)); endChat = !!p.endChat; wantsCall = !!p.call; meetInfo = p.meet || null; futureInv = p.futureInvite || null; rescheduleInfo = p.reschedule || null; }
-    catch (e) { reply = (raw||'').trim(); }
+    var _p = null;
+    try { _p = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch (e) { _p = _salvageChatJson(raw); } // 截断自救：捞回 reply / reschedule，绝不把原始JSON丢进聊天框
+    if (_p) {
+      reply = (_p.reply||'').trim(); rel = Math.max(-3, Math.min(3, Math.round(_p.rel)||0)); endChat = !!_p.endChat; wantsCall = !!_p.call; meetInfo = _p.meet || null; futureInv = _p.futureInvite || null; rescheduleInfo = _p.reschedule || null;
+    } else {
+      // 连 reply 都捞不出来：若整坨看着就是 JSON，宁可显示"生成失败"，也绝不把 {"reply":... 糊到玩家脸上
+      reply = /^[\s`]*[\{\[]/.test(String(raw||'')) ? '' : String(raw||'').trim();
+    }
     // 经纪人改期真正落到日历（修用户实测：跟经纪人说把周二工作改到晚6点，口头答应了、日历却没变）
     // "明天/后天"守卫（用户实测：说"明天中午12点吃饭"仍弹出【今天】的见面按钮）：meet 只许今天——
     // 玩家这句话里点名了明天/后天，就把 meet 转成对应天数的 futureInvite（待确认邀约），绝不当成今天。
@@ -10301,13 +10343,18 @@ async function sendChatReply() {
         // 日期锚定优先级：①最近几条对话里点名的具体日期（7月31日/8月1日）②点名的星期几 ③AI 的 daysFromNow。
         // 用户实测：日期常在【前几轮】说定（"8月1日"），而 futureInvite 在最后一句（"下午2点"）才落——
         // 只看当前消息会漏掉，落到 AI 差一天的数字上。所以扫最近6条(本NPC)+当前消息+回复，取【最近】的一次明确日期。
-        var _convTexts = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === npc; }).slice(-6).map(function(m){ return m.text || ''; });
+        // 扫描窗口 6→14 条：用户实测"说定8月1日却排到7/31"，而 dateOffsetFromText 单测这段对话是对的，
+        // 说明是那句带日期的话【没进扫描窗口】。窗口放大不花钱，顺带打自检日志定位真实输入。
+        var _convTexts = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === npc; }).slice(-14).map(function(m){ return m.text || ''; });
         _convTexts.push(text); _convTexts.push(reply);
-        var _dOff = null, _wOff = null;
-        for (var _ci = _convTexts.length - 1; _ci >= 0 && _dOff == null; _ci--) _dOff = dateOffsetFromText(_convTexts[_ci], G.day);
+        var _dOff = null, _wOff = null, _dSrc = '';
+        for (var _ci = _convTexts.length - 1; _ci >= 0 && _dOff == null; _ci--) { _dOff = dateOffsetFromText(_convTexts[_ci], G.day); if (_dOff != null) _dSrc = _convTexts[_ci]; }
         for (var _cj = _convTexts.length - 1; _cj >= 0 && _wOff == null; _cj--) _wOff = weekdayOffsetFromText(_convTexts[_cj], G.day);
         const fiDaysFromNow = (_dOff && _dOff >= 1 && _dOff <= 30) ? _dOff
           : ((_wOff && _wOff >= 1 && _wOff <= 16) ? _wOff : futureInv.daysFromNow);
+        try { console.log('[OTR·约会日期自检]', { npc: npc, 今天: getCalDateStr(G.day), AI给的daysFromNow: futureInv.daysFromNow,
+          扫出的日期偏移: _dOff, 命中句: _dSrc, 星期偏移: _wOff, 最终采用: fiDaysFromNow,
+          最终落在: getCalDateStr(G.day + fiDaysFromNow), 扫描窗口: _convTexts }); } catch(e){}
         const fiDay = G.day + fiDaysFromNow;
         const isZhF = G.lang==='zh-cn'||G.lang==='zh-tw';
         const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
@@ -10794,7 +10841,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.71 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.72 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
