@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.77"></script>
-<script src="state.js?v=12.77"></script>
+<script src="story.js?v=12.78"></script>
+<script src="state.js?v=12.78"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.77 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.78 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.77 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.78 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8808,17 +8808,18 @@ async function maybeStayOver(npcKey, locKey, opts) {
   // ── 第二幕：更撩，背景换床/沙发，记为过夜 → 夜幕转场进第二天 ──
   const goAct2 = async () => {
     STATE.relationships.change(npcKey, 10);
-    G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
-    G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
+    G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1; // nights = 亲密次数（沿用旧键名，全库都在读）
     // 男人频繁来【她家】过夜 → 前台的管家看得见来往，会察觉/吃醋（用户定稿）。按NPC记"在她家过夜的次数+最近一次"。
     if (destHers && npcKey !== 'butler' && G.npcs[npcKey]) { G.npcs[npcKey]._homeNights = (G.npcs[npcKey]._homeNights || 0) + 1; G.npcs[npcKey]._lastHomeNight = G.day; }
     // 第一夜之后：第二天早上他会发"公开/低调"立场消息（鼓手=邀你进他的圈子,其余=求低调,按性格）
     if (G.npcs[npcKey].nights === 1) { G.npcs[npcKey]._stanceDue = G.day + 1; _pendingIntimateMilestone = npcKey; } // 第一次过夜→回主页弹"亲密"里程碑章节卡
+    // ⚠️ 这里【不再】记"过了一夜"、也不设 _stayedOver——留不留下是第二幕结束后玩家自己选的
+    //    （用户点破：现在下午两点做完就继续过日子，"今早醒来你窝在我怀里"在时间上根本站不住）。
     STATE.memory.addEvent(npcKey,
-      (destHers
-        ? (G.npcs[npcKey].nights === 1 ? 'You stayed the night at HER place for the FIRST time' : 'You stayed the night at HER place')
-        : (G.npcs[npcKey].nights === 1 ? 'She stayed the night with you for the FIRST time' : 'She stayed the night with you'))
-      + ' (day ' + G.day + '). Everything between you has shifted.', G.day);
+      (G.npcs[npcKey].nights === 1
+        ? 'You and she were intimate for the FIRST time'
+        : 'You and she were intimate again')
+      + ' (day ' + G.day + ', at ' + (destHers ? 'HER place' : 'YOUR place') + '). Everything between you has shifted.', G.day);
     STATE.save.saveGame();
     playSound('rel-up');
     vnSpeak(null);
@@ -8841,13 +8842,20 @@ async function maybeStayOver(npcKey, locKey, opts) {
         ? ['这一夜，城市的灯替你们守住了秘密。','这一夜很长，也很短。','窗外的城市亮了一整夜，没有人知道这里发生了什么。','夜把一切都收进了它的口袋里。','这一夜之后，有些东西再也回不到从前了。']
         : ['Tonight, the city lights keep your secret.','The night is long, and somehow not long enough.','The city glows all night outside the window; no one knows what happened here.','The night folds everything into its pocket.','After tonight, some things will never go back to how they were.'];
       const nar = _narPool[Math.floor(Math.random() * _narPool.length)];
-      const sleepBtn2 = document.createElement('button');
-      sleepBtn2.className = 'vn-next';
-      sleepBtn2.textContent = isZh?'夜，还很长……':'The night is still young…';
-      sleepBtn2.onclick = () => {
+      // ── 留不留下＝玩家自己选（用户定稿）──
+      // 只有真的"留下过夜"才算 _stayedOver：才有次日晨后消息、同居的人才会发现她一夜没回。
+      // 白天做的事绝不叫过夜（下午两点还问"要不要留下过夜"很荒唐）→ 白天直接收尾、不给选项。
+      const _nowMin = REALTIME ? rtClockMin() : (G.clockMin || 1200);
+      const _isNightHour = _nowMin >= 17 * 60 || _nowMin < 5 * 60;
+      const stayTheNight = () => {
+        G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
+        STATE.memory.addEvent(npcKey, (destHers
+          ? 'She asked you to stay, and you spent the whole night at HER place'
+          : 'She stayed the whole night at YOUR place') + ' (day ' + G.day + ') — you woke up next to each other.', G.day);
+        STATE.save.saveGame();
         showNightTransition();
-        // 第一次过夜后紧接着要弹"亲密"里程碑卡，两处话几乎一模一样（用户实测图4+图5连着来）——
-        // 第一夜就把夜幕旁白让给里程碑卡，不再重复说一遍。
+        // 第一次亲密后紧接着要弹"亲密"里程碑卡，两处话几乎一模一样（用户实测图4+图5连着来）——
+        // 第一次就把夜幕旁白让给里程碑卡，不再重复说一遍。
         G._eveNar = (_pendingIntimateMilestone === npcKey) ? '' : nar;
         G.phase = 'evening';
         addStress(-10);
@@ -8855,7 +8863,34 @@ async function maybeStayOver(npcKey, locKey, opts) {
         // 夜幕转场后回晚间画面，天由真实日历翻，晨后消息由次日 startDay 发
         setTimeout(() => { if (REALTIME) { endNightTransition(nar); goEvening(); } else { G.day++; startDay(); } }, 400);
       };
-      vopts.appendChild(sleepBtn2);
+      const partForNow = () => {
+        // 没留下：只是一次亲密，不产生"昨晚/今早醒来"那一套，也不牵动同居那条线
+        STATE.memory.addEvent(npcKey, (destHers
+          ? 'Afterwards she saw you out — you did not stay the night at her place'
+          : 'Afterwards she got dressed and went home — she did not stay the night') + ' (day ' + G.day + '). Easy and unhurried, no awkwardness.', G.day);
+        STATE.save.saveGame();
+        addStress(-8);
+        if (REALTIME && !_isNightHour) { goHome(); }        // 白天：回主页继续过日子
+        else { G.phase = 'evening'; goEvening(); }           // 晚上：回晚间画面
+      };
+      if (!_isNightHour) {
+        const onlyBtn = document.createElement('button');
+        onlyBtn.className = 'vn-next';
+        onlyBtn.textContent = destHers ? (isZh?'……送他出门':'…See him out') : (isZh?'……起身回家':'…Get dressed and head home');
+        onlyBtn.onclick = partForNow;
+        vopts.appendChild(onlyBtn);
+      } else {
+        const b1 = document.createElement('div');
+        b1.className = 'vn-opt';
+        b1.textContent = destHers ? (isZh?'让他留下过夜':'Ask him to stay the night') : (isZh?'在这儿过夜':'Stay the night');
+        b1.onclick = stayTheNight;
+        vopts.appendChild(b1);
+        const b2 = document.createElement('div');
+        b2.className = 'vn-opt'; b2.style.opacity = '.78';
+        b2.textContent = destHers ? (isZh?'今晚还是送他回去':'See him home tonight') : (isZh?'还是回自己家睡':'Head home to sleep');
+        b2.onclick = partForNow;
+        vopts.appendChild(b2);
+      }
     });
   };
   // ── 第一幕后选择离开：来了他家但没留下，小幅好感，回家睡到第二天 ──
@@ -10979,7 +11014,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.77 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.78 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
