@@ -661,8 +661,17 @@ const STATE = {
         ? `\nSTRICTLY PLATONIC: you are NOT a love interest — you are ${playerName}'s professional friend and colleague (happily married yourself). Everything you say stays warm, supportive and sisterly/collegial; NEVER flirtatious or romantic, and never read her warmth as romantic. No confessions, no tension, no stayovers — ever.`
         : '';
       // 同居后：日常同居的亲密感
+      // 昨晚她其实是在【别人】那儿过的夜——同居的这位不能张口就说"今早你窝在我怀里"（用户实测：
+      // 经纪人和鼓手同一个早上发了几乎一样的晨后消息，而她只可能和一个人过夜）。他睡的是空床，理应知道。
+      const _mam = STATE.data._morningAfterMark;
+      const _so = STATE.data._stayedOver;
+      const _sleptElsewhere = !!((_mam && _mam.day === day && _mam.npc !== npcKey) ||
+                                 (_so && _so.day === day - 1 && _so.npc !== npcKey));
       const cohabitingNote = npc._cohabiting
-        ? `\nYOU LIVE TOGETHER NOW: you and ${playerName} share a home — let the easy domestic intimacy of living together (coming home to her, shared routines, her things next to yours) colour how you speak, naturally.`
+        ? `\nYOU LIVE TOGETHER NOW: you and ${playerName} share a home — let the easy domestic intimacy of living together (coming home to her, shared routines, her things next to yours) colour how you speak, naturally.` +
+          (_sleptElsewhere
+            ? ` ⚠️ BUT SHE DID NOT COME HOME LAST NIGHT — you slept alone and her side of the bed was untouched. NEVER say or imply she was in your arms, in your bed, or that you woke up together: it did not happen, and claiming it would be nonsense. You noticed she was out all night. You may say so quietly and honestly, or ask lightly how her night went — but you do NOT interrogate her, accuse her, demand to know where she was, or lay guilt on her. It lands, and you are honest that you noticed; that is all.`
+            : '')
         : '';
       // 歌曲圣经（用户定稿）：音乐相关的人（经纪人/鼓手/对手歌手）提到她的歌/歌词只能用这几首，绝不现编
       const _ll = String(lang);
