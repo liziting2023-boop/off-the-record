@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.63"></script>
-<script src="state.js?v=12.63"></script>
+<script src="story.js?v=12.64"></script>
+<script src="state.js?v=12.64"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.63 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.64 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.63 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.64 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -7585,11 +7585,11 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
             ? ['你们道了别，各自离开。今晚的余温还留在指尖。','走出好远，你还能感觉到他目送你的视线。','道别之后，你走在夜色里，嘴角一直没压下去。']
             : ['You say your goodbyes and part ways. The warmth of the evening still lingers on your skin.','Long after you walk away, you can still feel him watching you go.','You head off into the night, and the smile refuses to leave your face.'])
           : _endRel >= 40 ? (isZhEnd2
-            ? ['你们道了别，各自回去。今天聊得很尽兴。','道别时他挥了挥手。回去的路上，你想起某句话，笑了一下。','你们在路口分开。晚风正好。']
-            : ['You say your goodbyes and head off. Good company, good talk.','He gives a small wave as you part. On the way back, one of his lines makes you smile again.','You part ways at the corner. The evening air feels just right.'])
+            ? ['聊得挺投缘。他说了句"下次见"，你也笑着点头。','道别时他挥了挥手。回去的路上，你想起某句话，笑了一下。','"那我先忙了。"他冲你笑笑。今天聊得很尽兴。']
+            : ['Easy company. He says "See you around" and you nod, smiling.','He gives a small wave as you go. On the way back, one of his lines makes you smile again.','"I\'ll let you get on." He grins. Good talk today.'])
           : (isZhEnd2
-            ? ['你们道了别，各自回去。','聊完正事，你们就散了。','你们在门口道别，各走各的方向。']
-            : ['You say your goodbyes and head your separate ways.','The conversation winds down, and you both head off.','You part at the door, each going your own way.']);
+            ? ['他冲你点点头，"回头见"。你也应了一声。','聊完这两句，他又回去忙自己的了。','"那就这样，回头见。"他说。']
+            : ['He gives you a nod. "See you around." You answer in kind.','After a few words, he turns back to what he was doing.','"Alright — catch you later," he says.']);
       }
       transitionNar = _endPool[Math.floor(Math.random() * _endPool.length)];
     } else {
@@ -10705,7 +10705,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.63 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.64 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
