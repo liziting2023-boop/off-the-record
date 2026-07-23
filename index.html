@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.62"></script>
-<script src="state.js?v=12.62"></script>
+<script src="story.js?v=12.63"></script>
+<script src="state.js?v=12.63"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.62 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.63 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.62 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.63 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1234,7 +1234,9 @@ function rtInitAnchor() {
 // ── 天随真实日历翻：G.day = 距开始的真实天数+1；每次进主页/加载时同步。漏掉的剧情日靠现有"顺延补见"兜 ──
 function syncRealtimeDay() {
   if (!REALTIME) return { rolled:false, gap:0 };
-  if (!G.rtStartDate) { rtInitAnchor(); return { rolled:false, gap:0 }; }
+  // 锚点缺失 → 立即锚定【并落盘】。用户实测根因：锚点从没被存回去，导致每次重登都重锚成"今天=第1天"、
+  // 把进度反复打回第1天、日历按第1天重算→所有未来行程（含刚改的）崩掉。必须 saveGame 让锚点粘住。
+  if (!G.rtStartDate) { rtInitAnchor(); try { STATE.save.saveGame(); } catch(e){} return { rolled:false, gap:0 }; }
   var target = rtDaysBetween(G.rtStartDate, rtTodayKey()) + 1;
   if (target < 1) target = 1;
   if (target > (G.day || 1)) {
@@ -1245,7 +1247,14 @@ function syncRealtimeDay() {
     return { rolled:true, gap: gap };
   }
   if ((G.day || 1) > target) {
-    // 存档跑到了"未来"（老bug：亲密剧情手动 G.day++ 和真实日历脱轨）→ 拉回真实的今天（自愈）
+    // 存档天数比锚点算出来的大：两种可能——
+    //   ①小幅(≤3天)：老的亲密剧情手动 G.day++ 脱轨 → 拉回真实今天（自愈，原逻辑）。
+    //   ②大幅(>3天)：几乎必然是【锚点被污染成了近今天】，不该把 day-23 硬打回 day-1（用户实测存档崩）——
+    //     反过来【重锚 rtStartDate 保住当前天数】并落盘，进度不丢、日历不崩。
+    if ((G.day || 1) - target > 3) {
+      rtInitAnchor(); try { STATE.save.saveGame(); } catch(e){}
+      return { rolled:false, gap:0 };
+    }
     G.day = target;
     G.rtLastPlayed = rtTodayKey();
     return { rolled:true, gap: 0 };
@@ -10539,7 +10548,10 @@ window.addEventListener('load', () => {
     const _origSave = STATE.save.saveGame.bind(STATE.save);
     STATE.save.saveGame = function () {
       if (_genStale()) { location.reload(); return false; }
-      const ok = _origSave(); if (ok) scheduleCloudSync(); return ok;
+      const ok = _origSave(); if (ok) scheduleCloudSync();
+      // 落盘自检：确认每次写档都带上 rtStartDate（锚点不落盘=进度反复打回第1天的根因）
+      try { if (ok) { var _s = JSON.parse(localStorage.getItem(STATE.save.KEY)||'{}'); if (!_s.rtStartDate) console.warn('[OTR] ⚠ 存档缺锚点 rtStartDate！day=' + _s.day); } } catch(e){}
+      return ok;
     };
   })();
   // "开始新游戏"清档重载后的首次加载：跳过云端恢复询问 + 清掉云端旧档。
@@ -10693,7 +10705,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.62 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.63 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
