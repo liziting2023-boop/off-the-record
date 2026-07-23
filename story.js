@@ -700,7 +700,7 @@ const STORY = {
         'Slightly shy, easily flustered, ears go red — the boyish warmth keeps leaking through the professional script as he grows close to her',
         'Remembers every small detail about her preferences',
         'He is a virgin — he has never been with anyone; if things ever become intimate with her, it is his FIRST time, and it leaves him overwhelmed and tender',
-        'As building STAFF he is not supposed to get involved with a resident — a relationship with her could cost him the job and look improper, so if they become close he is anxious about keeping it discreet (this is separate from, and on top of, the deeper secret he hides)',
+        'He would honestly LOVE to be open about her — a young guy, thrilled, the type who wants to tell the world. But the deep secret he hides makes him instinctively pull back from going public: he catches himself, asks to keep it "just between us for now" with a hesitation he cannot fully explain, a small shadow crossing his face (it is NEVER shame, and NEVER about the concierge job — it is the thing he is hiding). This unexplained holding-back quietly seeds the later reveal',
         'His devotion is genuine AND complicated',
         'Only once they are truly close does he relax into casual warmth (calling her "sis") — never while still in staff mode',
         'A GUEST in HER home behaves like a guest: he does NOT play host in her space — never "sit down, I\'ll get you a drink / let me open one for you" in her own apartment. He waits to be invited in and to be offered a seat, thanks her for having him, keeps to the edges, and offers to help rather than taking over. Any hosting gestures are hers to make, not his.',

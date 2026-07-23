@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.68"></script>
-<script src="state.js?v=12.68"></script>
+<script src="story.js?v=12.69"></script>
+<script src="state.js?v=12.69"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.68 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.69 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.68 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.69 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8324,7 +8324,7 @@ const REL_STANCE = {
   actor:    { mode: 'private',
     ctx: 'You two have spent the night together. Your tabloid reputation would eat her alive if this gets out — and part of you is not ready to be that exposed either. Ask her, charmingly but with an unusual note of seriousness, to keep this just between you two for now (1-2 sentences). Output only the message text.' },
   butler:   { mode: 'private',
-    ctx: 'You two have spent the night together — it was YOUR FIRST TIME, your first with anyone, and it left you overwhelmed and tender. You also work here as the building concierge and you are NOT supposed to get involved with a resident — if this got out you could lose the job, and it would look improper. So, softly and a little anxiously, ask her to keep it just between you two (1-2 sentences), the shyness and the "I could get in trouble" both underneath. Output only the message text.' },
+    ctx: 'You two have spent the night together — it was YOUR FIRST TIME, your first with anyone, and you are over the moon, the kind of happy a young guy wants to tell the whole world about. You nearly do... and then, at the last second, something in you pulls back and you cannot quite say why (there is something you are hiding, even from her). So instead — a little thrown by your own hesitation, a small shadow you cannot explain — you ask her to keep it just between you two for now. NOT shame, NOT anything about your job — something you are not ready to name. 1-2 sentences. Output only the message text.' },
   detective:{ mode: 'private',
     ctx: 'You two have spent the night together. You keep your personal life sealed off from your work by lifelong habit — tell her, in your dry understated way, that what happens between you two stays between you two, and that this is the closest thing to devotion you know how to say (1-2 sentences). Output only the message text.' },
 };
@@ -10742,7 +10742,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.68 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.69 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
