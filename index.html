@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.61"></script>
-<script src="state.js?v=12.61"></script>
+<script src="story.js?v=12.62"></script>
+<script src="state.js?v=12.62"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.61 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.62 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.61 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.62 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -10120,8 +10120,12 @@ async function sendChatReply() {
           try {
             STATE.save.saveGame();
             var _pc = JSON.parse(localStorage.getItem(STATE.save.KEY) || '{}');
-            var _pcl = (((_pc.calendar || {}).events || {})[getCalDateStr(_rd)] || []).map(function(e){ return e ? (e.id + ' @' + e.time + '-' + (e.timeEnd||'') + ' ' + e.status + (e._userSet ? ' [手改]' : '')) : ''; });
-            console.log('[OTR] 改期写入自检 ' + getCalDateStr(_rd) + ' → ' + (_pcl.join(' | ') || '(空)'));
+            var _pcEv = (_pc.calendar || {}).events || {};
+            // 直接跟踪【被改的那条事件本身】：不管它现在落在哪一天，都在整份存档里按它的 id 找出来（day-move 也追得到）
+            var _foundAt = '(存档里找不到这条了！)';
+            Object.keys(_pcEv).forEach(function(ds){ (_pcEv[ds] || []).forEach(function(e){ if (e && e.id === _wev.id) _foundAt = ds + ' @' + e.time + '-' + (e.timeEnd||'') + ' ' + e.status + (e._userSet?' [手改]':''); }); });
+            console.log('[OTR] 改期写入自检: 事件 ' + _wev.id + ' 落在 → ' + _foundAt);
+            console.log('[OTR·自检全量] 存档 ' + Object.keys(_pcEv).reduce(function(a,ds){return a+(_pcEv[ds]||[]).length;},0) + ' 条; 搬空日=' + JSON.stringify(_pc._clearedWorkDays||[]));
           } catch(e){ console.warn('[OTR] 改期写入自检失败', e); }
           STATE.memory.addEvent(npc, 'She asked to change a work session and you sorted it on her calendar (day ' + _rd + ').', G.day);
           if (npc !== 'agent') { try { STATE.memory.addEvent('agent', 'Her schedule got adjusted on day ' + _rd + ' (handled via your assistant) — you are aware of it and can ask her about it warmly ("heard you moved X — everything okay?"), never annoyed.', G.day); } catch(e){} }
@@ -10679,11 +10683,17 @@ window.addEventListener('load', () => {
     var _usL = [];
     Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){ (G.calendar.events[ds] || []).forEach(function(e){ if (e && e._userSet) _usL.push(ds + ' "' + e.title + '" @' + e.time + '-' + (e.timeEnd||'') + ' ' + e.status); }); });
     console.log('[OTR] 读档后手改行程: ' + (_usL.join(' | ') || '（没有任何带手改标记的行程——若你上次确实改过，说明改动没写进存档或被读档过程冲掉）'));
+    // 全量转储（定位"改了又不见"）：把存档里日历的每一天每一条都打出来，一眼看清事件在哪、有没有被 _clearedWorkDays 挡住
+    var _allL = [];
+    Object.keys((G.calendar && G.calendar.events) || {}).sort().forEach(function(ds){ (G.calendar.events[ds] || []).forEach(function(e){ if (e) _allL.push(ds + ' ' + (e.id||'?') + ' "' + (e.title||'') + '" ' + (e.time||'') + ' ' + (e.type||'') + '/' + (e.status||'') + (e._userSet?' [手改]':'')); }); });
+    console.log('[OTR·全量] 存档日历共 ' + _allL.length + ' 条:\n' + _allL.join('\n'));
+    console.log('[OTR·搬空日] G._clearedWorkDays = ' + JSON.stringify(G._clearedWorkDays || []));
+    console.log('[OTR·锚点] rtStartDate=' + G.rtStartDate + ' G.day=' + G.day + ' 今天=' + getCalDateStr(G.day));
   } catch(e){}
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.61 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.62 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
