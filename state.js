@@ -344,7 +344,7 @@ const STATE = {
         `talent agent`,
         STATE.imagePrompts.applyHair(app, npc),
         `${app.skin} skin tone`,
-        app.suit,
+        STATE.imagePrompts.outfitOf(npc, app.suit),
         `a genuine warm smile, kind eyes crinkling slightly, relaxed and approachable, easy friendly charm, clearly smiling not serious`,
         `NO glasses`,
         scene,
@@ -352,6 +352,12 @@ const STATE = {
     },
 
     // ── 玩家为NPC选的发色覆盖：把外形表hair串开头的颜色词换成所选发色（保留发型描述）──
+    // 居家便装（同居后在家的场景用）：同一个 portraitSeed 只换衣服，脸不变——
+    // 修"经纪人在家睡前还穿着西装"。生图时临时给 npc 挂 _wearHome，各 build*Prompt 的服装句走这里。
+    // ⚠️ 只写正向描述——绝不写 "no suit/no jacket" 这类否定词：flux 对否定无效甚至反向诱导，
+    //    写了 "no suit" 反而更容易画出西装（同 hands/backpack 那两次教训）。
+    HOME_OUTFIT: 'dressed down at home in soft comfortable loungewear, a plain well-fitting cotton t-shirt with soft drawstring lounge pants, relaxed and informal, at ease in his own space',
+    outfitOf(npc, workOutfit) { return (npc && npc._wearHome) ? STATE.imagePrompts.HOME_OUTFIT : workOutfit; },
     applyHair(app, npc) {
       const hair = app.hair || '';
       const c = npc && npc.hairColor;
@@ -374,7 +380,7 @@ const STATE = {
         `rock drummer and band leader`,
         `${STATE.imagePrompts.applyHair(app, npc)} tousled`,
         `${app.skin} skin`,
-        `casual dark clothing, band tee or leather jacket`,
+        STATE.imagePrompts.outfitOf(npc, `casual dark clothing, band tee or leather jacket`),
         `visible artistic tattoos on his upper arms and shoulder, rock musician ink`,
         `strong capable hands, slightly edgy style`,
         `evaluating smoldering expression`,
@@ -395,7 +401,7 @@ const STATE = {
         `chart-topping pop singer-songwriter, a rising star`,
         `${STATE.imagePrompts.applyHair(app, npc)} fashionably styled`,
         `${app.skin} skin`,
-        `sleek stylish stage-adjacent outfit, designer jacket over an open shirt, a few rings`,
+        STATE.imagePrompts.outfitOf(npc, `sleek stylish stage-adjacent outfit, designer jacket over an open shirt, a few rings`),
         `cocky confident half-smirk, sharp knowing eyes, magnetic star presence with a competitive edge`,
         `bare clean-shaven face`,
         `NO glasses`,
@@ -417,7 +423,7 @@ const STATE = {
         `rising actor`,
         `${STATE.imagePrompts.applyHair(app, npc)} perfectly styled`,
         `${app.skin} skin`,
-        `crisp dress shirt worn open at the collar with the top buttons undone, a hint of chest and collarbone showing, effortlessly seductive styling`,
+        STATE.imagePrompts.outfitOf(npc, `crisp dress shirt worn open at the collar with the top buttons undone, a hint of chest and collarbone showing, effortlessly seductive styling`),
         `playful flirtatious smirk, teasing charming gaze, effortlessly charismatic`,
         glassesNote,
         scene,
@@ -445,7 +451,7 @@ const STATE = {
         `personal bodyguard`,
         STATE.imagePrompts.applyHair(app, npc),
         `${app.skin} skin`,
-        `well-cut dark suit or dark tactical coat, an earpiece, disciplined and imposing`,
+        STATE.imagePrompts.outfitOf(npc, `well-cut dark suit or dark tactical coat, an earpiece, disciplined and imposing`),
         `calm, watchful, quietly intense expression — misses nothing`,
         `NO glasses, sharp steady eyes visible`,
         scene,
@@ -486,7 +492,7 @@ const STATE = {
         `building concierge / front-desk staff`,
         `${STATE.imagePrompts.applyHair(app, npc)} styled as a soft textured boyish fringe falling naturally over his forehead (young idol haircut)`,
         `${app.skin} skin`,
-        `wearing only a simple neat polo work shirt with a small staff badge`,
+        STATE.imagePrompts.outfitOf(npc, `wearing only a simple neat polo work shirt with a small staff badge`),
         `arms relaxed at his sides, hands completely empty, nothing on his shoulders or back`,
         `bright warm boyish smile, kind earnest expression`,
         scene,

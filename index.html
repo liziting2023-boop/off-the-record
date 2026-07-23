@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.73"></script>
-<script src="state.js?v=12.73"></script>
+<script src="story.js?v=12.74"></script>
+<script src="state.js?v=12.74"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.73 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.74 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.73 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.74 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2726,8 +2726,9 @@ function showNPCScene(npcKey, day, locKey, pushGallery) {
   const card = document.getElementById('vn-npc-card');
   const npc = G.npcs[npcKey];
   if (npc && npc.portraitUrl) {
-    // 固定立绘立即显示（不用等生图），背景后台加载
-    document.getElementById('vn-npc-img').src = npc.portraitUrl;
+    // 固定立绘立即显示（不用等生图），背景后台加载。同居对象在家=便装立绘（同seed只换衣服）
+    document.getElementById('vn-npc-img').src = portraitFor(npcKey, locKey);
+    if (npc._cohabiting) { try { ensureHomePortrait(npcKey); } catch(e){} } // 还没生成就后台补一张，下次即用
     card.style.display = 'block';
     showVNTapHint();
     genLocationBg(locKey, day).then(url => {
@@ -2771,6 +2772,30 @@ async function genNPCPortraitPlain(npcKey, day, pose, seedOverride) {
   if (!prompt && STATE.imagePrompts.secondaryLooks[npcKey]) prompt = STATE.imagePrompts.buildSecondaryPrompt(G, npcKey, plainComp, day); // 二线/三线 + 一级新NPC 走 secondaryLooks；主线有专属build的prompt已非空
   if (G.npcs[npcKey].portraitSeed == null) G.npcs[npcKey].portraitSeed = Math.floor(Math.random() * 1000000);
   return await img(prompt + PORTRAIT_CROP, getNPCName(npcKey) + ' — portrait', false, 2, seedOverride != null ? seedOverride : G.npcs[npcKey].portraitSeed, true);
+}
+
+// ── 居家立绘（同居后在家用）：同一个 portraitSeed、只把工作装换成便装，脸不会变（同美发店换发色的做法）。
+//    修"经纪人在家睡前还穿着西装"。每个NPC只多生一张，存 homePortraitUrl 复用。──
+async function ensureHomePortrait(npcKey) {
+  var n = G.npcs[npcKey];
+  if (!n || !n.met) return null;
+  if (n.homePortraitUrl) return n.homePortraitUrl;
+  if (n._homePortraitPending) return null; // 正在生成，别重复排队
+  n._homePortraitPending = true;
+  try {
+    n._wearHome = true;                     // ← 让各 build*Prompt 的服装句走 HOME_OUTFIT
+    var url = await genNPCPortraitPlain(npcKey, G.day, 'relaxed at home, facing the camera directly, warm and unguarded');
+    if (url) { n.homePortraitUrl = url; STATE.save.saveGame(); }
+    return url || null;
+  } catch (e) { return null; }
+  finally { delete n._wearHome; delete n._homePortraitPending; } // 绝不让这两个临时标记进存档
+}
+// 该用哪张立绘：同居对象在家场景=便装；其余一律原立绘
+function portraitFor(npcKey, locKey) {
+  var n = G.npcs[npcKey] || {};
+  var atHome = locKey === 'her_home' || (locKey && /_home$/.test(locKey));
+  if (n._cohabiting && atHome && n.homePortraitUrl) return n.homePortraitUrl;
+  return n.portraitUrl;
 }
 
 // ── 初见立绘全屏展示：三选一确认后先看大图，点击后进入对话 ──
@@ -5243,6 +5268,37 @@ function buildDayOpts() {
         }
       }
     } catch(e) {}
+    // ── 同居对象在家（用户定稿）：住一起了，他早晚本来就在——首页给一个"他在家"的入口。
+    //    不走约会/邀约流程（同居了还发邀约反而怪），就是家里的日常一幕。一天早、晚各一次。
+    try {
+      var _cohabK = Object.keys(G.npcs).find(function(k){ return G.npcs[k] && G.npcs[k]._cohabiting && !npcIsCold(k); });
+      if (_cohabK && slots.length < 5) {
+        var _cm = REALTIME ? rtClockMin() : (G.clockMin || 1200);
+        var _seg = _cm < 11 * 60 ? 'morning' : (_cm >= 17 * 60 ? 'evening' : null); // 早上/傍晚才在家，白天各忙各的
+        if (!G._cohabSeen) G._cohabSeen = {};
+        var _seenKey = G.day + ':' + _seg;
+        if (_seg && G._cohabSeen[_cohabK] !== _seenKey) {
+          var _cn = getNPCName(_cohabK);
+          slots.push(makeOpt(
+            _seg === 'morning' ? (isZh ? '☕ 和' + _cn + '一起吃早饭' : 'Breakfast with ' + _cn)
+                               : (isZh ? '🏠 ' + _cn + '在家' : _cn + ' is home'),
+            _seg === 'morning' ? (isZh ? '你们住一起的清晨' : 'A morning in your place')
+                               : (isZh ? '一起过个晚上' : 'An evening in together'), '',
+            function(){
+              G._cohabSeen[_cohabK] = _seenKey; STATE.save.saveGame();
+              _vnEndLoc = 'her_home';
+              G.today = { label: (isZh?'和'+_cn+'在家':'Home with '+_cn), isWork: false, npc: _cohabK };
+              runQuickNPCChat(_cohabK, {
+                locKey: 'her_home',
+                title: (isZh ? '在家' : 'At home'),
+                custom: (_seg === 'morning'
+                  ? 'You two LIVE TOGETHER. It is morning in the home you share — one of you made coffee, the day has not started yet. This is domestic and unremarkable in the best way: no greeting-at-the-door, no guest manners, no "thanks for having me", no invitations, no arriving or leaving. Talk the way two people who woke up in the same bed talk — half-finished sentences, small logistics about the day, a tease, an easy touch in passing.'
+                  : 'You two LIVE TOGETHER. It is evening in the home you share and you are both in for the night. Nobody arrived and nobody is leaving — no door, no goodbye ahead. Domestic and easy: dinner, the couch, something small from your day. The intimacy of ordinary evenings, not a date.')
+              }, function(){ goHome(); });
+            }));
+        }
+      }
+    } catch(e) {}
     slots.slice(0, 5).forEach(b => opts.appendChild(b));
     // ③ 剩余槽位用随机职业/休息补足（最多5个总量；有工作/约会时随机项减到2个，全空闲给3个）
     let room = 5 - Math.min(slots.length, 5);
@@ -7168,7 +7224,7 @@ async function startScriptedScene(ev, day, skipPre) {
 function showNPCPortraitCard(npcKey) {
   const npc = G.npcs[npcKey];
   if (!npc || !npc.portraitUrl) return;
-  document.getElementById('vn-npc-img').src = npc.portraitUrl;
+  document.getElementById('vn-npc-img').src = portraitFor(npcKey, (_curSceneEv && _curSceneEv.location) || _vnEndLoc || '');
   document.getElementById('vn-npc-card').style.display = 'block';
 }
 
@@ -10116,7 +10172,13 @@ async function sendChatReply() {
     var _addrRule = (npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0) ? ''
       : 'ADDRESS RULE: you do NOT know where she lives — nobody ever gave you her address. NEVER propose coming to her place, picking her up at her home, or walking to "her building" as if you know where it is. And NEVER invent a justification for knowing it (client files, agency records, gym paperwork, "asked around" — none of these exist, and claiming them reads as creepy). Arrange to meet AT the venue instead ("see you there"). Only if SHE volunteers her address or explicitly invites you over in THIS chat may her place be an option. ';
     // 家=亲密专属的门槛规则（用户定稿）：够亲密才双向随时；否则家OFF；经纪人/管家门槛前可来她家办正事
-    var _homeRule = _addrRule + (homeVisitAllowed(npc, 'his_home')
+    // 提出结束同居（用户定稿）：她在聊天里说想搬出去/不想再住一起 → 他按性格反应（受伤但尊重、绿旗不纠缠不挽留到底），
+    // 之后代码真的解除 _cohabiting。只在【确实同居中】才检测。
+    var _cohabEndAsk = !!(G.npcs[npc] && G.npcs[npc]._cohabiting) && /搬出去|搬回去|搬走|不想.{0,8}住(在)?一起|不(要|想).{0,6}同居|分开住|各住各|结束同居|需要.{0,4}空间|move out|moving out|not living together|live apart|need (my own )?space/i.test(text);
+    var _cohabEndNote = _cohabEndAsk
+      ? ' ⚠️ SHE IS ASKING TO STOP LIVING TOGETHER — to move out / for you two to live apart again. This is NOT a breakup unless she said so; she is asking for her own space. React as YOUR character honestly would: it lands, it hurts, and you do not hide that it hurts — but you do NOT argue her out of it, guilt her, bargain, issue ultimatums, or make her justify herself. It is her home and her call, and you respect it even while it stings. You may ask one quiet question or say plainly what you feel, then accept it. Keep it short and real (2-3 sentences), no speeches, no cold shoulder. '
+      : '';
+    var _homeRule = _cohabEndNote + _addrRule + (homeVisitAllowed(npc, 'his_home')
       ? 'HOME OK: you two are close enough that home visits feel natural — her place or yours are both fine if that is what you two agree on. '
       : ('HOME GATE: you two are NOT intimate yet, so home is OFF LIMITS — do NOT agree to go to her place or invite her to yours; keep any meetup at a PUBLIC place (cafe/park/bookshop/etc). If she suggests a home visit, decline it lightly and NATURALLY (a small excuse, or redirect to somewhere public) — NEVER state a rule such as "we barely know each other" or "too soon". '
         + ((npc === 'agent' || npc === 'butler') ? 'EXCEPTION: you MAY come to HER place strictly for a practical reason (as her agent: work — drop something off, check on her when she is stressed/unwell; as the building manager: fix or check something) — professional, not romantic, and never an overnight. ' : '')));
@@ -10198,6 +10260,14 @@ async function sendChatReply() {
     if (meetInfo && !futureInv) {
       const _relDay = /后天|day after tomorrow/i.test(text) ? 2 : (/明天|明晚|明早|明儿|tomorrow/i.test(text) ? 1 : 0);
       if (_relDay > 0) { futureInv = { daysFromNow: _relDay, time: (meetInfo.time || '12:00'), locationKey: meetInfo.locationKey, title: meetInfo.title }; meetInfo = null; }
+    }
+    // 同居真正解除（他已经回过话了才落地）：清标记、允许日后再邀一次、写进记忆，关系本身保留（这不是分手）
+    if (_cohabEndAsk && reply && G.npcs[npc] && G.npcs[npc]._cohabiting) {
+      delete G.npcs[npc]._cohabiting;
+      delete G.npcs[npc]._cohabOffered;      // 以后关系再热起来还可以重新提同居
+      if (G._cohabSeen) delete G._cohabSeen[npc]; // 首页"他在家"入口同步消失
+      STATE.memory.addEvent(npc, 'She asked to stop living together and move back to her own place (day ' + G.day + '). It hurt, but you respected it — you are still together, just not under one roof.', G.day);
+      try { STATE.save.saveGame(); } catch(e){}
     }
     if (_canResched && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
       try {
@@ -10857,7 +10927,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.73 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.74 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
