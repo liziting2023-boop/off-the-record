@@ -808,11 +808,16 @@ FINAL REMINDER — your entire reply MUST be written in ${lang}, every single wo
         if (rs && /^\d{4}-/.test(rs)) baseY = parseInt(rs.slice(0, 4), 10);
         if (!baseY || baseY < 2020 || baseY > 2100) baseY = new Date().getFullYear();
         var lo = (baseY - 1) + '-01-01', hi = (baseY + 2) + '-01-01';
-        var killed = 0;
+        var killed = 0, killedKeys = [];
         Object.keys(ev).forEach(function (k) {
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k < lo || k >= hi) { delete ev[k]; killed++; }
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k < lo || k >= hi) {
+            // 把【删了什么】原样记下来：用户实测存档 15 条→重登只剩 5 条，必须钉死是哪些键被清掉、
+            // 里面装的是不是真行程（是=清扫误杀，不是=确实有人在写垃圾键）
+            killedKeys.push(k + ' [' + ((ev[k] || []).map(function (e) { return (e && (e.id || e.title)) || '?'; }).join(', ') || '空') + ']');
+            delete ev[k]; killed++;
+          }
         });
-        if (killed) { try { console.warn('[OTR] 存档时剥离写错年份的幽灵行程 ×' + killed + '（窗口 ' + lo + '~' + hi + '）'); } catch (e) {} }
+        if (killed) { try { console.warn('[OTR] 存档时剥离越界日期键 ×' + killed + '（窗口 ' + lo + '~' + hi + '）→ ' + killedKeys.join(' | ')); } catch (e) {} }
         return killed;
       } catch (e) { return 0; }
     },
