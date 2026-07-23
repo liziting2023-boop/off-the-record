@@ -783,8 +783,30 @@ FINAL REMINDER — your entire reply MUST be written in ${lang}, every single wo
   save: {
     KEY: 'otr_save_v2', // v2: gallery only saves selected images
 
+    // 幽灵行程根治（用户实测：日历事件被写进 2028-12，读档清扫删了又从云端/存档复活）。
+    // 在【写存档】这唯一出口剥掉荒谬年份的日历键——本地和随后推给云端的副本一次就彻底干净、不再复活。
+    // 用"±2年窗口"判定：游戏总长只有 360 天(<1年)，任何比锚点年份早1年以上或晚2年以上的日期键必是写错的。
+    // 锚点年份取 rtStartDate 的年份，缺失则取真实今天——即使锚点偏了几个月，±2年窗口也绝不会误删真实行程。
+    _stripGhostEvents() {
+      try {
+        var ev = STATE.data && STATE.data.calendar && STATE.data.calendar.events;
+        if (!ev) return 0;
+        var baseY;
+        var rs = STATE.data.rtStartDate;
+        if (rs && /^\d{4}-/.test(rs)) baseY = parseInt(rs.slice(0, 4), 10);
+        if (!baseY || baseY < 2020 || baseY > 2100) baseY = new Date().getFullYear();
+        var lo = (baseY - 1) + '-01-01', hi = (baseY + 2) + '-01-01';
+        var killed = 0;
+        Object.keys(ev).forEach(function (k) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k < lo || k >= hi) { delete ev[k]; killed++; }
+        });
+        if (killed) { try { console.warn('[OTR] 存档时剥离写错年份的幽灵行程 ×' + killed + '（窗口 ' + lo + '~' + hi + '）'); } catch (e) {} }
+        return killed;
+      } catch (e) { return 0; }
+    },
     saveGame() {
       try {
+        this._stripGhostEvents(); // 写档前先剥幽灵：本地+云端一次性干净
         localStorage.setItem(this.KEY, JSON.stringify(STATE.data));
         return true;
       } catch (e) {
@@ -806,6 +828,7 @@ FINAL REMINDER — your entire reply MUST be written in ${lang}, every single wo
         const merged = this._deepMerge(STATE.data, parsed);
         Object.keys(STATE.data).forEach(k => delete STATE.data[k]);
         Object.assign(STATE.data, merged);
+        this._stripGhostEvents(); // 读档后立即剥幽灵（含云端恢复带回来的），并入内存前彻底清掉
         return true;
       } catch (e) {
         console.warn('Load failed:', e);
