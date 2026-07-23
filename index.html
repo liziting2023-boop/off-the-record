@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.57"></script>
-<script src="state.js?v=12.57"></script>
+<script src="story.js?v=12.58"></script>
+<script src="state.js?v=12.58"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.57 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.58 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1168,7 +1168,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.57 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.58 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1273,7 +1273,7 @@ function absenceReaction(gap) {
     } catch(e){} })();
   }
   // 其余已识、好感≥40的NPC里挑1-2个按性格"想你了"
-  var others = Object.keys(G.npcs).filter(function(k){ return k!=='agent' && k!=='detective' && npcTier(k) < 3 && npcHasContact(k) && G.npcs[k].met && (G.npcs[k].relationship||0) >= 40 && !npcIsCold(k); });
+  var others = Object.keys(G.npcs).filter(function(k){ return k!=='agent' && k!=='detective' && npcTier(k) < 3 && npcHasContact(k) && G.npcs[k].met && (G.npcs[k].relationship||0) >= 40 && !npcIsCold(k) && !G.npcs[k].platonic; });
   others.sort(function(a,b){ return (G.npcs[b].relationship||0)-(G.npcs[a].relationship||0); }).slice(0,2).forEach(function(k){
     (async function(){ try {
       var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
@@ -1490,7 +1490,19 @@ function doProfessionalEnd(npcKey){
     _clearAgentWork();                 // 事业清零：今天起所有工作行程全部清空（用户定稿：解约后没有事业了）
     try { queueAssistantCoverMsg(); } catch(e){}
   }
-  if (npcKey==='drummer'){ G._drummerLeftBand = { since: G.day }; }
+  if (npcKey==='drummer'){ G._drummerLeftBand = { since: G.day }; try { queueBandCoverMsg(); } catch(e){} }
+}
+// 鼓手退队后的善后（用户问"辞职如何体现"）：除了鼓手本人的告别短信，经纪人随后也来消息——
+// 确认这件事、稳住她、说乐队会找替补鼓手把录音撑住；不站队、不八卦她的私事（他自己可能也是当事人之一）。
+async function queueBandCoverMsg(){
+  if (!G.npcs.agent || !G.npcs.agent.met || G._agentGone || G.npcs.agent._professionalEnd) return;
+  try { STATE.memory.addEvent('agent', (G.npcs.drummer.name||'The drummer') + ' quit the band (day ' + G.day + ') over the personal fallout with her. You are handling it professionally: a session drummer will cover, recordings go on.', G.day); } catch(e){}
+  try { STATE.memory.addEvent('assistant', (G.npcs.drummer.name||'The drummer') + ' left the band (day ' + G.day + '); schedule keeps running with a session drummer.', G.day); } catch(e){}
+  try {
+    var t = await claude(STATE.memory.buildDialoguePrompt('agent', G.day, G.langName, G.player.name,
+      'News just reached you: ' + (G.npcs.drummer.name||'the drummer') + ' has quit the band, over the personal fallout between him and her. Text her now as her AGENT, professionally and steady: confirm you heard, tell her the work is covered (you will bring in a session drummer, recordings and shows go on), and check in on her in ONE warm human sentence. Do NOT take sides, do NOT gossip about the personal mess, do NOT scold her. 2-3 texting sentences, in ' + G.langName + '. Output only the message text.'));
+    if (t && t.trim()) pushNpcMsg('agent', t.trim(), (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||1200))+8);
+  } catch(e){}
 }
 // 解约=事业归零：从今天起清掉日历上所有工作类行程（拍摄/排练/录音/团队会等），保留和其他NPC的私人约会。
 // 玩家仍可逛街/健身/和二线NPC互动，但没有事业线、接触不到靠广告/演唱会才认识的特级NPC（人际降级）。
@@ -1571,6 +1583,7 @@ async function checkProactiveOnOpen() {
   // 注意"睡着"不在这里筛——补发要按【发送时刻】判他睡没睡（挑发送时间时再查）
   var cands = Object.keys(G.npcs).filter(function(k){
     if (k==='detective' || !G.npcs[k].met || npcIsCold(k)) return false;
+    if (G.npcs[k].platonic) return false; // 功能性联系人（助理）：不主动闲聊——周榜/改档确认等业务消息走 pushNpcMsg 直发，不受影响（用户反馈：助理没事别老主动发消息）
     if (npcTier(k) >= 3) return false; // 三线（反面）不主动发消息骚扰玩家——只有玩家自己去找他们
     if (!npcHasContact(k)) return false; // 二线没交换联系方式前不会发消息（用户定稿）
     // 正在剧情/见面场景里的NPC不发消息——人就坐在你对面，还给你发短信就穿帮了
@@ -5599,6 +5612,8 @@ async function runGroupScene(participants, opts) {
     document.getElementById('vn-text').innerHTML = '<span style="opacity:.55">…</span>';
     var _meeting = opts.tone === 'meeting';
     var _nearEnd = turn >= (maxTurns - 1);
+    // 第二次当众被刺（他上次已下过"你得选"的通牒/被警告过）→ 不再是"受伤但压着"，而是当场了断（用户实测：第二次被刺还在认真回应工作，不合理）
+    var _stungRepeat = _stungThisBeat && Object.keys(_stungKeys).some(function(k){ return G.npcs[k] && (G.npcs[k]._mustChoose || G.npcs[k]._proWarned); });
     // 在场有两个以上"和她过夜过"的男人 → 吃醋张力（绿旗底线：含蓄受伤、绝不暴力/闹场，重的放会后私聊）
     var _loversNote = (_loverKeys.length >= 2)
       ? ' INTIMACY TENSION (make this LAND — do not play it cool): more than one man here (' + _loverKeys.map(function(p){ return p.name; }).join(' and ') + ') has been intimate with her. If she is openly affectionate or physical with ONE of them — a hug, a kiss, sitting in his lap — the OTHER visibly REACTS, hard and unmistakably: his voice goes cold and clipped, a jealous/stung edge he cannot fully hide, a pointed or biting line, a tight "…seriously?", a jaw set hard, maybe he goes dangerously quiet or shoots the other man a look. He is clearly thrown and it shows. He does NOT just sit there unbothered. BUT — still NEVER violence, NEVER throwing hands or a brawl, NEVER cruelty, threats, or a screaming public blowup (they are green-flag adults); the sharper reckoning comes later and privately. So: strongly, obviously affected in the room — but no physical fight.'
@@ -5616,7 +5631,7 @@ async function runGroupScene(participants, opts) {
           ? ('COVERT MOVE — ONLY ' + _covert.name + ' NOTICES: the woman (' + (G.player.name || 'she') + ') just did something HIDDEN aimed only at ' + _covert.name + ' — ' + describeHerTurn(playerLine) + ' It is under the table / out of sight / too discreet for anyone else to catch. ONLY ' + _covert.name + ' registers it: he gives a small, quickly-masked tell (a caught breath, a flicker, his hand catching hers to still it, one sharp private glance at her) and covers it instantly. EVERYONE ELSE saw and felt NOTHING — they carry on exactly as before; do NOT have anyone else react, glance, pause or comment, and NO jealousy from the others (they do not know it happened).\n')
           : ('The woman (' + (G.player.name || 'she') + ') just took her turn — ' + describeHerTurn(playerLine) + ' REACT TO THIS FIRST and truthfully — anything she says out loud or any big, visible action is seen by EVERYONE in the room, so each person present responds in their OWN way and NOBODY just ignores it or ploughs on with the agenda: a lover reacts with a charged/possessive/hurt beat, and a non-romantic colleague present (an assistant, a bandmate) reacts with plain surprise, a fluster, looking away, an awkward throat-clear — real people cannot un-see it. NEVER repeat her action back as if she spoke it. Then, only if it fits, they get back to business.\n')
       ) : '') +
-      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). THE MAN SHE KISSED (' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ') must REACT TO THE KISS ITSELF, not smooth it over: first his own unguarded split-second feeling in his register (caught off guard and secretly thrilled / flustered heat / a low exhale — being kissed by her LANDS on him), and then — because their relationship was PRIVATE until this second — his immediate instinct about the room: if he wanted discretion he is now scrambling, looking at the others, and SAYS something to contain it ("这事出不了这间屋子" / asking everyone to keep it in the room), visibly shaken that it is out. He does NOT step back into work mode, does NOT run the agenda, does NOT hand out deadlines — the relationship just became the only subject in the room. If anyone else speaks, it is about the tension, not business. Nobody smoothly gets back to the agenda. HARD BANS for EVERY line of this beat (violating any of these ruins the moment): any calendar date (7/24, 周六, "23号"…), any session/shoot/styling/training logistics, any work instruction to an assistant or anyone ("Sarah, 盯一下…" = BANNED), any mention of reference images, agendas or deliverables. A man who just watched his lover kiss another man does NOT dictate schedule details through his teeth — he loses the room entirely. His lines are short and raw, about what just happened — or he is pointedly silent, stands, walks to the window, ends the meeting. (Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
+      (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). THE MAN SHE KISSED (' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ') must REACT TO THE KISS ITSELF, not smooth it over: first his own unguarded split-second feeling in his register (caught off guard and secretly thrilled / flustered heat / a low exhale — being kissed by her LANDS on him), and then — because their relationship was PRIVATE until this second — his immediate instinct about the room: if he wanted discretion he is now scrambling, looking at the others, and SAYS something to contain it ("这事出不了这间屋子" / asking everyone to keep it in the room), visibly shaken that it is out. He does NOT step back into work mode, does NOT run the agenda, does NOT hand out deadlines — the relationship just became the only subject in the room. If anyone else speaks, it is about the tension, not business. Nobody smoothly gets back to the agenda. HARD BANS for EVERY line of this beat (violating any of these ruins the moment): any calendar date (7/24, 周六, "23号"…), any session/shoot/styling/training logistics, any work instruction to an assistant or anyone ("Sarah, 盯一下…" = BANNED), any mention of reference images, agendas or deliverables. A man who just watched his lover kiss another man does NOT dictate schedule details through his teeth — he loses the room entirely. His lines are short and raw, about what just happened — or he is pointedly silent, stands, walks to the window, ends the meeting. ' + (_stungRepeat ? 'AND THIS IS THE SECOND TIME she has flaunted it in front of him after he already drew his line — he is past hurt and into DONE. He does not discuss work AT ALL, does not negotiate, does not wait: ONE short, final line in his own voice (that he can\'t keep doing this / that they should start looking for someone else for his seat), then he stands, collects his things, and walks out of the room. The scene ends with the door. ' : '') + '(Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
       (_meeting && !_stungThisBeat
         ? ('This is a REAL working meeting with a purpose — NOT aimless chatter. Each beat must ADVANCE a concrete agenda point using the REAL FACTS above (an actual dated session, the song/release, a scheduling call, a real decision), give useful specifics, and visibly MOVE things toward getting settled. A little dry humor or personality is fine as seasoning, but the meeting must accomplish something. ' + (_nearEnd ? 'This is near the END — land a CLEAR takeaway: what is decided and the concrete next step(s), in character. ' : ''))
         : '') +
@@ -5625,7 +5640,7 @@ async function runGroupScene(participants, opts) {
       'Output ONLY valid JSON, no fences: {"lines":[{"speaker":"<exactly one of: ' + _names.join(' | ') + '>","text":"..."}]}';
     // ⚠️ 群戏要返回一段 JSON 数组，token 需求比普通聊天大——不能用 claudeChat(max_tokens=200，会把 JSON 截断成半截→解析失败)。
     //    直接走 claude()（sonnet 更会守 JSON）并给足 700 token。群戏不频繁，成本可接受。
-    var raw = await claude(prompt, '', { max_tokens: 700 });
+    var raw = await claude(prompt, '', { max_tokens: 1000 });
     var lines = [];
     try {
       var s = (raw || '').replace(/```json|```/g, '').trim();
@@ -5634,6 +5649,13 @@ async function runGroupScene(participants, opts) {
       var pj = JSON.parse(s);
       lines = (pj.lines || []).filter(function(l){ return l && l.text; });
     } catch(e){}
+    // 截断抢救（用户实测"这一段没生成出来"频发）：JSON 被截断/夹杂时，用正则把完整的 speaker/text 对逐条抠出来
+    if (!lines.length && raw) {
+      try {
+        var _mm, _re2 = /"speaker"\s*:\s*"([^"]+)"\s*,\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+        while ((_mm = _re2.exec(raw))) lines.push({ speaker: _mm[1], text: _mm[2].replace(/\\"/g, '"').replace(/\\n/g, ' ') });
+      } catch(e){}
+    }
     if (!lines.length) {
       // 真失败（多半是这一发 AI 抖动/额度）：给准确文案 + "再试一次"，别再误报"额度已满"顶掉整场
       document.getElementById('vn-text').textContent = isZh ? '这一段没生成出来，再试一次？' : "That bit didn't come through — try again?";
@@ -6886,6 +6908,11 @@ async function playScheduledEvent(dateStr, event) {
   document.getElementById('vn-opts').appendChild(btn);
   // 工作场地的二线偶遇（录音室=工程师）：行程做完后给"搭话"入口
   try { appendSecondaryEncounterBtn(event.locKey || ''); } catch(e){}
+
+  // 行程场景也算"进行中的场景"（用户实测：拍摄遇NPC的对话，点首页就永远消失了——因为事件下面马上标 completed）：
+  // 中途切走后首页给"继续 · 行程名"入口，原样回到现场；场景走完(goEvening)会清掉这个指针
+  _curSceneEv = { npc: (event.npcKey || window._schedChatNpc || null), location: event.locKey || null, _meetup: event.title || (G.lang==='zh-cn'||G.lang==='zh-tw' ? '今日行程' : "Today's session") };
+  _curSceneOriginDay = G.day;
 
   // 标记这个安排已完成，避免重复触发
   event.status = 'completed';
@@ -8958,7 +8985,7 @@ async function generateAffinityMessages(day) {
 
   // Get met NPCs sorted by relationship
   const metNPCs = Object.entries(G.npcs)
-    .filter(([k, n]) => n.met && k !== 'detective' && npcTier(k) < 3 && npcHasContact(k)) // detective is mystery; 三线不进晚间消息；二线需已交换联系方式
+    .filter(([k, n]) => n.met && k !== 'detective' && npcTier(k) < 3 && npcHasContact(k) && !n.platonic) // detective is mystery; 三线不进晚间消息；二线需已交换联系方式
     .sort(([,a],[,b]) => b.relationship - a.relationship);
 
   for (const [npcKey, npc] of metNPCs) {
@@ -9898,7 +9925,7 @@ async function sendChatReply() {
   btn.disabled = false; // 玩家可以连续发，不用等回复
 
   // 触发②：聊天里明确对恋人（经纪人/鼓手）提分手/选了别人 → 走两阶段职业破裂（先警告，再犯/再提才解约·辞职）
-  var _breakupRe = /分手|我们(?:就此)?(?:结束了?|完了|到此为止)|(?:不想|不要)(?:再)?(?:和你|跟你|与你)(?:在一起|做恋人|谈了)|我选(?:了|择了)?(?:别人|他)|咱们?(?:还是)?别(?:在一起|处|谈)了?|break(?:ing)?\s?up|we(?:'re| are)\s+(?:over|done|through)|it'?s over between us|i(?:'m| am)\s+(?:choosing|going with|leaving you for)\s+(?:him|someone)|i (?:pick|choose) him/i;
+  var _breakupRe = /分手|我们(?:就此)?(?:结束了?|完了|到此为止)|(?:不想|不要)(?:再)?(?:和你|跟你|与你)(?:在一起|做恋人|谈了)|我选(?:择)?(?:了)?(?:别人|他|经纪人|鼓手|另一个)|我(?:的心)?(?:还是|最终)?选(?:择)?(?:了)?他|咱们?(?:还是)?别(?:在一起|处|谈)了?|break(?:ing)?\s?up|we(?:'re| are)\s+(?:over|done|through)|it'?s over between us|i(?:'m| am)\s+(?:choosing|going with|leaving you for)\s+(?:him|someone)|i (?:pick|choose) him/i;
   if (_breakupRe.test(text) && proRelevant(npc)) {
     try { await escalateProRupture(npc, 'she told you she is breaking up with you / choosing the other man'); } catch(e){}
     try { renderChatMsgs(npc); } catch(e){}
@@ -10618,7 +10645,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.57 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.58 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

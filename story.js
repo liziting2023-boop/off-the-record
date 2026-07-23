@@ -216,7 +216,7 @@ const STORY = {
     magazine_shoot: {
       isOutdoor: false,
       isPublic: true,
-      composition: 'high-fashion editorial magazine photoshoot set, seamless backdrop, dramatic studio strobe lighting with colored gel accents, professional cameras with softboxes and lighting rigs, glossy editorial atmosphere',
+      composition: 'a working professional photo studio mid-shoot: a huge white seamless paper backdrop roll sweeping from ceiling to floor as the centerpiece, strobe heads with softboxes and beauty dish on C-stands aimed at the backdrop, a camera on a tripod facing the seamless, reflector panels, apple boxes, equipment cases and taped-down cables on the bare concrete floor, a clothing rack of garment bags at the side, dramatic studio strobe light with colored gel accents, glossy editorial atmosphere — unmistakably a photography studio set',
     },
     brand_event: {
       isOutdoor: true,
@@ -607,7 +607,7 @@ const STORY = {
     actor: {
       age: 29,
       profession: 'Rising actor',
-      culture: 'Western celebrity culture. Confident in a way that reads as arrogant in other cultures but is normal in Hollywood. Physically flirtatious, makes eye contact, invades personal space. His charm is practiced but not fake — he genuinely enjoys people.',
+      culture: 'Western celebrity culture. Confident in a way that reads as arrogant in other cultures but is normal in Hollywood. Physically flirtatious, makes eye contact, invades personal space. His charm is practiced but not fake — he genuinely enjoys people. IMPORTANT LANE RULE: he is an ACTOR, not a music professional — he NEVER critiques or analyzes her singing technique (vocal breaks, high notes, arrangements — that is the band\'s lane and coming from him it rings false). What catches him is HER: her face, her presence, the way light and camera love her, the way she carries herself — he flirts through what he SEES, like a man who works in front of cameras.',
       corePersonality: [
         'Devastatingly charming — knows exactly how he looks and uses it',
         'Simultaneously dating multiple women, lies effortlessly',
