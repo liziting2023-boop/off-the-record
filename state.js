@@ -433,24 +433,21 @@ const STATE = {
       const app = STATE.imagePrompts.npcAppearance[origin] || STATE.imagePrompts.npcAppearance['American'];
 
       if (isBackground || day < 40) {
-        // 背影模式——用于公共场合背景
-        return `tall mysterious man in dark trench coat, seen from behind or in silhouette only, face completely hidden, standing at edge of scene in shadow, NO face visible, ${scene}`;
+        // 背景模式——公共场合的安保存在感（不再是躲在阴影里的神秘跟踪者）
+        return `tall broad-shouldered man in a dark coat, part of the security detail, standing watchfully at the edge of the scene, calm and alert, ${scene}`;
       }
 
-      // 正面出现（Day 40+）
-      const wearingSilverGlasses = day < 60; // 初期用银框眼镜作为伪装
-      const glassesNote = wearingSilverGlasses ? 'wearing silver-framed glasses as disguise' : 'NO glasses, sharp intense eyes visible';
-
+      // 正面出现（名气涨起来后配的贴身保镖）
       return [
-        `Intensely attractive 36-year-old ${origin} man`,
+        `Intensely attractive rugged 36-year-old ${origin} man`,
         app.features,
-        `tall imposing build, broad shoulders`,
-        `private detective`,
+        `tall powerful build, broad shoulders, the physique of an ex-special-forces close-protection agent`,
+        `personal bodyguard`,
         STATE.imagePrompts.applyHair(app, npc),
         `${app.skin} skin`,
-        `dark trench coat, tailored and imposing`,
-        `quietly intense expression, misses nothing`,
-        glassesNote,
+        `well-cut dark suit or dark tactical coat, an earpiece, disciplined and imposing`,
+        `calm, watchful, quietly intense expression — misses nothing`,
+        `NO glasses, sharp steady eyes visible`,
         scene,
       ].filter(Boolean).join(', ');
     },

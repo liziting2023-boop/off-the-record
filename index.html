@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.69"></script>
-<script src="state.js?v=12.69"></script>
+<script src="story.js?v=12.70"></script>
+<script src="state.js?v=12.70"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.69 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.70 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.69 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.70 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1574,9 +1574,42 @@ function checkProRuptureDrift(){
   } catch(e){}
 }
 
+// 管家吃醋（用户定稿）：他在楼里前台，谁频繁上她家、待多久他看得见——别的男人常来她家过夜时，
+// 他受伤地问一句（绿旗：是前台自然看到后的受伤发问，不是监视/盘查/控制）。经纪人若来得勤，还会在大厅碰到弟弟。
+async function checkHomeVisitSocial(){
+  try {
+    if (!G || !G.npcs || !G.phone) return;
+    var b = G.npcs.butler;
+    // ① 经纪人频繁来她家 → 一次性：经纪人提"在大厅碰到我弟弟"（管家=经纪人同父异母弟弟，关系一般但认识）
+    if (G.npcs.agent && (G.npcs.agent._homeNights||0) >= 1 && b && b.met && !G._agentSawBrotherLobby && !npcIsCold('agent') && !(G.npcs.agent._professionalEnd)) {
+      G._agentSawBrotherLobby = true;
+      (async function(){ try {
+        var t = await claude(STATE.memory.buildDialoguePrompt('agent', G.day, G.langName, G.player.name,
+          'Small-world moment: leaving her building you ran into the young part-time concierge at the front desk — who happens to be your younger HALF-BROTHER (same father, different mothers; you did not grow up together and are just cordial, no drama, no secret). Text her lightly, a little amused: mention you bumped into him downstairs and only then clocked he works in HER building — "small world." Nothing heavy, just a wry aside. 1-2 sentences, in ' + G.langName + '. Output only the message text.'));
+        if (t && t.trim()) { pushNpcMsg('agent', t.trim(), (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||1200))+7); STATE.save.saveGame(); }
+      } catch(e){} })();
+    }
+    // ② 管家吃醋：某个【别的男人】在她家过夜过≥2次且最近 → 管家受伤地问。他只在'来往变多'时再问一次（_jealSeenCount 记上次）。
+    if (b && b.met && !npcIsCold('butler') && !(b._professionalEnd)) {
+      var _visitor = null;
+      Object.keys(G.npcs).forEach(function(k){ if (k==='butler') return; var n = G.npcs[k]; if (n && (n._homeNights||0) >= 2 && (G.day - (n._lastHomeNight||0)) <= 12) { if (!_visitor || (n._homeNights||0) > (G.npcs[_visitor]._homeNights||0)) _visitor = k; } });
+      if (_visitor && (G.npcs[_visitor]._homeNights||0) > (b._jealSeenCount||0)) {
+        b._jealSeenCount = G.npcs[_visitor]._homeNights;
+        var _isAgentBro = (_visitor === 'agent');
+        (async function(){ try {
+          var t = await claude(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
+            'You work the front desk of her building, so you naturally see who comes and goes. Lately ONE man (' + getNPCName(_visitor) + ') keeps coming up to her place and staying a long time, often overnight — and it stings, because you have feelings for her. Text her, hurt but NOT accusing or controlling: mention (lightly, the way the guy at the desk would) that you noticed him around a lot / staying so long, and you cannot quite keep the ache out of your voice — maybe ask who he is to her. ' + (_isAgentBro ? 'And it is your own older half-brother, which makes it stranger and quieter for you. ' : '') + 'GREEN-FLAG: you are NOT monitoring, policing, interrogating or demanding — it is her life and you respect that; you just saw, and you are too honest to pretend it does not get to you. 1-2 sentences, in ' + G.langName + '. Output only the message text.'));
+          if (t && t.trim()) { pushNpcMsg('butler', t.trim(), (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||1200))+3); try { STATE.relationships.change('butler', -1); } catch(e){} STATE.save.saveGame(); }
+        } catch(e){} })();
+      }
+    }
+  } catch(e){}
+}
+
 async function checkProactiveOnOpen() {
   try { flushJealousMeetMsgs(); } catch(e){}
   try { checkProRuptureDrift(); } catch(e){}
+  try { checkHomeVisitSocial(); } catch(e){}
   if (!REALTIME || !G.phone) return;
   var now = Date.now();
   var nowMin = rtClockMin();
@@ -1923,7 +1956,7 @@ const NPC_UI = {
   agent:    { emoji:'👔', color:'#C4A882' },
   drummer:  { emoji:'🥁', color:'#e8a87c' },
   actor:    { emoji:'🎬', color:'#9b8ec4' },
-  detective:{ emoji:'🕵️', color:'#6b8cba' },
+  detective:{ emoji:'🛡️', color:'#6b8cba' },
   butler:   { emoji:'🎂', color:'#7ec48a' },
   rival:    { emoji:'🎤', color:'#d98cae' },
   rafael:   { emoji:'⚽', color:'#5aa06a' },
@@ -1960,10 +1993,10 @@ function homeVisitAllowed(k, locationKey) {
 // 关系性质：professional/friendly/rivalry/disdain/frenemy/industry/local；侦探=谁都认识但没人知道他在盯
 // composer/chef/bodyguard 尚未落地，先埋好数据，做到时直接读
 const NPC_ACQUAINTANCE = {
-  agent:     { actor:'professional', composer:'professional', rival:'professional', bodyguard:'employer', drummer:'professional' },
+  agent:     { actor:'professional', composer:'professional', rival:'professional', bodyguard:'employer', drummer:'professional', butler:'half-brother' },
   drummer:   { rival:'disdain', composer:'wary-respect', chef:'regular', agent:'professional' },
   actor:     { rival:'frenemy', composer:'industry', agent:'professional' },
-  butler:    { chef:'local', bodyguard:'colleague' },
+  butler:    { chef:'local', bodyguard:'colleague', agent:'half-brother' },
   detective:  {}, // 观察者：知道所有人，但不进任何群聊
   rival:     { actor:'frenemy', drummer:'disdain', agent:'professional', composer:'industry' },
   // —— 待落地 ——
@@ -1992,6 +2025,7 @@ const ACQ_DESC = {
   local: 'you know each other around the neighbourhood',
   employer: 'an employer / employee relationship',
   colleague: 'you are colleagues',
+  'half-brother': 'you are half-brothers (same father, different mothers)',
 };
 // 关键关系写死正确事实（超出泛泛"认识"）——防模型瞎编身份
 function acqSpecificFact(npcKey, otherKey) {
@@ -2000,6 +2034,8 @@ function acqSpecificFact(npcKey, otherKey) {
     return ' — he is HER talent agent/manager, and the one who put together the band YOU drum in; you work with him closely and know he signed and manages her (do NOT call him a "producer")';
   if (npcKey === 'agent' && otherKey === 'drummer') // 经纪人 谈 鼓手
     return ' — he is the drummer / band leader of the band YOU assembled for her; you manage her and coordinate with him on her music (he is NOT her agent — YOU are)';
+  if ((npcKey === 'butler' && otherKey === 'agent') || (npcKey === 'agent' && otherKey === 'butler')) // 管家↔经纪人 = 同父异母兄弟
+    return ' — he is your ' + (npcKey === 'butler' ? 'OLDER' : 'YOUNGER') + ' half-brother (same father, different mothers); you did NOT grow up together and are just cordial, not close — there is NO secret and nothing hidden about it, if she mentions it you talk about it plainly (a little wry, no drama)';
   return '';
 }
 function npcAcquaintanceNote(npcKey) {
@@ -2021,7 +2057,7 @@ const NPC_ROLES = {
   agent:    { 'zh-cn':'经纪人','zh-tw':'經紀人',ja:'エージェント',ko:'에이전트',en:'Talent Agent' },
   drummer:  { 'zh-cn':'制作人','zh-tw':'製作人',ja:'音楽プロデューサー',ko:'프로듀서',en:'Producer' },
   actor:    { 'zh-cn':'演员','zh-tw':'演員',ja:'俳優',ko:'배우',en:'Actor' },
-  detective:{ 'zh-cn':'侦探','zh-tw':'偵探',ja:'探偵',ko:'탐정',en:'Detective' },
+  detective:{ 'zh-cn':'保镖','zh-tw':'保鏢',ja:'ボディガード',ko:'경호원',en:'Bodyguard' },
   butler:   { 'zh-cn':'管家','zh-tw':'管家',ja:'管理人',ko:'관리인',en:'Concierge' },
   rival:    { 'zh-cn':'对手歌手','zh-tw':'對手歌手',ja:'ライバル歌手',ko:'라이벌 가수',en:'Rival Singer' },
   rafael:   { 'zh-cn':'球星','zh-tw':'球星',ja:'サッカー選手',ko:'축구 스타',en:'Footballer' },
@@ -2054,7 +2090,7 @@ const NPC_BIO = {
   rafael:   { zh:'当红球星。镜头前痞帅张扬，私下却忠诚专一——他记得你把他当普通人看，而不是明星。', en:'A star footballer. All swagger and charm in public, loyal and real underneath — he remembers you treated him like a person, not a headline.', metZh:'一场饮料广告的拍摄现场', metEn:'A soda commercial shoot' },
   neighbor: { zh:'住你同层对门的单亲爸爸，独自带着女儿。温柔可靠，是那种让人安心的人。', en:'The single dad directly across the hall on your floor, raising his daughter alone. Warm, steady, the kind of man who makes you feel safe.', metZh:'同层的公寓走廊', metEn:'The hallway on your floor' },
   assistant:{ zh:'经纪人的得力助手，帮你打理所有日程。已婚、利落、嘴上毒心里暖，把你当小妹一样罩着。改行程找她。', en:"The agent's right hand who runs all your scheduling. Married, sharp, dry-but-warm — she's got your back like a big sister. Message her to change work.", metZh:'签约后经纪人介绍', metEn:'Introduced by your agent after signing' },
-  detective:{ zh:'一个总在不远处出现的男人。', en:'A man who keeps appearing at the edge of things.', metZh:'……说不清', metEn:'…hard to say' },
+  detective:{ zh:'名气涨起来后，公司给你配的贴身保镖——退役特种兵，话不多，什么都看在眼里。', en:'The close-protection agent assigned to you as your fame grew — ex-special-forces, few words, misses nothing.', metZh:'保镖', metEn:'Bodyguard' },
   coffee:   { zh:'楼下咖啡馆的咖啡师。话不多，记性好——第三次来他就记住了你的单。', en:'The barista downstairs. Few words, long memory — he knew your order by the third visit.', metZh:'楼下咖啡馆', metEn:'The café downstairs' },
   clerk:    { zh:'便利店的夜班店员，白天读研究生。凌晨的坦诚只有他那里有。', en:'The night clerk at the 24h store, grad student by day. 3am honesty lives behind his counter.', metZh:'深夜便利店', metEn:'The late-night store' },
   trainer:  { zh:'经纪公司指定健身房的教练。不看表也记得你每一组数据。', en:'Your trainer at the agency gym. Remembers your numbers without checking.', metZh:'健身房', metEn:'The gym' },
@@ -2196,7 +2232,7 @@ function getNPCName(key) {
     agent:    isZh?'经纪人':isJa?'エージェント':isKo?'에이전트':'Agent',
     drummer:  isZh?'制作人':isJa?'音楽プロデューサー':isKo?'프로듀서':'Producer',
     actor:    isZh?'演员':isJa?'俳優':isKo?'배우':'Actor',
-    detective:isZh?'侦探':isJa?'探偵':isKo?'탐정':'Detective',
+    detective:isZh?'保镖':isJa?'ボディガード':isKo?'경호원':'Bodyguard',
     butler:   isZh?'管家':isJa?'管理人':isKo?'관리인':'Butler',
     rival:    isZh?'对手歌手':isJa?'ライバル歌手':isKo?'라이벌 가수':'Rival Singer',
   };
@@ -8111,7 +8147,7 @@ const HOME_NOTICE = {
   drummer:  'what HE would notice: her guitar in the corner — he picks it up uninvited, tunes a string by ear, asks when she last played for herself and not for work',
   actor:    'what HE would notice: the mirror by the door and the photos — he finds the one where she is laughing and asks who made her laugh like that',
   butler:   'what HE would notice: the practical things — the flickering bulb, the loose hinge, the chair that wobbles; he rolls up his sleeves and actually fixes one while they talk',
-  detective:'what HE would notice: her small habits — the double lock, the mug always on the same coaster, which window she leaves cracked open; he reads the room like a case file, gently',
+  detective:'what HE would notice: the security of the place — the door lock, the sightlines from the window, where he would stand, the exits; he reads the room the way a close-protection man does, but gently, because it is HER space',
   rival:    'what HE would notice: the awards shelf that is still empty, the setlists pinned to the wall — he sizes up her ambition and likes what he sees',
 };
 function homeNoticeHint(npcKey, locKey) {
@@ -8251,7 +8287,7 @@ async function playInviteScene(inv) {
   if (inv.gathering) {
     // 赴了朋友聚会=关系公开：记进所有已识NPC记忆；次日其他高好感NPC按性格反应（追问/冷战/冷评）
     _afterDialogHook = () => {
-      const ROLE_EN = { agent:'her talent agent', drummer:'the band leader', actor:'the actor', butler:'the building manager', detective:'the detective', rival:'the rival singer' };
+      const ROLE_EN = { agent:'her talent agent', drummer:'the band leader', actor:'the actor', butler:'the building manager', detective:'her bodyguard', rival:'the rival singer' };
       G.publicWith = G.publicWith || {};
       G.publicWith[npcKey] = G.day;
       G._publicReactDue = { day: G.day + 1, npc: npcKey };
@@ -8323,8 +8359,8 @@ const REL_STANCE = {
     ctx: 'You two have spent the night together. As her AGENT, if this gets out it hurts HER career and looks like a conflict of interest — so, gently and warmly, ask her to keep what you two have strictly between you two for now. Make clear it is protection, not shame — you are not hiding HER, you are shielding her (1-2 sentences). Output only the message text.' },
   actor:    { mode: 'private',
     ctx: 'You two have spent the night together. Your tabloid reputation would eat her alive if this gets out — and part of you is not ready to be that exposed either. Ask her, charmingly but with an unusual note of seriousness, to keep this just between you two for now (1-2 sentences). Output only the message text.' },
-  butler:   { mode: 'private',
-    ctx: 'You two have spent the night together — it was YOUR FIRST TIME, your first with anyone, and you are over the moon, the kind of happy a young guy wants to tell the whole world about. You nearly do... and then, at the last second, something in you pulls back and you cannot quite say why (there is something you are hiding, even from her). So instead — a little thrown by your own hesitation, a small shadow you cannot explain — you ask her to keep it just between you two for now. NOT shame, NOT anything about your job — something you are not ready to name. 1-2 sentences. Output only the message text.' },
+  butler:   { mode: 'public', gatherLoc: 'cafe', gTitleZh: '他的朋友聚会 🎈', gTitleEn: "His friends' hangout 🎈",
+    ctx: 'You two have spent the night together — it was YOUR FIRST TIME and you are over the moon. You do NOT want to hide it: you are proud and happy and want people to KNOW she is yours. You genuinely do not care that dating a resident could cost you the little part-time concierge job — she matters far more. Text her, thrilled and a bit tumbling over your words: you want her to meet your friends this weekend, as your girlfriend. Warm, earnest, no games (1-2 sentences). Output only the message text.' },
   detective:{ mode: 'private',
     ctx: 'You two have spent the night together. You keep your personal life sealed off from your work by lifelong habit — tell her, in your dry understated way, that what happens between you two stays between you two, and that this is the closest thing to devotion you know how to say (1-2 sentences). Output only the message text.' },
 };
@@ -8616,6 +8652,8 @@ async function maybeStayOver(npcKey, locKey, opts) {
     STATE.relationships.change(npcKey, 10);
     G.npcs[npcKey].nights = (G.npcs[npcKey].nights || 0) + 1;
     G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
+    // 男人频繁来【她家】过夜 → 前台的管家看得见来往，会察觉/吃醋（用户定稿）。按NPC记"在她家过夜的次数+最近一次"。
+    if (destHers && npcKey !== 'butler' && G.npcs[npcKey]) { G.npcs[npcKey]._homeNights = (G.npcs[npcKey]._homeNights || 0) + 1; G.npcs[npcKey]._lastHomeNight = G.day; }
     // 第一夜之后：第二天早上他会发"公开/低调"立场消息（鼓手=邀你进他的圈子,其余=求低调,按性格）
     if (G.npcs[npcKey].nights === 1) { G.npcs[npcKey]._stanceDue = G.day + 1; _pendingIntimateMilestone = npcKey; } // 第一次过夜→回主页弹"亲密"里程碑章节卡
     STATE.memory.addEvent(npcKey,
@@ -9156,7 +9194,7 @@ function buildScheduleContext(days, onlyNpc) {
     var evs = (G.calendar.events[getCalDateStr(d)] || []).filter(e => e.status === 'accepted' && (e.type === 'work' || e.type === 'npc_invite') && (!onlyNpc || e.npcKey === onlyNpc));
     var sev = STORY.utils.getScriptedEvent(d);
     // 标注出席人，防止NPC说"明天录音室见"却根本不出席（如经纪人说见，实际是鼓手的排练）
-    var roleNames = { agent:'her agent', drummer:'the band leader (drummer)', actor:'the actor', butler:'the building manager', detective:'the detective' };
+    var roleNames = { agent:'her agent', drummer:'the band leader (drummer)', actor:'the actor', butler:'the building manager', detective:'her bodyguard' };
     var titles = evs.map(e => (e.type==='npc_invite' ? 'personal date: ' : '') + e.title + (e.time ? ' at ' + e.time : '') + (e.npcKey ? ' [with ' + (roleNames[e.npcKey]||e.npcKey) + ']' : ' [she goes alone]'));
     if (titles.length) lines.push('Day ' + d + ' (' + getGameDate(d) + (d === G.day ? ', TODAY' : '') + '): ' + titles.join(' + '));
     else if (!sev && !onlyNpc) lines.push('Day ' + d + ' (' + getGameDate(d) + (d === G.day ? ', TODAY' : '') + '): free, nothing scheduled');
@@ -10742,7 +10780,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.69 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.70 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
