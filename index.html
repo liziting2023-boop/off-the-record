@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.64"></script>
-<script src="state.js?v=12.64"></script>
+<script src="story.js?v=12.65"></script>
+<script src="state.js?v=12.65"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.64 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.65 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.64 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.65 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -9143,11 +9143,11 @@ function buildScheduleContext(days, onlyNpc) {
   }
   if (onlyNpc) {
     return (lines.length ? 'Shared plans you know about (ONLY these — you are part of them): ' + lines.join('; ') + '. ' : '') +
-      'When you tell her to come to something on a specific date, use the EXACT event already on that date and its correct type/name — a "show/performance/演出" is NOT a "rehearsal/排练"; do NOT relabel it, and do NOT invent a separate rehearsal on a day that already has one of these events. ' +
+      'When you tell her to come to something on a specific date, use the EXACT event already on that date and its correct type/name — a "show/performance/演出" is NOT a "rehearsal/排练"; do NOT relabel it, and do NOT invent a separate rehearsal on a day that already has one of these events. QUOTE THE TIME EXACTLY as written (14:00 = 2 PM / 下午2点) — never round or shift it by an hour. ' +
       'Beyond these you do NOT know her work calendar or schedule — NEVER claim to know her plans, appointments or what she has tomorrow unless she told you in this conversation.';
   }
   return 'Her REAL schedule (from her calendar): ' + (lines.join('; ') || 'nothing scheduled') +
-    '. STRICT: never mention, imply or invent any rehearsal, class, session, audition, casting, offer or plan that is not in this list — if it is not listed, it does not exist. If asked about a date, answer EXACTLY from this list. ' +
+    '. STRICT: never mention, imply or invent any rehearsal, class, session, audition, casting, offer or plan that is not in this list — if it is not listed, it does not exist. If asked about a date, answer EXACTLY from this list. QUOTE EACH TIME EXACTLY as written (14:00 = 2 PM / 下午2点, 15:00 = 3 PM) — NEVER round it or shift it by an hour (user caught "下午三点" for a 14:00 session). ' +
     'Only the person noted in [with ...] attends — NEVER say "see you there" or imply you will be present at an event unless YOU are that noted person.';
 }
 // 按NPC给日程上下文：经纪人=全知（他排的班）；其他NPC只知道自己参与的活动，不知道她的日历
@@ -9205,10 +9205,13 @@ function weekdayOffsetFromText(text, fromDay) {
     /周五|週五|星期五|礼拜五|禮拜五|\bfridays?\b/i,                 // 5
     /周六|週六|星期六|礼拜六|禮拜六|\bsaturdays?\b/i,               // 6
   ];
+  // "下个/下周"前缀 = 下一整周的那个星期几，再加7天（用户实测："下个周六"落到了本周六07/25，应是下周六08/01）
+  var _nextWeek = /下个|下個|下週|下周|next week|next\s/i.test(text);
   for (var d = 0; d < 7; d++) {
     if (pats[d].test(text)) {
       var off = (d - getGameWeekday(fromDay) + 7) % 7;
       if (off === 0) off = 7; // 今天已经是那个星期几 → 指下一个（邀约至少排到明天，不排今天/过去）
+      if (_nextWeek) off += 7; // "下个周六"=在最近那个周六基础上再推一周
       return off;
     }
   }
@@ -10188,6 +10191,16 @@ async function sendChatReply() {
         day: G.day, time: getPhoneClockTime(), read: (_openChatNpc === npc),
       });
       STATE.memory.addEvent(npc, 'Replied: "' + reply.slice(0,60) + '"', G.day);
+      // 管家送快递兑现（用户定稿）：他答应"送上来/送到门口"后，几分钟后真的来一条"这是你的快递"——
+      // 承诺有着落，不再石沉大海。只对管家、且这条回复确实是在答应送快递/包裹时触发。
+      try {
+        if (npc === 'butler' && /(快递|包裹|package|parcel|delivery).{0,20}(送上来|送到|拿上来|带上来|上来|门口|马上去|这就去|现在就)|(送上来|送到你门口|拿上来|带上去给你).{0,10}(快递|包裹)/i.test(reply)) {
+          var _isZhP = G.lang==='zh-cn'||G.lang==='zh-tw';
+          setTimeout(function(){ try {
+            pushNpcMsg('butler', _isZhP ? '（敲门声）你的快递到了，我放你门口了。' : '(a knock) Your package is here — I left it at your door.', (typeof rtClockMin==='function'?rtClockMin():(G.clockMin||600))+5);
+          } catch(e){} }, 9000);
+        }
+      } catch(e){}
       if (rel !== 0) { STATE.relationships.change(npc, rel); playSound(rel > 0 ? 'rel-up' : 'rel-down'); }
       if (endChat) G.phone.chatEnded[npc] = REALTIME ? Date.now() : G.day;
       // NPC同意今天见面 → 插入行动按钮气泡（白天/晚上都可以）
@@ -10213,12 +10226,16 @@ async function sendChatReply() {
       // 聊天里谈成的未来约会（用户定稿 v11.57）：不再写日历"待确认"——聊天里出现"接受/婉拒"气泡，
       // 接受后才进日历（日历只存已确认的；治"人人都在约我、日历全是待确认太乱"）
       if (futureInv && Number.isInteger(futureInv.daysFromNow) && futureInv.daysFromNow >= 1 && futureInv.daysFromNow <= 30) {
-        // 日期锚定优先级：①玩家/回复里点名的具体日期（7月31日）②回复里点名的星期几 ③AI 的 daysFromNow
-        // （修"说7月31日却排到07/30"的差一天 + "说周四却排到周一"）
-        const _dOff = dateOffsetFromText(text, G.day) || dateOffsetFromText(reply, G.day);
-        const _wOff = weekdayOffsetFromText(reply, G.day);
+        // 日期锚定优先级：①最近几条对话里点名的具体日期（7月31日/8月1日）②点名的星期几 ③AI 的 daysFromNow。
+        // 用户实测：日期常在【前几轮】说定（"8月1日"），而 futureInvite 在最后一句（"下午2点"）才落——
+        // 只看当前消息会漏掉，落到 AI 差一天的数字上。所以扫最近6条(本NPC)+当前消息+回复，取【最近】的一次明确日期。
+        var _convTexts = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === npc; }).slice(-6).map(function(m){ return m.text || ''; });
+        _convTexts.push(text); _convTexts.push(reply);
+        var _dOff = null, _wOff = null;
+        for (var _ci = _convTexts.length - 1; _ci >= 0 && _dOff == null; _ci--) _dOff = dateOffsetFromText(_convTexts[_ci], G.day);
+        for (var _cj = _convTexts.length - 1; _cj >= 0 && _wOff == null; _cj--) _wOff = weekdayOffsetFromText(_convTexts[_cj], G.day);
         const fiDaysFromNow = (_dOff && _dOff >= 1 && _dOff <= 30) ? _dOff
-          : ((_wOff && _wOff >= 1 && _wOff <= 9) ? _wOff : futureInv.daysFromNow);
+          : ((_wOff && _wOff >= 1 && _wOff <= 16) ? _wOff : futureInv.daysFromNow);
         const fiDay = G.day + fiDaysFromNow;
         const isZhF = G.lang==='zh-cn'||G.lang==='zh-tw';
         const fiTitle = (futureInv.title || '').slice(0, 40) || (isZhF?'和'+getNPCName(npc)+'的约会':'Date with '+getNPCName(npc));
@@ -10705,7 +10722,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.64 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.65 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
