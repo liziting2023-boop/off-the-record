@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.70"></script>
-<script src="state.js?v=12.70"></script>
+<script src="story.js?v=12.71"></script>
+<script src="state.js?v=12.71"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.70 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.71 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.70 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.71 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3526,6 +3526,18 @@ function ensureAgentSchedule(untilDay) {
     }
     G._rafaelShootSet = true;
   }
+  // 保镖首遇（用户定稿）：名气≥30 **或** 第7天起（哪个先到算哪个，保证约一周内登场）——
+  // 街上认出她的人多了、上周被围堵过 → 经纪公司给她配贴身安保，在经纪人办公室对接见面。
+  if (G.npcs.detective && !G.npcs.detective.met && !G._bodyguardSet && G.calendar.events
+      && !G._agentGone && ((G.fame || 0) >= 30 || (G.day || 1) >= 7)) {
+    var _gd = Math.max(2, (G.day || 1) + 1);
+    while (isGameWeekend(_gd)) _gd++;
+    var _gds = getCalDateStr(_gd);
+    if (!(G.calendar.events[_gds] || []).some(function(e){ return e && e.id === 'bodyguard_intro'; })) {
+      calAddEvent(_gds, { id:'bodyguard_intro', type:'work', source:'agent_mandate', title:(isZh?'安保对接会':'Security briefing'), locKey:'agent_office', status:'accepted', time:'11:00', timeEnd:'12:00', _introNpc:'detective', locked:true, description:(isZh?'公司给你配了贴身安保 · 见个面':'The agency has arranged close protection · meet him') });
+    }
+    G._bodyguardSet = true;
+  }
   // 团队碰头会（群戏）：经纪人+鼓手+助理都已登场时，未来~7天内保证排一次（时间可改期，别撞已有安排/被搬空日）。
   if (!G._agentGone && !G._drummerLeftBand && ['agent','drummer','assistant'].every(function(k){ return G.npcs[k] && G.npcs[k].met && !G.npcs[k]._professionalEnd; })) {
     var _teamFrom = Math.max(2, (G.day || 1) + 1);
@@ -5494,6 +5506,7 @@ function _secTitle(npcKey, isZh) {
     engineer: isZh?'录音室':'the recording studio', runner: isZh?'公园跑道':'the park loop',
     photog: isZh?'街角':'the street corner',
     rafael: isZh?'饮料广告拍摄现场':'a soda commercial shoot', neighbor: isZh?'公寓走廊':'the apartment hallway',
+    detective: isZh?'经纪人办公室':'your agent\'s office',
   })[npcKey] || (isZh?'街上':'around town');
 }
 // 二线出场介绍旁白（用户要求：像一线出场一样，先给一段描述增加份量）
@@ -5507,6 +5520,7 @@ const T2_INTRO = {
   butler:   { zh:'公寓大堂。\n那个一边念书一边来打工的年轻门房，正蹲在你的信箱前放着什么。\n听见你，他慌忙站起来。', en:'The apartment lobby.\nThe young part-time concierge is crouched at your mailbox, leaving something.\nHe scrambles up when he hears you.' },
   rafael:   { zh:'一支饮料广告的拍摄现场，灯光和风机嗡嗡作响。\n这支广告的另一张脸，是那个你在体育新闻里见过无数次的球星。\n换场的间隙，他走过来，没有一点架子。', en:'The set of a soda commercial, lights and wind machines humming.\nThe other face of the campaign is the footballer you have seen a hundred times on the sports pages.\nBetween takes, he wanders over — no airs at all.' },
   neighbor: { zh:'公寓走廊。隔壁的门开着，一个男人正单手抱着一摞东西跟门锁较劲，\n一个扎着小辫的小女孩从他腿后探出头看你。\n他回头，冲你歉意又温和地笑了笑。', en:'The apartment hallway. The door next to yours is open; a man is wrestling the lock one-handed, an armful of things balanced against him,\na little girl with braids peeking out from behind his leg.\nHe glances back and gives you an apologetic, gentle smile.' },
+  detective:{ zh:'经纪人办公室。最近街上认出你的人越来越多了——上周那次围堵之后，公司决定给你配安保。\n他已经在里面等着，靠窗站着，没有坐。深色外套，肩背很宽，\n你推门进去的那一瞬，他的视线先扫过你身后的走廊，才落到你身上。', en:'Your agent\'s office. More people recognize you on the street every week — after last week\'s crush, the agency decided you need protection.\nHe is already there, standing by the window rather than sitting. Dark coat, wide shoulders.\nThe moment you push the door open, his eyes sweep the corridor behind you first — and only then settle on you.' },
 };
 // 二线首遇：先播介绍旁白 → 选族裔/发色 → 三选一 → 全屏立绘 → 进相遇场景（和一线出场一致）
 // ══ 多人群戏引擎（用户定稿 v12.39）══════════════════════════════════════
@@ -10780,7 +10794,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.70 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.71 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
