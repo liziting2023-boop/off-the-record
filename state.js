@@ -481,11 +481,11 @@ const STATE = {
       // 用户定稿 v12.53（参考图=欧美少年偶像感）：真正的"大男孩"——绝对光洁无一点胡茬的少年脸 + 软刘海 + 清瘦挺拔。
       // 现在人物图走 flux/dev（IMG_DEV_PORTRAITS），写实少年脸没问题，不再有 schnell 时代"boyish=卡通"的顾虑。
       return [
-        `Very youthful boyishly-pretty 20-year-old ${origin} college-sophomore — a fresh-faced boy-next-door who looks 19, soft boyish charm, absolutely NOT a grown man in his late twenties`,
+        `Handsome 20-year-old ADULT ${origin} university student — a fully grown young MAN with adult height and adult proportions (clearly an adult in his twenties, university-age not school-age), boyish fresh-faced charm`,
         app.features,
         `unmistakably authentic ${origin} facial structure and ethnicity`,
-        `baby-smooth completely hairless face like a teenage idol — porcelain-clean skin with zero facial hair of any kind, soft rounded youthful jawline, clear bright innocent-but-sharp eyes`,
-        `lean fit young athletic build, slender and upright`,
+        `completely smooth clean-shaven face with zero facial hair — fresh porcelain-clear skin, a young man's defined but still-soft jawline, clear bright eyes`,
+        `fit young athletic build with filled-out shoulders and a strong straight posture — lean-muscular, not skinny`,
         `building concierge / front-desk staff`,
         `${STATE.imagePrompts.applyHair(app, npc)} styled as a soft textured boyish fringe falling naturally over his forehead (young idol haircut)`,
         `${app.skin} skin`,
@@ -681,6 +681,16 @@ const STATE = {
 
       // NPC 互相认识：把该NPC认识的其他已登场NPC喂进来（治"经纪人组的乐队鼓手却不认识经纪人"；群聊功能地基）
       const acquaintanceNote = (typeof npcAcquaintanceNote === 'function') ? npcAcquaintanceNote(npcKey) : '';
+      // 公司正典（用户实测：助理现编"Mulryan Talent 在伦敦"，而玩家城市未必是伦敦）——
+      // 公司名=经纪人姓氏+Talent，生成一次后定死；城市永远锚定玩家所在城市
+      let agencyNote = '';
+      try {
+        const _agN = (STATE.data.npcs.agent && STATE.data.npcs.agent.name) || '';
+        if (!STATE.data._agencyName && _agN && _agN.indexOf(' ') > 0) STATE.data._agencyName = _agN.split(/\s+/).slice(-1)[0] + ' Talent';
+        if ((npcKey === 'agent' || npcKey === 'assistant' || npcKey === 'drummer') && STATE.data._agencyName) {
+          agencyNote = `\nTHE AGENCY — CANON: the agency is "${STATE.data._agencyName}", a boutique music & talent agency based in ${STATE.data.player.city || 'this city'} — the SAME city she lives and works in. If asked about the company, use exactly this name and this city; NEVER invent a different company name or claim it is based in another city.`;
+        }
+      } catch (e) {}
 
       return `⚠️ OUTPUT LANGUAGE = ${lang}. Write EVERY word of your reply ONLY in ${lang}. Do NOT reply in English (unless ${lang} is literally English), even though these instructions are in English. This rule is absolute and overrides everything below.
 
@@ -692,7 +702,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${stungNote}${platonicNote}${musicNote}${bandNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${agencyNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${stungNote}${platonicNote}${musicNote}${bandNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}

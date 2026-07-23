@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.58"></script>
-<script src="state.js?v=12.58"></script>
+<script src="story.js?v=12.59"></script>
+<script src="state.js?v=12.59"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.58 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.59 · BETA ⏱</p>
   </div>
 </div>
 
@@ -787,8 +787,8 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <img class="vn-bg" id="signing-bg" src="" alt="" style="object-fit:cover;width:100%;height:100%;position:absolute;inset:0;z-index:0;cursor:pointer" onclick="toggleSigningDialog()">
   <div class="vn-bg-ph" id="signing-bg-ph" style="position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#FFE8F0,#FFF0F5)"></div>
   <div class="vn-overlay"></div>
-  <div id="signing-dialog-wrap" style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom))">
-    <div class="vn-dialog">
+  <div id="signing-dialog-wrap" style="position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));pointer-events:none">
+    <div class="vn-dialog" style="pointer-events:auto"
       <div class="vn-speaker" id="signing-speaker"></div>
       <div class="vn-text" id="signing-text"></div>
       <div class="vn-opts" id="signing-opts"></div>
@@ -802,7 +802,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <button class="back-btn" onclick="closeCalendar()">← Back</button>
   <div style="width:100%;max-width:380px;padding-top:48px;padding-bottom:80px;overflow-y:auto;height:100vh">
     <div style="font-size:10px;letter-spacing:4px;color:var(--rose);text-transform:uppercase;margin-bottom:4px;text-align:center" id="cal-title">日历</div>
-    <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text-mid);text-align:center;margin-bottom:20px" id="cal-month"></div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:20px">
+      <div onclick="calMonthNav(-1)" style="font-size:20px;color:var(--rose);cursor:pointer;padding:0 10px;user-select:none">‹</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text-mid);text-align:center" id="cal-month"></div>
+      <div onclick="calMonthNav(1)" style="font-size:20px;color:var(--rose);cursor:pointer;padding:0 10px;user-select:none">›</div>
+    </div>
 
     <!-- Month grid -->
     <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px;padding:0 8px">
@@ -1168,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.58 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.59 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3199,7 +3203,8 @@ var _calSelectedDay = null;
 
 function openCalendar() {
   setABn('bn-calendar');
-  // 每次打开日历都默认选中今天（不保留上次离开时选的其它日期）
+  // 每次打开日历都默认选中今天（不保留上次离开时选的其它日期），并回到当前月视图
+  _calMonthOff = 0;
   _calSelectedDay = getCalDateStr(G.day);
   renderCalendar();
   renderCalDayEvents(_calSelectedDay);
@@ -3250,12 +3255,16 @@ function getCalDateStr(gameDay) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+// 日历翻月（用户问"8月/9月什么时候开放"——原来只渲染当月，下个月的约根本看不到）：‹›切换，最多往后看3个月
+var _calMonthOff = 0;
+function calMonthNav(d) { _calMonthOff = Math.max(0, Math.min(3, _calMonthOff + d)); renderCalendar(); }
 function renderCalendar() {
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   // Current game date
   var start = rtStartDate(); // 2027年3月1日=周一，符合"开始日期3月1日周一"的设定（Day1-5剧情日=工作日）
   var cur = new Date(start);
   cur.setDate(start.getDate() + G.day - 1);
+  if (_calMonthOff) { cur.setDate(1); cur.setMonth(cur.getMonth() + _calMonthOff); } // 翻月视图：看未来月份（今天圈/选中态只在当月出现）
   var year = cur.getFullYear();
   var month = cur.getMonth();
 
@@ -10043,14 +10052,25 @@ async function sendChatReply() {
     }
     if (_canResched && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
       try {
-        let _rd = rescheduleInfo.day;
-        // 兜底：AI 有时把"28号"当成游戏天数填进 day（用户实测：助理说改好了、日历纹丝没动——那天根本没行程）。
-        // 若按游戏天数找不到可改的工作，就把它当【日历日号】在未来31天里找回真正的那天。
-        if (!((G.calendar.events[getCalDateStr(_rd)] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; }))) {
+        // 目标日解析（用户控制台探针实锤：AI 填过垃圾 day 数字，把改动写到了 2028-12-14 的日期键上→日历上"消失"）。
+        // 优先级：①玩家消息里点名的日历日期（"24日的舞蹈训练"）②AI 的 day（须在合理窗口内）③按日号在未来31天找回。
+        let _rd = null;
+        const _txtOff = dateOffsetFromText(text, G.day);
+        if (_txtOff && _txtOff >= 1 && _txtOff <= 45) _rd = G.day + _txtOff;
+        else if ((G.calendar.events[getCalDateStr(G.day)] || []).length && /今天|today/i.test(text)) _rd = G.day;
+        if (_rd == null && rescheduleInfo.day >= G.day && rescheduleInfo.day <= G.day + 60) _rd = rescheduleInfo.day;
+        if (_rd == null || !((G.calendar.events[getCalDateStr(_rd)] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; }))) {
           for (let _sd = G.day; _sd <= G.day + 31; _sd++) {
             const _ds2 = getCalDateStr(_sd);
             if (parseInt(_ds2.slice(-2), 10) === (rescheduleInfo.day % 100) && (G.calendar.events[_ds2] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; })) { _rd = _sd; break; }
           }
+        }
+        // 还是定位不到那天的行程 → 绝不落笔、绝不谎称改好：如实问清楚（防"写到幽灵日期/嘴上说改了"两种鬼故事）
+        if (_rd == null || !((G.calendar.events[getCalDateStr(_rd)] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; }))) {
+          reply = (G.lang==='zh-cn'||G.lang==='zh-tw')
+            ? '我翻了下日历，没对上你说的是哪一天的那场——跟我说下具体日期和行程名，我马上改。'
+            : "I checked the calendar and couldn't match which session you mean — give me the exact date and session name and I'll move it right away.";
+          throw 'resched-not-found';
         }
         const _evs = G.calendar.events[getCalDateStr(_rd)] || [];
         const _wev = _evs.find(function(e){ return e && e.type === 'work' && e.status === 'accepted'; });
@@ -10636,6 +10656,13 @@ window.addEventListener('load', () => {
   // "开始新游戏"走的是"清档→reload→到这里"（sessionStorage 标记）：此刻已是 100% 干净状态
   // （无存档、所有模块级JS变量随整页重载复位、云端恢复已跳过），直接进设置流程。
   try { if (_freshStart) { sessionStorage.removeItem('otr_start_fresh'); go('s-lang'); } } catch(e){}
+  // 幽灵行程清扫（用户控制台探针实锤：改期曾被写到 2028-12-14 这类荒谬日期键→日历上"消失"，根因已修）：
+  // 读档时把 120 天以外的孤儿日期键清掉（正常系统最远只排 30 天邀约/14 天工作，120 天外只可能是写错的）
+  try {
+    var _farCut = getCalDateStr((G.day || 1) + 120), _swept = [];
+    Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){ if (ds > _farCut) { _swept.push(ds); delete G.calendar.events[ds]; } });
+    if (_swept.length) { console.warn('[OTR] 清掉写错日期的幽灵行程: ' + _swept.join(', ')); try { STATE.save.saveGame(); } catch(e){} }
+  } catch(e){}
   // 读档探针（配合改期写入自检定位"改期重开回退"）：开局把存档里所有手改过的行程打到控制台
   try {
     var _usL = [];
@@ -10645,7 +10672,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.58 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.59 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
