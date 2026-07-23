@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.74"></script>
-<script src="state.js?v=12.74"></script>
+<script src="story.js?v=12.75"></script>
+<script src="state.js?v=12.75"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.74 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.75 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.74 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.75 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3332,6 +3332,18 @@ function eventsTimeConflict(a, b) {
 }
 // Add event to calendar
 function calAddEvent(dateStr, event) {
+  // 源头拦截写错年份的日期键（用户日志实测"存档时剥离写错年份的幽灵行程 ×12"）：
+  // 一旦有事件被写到窗口外的日期，存档时 _stripGhostEvents 会把它删掉 → 表现为"改完就不见了"。
+  // 在这里挡住并报警，比事后清理更能定位真凶。
+  try {
+    var _y0 = (G.rtStartDate && /^\d{4}-/.test(G.rtStartDate)) ? parseInt(G.rtStartDate.slice(0,4), 10) : new Date().getFullYear();
+    if (!(_y0 >= 2020 && _y0 <= 2100)) _y0 = new Date().getFullYear();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr)) ||
+        String(dateStr) < (_y0 - 1) + '-01-01' || String(dateStr) >= (_y0 + 2) + '-01-01') {
+      console.warn('[OTR] ⚠ 拒绝把行程写到越界日期 ' + dateStr + '（基准年 ' + _y0 + '）', event && event.id, new Error('stack').stack);
+      return;
+    }
+  } catch (e) {}
   if (!G.calendar.events[dateStr]) G.calendar.events[dateStr] = [];
   // 按 id 去重：同一天重复进入 startDay（如"继续游戏"恢复）不会重复添加同一事件
   if (event.id && G.calendar.events[dateStr].some(e => e.id === event.id)) return;
@@ -7260,6 +7272,10 @@ let _vnEndLoc = null;
 let _vnLastReply = null;
 // 玩家这句话的语气（语气镜头选的：tease/sincere/deflect）——帮AI理解只发了半句时的意图
 let _vnLastTone = null;
+// 自由输入里的"明确身体升级"识别：只收明确到不可能是误判的（脱/解扣/跨坐/去床上/直说要他），
+// 不收"抱/靠"这类日常亲昵，免得一个拥抱就把人推进亲密流程。
+let _vnPlayerEscalated = false;
+const _vnEscalateKw = /脱[掉下了]{0,2}(你|他|我)?(的)?(衣|衬衫|外套|裙|裤|上衣)|解[开掉].{0,4}(扣|衬衫|衣|皮带)|跨坐|骑[到在].{0,4}(他|你)|坐[到在](他|你).{0,3}(腿|身)上|上床|去(床上|卧室)|抱我[去到].{0,3}(床|卧室)|舌吻|我要你|想要你|要了我|把我按|推倒|undress|strip off|straddl|take me to bed|want you now/i;
 // 把玩家的一轮输入拆成"动作"和"说的话"，并给 AI 一句清楚的说明——
 // 双输入框把动作包在（）里、说的话在括号外。绝不能把（动作）当成她说的话丢给 NPC，
 // 否则 NPC 会把她的动作当台词原样引述回来（用户实测：动作"别开视线"被经纪人当成她说的话重复了一遍）。
@@ -7341,7 +7357,9 @@ const NO_ORIGIN_PICK = { rafael: 1 };
 function confessMin(npcKey) { return Math.ceil((STAYOVER_MIN[npcKey] || 60) * 0.75); }
 function canConfessTo(npcKey) { return !!(G.npcs[npcKey] && (G.npcs[npcKey].nights || 0) > 0); }
 function evalIntimacyTone(npcKey, day) {
-  if (npcTier(npcKey) >= 3) { _vnLastTone = null; return; } // 三线走 tier3SceneEnd 的明确选择，绝不进浪漫亲密流程
+  if (npcTier(npcKey) >= 3) { _vnLastTone = null; _vnPlayerEscalated = false; return; } // 三线走 tier3SceneEnd 的明确选择，绝不进浪漫亲密流程
+  // 自由输入的明确升级 == 点了"挑逗他"（用户实测：在他家自己打字脱衣、坐他身上，却因为没点按钮而完全不算数）
+  if (_vnPlayerEscalated && !_vnLastTone) _vnLastTone = 'stayover';
   if (!((_vnLastTone === 'stayover' || _vnLastTone === 'confess') && G.npcs[npcKey])) return;
   if (_vnLastTone === 'confess' && !G.npcs[npcKey]._confessed) {
     // 表白后三件套（用户定稿"全都要"）：①里程碑时刻 ②正式恋人=称呼变亲昵+更主动+做"我们"的计划 ③高好感解锁同居邀请。
@@ -7370,7 +7388,7 @@ function evalIntimacyTone(npcKey, day) {
     if (d) { STATE.relationships.change(npcKey, d); playSound(d >= 6 ? 'rel-up' : 'rel-neutral'); } // 音效只报喜：扣分也轻ping（用户定稿）
     STATE.memory.addEvent(npcKey, 'On day ' + day + ' she invited you to take things further — way too soon for where you two stood. You turned it down in your own way, but it left a mark: bold, reckless, impossible to forget.', day);
   }
-  _vnLastTone = null; // 消费掉：收尾和轮间不会重复结算
+  _vnLastTone = null; _vnPlayerEscalated = false; // 消费掉：收尾和轮间不会重复结算
 }
 
 // ══════════════════════════════════════════════════════
@@ -7696,7 +7714,7 @@ function renderToneHints(container, inp, npcKey, actInp) {
 
 async function runVNDialog(dialogRounds, npcKey, day, round) {
   // 新场景开场：清掉可能残留的上一场景玩家回复（玩家可能中途从底部导航离开又进入别的场景）
-  if (round === 0) { setVNAvatars(npcKey); _vnLastReply = null; }
+  if (round === 0) { setVNAvatars(npcKey); _vnLastReply = null; _vnPlayerEscalated = false; }
   if (round >= dialogRounds.length) {
     _vnLastReply = null; // 场景收尾（最后一轮的回应已在 chooseVNOpt 里处理过），不带进下一个场景
     // 玩家在最后一轮才点"更进一步/表白"：轮间路径不会再跑，收尾这里必须补判定（可覆盖预设的询问钩子）
@@ -7829,7 +7847,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     : '';
   // 玩家发起亲密/表白的判定：轮间和【场景收尾】都要跑（修"最后一轮才点'更进一步'不生效"）
   evalIntimacyTone(npcKey, day);
-  _vnLastReply = null; _vnLastTone = null;
+  _vnLastReply = null; _vnLastTone = null; _vnPlayerEscalated = false;
   const memoryContext = STATE.memory.buildDialoguePrompt(npcKey, day, lang, G.player.name, _replyCtx + ' ' + dlg.npcContext + _extraCtx + _schedCtx + _locCtx);
   // 动作节奏（用户定稿·试行）：只有【第一轮】和【最后一轮】带动作，中间轮纯对话。
   // 第一轮的动作=他此刻/刚才在做什么（定场）；最后一轮的动作=说完话后他做了什么（收尾）。
@@ -7937,6 +7955,9 @@ async function chooseVNOpt(npcKey, relChange, playerReply, dialogRounds, day, ro
   const npcText = document.getElementById('vn-text').textContent;
   STATE.memory.recordDialogue(npcKey, day, npcText, playerReply);
   _vnLastReply = playerReply; // 下一轮NPC台词要先回应这句
+  // 玩家【自己打字】写的明确身体升级（脱衣/跨坐/去床上/直说要他）也应当算发起亲密——
+  // 原来只认"挑逗他"那个语气按钮，自由输入再露骨也被无视（用户实测：在他家脱衣、坐他身上，三轮后却被送客）。
+  try { if (_vnEscalateKw.test(String(playerReply || ''))) _vnPlayerEscalated = true; } catch(e){}
   const isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   const isJa = G.lang==='ja'; const isKo = G.lang==='ko';
 
@@ -9349,7 +9370,9 @@ function dateOffsetFromText(txt, fromDay) {
   if (m) { mo = parseInt(m[1] || m[3], 10); dd = parseInt(m[2] || m[4], 10); }
   else { var m2 = String(txt).match(/(\d{1,2})\s*[日号]/); if (m2) dd = parseInt(m2[1], 10); }
   if (!dd || dd < 1 || dd > 31) return null;
-  for (var i = 1; i <= 45; i++) {
+  // ⚠️ 从 i=0（今天）起扫：原来从 1 开始【永远跳过今天】——玩家说"24日"而今天正是24号时，
+  // 会一路扫到【下个月】的24号（用户实测：改今天的录音，改动落到8月24日=神秘失效）。
+  for (var i = 0; i <= 45; i++) {
     var ds = getCalDateStr(fromDay + i); // 'YYYY-MM-DD'
     if (parseInt(ds.slice(-2), 10) === dd && (mo == null || parseInt(ds.slice(5, 7), 10) === mo)) return i;
   }
@@ -10276,7 +10299,8 @@ async function sendChatReply() {
         // 优先级：①玩家消息里点名的日历日期（"24日的舞蹈训练"）②AI 的 day（须在合理窗口内）③按日号在未来31天找回。
         let _rd = null;
         const _txtOff = dateOffsetFromText(text, G.day);
-        if (_txtOff && _txtOff >= 1 && _txtOff <= 45) _rd = G.day + _txtOff;
+        // 必须用 != null 判断：0 = "今天"，写成 `_txtOff &&` 会把今天当假值丢掉（改今天的行程永远失效）
+        if (_txtOff != null && _txtOff >= 0 && _txtOff <= 45) _rd = G.day + _txtOff;
         else if ((G.calendar.events[getCalDateStr(G.day)] || []).length && /今天|today/i.test(text)) _rd = G.day;
         if (_rd == null && rescheduleInfo.day >= G.day && rescheduleInfo.day <= G.day + 60) _rd = rescheduleInfo.day;
         if (_rd == null || !((G.calendar.events[getCalDateStr(_rd)] || []).some(function(e){ return e && e.type === 'work' && e.status === 'accepted'; }))) {
@@ -10345,6 +10369,13 @@ async function sendChatReply() {
           reply = (G.lang==='zh-cn'||G.lang==='zh-tw')
             ? '那场是合同拍摄，档期是定死的、改不了——日历上没锁的安排你想动，随时跟我说，我帮你调。'
             : "That one's a contracted shoot — the date is locked and can't be moved. Anything else on your calendar though, just say the word and I'll shift it.";
+        } else if (!_wev) {
+          // 那天根本没有可改的工作，但 AI 照样回了"搞定！改好了"——这正是"嘴上改了、日历没动"最难发现的一种。
+          // 一律用如实的话覆盖掉，宁可说找不到，也绝不谎称改成功（用户实测多次）。
+          console.warn('[OTR] 改期失败：' + getCalDateStr(_rd) + ' 上没有可改的工作行程，已用如实回复覆盖 AI 的"改好了"');
+          reply = (G.lang==='zh-cn'||G.lang==='zh-tw')
+            ? '奇怪，' + getCalDateStr(_rd).slice(5).replace('-', '/') + ' 这天我日历上没看到可以改的工作安排——你确认下日期？或者把行程名告诉我，我再找找。'
+            : "Hm — I'm not seeing a movable work session on " + getCalDateStr(_rd).slice(5).replace('-', '/') + ". Can you double-check the date, or tell me the session name and I'll look again?";
         }
       } catch(e){}
     }
@@ -10927,7 +10958,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.74 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.75 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
