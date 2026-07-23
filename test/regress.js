@@ -147,7 +147,27 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
-// ⑤ 版本号一致性：5处必须同步（漏一处=用户吃到缓存旧代码，最容易复发）
+// ⑤ HTML 标签没闭合 —— node --check 抓不到（JS 是好的，坏的是 HTML）
+//    实际踩过：<div class="vn-dialog" style="..."  少了 '>'，浏览器把下一个 <div ...> 整个
+//    当成属性吃掉 → 对话底板只裹住说话人、正文被甩到面板外贴在图上，且点击穿透到背景。
+// ══════════════════════════════════════════════════════
+(function testUnclosedTags() {
+  // 只看标签【开头】到下一个 < 之间有没有 >：属性区里冒出 < 基本就是漏了 >
+  const bad = [];
+  const re = /<(div|span|button|p|section|label|form)\b([^<>]*)</g;
+  let m;
+  while ((m = re.exec(HTML))) {
+    const attrs = m[2];
+    // 属性值里合法出现的 < 很罕见；排除注释与明显的字符串内比较
+    if (/=\s*"[^"]*$/.test(attrs)) continue; // 落在未闭合的引号里 → 属于属性值，跳过
+    const line = HTML.slice(0, m.index).split('\n').length;
+    bad.push('第 ' + line + ' 行: <' + m[1] + m[2].slice(0, 60).replace(/\s+/g, ' '));
+  }
+  ok('HTML·没有漏写 > 的开标签', bad.length === 0, bad.join(' ;; '));
+})();
+
+// ══════════════════════════════════════════════════════
+// ⑥ 版本号一致性：5处必须同步（漏一处=用户吃到缓存旧代码，最容易复发）
 // ══════════════════════════════════════════════════════
 (function testVersions() {
   const vs = [];
