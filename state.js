@@ -837,6 +837,26 @@ FINAL REMINDER — your entire reply MUST be written in ${lang}, every single wo
         const saved = localStorage.getItem(this.KEY);
         if (!saved) return false;
         const parsed = JSON.parse(saved);
+        // ── 读档源头自检（用户实测：改完存档15条、重登只剩5条且改动没了）──
+        // 在【任何合并/清扫之前】把 localStorage 里的原始内容照实打出来，一刀切开两种可能：
+        //   A) 原始存档里就没有那条改动 → 改动根本没写进去（或被后一次保存用旧数据覆盖）
+        //   B) 原始存档里有、合并完没了 → 读档过程把它冲掉了
+        try {
+          const _rawEv = ((parsed.calendar || {}).events) || {};
+          let _n = 0, _userSet = [], _badYear = [];
+          const _by = (parsed.rtStartDate && /^\d{4}-/.test(parsed.rtStartDate)) ? parsed.rtStartDate.slice(0, 4) : '?';
+          Object.keys(_rawEv).forEach(k => {
+            (_rawEv[k] || []).forEach(e => {
+              _n++;
+              if (e && e._userSet) _userSet.push(k + ' ' + (e.id || '') + ' @' + (e.time || ''));
+              if (_by !== '?' && k.slice(0, 4) !== _by) _badYear.push(k + ' ' + ((e && e.id) || ''));
+            });
+          });
+          console.log('[OTR·读档源头] localStorage 原始存档：' + _n + ' 条事件；锚点 ' + (parsed.rtStartDate || '(无)') +
+            '；G.day=' + parsed.day +
+            '\n  手改过的行程：' + (_userSet.length ? _userSet.join(' | ') : '(一条都没有 ← 改动没能写进存档)') +
+            '\n  非锚点年份的事件：' + (_badYear.length ? _badYear.join(' | ') : '无'));
+        } catch (e) {}
         // 深合并，保留新字段的默认值。
         // ⚠️ 必须原地合并（不能 STATE.data = merged 替换引用）：index.html 里
         // `const G = STATE.data` 在脚本解析时就捕获了引用，替换引用会导致 G 和
