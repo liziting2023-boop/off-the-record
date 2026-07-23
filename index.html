@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.66"></script>
-<script src="state.js?v=12.66"></script>
+<script src="story.js?v=12.67"></script>
+<script src="state.js?v=12.67"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.66 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.67 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.66 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.67 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5668,7 +5668,18 @@ async function runGroupScene(participants, opts) {
           : ('The woman (' + (G.player.name || 'she') + ') just took her turn — ' + describeHerTurn(playerLine) + ' REACT TO THIS FIRST and truthfully — anything she says out loud or any big, visible action is seen by EVERYONE in the room, so each person present responds in their OWN way and NOBODY just ignores it or ploughs on with the agenda: a lover reacts with a charged/possessive/hurt beat, and a non-romantic colleague present (an assistant, a bandmate) reacts with plain surprise, a fluster, looking away, an awkward throat-clear — real people cannot un-see it. NEVER repeat her action back as if she spoke it. Then, only if it fits, they get back to business.\n')
       ) : '') +
       (_stungThisBeat ? ('JEALOUSY JUST DETONATED — THE MEETING BREAKS: right this second, ' + Object.keys(_stungKeys).map(function(k){ var pp = participants.find(function(p){ return p.key===k; }); return pp ? pp.name : k; }).join(' and ') + ' just watched her be openly affectionate with ' + (function(){ var any=Object.keys(_stungKeys)[0]; return _stungKeys[any]; })() + ', right in front of everyone. This is NOT a beat that can keep running the agenda — the room comes apart. Write ONLY the raw human fallout: the stung man does NOT recite schedule dates, session counts, or agenda points AT ALL — he is genuinely thrown, suppressed shock and anger cracking through a thin surface, and it comes out as a curt/clipped line, a stung one-liner, a hard look, or him going pointedly, dangerously quiet (maybe standing, maybe done). THE MAN SHE KISSED (' + (_affWithKeys && Object.keys(_affWithKeys).length ? participants.filter(function(p){ return _affWithKeys[p.key]; }).map(function(p){ return p.name; }).join('/') : 'the other man') + ') must REACT TO THE KISS ITSELF, not smooth it over: first his own unguarded split-second feeling in his register (caught off guard and secretly thrilled / flustered heat / a low exhale — being kissed by her LANDS on him), and then — because their relationship was PRIVATE until this second — his immediate instinct about the room: if he wanted discretion he is now scrambling, looking at the others, and SAYS something to contain it ("这事出不了这间屋子" / asking everyone to keep it in the room), visibly shaken that it is out. He does NOT step back into work mode, does NOT run the agenda, does NOT hand out deadlines — the relationship just became the only subject in the room. If anyone else speaks, it is about the tension, not business. Nobody smoothly gets back to the agenda. HARD BANS for EVERY line of this beat (violating any of these ruins the moment): any calendar date (7/24, 周六, "23号"…), any session/shoot/styling/training logistics, any work instruction to an assistant or anyone ("Sarah, 盯一下…" = BANNED), any mention of reference images, agendas or deliverables. A man who just watched his lover kiss another man does NOT dictate schedule details through his teeth — he loses the room entirely. His lines are short and raw, about what just happened — or he is pointedly silent, stands, walks to the window, ends the meeting. ' + (_stungRepeat ? 'AND THIS IS THE SECOND TIME she has flaunted it in front of him after he already drew his line — he is past hurt and into DONE. He does not discuss work AT ALL, does not negotiate, does not wait: ONE short, final line in his own voice (that he can\'t keep doing this / that they should start looking for someone else for his seat), then he stands, collects his things, and walks out of the room. The scene ends with the door. ' : '') + '(Still green-flag: no violence, no brawl, no cruelty, no screaming public blow-up — the real reckoning is later and private.)\n') : '') +
-      (_publicAff && !_stungThisBeat ? ('PUBLIC AFFECTION — ' + _publicAff.name + ' JUST GOT KISSED/EMBRACED IN FRONT OF EVERYONE: at this working meeting, with colleagues in the room, she just openly did that to ' + _publicAff.name + '. ' + _publicAff.name + ' CANNOT glide past it and keep reciting the agenda — react to the KISS ITSELF: first an unguarded half-second of his own feeling in his register (caught off guard, a flush of heat, a breath he did not plan) — and then, because whatever is between them was PRIVATE until this second and there are colleagues watching, his instinct to CONTAIN it: he stops the agenda, glances at the others, and says something to keep it discreet (that it stays in this room / between them), visibly aware it is now out. Do NOT have him just carry on handing out dates and deadlines as if nothing happened — the kiss is the thing in the room now. Only AFTER the fluster and the ask for discretion may they ease carefully back toward work. Others react with surprise/awkwardness — a colleague looking away, a raised eyebrow, a small "…okay then". Keep it in ' + G.langName + '.\n') : '') +
+      (_publicAff && !_stungThisBeat ? (
+        (function(){
+          var _mode = (typeof REL_STANCE !== 'undefined' && REL_STANCE[_publicAff.key] && REL_STANCE[_publicAff.key].mode) || 'private'; // 二线/未知默认低调
+          var _common = 'PUBLIC AFFECTION — ' + _publicAff.name + ' JUST GOT KISSED/EMBRACED IN FRONT OF EVERYONE: at this working meeting, with colleagues in the room, she just openly did that to ' + _publicAff.name + '. He CANNOT glide past it and keep reciting the agenda — react to the KISS ITSELF: first an unguarded half-second of his own feeling in his register (caught off guard, a flush of heat, a breath he did not plan). ';
+          if (_mode === 'public') {
+            // 鼓手/对手歌手：想公开——不藏，反而带点得意/骄傲地认下这段关系，享受这一刻，绝不要求保密
+            return _common + 'Then — and this is key — he is the type who is NOT ashamed and does NOT want to hide it: he owns it, openly and a little proudly, maybe pulls her closer or grins at the room, lets them see. He does NOT ask anyone to keep it secret; if anything he half-claims her out loud ("是啊，怎么了" / "yeah, she\'s with me"), pleased the room now knows. Still caught off guard by the timing, but glad, not anxious. Others react — a whistle, a laugh, an awkward cough. Do NOT have him recite dates/deadlines as if nothing happened. Keep it in ' + G.langName + '.\n';
+          }
+          // 经纪人/演员/管家/侦探：求低调——张罗保密
+          return _common + 'Then, because whatever is between them was PRIVATE until this second and there are colleagues watching, his instinct is to CONTAIN it: he stops the agenda, glances at the others, and says something to keep it discreet (that it stays in this room / between them), visibly aware it is now out. Do NOT have him just carry on handing out dates and deadlines as if nothing happened. Only AFTER the fluster and the ask for discretion may they ease carefully back toward work. Others react with surprise/awkwardness — a colleague looking away, a raised eyebrow, a small "…okay then". Keep it in ' + G.langName + '.\n';
+        })()
+      ) : '') +
       (_meeting && !_stungThisBeat && !_publicAff
         ? ('This is a REAL working meeting with a purpose — NOT aimless chatter. Each beat must ADVANCE a concrete agenda point using the REAL FACTS above (an actual dated session, the song/release, a scheduling call, a real decision), give useful specifics, and visibly MOVE things toward getting settled. A little dry humor or personality is fine as seasoning, but the meeting must accomplish something. ' + (_nearEnd ? 'This is near the END — land a CLEAR takeaway: what is decided and the concrete next step(s), in character. ' : ''))
         : '') +
@@ -10731,7 +10742,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.66 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.67 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
