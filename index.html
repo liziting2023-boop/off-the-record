@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.67"></script>
-<script src="state.js?v=12.67"></script>
+<script src="story.js?v=12.68"></script>
+<script src="state.js?v=12.68"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.67 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.68 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.67 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.68 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8303,7 +8303,7 @@ const OVERNIGHT_STYLE = {
   agent:    'Possessive and knowing — he has quietly noticed everything about her and lets her feel it. His desire is direct and certain, spoken low and unhurried; he savors her, and the more she trembles the steadier and surer his hands become. Control wrapped in warmth: he tells her, softly, exactly what he wants, and exactly what he sees in her.',
   drummer:  'Rough and commanding, almost no words — his want is blunt and physical. He takes the lead, sets the pace, tells her what he wants in short low words against her skin, hands sure and impatient; but at the very edges he gentles, checking her with his eyes. Raw dominance with unspoken care underneath.',
   actor:    'Playful and verbal — he flirts in teasing challenge and quick clever lines, banter as foreplay, competitive and quick-witted, loving the game. But between the lines the wit keeps slipping, and you catch how much he actually means it — the performance cracking open into something real.',
-  butler:   'Warm and emotionally open, a little shy — for him intimacy is as much what he says as what he does. Tender and vulnerable, he lets the feeling out loud, half-confession between breaths; earnest wonder and devotion winning out over any swagger.',
+  butler:   'This is HIS FIRST TIME — he is a virgin, and it is with her. So: overwhelmed, trembling, discovering everything at once, following her lead because he genuinely does not know the way; wonder and disbelief that this is happening to him, breath catching, ears burning. Warm and emotionally open, he lets the feeling out loud, half-confession between breaths — earnest devotion and being utterly undone, not a shred of swagger or technique. Tender, clumsy-sweet, reverent.',
   detective:'Restrained and deeply respectful — he asks, he waits for her yes, he reads her for every small signal and never assumes. Controlled, considerate heat; each move deliberate, each one an offer she can meet or turn. The quiet green-flag intensity of a man who needs her to be sure.',
   rival:    'Competitive and verbal even here — he flirts in dares and one-liners, keeping score, turning it into a game he is desperate to lose. But every clever line keeps slipping, and the cocky star comes apart in a way the cameras never get to see — undone, and stunned that she is the one who did it.',
   // 球星（用户定稿·参考 pro-athlete 恋爱小说 register 校准，仅学手法非抄原文）：场上/镜头前的狂，到了她这里全化成专注的投入。
@@ -8324,7 +8324,7 @@ const REL_STANCE = {
   actor:    { mode: 'private',
     ctx: 'You two have spent the night together. Your tabloid reputation would eat her alive if this gets out — and part of you is not ready to be that exposed either. Ask her, charmingly but with an unusual note of seriousness, to keep this just between you two for now (1-2 sentences). Output only the message text.' },
   butler:   { mode: 'private',
-    ctx: 'You two have spent the night together. You want to keep it something small and private and just yours — partly sweetness, partly something you are not telling her. Ask her softly to keep it between you two (1-2 sentences). Output only the message text.' },
+    ctx: 'You two have spent the night together — it was YOUR FIRST TIME, your first with anyone, and it left you overwhelmed and tender. You also work here as the building concierge and you are NOT supposed to get involved with a resident — if this got out you could lose the job, and it would look improper. So, softly and a little anxiously, ask her to keep it just between you two (1-2 sentences), the shyness and the "I could get in trouble" both underneath. Output only the message text.' },
   detective:{ mode: 'private',
     ctx: 'You two have spent the night together. You keep your personal life sealed off from your work by lifelong habit — tell her, in your dry understated way, that what happens between you two stays between you two, and that this is the closest thing to devotion you know how to say (1-2 sentences). Output only the message text.' },
 };
@@ -10742,7 +10742,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.67 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.68 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
