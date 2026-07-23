@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.59"></script>
-<script src="state.js?v=12.59"></script>
+<script src="story.js?v=12.60"></script>
+<script src="state.js?v=12.60"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -578,7 +578,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.59 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.60 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1172,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.59 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.60 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3456,8 +3456,18 @@ function schedRand(d, salt) {
   x = Math.imul(x ^ (x >>> 15), 2246822519); x = Math.imul(x ^ (x >>> 13), 3266489917);
   return ((x ^ (x >>> 16)) >>> 0) / 4294967296;
 }
+// 天数体检（幽灵行程根因防线）：写日历前核对 G.day 和真实时钟——G.day 若漂移（改系统时间测试/老bug），
+// 排班和改期会整批写到错误年份的日期键上（用户实测：2028-12-14~25 一串幽灵）。写入方一律先纠偏。
+function daySanityGuard(tag) {
+  try {
+    if (!REALTIME || !G.rtStartDate) return;
+    var _t = rtDaysBetween(G.rtStartDate, rtTodayKey()) + 1;
+    if (_t >= 1 && G.day !== _t) { console.warn('[OTR] G.day漂移(' + (tag||'') + '): 内存=' + G.day + ' 真实=' + _t + ' — 已纠正，避免写出幽灵日期'); G.day = _t; }
+  } catch(e){}
+}
 function ensureAgentSchedule(untilDay) {
   if (!G.calendar) return;
+  daySanityGuard('schedule');
   if (G._agentGone) return; // 经纪人已解约：事业清零，不再安排任何工作/拍摄/团队会（也就接触不到靠广告/演唱会才认识的特级NPC）
   var isZh = G.lang==='zh-cn'||G.lang==='zh-tw';
   untilDay = Math.min(untilDay, 360);
@@ -10052,6 +10062,7 @@ async function sendChatReply() {
     }
     if (_canResched && rescheduleInfo && Number.isInteger(rescheduleInfo.day)) {
       try {
+        daySanityGuard('reschedule'); // G.day 漂移时（改系统时间测试等），改期会整个写进错误年份——先纠偏
         // 目标日解析（用户控制台探针实锤：AI 填过垃圾 day 数字，把改动写到了 2028-12-14 的日期键上→日历上"消失"）。
         // 优先级：①玩家消息里点名的日历日期（"24日的舞蹈训练"）②AI 的 day（须在合理窗口内）③按日号在未来31天找回。
         let _rd = null;
@@ -10660,7 +10671,7 @@ window.addEventListener('load', () => {
   // 读档时把 120 天以外的孤儿日期键清掉（正常系统最远只排 30 天邀约/14 天工作，120 天外只可能是写错的）
   try {
     var _farCut = getCalDateStr((G.day || 1) + 120), _swept = [];
-    Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){ if (ds > _farCut) { _swept.push(ds); delete G.calendar.events[ds]; } });
+    Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){ if (ds > _farCut) { _swept.push(ds + '(' + (G.calendar.events[ds] || []).map(function(e){ return e && e.id; }).join(',') + ')'); delete G.calendar.events[ds]; } });
     if (_swept.length) { console.warn('[OTR] 清掉写错日期的幽灵行程: ' + _swept.join(', ')); try { STATE.save.saveGame(); } catch(e){} }
   } catch(e){}
   // 读档探针（配合改期写入自检定位"改期重开回退"）：开局把存档里所有手改过的行程打到控制台
@@ -10672,7 +10683,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.59 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.60 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
