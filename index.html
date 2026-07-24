@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.87"></script>
-<script src="state.js?v=12.87"></script>
+<script src="story.js?v=12.88"></script>
+<script src="state.js?v=12.88"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.87 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.88 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.87 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.88 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1798,6 +1798,9 @@ function day1Intro() {
   // ③ 管家：10 分钟后发欢迎短信（收到即算认识 met=true，可直接回聊）
   if (G.npcs.butler && !G.npcs.butler.met) {
     (async function(){ try {
+      // ⚠️ 必须【先起名再生成消息】：原来是生成完才 ensureSecondaryName，写这条自我介绍时他还没有名字，
+      //    AI 只好自己编一个（用户实测编成了球星的名字 Rafael），随后才被命名为 Henry → 标题和正文对不上。
+      ensureSecondaryName('butler');
       var t = await claudeChat(STATE.memory.buildDialoguePrompt('butler', G.day, G.langName, G.player.name,
         'You are the building\'s new part-time concierge (a college student working the front desk while he studies) and she moved into the building a few days ago. You have NOT met her face to face. Send her a proper STAFF introduction text — the tone of a courteous notice from building management, NOT a friendly neighbour: introduce yourself as the concierge working the desk, tell her she can reach you for maintenance, packages or anything the building needs, and mention a small welcome — a homemade lemon cake — was left at her door. Polite, professional, service register (1-2 sentences, texting style). Do NOT be chummy or overfamiliar.' + earlyToneNote('butler') + ' Output only the message text.'));
       if (t && t.trim()) {
@@ -2837,6 +2840,23 @@ function showVNTapHint() {
 }
 
 // ── 对话中点背景图：隐藏/显示对话框（欣赏画面用） ──
+// 长文进对话框时自动回到第一行（用户实测：进第二幕那一屏是从中间开始的，要手动往上滑才看得到开头）。
+// .vn-dialog 是滚动容器，内容换了但 scrollTop 还停在上一屏。全库有十来处写 vn-text，逐个打补丁必漏，
+// 所以用一个 MutationObserver 一次性覆盖所有写入点（包括以后新增的）。
+(function initVNAutoScrollTop() {
+  function attach() {
+    try {
+      var t = document.getElementById('vn-text');
+      if (!t || typeof MutationObserver === 'undefined') return;
+      new MutationObserver(function () {
+        var box = t.closest ? t.closest('.vn-dialog') : null;
+        if (box) box.scrollTop = 0;
+      }).observe(t, { childList: true, characterData: true, subtree: true });
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attach);
+  else attach();
+})();
 function toggleVNDialog() {
   // "看画面"模式改用 class（v11.85）：inline visibility 会被场景的异步渲染
   // （立绘生成完 display:block、新一轮对话等）盖回来——class + !important 不会（用户实测夜跑立绘没收起）
@@ -8809,6 +8829,9 @@ async function maybeStayOver(npcKey, locKey, opts) {
   const _nightsSoFar = G.npcs[npcKey].nights || 0;
   // 两幕预生成句柄（性能，用户反馈两幕慢）：邀请台词一亮出来就后台先跑，点按钮时基本秒出
   let _pre1 = null, _pre1Bg = null, _pre2 = null, _pre2Bg = null;
+  // 第一幕的对话历史：goAct2 要拿它的最后一拍去续写第二幕，所以必须放在两个函数【共同的】作用域
+  // （原来 const _h1 声明在第一幕函数内部，goAct2 读它会直接 ReferenceError）
+  let _h1 = null;
   // 按人设修借口（用户实测）：管家是本楼门房/维修，不能用"想看看你家的窗景"（他对这楼了如指掌）；
   // 邻居就住同层对门，没有"上楼"、也没有"想看你老提的那个地方"（他早知道这楼）。
   var _pretextNote = '';
@@ -8888,7 +8911,16 @@ async function maybeStayOver(npcKey, locKey, opts) {
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     try { const u = destHers ? (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl || null) : await (_pre2Bg || genNPCHomeActBg(npcKey, 2)); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     let act2Nar = '';
-    try { act2Nar = await (_pre2 || genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers)); } catch(e){}
+    // ⚠️ 第二幕【不能直接用预生成的那份】：_pre2 是第一幕刚显示时就跑的，那会儿玩家的两轮互动还没发生——
+    //    所以它必然接不上刚才的动作姿势，读起来像"打断后重新开场"（用户实测图2）。
+    //    改成拿第一幕的最后一拍当 seamlessFrom 现生成；失败或没互动过才回退预生成的那份。
+    try {
+      const _lastBeat = (_h1 && _h1.length > 1) ? String(_h1[_h1.length - 1] || '').slice(-260) : '';
+      if (_lastBeat) {
+        act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers, _lastBeat);
+      }
+      if (!act2Nar || !act2Nar.trim()) act2Nar = await (_pre2 || genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers));
+    } catch(e){}
     if (!act2Nar || !act2Nar.trim()) {
       act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料一件件松开，他的唇沿着你的颈线往下，每一寸都被他记在心里。你听见自己的呼吸乱了，也听见他在你耳边低低地念你的名字——然后灯光暗了下去，剩下的夜，只属于你们两个人。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens piece by piece; his mouth traces down the line of your throat, learning every inch of you. You hear your own breath break apart, his voice low against your ear saying your name — and then the light dims, and the rest of the night belongs only to the two of you.';
     }
@@ -8916,12 +8948,16 @@ async function maybeStayOver(npcKey, locKey, opts) {
         showNightTransition();
         // 第一次亲密后紧接着要弹"亲密"里程碑卡，两处话几乎一模一样（用户实测图4+图5连着来）——
         // 第一次就把夜幕旁白让给里程碑卡，不再重复说一遍。
-        G._eveNar = (_pendingIntimateMilestone === npcKey) ? '' : nar;
+        // 第一次亲密后紧接着要弹"亲密"里程碑卡，两处话几乎一样 → 第一次时【夜幕旁白和晚间那句都让位】。
+        // ⚠️ v12.73 只清了 G._eveNar，却漏了下面 endNightTransition(nar) 仍在播同一句（用户实测图3+图4连着来）。
+        const _milestonePending = (_pendingIntimateMilestone === npcKey);
+        const _narShown = _milestonePending ? '' : nar;
+        G._eveNar = _narShown;
         G.phase = 'evening';
         addStress(-10);
         // REALTIME：绝不手动翻天（G.day++会跟真实日历脱轨，用户实测日期跳到未来）——
         // 夜幕转场后回晚间画面，天由真实日历翻，晨后消息由次日 startDay 发
-        setTimeout(() => { if (REALTIME) { endNightTransition(nar); goEvening(); } else { G.day++; startDay(); } }, 400);
+        setTimeout(() => { if (REALTIME) { endNightTransition(_narShown); goEvening(); } else { G.day++; startDay(); } }, 400);
       };
       const partForNow = () => {
         // 没留下：只是一次亲密，不产生"昨晚/今早醒来"那一套，也不牵动同居那条线
@@ -9001,7 +9037,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
     // 拒绝文案按"在谁家"分支：在她家=请他回去（她不可能离开自己家）；在他家=自己起身离开（用户实测）
     const _leaveLbl = destHers ? (isZh?'今晚到这里就好（送他回去）':'Stop here tonight (see him out)')
                                : (isZh?'今晚到这里就好（起身离开）':'Stop here tonight (leave)');
-    const _h1 = [act1Nar.trim()];
+    _h1 = [act1Nar.trim()];
     runIntimateRounds(npcKey, 1, destHers, _h1,
       function(){ mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2); mk(_leaveLbl, leaveAfterAct1); },
       function(){ const lv = document.createElement('div'); lv.className='vn-opt'; lv.style.opacity='.72'; lv.textContent = _leaveLbl; lv.onclick = leaveAfterAct1; vopts.appendChild(lv); });
@@ -11081,7 +11117,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.87 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.88 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
