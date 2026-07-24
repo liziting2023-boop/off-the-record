@@ -147,6 +147,42 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
+// ④b 老档日历迁移【绝不能碰实时存档】
+//    真实事故：这段本是给"固定起始日 2024-03-01 的老档"写的一次性迁移，判据是 k < '2027-'。
+//    实时锚点 2026-07-23 一来，所有【正确的】2026 键都满足该条件 → 2026-07-24 被当成第876天
+//    搬到 2028-12-14 并 delete 原件 → 再被幽灵清扫删掉 → 玩家改的行程整个蒸发。
+// ══════════════════════════════════════════════════════
+(function testCalendarMigration() {
+  const code = `
+    ${extractFn('migrateCalendarDates')}
+    module.exports = migrateCalendarDates;
+  `;
+  const mk = (rtStartDate, keys) => {
+    const G = { rtStartDate, calendar: { events: {} } };
+    keys.forEach(k => { G.calendar.events[k] = [{ id: 'e_' + k }]; });
+    const STATE = { save: { saveGame() {} } };
+    const getCalDateStr = (gameDay) => {
+      const base = new Date(2026, 6, 23);
+      const d = new Date(base); d.setDate(base.getDate() + gameDay - 1);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    };
+    const m = { exports: {} };
+    new Function('module', 'G', 'STATE', 'getCalDateStr', code)(m, G, STATE, getCalDateStr);
+    m.exports();
+    return Object.keys(G.calendar.events).sort();
+  };
+
+  // ① 实时存档（有锚点）：正确的 2026 日期必须原封不动
+  const rt = mk('2026-07-23', ['2026-07-24', '2026-07-25', '2026-07-29']);
+  ok('日历迁移·实时存档的 2026 行程不被搬走', rt.join(',') === '2026-07-24,2026-07-25,2026-07-29', '变成了 ' + rt.join(','));
+  ok('日历迁移·实时存档不产生 2028 幽灵', !rt.some(k => k.startsWith('2028')), rt.join(','));
+
+  // ② 真·老档（无锚点、2024 起始）：仍应正常迁移走
+  const legacy = mk(undefined, ['2024-03-02', '2024-03-05']);
+  ok('日历迁移·真老档仍会被迁移', !legacy.some(k => k.startsWith('2024')), '剩下 ' + legacy.join(','));
+})();
+
+// ══════════════════════════════════════════════════════
 // ⑤ HTML 标签没闭合 —— node --check 抓不到（JS 是好的，坏的是 HTML）
 //    实际踩过：<div class="vn-dialog" style="..."  少了 '>'，浏览器把下一个 <div ...> 整个
 //    当成属性吃掉 → 对话底板只裹住说话人、正文被甩到面板外贴在图上，且点击穿透到背景。
