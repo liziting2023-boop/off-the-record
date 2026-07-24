@@ -325,6 +325,44 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
+// ④g 动态约会地点 dynLocFromConv —— 预设清单外的地方（游泳/蹦床…）现场生成、注册、可复水合
+// ══════════════════════════════════════════════════════
+(async function testDynLoc() {
+  const eF = HTML.match(/function ensureDynLoc\(locKey\) \{[\s\S]*?\n\}/)[0];
+  const rF = HTML.match(/function rehydrateDynLocs\(\) \{[\s\S]*?\n\}/)[0];
+  const dF = HTML.match(/async function dynLocFromConv\(convText\) \{[\s\S]*?\n\}/)[0];
+  // 环境桩：G/STORY/STATE/claudeChat 都注入，claudeChat 回一个可控的地点 JSON
+  const mk = (reply) => {
+    const m = { exports: {} };
+    const STORY = { locations: {} };
+    const G = { _dynLocs: null };
+    const STATE = { save: { saveGame() {} } };
+    const claudeChat = async () => reply;
+    new Function('module', 'G', 'STORY', 'STATE', 'claudeChat',
+      eF + '\n' + rF + '\n' + dF + '\nmodule.exports={ensureDynLoc,rehydrateDynLocs,dynLocFromConv,_G:G,_STORY:STORY};')(m, G, STORY, STATE, claudeChat);
+    return m.exports;
+  };
+  // 游泳 → 生成 dyn_ 键 + 注册 composition + 存进 _dynLocs
+  const a = mk('{"place":"indoor swimming pool","comp":"a calm indoor swimming pool at night, turquoise water, tiled deck, soft underwater lighting","outdoor":false}');
+  const k1 = await a.dynLocFromConv('我想去游泳');
+  eq('动态地点·游泳→dyn_ 键', String(k1).slice(0, 4), 'dyn_');
+  ok('动态地点·注册进 STORY.locations 带 composition', !!(a._STORY.locations[k1] && /swimming pool/i.test(a._STORY.locations[k1].composition)));
+  ok('动态地点·存进 _dynLocs（存档持久化）', !!(a._G._dynLocs && a._G._dynLocs[k1]));
+  // 复水合：清掉 STORY.locations 后 rehydrateDynLocs 能补回来
+  delete a._STORY.locations[k1];
+  a.rehydrateDynLocs();
+  ok('动态地点·rehydrate 重新注册', !!a._STORY.locations[k1]);
+  // ensureDynLoc 单键补注册
+  delete a._STORY.locations[k1];
+  a.ensureDynLoc(k1);
+  ok('动态地点·ensureDynLoc 单键补回', !!a._STORY.locations[k1]);
+  // 没点名地点 → 返回 null（不硬造，退回外层兜底 cafe）
+  const b = mk('{"place":""}');
+  eq('动态地点·没点名→null', String(await b.dynLocFromConv('随便聊聊')), 'null');
+  console.log('  ④g 动态地点 6 项通过');
+})().then(runSummary, e => { console.error(e); process.exit(1); });
+
+function runSummary() {
 console.log('');
 if (fail === 0) {
   console.log('✅ 全部通过（' + pass + ' 项）');
@@ -333,3 +371,4 @@ if (fail === 0) {
   failures.forEach(f => console.log('   ✗ ' + f));
 }
 process.exit(fail === 0 ? 0 : 1);
+}

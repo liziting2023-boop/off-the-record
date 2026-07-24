@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.99"></script>
-<script src="state.js?v=12.99"></script>
+<script src="story.js?v=13.00"></script>
+<script src="state.js?v=13.00"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.99 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v13.00 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.99 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v13.00 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2717,6 +2717,7 @@ async function genNPCPortrait(npcKey, day, locKey) {
 
 // ── 纯背景图（无人物）：NPC立绘固定后场景只换背景。按"地点|风格"缓存，省生图费用 ──
 async function genLocationBg(locKey, day) {
+  ensureDynLoc(locKey);
   const cacheKey = locKey + '|' + G.imgStyle;
   if (G.bgCache && G.bgCache[cacheKey]) return G.bgCache[cacheKey];
   const loc = STORY.locations[locKey] || {};
@@ -4836,6 +4837,7 @@ function startPrologue() {
 }
 async function startDay() {
   window._immersiveLock = false; // 退出沉浸锁（新的一天）
+  rehydrateDynLocs(); // 动态约会地点（游泳/蹦床…）重新注册回 STORY.locations（存档重进后场景描述/生图仍在）
   G.today = null; // 重置今天做了什么的记录
   _curSceneEv = null; _curSceneOriginDay = null; // 新的一天：清掉进行中场景指针（防昨天的半场景劫持"继续"入口）
   // REALTIME"错过"结算：昨天的工作/必须行程到今天还没做 → 标记错过 + 记进经纪人记忆
@@ -9834,6 +9836,50 @@ function dateOffsetFromText(txt, fromDay) {
   }
   return null;
 }
+
+// ── 动态约会地点（用户定稿：去玩家真正想去的地方，而不是清单外一律退回咖啡馆）──
+// 预设清单/关键词都没命中时（游泳/蹦床/水族馆/滑雪…），现场把玩家点名的地方翻成一张"空场景"
+// 英文构图，注册成 STORY.locations 的临时条目，genLocationBg 照常生图。每个新地方只问一次 AI，
+// 构图连同室内外标志存进 G._dynLocs（存档持久化）、生图按 key 缓存 → 复用不重复花钱。
+function ensureDynLoc(locKey) {
+  if (locKey && locKey.slice(0, 4) === 'dyn_' && !STORY.locations[locKey] && G._dynLocs && G._dynLocs[locKey]) {
+    STORY.locations[locKey] = G._dynLocs[locKey];
+  }
+  return locKey;
+}
+function rehydrateDynLocs() {
+  if (!G || !G._dynLocs) return;
+  for (var k in G._dynLocs) { if (!STORY.locations[k]) STORY.locations[k] = G._dynLocs[k]; }
+}
+async function dynLocFromConv(convText) {
+  var t = String(convText || '').trim();
+  if (!t) return null;
+  var sys = 'You extract the DATE/MEETUP LOCATION from a short conversation and turn it into an image prompt for that place. '
+    + 'Return ONLY compact JSON, no prose: {"place":"<a 2-4 word English label for the specific place they agreed to go, e.g. \\"indoor swimming pool\\", \\"trampoline park\\", \\"aquarium\\"; empty string if no concrete place is named>","comp":"<a vivid 12-25 word English description of that exact place as an EMPTY establishing shot: its architecture, key objects, lighting and mood, with NOBODY in it>","outdoor":true or false}. '
+    + 'If the conversation names no concrete place to go, return {"place":""}.';
+  var raw = null;
+  try { raw = await claudeChat(t, sys, { max_tokens: 220 }); } catch (e) { return null; }
+  if (!raw) return null;
+  var obj = null;
+  try { obj = JSON.parse(raw); } catch (e) {
+    var m = String(raw).match(/\{[\s\S]*\}/); if (m) { try { obj = JSON.parse(m[0]); } catch (e2) {} }
+  }
+  if (!obj || !obj.place || !String(obj.place).trim()) return null;
+  var label = String(obj.place).trim().slice(0, 40);
+  var slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 32);
+  if (!slug) return null;
+  var key = 'dyn_' + slug;
+  if (!STORY.locations[key]) {
+    var comp = (String(obj.comp || '').trim().slice(0, 240)) || label;
+    var entry = { composition: comp, isOutdoor: !!obj.outdoor, isPublic: true, label: label, _dynamic: true };
+    STORY.locations[key] = entry;
+    if (!G._dynLocs) G._dynLocs = {};
+    G._dynLocs[key] = entry;
+    try { STATE.save.saveGame(); } catch (e) {}
+  }
+  return key;
+}
+
 function upcomingDatesRef(fromDay, n) {
   var wd = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var parts = [];
@@ -10912,8 +10958,13 @@ async function sendChatReply() {
         // ⚠️ 确定性覆盖（用户定稿：别赌AI）：玩家话里点名了地点(山顶/看星星/海边…)就【强制】用那个，不管AI给了啥
         var _kwLoc = locKeyFromText(text) || locKeyFromText(reply);
         if (_kwLoc) meetInfo.locationKey = _kwLoc;
-        // 家地点(her_home/his_home)不在 STORY.locations 里（单独处理）；没给有效地点时管家默认公寓大厅，其余咖啡馆
-        let mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : (npc === 'butler' ? 'apartment_lobby' : 'cafe');
+        // 家地点(her_home/his_home)不在 STORY.locations 里（单独处理）；预设清单外的地方 → 动态生成，没有才退兜底
+        let mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : null;
+        if (!mLoc) {
+          // 玩家点名了预设清单/关键词都没有的地方（游泳/蹦床/水族馆…）→ 现场生成该地点场景，别一律退回咖啡馆
+          var _mDyn = await dynLocFromConv(text + '\n' + reply + '\n' + (meetInfo.title || ''));
+          mLoc = _mDyn || (npc === 'butler' ? 'apartment_lobby' : 'cafe');
+        }
         // 家门槛兜底（用户定稿）：AI 万一在没到亲密时还是给了家地点 → 改到公共场所（经纪人/管家来她家办事除外）
         if (/_home$/.test(mLoc) && !homeVisitAllowed(npc, mLoc)) mLoc = (npc === 'butler' ? 'apartment_lobby' : 'cafe');
         // 地址常识兜底（用户实测：教练"我去接你"直接上门）：没过夜过、又不是管家/经纪人 → 他不知道她住哪，her_home 改约公园
@@ -10961,7 +11012,12 @@ async function sendChatReply() {
         // 确定性覆盖：玩家话里点名了地点就【强制】用它（扫本轮+最近对话），不赌AI
         var _fiKw = null; for (var _fk = _convTexts.length - 1; _fk >= 0 && _fiKw == null; _fk--) _fiKw = locKeyFromText(_convTexts[_fk]);
         if (_fiKw) futureInv.locationKey = _fiKw;
-        let fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
+        let fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : null;
+        if (!fiLoc) {
+          // 预设清单/关键词都没命中（游泳/蹦床/水族馆…）→ 现场生成该地点场景，别一律退回咖啡馆
+          var _fiDyn = await dynLocFromConv(_convTexts.slice(-4).join('\n') + '\n' + (futureInv.title || ''));
+          fiLoc = _fiDyn || 'cafe';
+        }
         if (/_home$/.test(fiLoc) && !homeVisitAllowed(npc, fiLoc)) fiLoc = 'cafe'; // 家门槛兜底（同 meet）
         if (fiLoc === 'her_home' && !(npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0)) fiLoc = 'park'; // 地址常识兜底（同 meet）
         // 那天已有这位NPC的已确认约会 → 不再重复发气泡
@@ -11448,7 +11504,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.99 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v13.00 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
