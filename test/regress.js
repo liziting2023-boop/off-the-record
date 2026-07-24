@@ -226,6 +226,43 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
+// ④c2 日历唯一删除入口 calRemoveEvents —— 与 calAddEvent 对称；当年"幽灵清扫"误删
+//      根因就是删除散落各处无迹可循，集中+留痕后可追。测 predicate / dayPredicate / dateStr / fromDay
+// ══════════════════════════════════════════════════════
+(function testCalRemoveEvents() {
+  const code = extractFn('calRemoveEvents') + '\nmodule.exports = calRemoveEvents;';
+  const mk = () => {
+    const G = { day: 5, calendar: { events: {
+      '2026-07-24': [{ id: 'a', type: 'work', status: 'accepted' }, { id: 'b', type: 'npc_invite', status: 'pending' }],
+      '2026-07-26': [{ id: 'c', type: 'npc_invite', status: 'pending' }],
+      '2028-12-14': [{ id: 'ghost', type: 'work' }],
+    } } };
+    const m = { exports: {} };
+    const getCalDateStr = (d) => '2026-07-' + String(20 + d).padStart(2, '0'); // day5 → 2026-07-25
+    new Function('module', 'G', 'getCalDateStr', code)(m, G, getCalDateStr);
+    return { G, f: m.exports };
+  };
+  // predicate：删所有 pending 约会（跨全部日期）
+  let s = mk();
+  eq('日历删除·按条件删 pending 计数', s.f(e => e && e.type === 'npc_invite' && e.status === 'pending', 'clr'), 2);
+  ok('日历删除·非匹配的 work 保留', s.G.calendar.events['2026-07-24'].some(e => e.id === 'a'));
+  ok('日历删除·删空的日期键被移除', !s.G.calendar.events['2026-07-26']);
+  // dayPredicate：整天清越界日期键
+  s = mk();
+  eq('日历删除·整天清越界键计数', s.f(() => false, 'ghost', { dayPredicate: ds => ds > '2027-01-01' }), 1);
+  ok('日历删除·越界日期键消失', !s.G.calendar.events['2028-12-14']);
+  ok('日历删除·近期键不受影响', !!s.G.calendar.events['2026-07-24']);
+  // dateStr：只清指定那一天
+  s = mk();
+  eq('日历删除·dateStr 只清一天', s.f(() => true, 'one', { dateStr: '2026-07-24' }), 2);
+  ok('日历删除·dateStr 之外的天保留', !!s.G.calendar.events['2026-07-26']);
+  // fromDay：只删该日(含)之后
+  s = mk();
+  eq('日历删除·fromDay 只删今起', s.f(e => e && e.type === 'work', 'w', { fromDay: 5 }), 1); // lo=2026-07-25 → 只命中 2028 的 ghost
+  ok('日历删除·fromDay 之前的当天工作保留', s.G.calendar.events['2026-07-24'].some(e => e.id === 'a'));
+})();
+
+// ══════════════════════════════════════════════════════
 // ④d 提示词泄漏识别 isPromptLeak —— 模型偶尔把系统指令当消息吐出来（用户实测反复出现）
 // ══════════════════════════════════════════════════════
 (function testPromptLeak() {

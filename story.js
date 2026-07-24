@@ -27,7 +27,7 @@ const STORY = {
       agent:    { month: 11, day: 15, label: { 'zh-cn':'经纪人的生日', en:"Agent's Birthday" } },
       drummer:  { month: 6,  day: 21, label: { 'zh-cn':'鼓手的生日',   en:"Drummer's Birthday" } },
       actor:    { month: 2,  day: 14, label: { 'zh-cn':'男演员的生日', en:"Actor's Birthday" } },
-      detective:{ month: 9,  day: 3,  label: { 'zh-cn':'侦探的生日',   en:"Detective's Birthday" } },
+      detective:{ month: 9,  day: 3,  label: { 'zh-cn':'保镖的生日',   en:"Bodyguard's Birthday" } },
       butler:   { month: 3,  day: 21, label: { 'zh-cn':'管家的生日',   en:"Butler's Birthday" } },
       player:   { month: 8,  day: 10, label: { 'zh-cn':'你的生日',     en:'Your Birthday' } },
     },
@@ -550,7 +550,7 @@ const STORY = {
       // 按章节的情感状态
       // UNIVERSAL RULE for all NPCs:
       // Never say the real name of any other NPC in dialogue.
-      // Refer to others only by role: "the producer", "the actor", "building manager", "the detective"
+      // Refer to others only by role: "the producer", "the actor", "building manager", "the bodyguard"
       emotionalArc: {
         1: 'In charge but welcoming. High standards for the work, genuine encouragement for her — he wants her to succeed and lets it show.',
         2: 'Warm mentor energy. Actively protects her from industry predators and checks in on how she is holding up.',

@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=13.00"></script>
-<script src="state.js?v=13.00"></script>
+<script src="story.js?v=13.01"></script>
+<script src="state.js?v=13.01"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v13.00 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v13.01 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v13.00 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v13.01 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1562,13 +1562,7 @@ async function queueBandCoverMsg(){
 function _clearAgentWork(){
   try {
     if (!G.calendar || !G.calendar.events) return;
-    var todayStr = getCalDateStr(G.day);
-    Object.keys(G.calendar.events).forEach(function(ds){
-      if (ds >= todayStr) {
-        G.calendar.events[ds] = (G.calendar.events[ds] || []).filter(function(e){ return !(e && (e.type === 'work' || e.source === 'agent_mandate')); });
-        if (!G.calendar.events[ds].length) delete G.calendar.events[ds];
-      }
-    });
+    calRemoveEvents(function(e){ return e && (e.type === 'work' || e.source === 'agent_mandate'); }, 'clear-future-work', { fromDay: G.day });
     if (typeof refreshCalBadge === 'function') refreshCalBadge();
   } catch(e){}
 }
@@ -3438,6 +3432,41 @@ function calAddEvent(dateStr, event) {
   G.calendar.events[dateStr].push(event);
   STATE.save.saveGame();
   refreshCalBadge();
+}
+
+// 日历事件删除的【唯一入口】（与 calAddEvent 唯一新增入口对称）。
+// 当年"幽灵清扫"误删（存档15条→重登5条）的教训：删除操作散落各处、各自 filter、无迹可循，
+// 出事时根本不知道是谁删的。集中到这里 + 每次删除都记日志（删了几条·为什么·哪些），
+// 将来任何一次异常的批量删除都会在控制台立刻现形，好定位。
+//   predicate(e, ds) → true 表示删除该事件
+//   reason           → 日志里的原因标签
+//   opts.fromDay     → 只在该游戏日(含)之后的日期上删
+//   opts.dateStr     → 只在这一天删
+//   opts.dayPredicate(ds) → 整天判定（true=该天所有事件都删，用于清越界日期键）
+function calRemoveEvents(predicate, reason, opts) {
+  opts = opts || {};
+  if (!G.calendar || !G.calendar.events) return 0;
+  var lo = (opts.fromDay != null) ? getCalDateStr(opts.fromDay) : null;
+  var only = opts.dateStr || null;
+  var killed = 0, sample = [];
+  Object.keys(G.calendar.events).forEach(function (ds) {
+    if (only && ds !== only) return;
+    if (lo && ds < lo) return;
+    var arr = G.calendar.events[ds] || [];
+    var dayHit = false;
+    try { dayHit = opts.dayPredicate ? !!opts.dayPredicate(ds) : false; } catch (x) { dayHit = false; }
+    var kept = dayHit ? [] : arr.filter(function (e) {
+      var hit = false; try { hit = !!predicate(e, ds); } catch (x) { hit = false; }
+      if (hit) { killed++; if (sample.length < 8) sample.push(ds + ':' + ((e && (e.id || e.title)) || '?')); }
+      return !hit;
+    });
+    if (dayHit) { arr.forEach(function (e) { killed++; if (sample.length < 8) sample.push(ds + ':' + ((e && (e.id || e.title)) || '?')); }); }
+    if (kept.length !== arr.length || dayHit) {
+      if (kept.length) G.calendar.events[ds] = kept; else delete G.calendar.events[ds];
+    }
+  });
+  if (killed) { try { console.warn('[OTR] 日历删除 ×' + killed + '（' + (reason || '?') + '）: ' + sample.join(', ') + (killed > sample.length ? ' …' : '')); } catch (e) {} }
+  return killed;
 }
 
 function getCalDateStr(gameDay) {
@@ -10856,7 +10885,7 @@ async function sendChatReply() {
               // 记下"被搬空的那天"——否则重进游戏时自动排班发现这天空了，又用确定性种子把原行程一模一样地补回来（用户实测：改过的行程还原）
               G._clearedWorkDays = G._clearedWorkDays || [];
               if (G._clearedWorkDays.indexOf(getCalDateStr(_rd)) < 0) G._clearedWorkDays.push(getCalDateStr(_rd));
-              G.calendar.events[getCalDateStr(_rd)] = _evs.filter(function(e){ return e !== _wev; });
+              calRemoveEvents(function(e){ return e === _wev; }, 'reschedule-move', { dateStr: getCalDateStr(_rd) });
               _wev.id = (_wev.id || 'work') + '_mv' + _nd;
               calAddEvent(getCalDateStr(_nd), _wev);
             }
@@ -11407,9 +11436,7 @@ window.addEventListener('load', () => {
     // 邀约改"聊天内确认"制（v11.57 用户定稿）：日历不再存待确认条目——老档遗留的 pending 邀约清掉
     // （新邀约都会以聊天气泡形式重新出现，不丢内容）
     try {
-      Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){
-        G.calendar.events[ds] = (G.calendar.events[ds] || []).filter(function(e){ return !(e && e.type === 'npc_invite' && e.status === 'pending'); });
-      });
+      calRemoveEvents(function(e){ return e && e.type === 'npc_invite' && e.status === 'pending'; }, 'clear-legacy-pending');
     } catch(e) {}
     // 读档兜底（v11.98，用户实测"重进游戏约好的约会全消失"）：聊天消息里的 meet.invId 是接受约会的权威记录——
     // 每次读档都把"接受过、没婉拒、日子还没过"的约会从消息数据重建进日历（calAddEvent 按 id 去重，重复无害）。
@@ -11485,9 +11512,9 @@ window.addEventListener('load', () => {
   // 幽灵行程清扫（用户控制台探针实锤：改期曾被写到 2028-12-14 这类荒谬日期键→日历上"消失"，根因已修）：
   // 读档时把 120 天以外的孤儿日期键清掉（正常系统最远只排 30 天邀约/14 天工作，120 天外只可能是写错的）
   try {
-    var _farCut = getCalDateStr((G.day || 1) + 120), _swept = [];
-    Object.keys((G.calendar && G.calendar.events) || {}).forEach(function(ds){ if (ds > _farCut) { _swept.push(ds + '(' + (G.calendar.events[ds] || []).map(function(e){ return e && e.id; }).join(',') + ')'); delete G.calendar.events[ds]; } });
-    if (_swept.length) { console.warn('[OTR] 清掉写错日期的幽灵行程: ' + _swept.join(', ')); try { STATE.save.saveGame(); } catch(e){} }
+    var _farCut = getCalDateStr((G.day || 1) + 120);
+    var _sweptN = calRemoveEvents(function(){ return false; }, 'far-future-ghost-sweep', { dayPredicate: function(ds){ return ds > _farCut; } });
+    if (_sweptN) { try { STATE.save.saveGame(); } catch(e){} }
   } catch(e){}
   // 读档探针（配合改期写入自检定位"改期重开回退"）：开局把存档里所有手改过的行程打到控制台
   try {
@@ -11504,7 +11531,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v13.00 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v13.01 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
