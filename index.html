@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.86"></script>
-<script src="state.js?v=12.86"></script>
+<script src="story.js?v=12.87"></script>
+<script src="state.js?v=12.87"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -506,31 +506,31 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <h3>开发者测试面板</h3>
     <div class="dev-sec">过夜剧情（好感自动设80，直接跳场景）</div>
     <button class="dev-btn" onclick="devStay('agent')">过夜 · 经纪人</button>
-    <button class="dev-btn" onclick="devStay('drummer')">过夜 · 鼓手</button>
+    <button class="dev-btn" onclick="devStay('drummer')">过夜 · 制作人</button>
     <button class="dev-btn" onclick="devStay('actor')">过夜 · 男演员</button>
     <button class="dev-btn" onclick="devStay('butler')">过夜 · 管家</button>
-    <button class="dev-btn" onclick="devStay('detective')">过夜 · 侦探</button>
+    <button class="dev-btn" onclick="devStay('detective')">过夜 · 保镖</button>
     <button class="dev-btn" onclick="devStay('rival')">过夜 · 对手歌手</button>
     <button class="dev-btn" onclick="devStay('rafael')">过夜 · 球星</button>
     <button class="dev-btn" onclick="devStay('neighbor')">过夜 · 邻居</button>
     <div class="dev-sec">🧪 恋人化（好感95+已过夜+已表白）→ 自动开聊天看反应</div>
     <button class="dev-btn" onclick="devLovers('agent')">恋人 · 经纪人</button>
-    <button class="dev-btn" onclick="devLovers('drummer')">恋人 · 鼓手</button>
+    <button class="dev-btn" onclick="devLovers('drummer')">恋人 · 制作人</button>
     <button class="dev-btn" onclick="devLovers('actor')">恋人 · 男演员</button>
     <button class="dev-btn" onclick="devLovers('butler')">恋人 · 管家</button>
-    <button class="dev-btn" onclick="devLovers('detective')">恋人 · 侦探</button>
+    <button class="dev-btn" onclick="devLovers('detective')">恋人 · 保镖</button>
     <button class="dev-btn" onclick="devLovers('rival')">恋人 · 对手歌手</button>
     <button class="dev-btn" onclick="devLovers('rafael')">恋人 · 球星</button>
     <button class="dev-btn" onclick="devLovers('neighbor')">恋人 · 邻居</button>
     <div class="dev-sec">🧪 刚过夜·还没表白（测"性行为后未官宣"）</div>
-    <button class="dev-btn" onclick="devIntimate('drummer')">过夜未表白 · 鼓手</button>
+    <button class="dev-btn" onclick="devIntimate('drummer')">过夜未表白 · 制作人</button>
     <button class="dev-btn" onclick="devIntimate('agent')">过夜未表白 · 经纪人</button>
     <div class="dev-sec">🧪 新NPC初见（不用等 Day3/Day6）</div>
     <button class="dev-btn" onclick="devMeet('rafael')">初见 · 球星 Rafael</button>
     <button class="dev-btn" onclick="devMeet('neighbor')">初见 · 邻居单亲爸爸</button>
     <button class="dev-btn" onclick="devTeamMeeting()">群戏 · 团队碰头会</button>
     <button class="dev-btn" onclick="devProRupture('agent')">职业破裂 · 经纪人解约（按2次：警告→解约）</button>
-    <button class="dev-btn" onclick="devProRupture('drummer')">职业破裂 · 鼓手辞职（按2次：警告→辞职）</button>
+    <button class="dev-btn" onclick="devProRupture('drummer')">职业破裂 · 制作人辞职（按2次：警告→辞职）</button>
     <button class="dev-btn" onclick="closeDevPanel();introduceAssistant();setABn('bn-phone');openPhone();">登场 · 工作助理（看名字+短信）</button>
     <div class="dev-sec">🎬 重要剧情节点·章节卡（看版式+音效）</div>
     <button class="dev-btn" onclick="devMilestone('confess')">节点 · 表白</button>
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.86 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.87 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.86 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.87 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4608,10 +4608,10 @@ function showNPCOrigin(npcKey, callback) {
       en: ['The Building Manager', 'You notice', 'There is something about him that feels like somewhere far from here.'],
     },
     detective: {
-      zh: ['侦探', '你猜测', '他的沉默里藏着某个城市的影子。'],
-      ja: ['探偵', 'あなたが推測する', '彼の沈黙には、ある都市の影が潜んでいる。'],
-      ko: ['탐정', '당신이 추측하는', '그의 침묵 속엔 어느 도시의 그림자가 숨어있다.'],
-      en: ['The Detective', 'You guess', 'His silence carries the shadow of a particular city.'],
+      zh: ['保镖', '你猜测', '他的沉默里藏着某个城市的影子。'],
+      ja: ['ボディガード', 'あなたが推測する', '彼の沈黙には、ある都市の影が潜んでいる。'],
+      ko: ['경호원', '당신이 추측하는', '그의 침묵 속엔 어느 도시의 그림자가 숨어있다.'],
+      en: ['The Bodyguard', 'You guess', 'His silence carries the shadow of a particular city.'],
     },
     rival: {
       zh: ['对手歌手', '你听说', '他的锋芒里带着某个地方的底色。'],
@@ -4858,7 +4858,7 @@ async function startDay() {
     STATE.save.saveGame();
   }
   // ══ Batch2 过夜后关系动态 ══
-  // ① 立场消息（第一夜次日）：鼓手=想公开,邀你进他的朋友圈(聚会邀约,去=公开)；经纪人/演员/管家/侦探=按各自理由求低调
+  // ① 立场消息（第一夜次日）：制作人/管家=想公开,邀你进他的朋友圈(聚会邀约,去=公开)；经纪人/演员/保镖=按各自理由求低调
   Object.keys(G.npcs).forEach(function(k) {
     var n = G.npcs[k];
     if (!n || !n._stanceDue || G.day < n._stanceDue || n._stanceSent) return;
@@ -4892,7 +4892,7 @@ async function startDay() {
       STATE.save.saveGame();
     } catch(e){} })();
   });
-  // ② 公开后的反应（次日）：其他好感≥60的NPC按性格——经纪人/管家=追问要解释,演员/鼓手=生气冷战几天不回消息,侦探=一句冷评
+  // ② 公开后的反应（次日）：其他好感≥60的NPC按性格——经纪人/管家=追问要解释,演员/制作人=生气冷战几天不回消息,保镖=一句冷评
   if (G._publicReactDue && G.day >= G._publicReactDue.day) {
     var _pr = G._publicReactDue; G._publicReactDue = null;
     var _prName = getNPCName(_pr.npc);
@@ -5900,7 +5900,7 @@ async function runGroupScene(participants, opts) {
             // 鼓手/对手歌手：想公开——不藏，反而带点得意/骄傲地认下这段关系，享受这一刻，绝不要求保密
             return _common + 'Then — and this is key — he is the type who is NOT ashamed and does NOT want to hide it: he owns it, openly and a little proudly, maybe pulls her closer or grins at the room, lets them see. He does NOT ask anyone to keep it secret; if anything he half-claims her out loud ("是啊，怎么了" / "yeah, she\'s with me"), pleased the room now knows. Still caught off guard by the timing, but glad, not anxious. Others react — a whistle, a laugh, an awkward cough. Do NOT have him recite dates/deadlines as if nothing happened. Keep it in ' + G.langName + '.\n';
           }
-          // 经纪人/演员/管家/侦探：求低调——张罗保密
+          // 经纪人/演员/保镖：求低调——张罗保密（管家已改成想公开）
           return _common + 'Then, because whatever is between them was PRIVATE until this second and there are colleagues watching, his instinct is to CONTAIN it: he stops the agenda, glances at the others, and says something to keep it discreet (that it stays in this room / between them), visibly aware it is now out. Do NOT have him just carry on handing out dates and deadlines as if nothing happened. Only AFTER the fluster and the ask for discretion may they ease carefully back toward work. Others react with surprise/awkwardness — a colleague looking away, a raised eyebrow, a small "…okay then". Keep it in ' + G.langName + '.\n';
         })()
       ) : '') +
@@ -8556,7 +8556,7 @@ const OVERNIGHT_STYLE = {
 };
 // ══ 过夜后的关系动态（Batch2）══
 // 公开/低调立场按性格：鼓手=想公开(骄傲不藏) / 经纪人=要低调(利益冲突,暗里在意) /
-// 演员=先低调(花名在外,真心后才谈公开) / 管家=想私密(藏着秘密身份) / 侦探=天生绝对低调
+// 演员=先低调(花名在外,真心后才谈公开) / 管家=想公开(没有秘密了,过夜后想让所有人知道) / 保镖=天生绝对低调
 const REL_STANCE = {
   drummer:  { mode: 'public', gatherLoc: 'livehouse', gTitleZh: '他的朋友聚会 🍻', gTitleEn: "His friends' gathering 🍻",
     ctx: 'You two have spent the night together and you are DONE hiding it — you are proud of her. Text her: this Saturday your friends are getting together at the livehouse, and you want her there — as YOUR girl, meeting your people. Blunt, warm, no games (1-2 sentences). Output only the message text.' },
@@ -11081,7 +11081,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.86 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.87 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
