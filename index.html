@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.89"></script>
-<script src="state.js?v=12.89"></script>
+<script src="story.js?v=12.90"></script>
+<script src="state.js?v=12.90"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.89 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.90 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.89 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.90 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5399,27 +5399,23 @@ function buildDayOpts() {
         }
       }
     } catch(e) {}
-    // ── 同居对象在家（用户定稿）：住一起了，他早晚本来就在——首页给一个"他在家"的入口。
-    //    不走约会/邀约流程（同居了还发邀约反而怪），就是家里的日常一幕。一天早、晚各一次。
+    // ── 同居对象在家（用户定稿·常驻置顶版）：他【住在这儿】，不是一个活动选项。
+    //    所以「和X待着」常驻【首页最上方】、一直在（不再早晚各一次、不再点过就消失、不占 slots 的5席），
+    //    但绝不锁掉其它选项——出门/上班/见人一切照旧（同居不是软禁，绿旗底线）。首页顶部另加一行「X在家」。
     try {
       var _cohabK = Object.keys(G.npcs).find(function(k){ return G.npcs[k] && G.npcs[k]._cohabiting && !npcIsCold(k); });
-      if (_cohabK && slots.length < 5) {
+      if (_cohabK && !nightWithNpc()) { // 已经在别人那儿过夜时不重复显示
+        var _cn = getNPCName(_cohabK);
         var _cm = REALTIME ? rtClockMin() : (G.clockMin || 1200);
-        var _seg = _cm < 11 * 60 ? 'morning' : (_cm >= 17 * 60 ? 'evening' : null); // 早上/傍晚才在家，白天各忙各的
-        if (!G._cohabSeen) G._cohabSeen = {};
-        var _seenKey = G.day + ':' + _seg;
-        if (_seg && G._cohabSeen[_cohabK] !== _seenKey) {
-          var _cn = getNPCName(_cohabK);
-          slots.push(makeOpt(
-            _seg === 'morning' ? (isZh ? '☕ 和' + _cn + '一起吃早饭' : 'Breakfast with ' + _cn)
-                               : (isZh ? '🏠 ' + _cn + '在家' : _cn + ' is home'),
-            _seg === 'morning' ? (isZh ? '你们住一起的清晨' : 'A morning in your place')
-                               : (isZh ? '一起过个晚上' : 'An evening in together'), '',
-            function(){
-              G._cohabSeen[_cohabK] = _seenKey; STATE.save.saveGame();
-              // ⚠️ 必须先切到场景屏：runQuickNPCChat 只填 VN 元素、不负责切屏，
-              //    不切的话整场戏在隐藏 DOM 里跑完 = 点了"没反应"（用户实测；v10.69 白天赴约踩过同一个坑）
-              go('s-scene');
+        var _morn = _cm < 11 * 60;
+        // 顶部状态行「X 在家」
+        try { var _hd = document.getElementById('d-opts-head'); if (_hd) _hd.textContent = isZh ? (_cn + ' 在家') : (_cn + ' is home'); } catch(e){}
+        var _cohabOpt = makeOpt(
+          _morn ? (isZh ? '☕ 和' + _cn + '一起吃早饭' : 'Breakfast with ' + _cn)
+                : (isZh ? '🏠 和' + _cn + '待在一起' : 'Time in with ' + _cn),
+          isZh ? '你们住一起' : 'You live together', '',
+          function(){
+            go('s-scene');
               document.getElementById('vn-loading').style.display = 'none';
               document.getElementById('vn-bg-ph').style.display = 'flex';
               document.getElementById('vn-bg').style.display = 'none';
@@ -5443,12 +5439,12 @@ function buildDayOpts() {
               runQuickNPCChat(_cohabK, {
                 locKey: 'her_home',
                 title: (isZh ? '在家' : 'At home'),
-                custom: (_seg === 'morning'
+                custom: (_morn
                   ? 'You two LIVE TOGETHER. It is morning in the home you share — one of you made coffee, the day has not started yet. This is domestic and unremarkable in the best way: no greeting-at-the-door, no guest manners, no "thanks for having me", no invitations, no arriving or leaving. Talk the way two people who woke up in the same bed talk — half-finished sentences, small logistics about the day, a tease, an easy touch in passing.'
                   : 'You two LIVE TOGETHER. It is evening in the home you share and you are both in for the night. Nobody arrived and nobody is leaving — no door, no goodbye ahead. Domestic and easy: dinner, the couch, something small from your day. The intimacy of ordinary evenings, not a date.')
               }, function(){ goHome(); });
-            }));
-        }
+          });
+        opts.appendChild(_cohabOpt); // 常驻置顶：先 append，后面的 slots 排在它下面
       }
     } catch(e) {}
     slots.slice(0, 5).forEach(b => opts.appendChild(b));
@@ -11306,7 +11302,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.89 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.90 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
