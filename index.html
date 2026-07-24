@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.88"></script>
-<script src="state.js?v=12.88"></script>
+<script src="story.js?v=12.89"></script>
+<script src="state.js?v=12.89"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.88 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.89 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.88 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.89 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4305,8 +4305,11 @@ function applyHomeTimeOfDay() {
   // 同居后优先用伴侣家的图（cohabWith 有值时）
   const _coLiving = (G.apartment.cohabWith && G.apartment.cohabLivingUrl) || G.apartment.livingDayUrl;
   const _coBed = (G.apartment.cohabWith && G.apartment.cohabBedroomUrl) || G.apartment.bedroomNightUrl;
-  const url = night ? (_coBed || _coLiving)
-                    : (_coLiving || _coBed);
+  // 【今晚在他家】优先级最高：人就在他那儿，首页当然该是他家（用第二幕那张卧室图，已缓存、零生图）
+  const _nw = nightWithAtHis() ? nightWithNpc() : null; // 只有在【他家】才换背景；他睡在她家时首页仍是她家
+  const _nwUrl = _nw && G.npcs[_nw] ? (G.npcs[_nw].homeAct2Url || G.npcs[_nw].homeAct1Url || G.npcs[_nw].homeUrl) : null;
+  const url = _nwUrl || (night ? (_coBed || _coLiving)
+                               : (_coLiving || _coBed));
   if (url && imgEl) {
     imgEl.src = url; imgEl.style.display = 'block';
     if (phEl) phEl.style.display = 'none';
@@ -5197,6 +5200,46 @@ function buildDayOpts() {
     btn.onclick = onclick;
     return btn;
   };
+  // 【今晚在他那儿】：人不在自己家，首页当然不该给逛街/上课这些"出门"项（用户定稿）。
+  // 只留一个"和他待着"。手机照常能用、别人照样能约——真要出门走的是聊天里的见面按钮，
+  // 那条路上他会当面问一句（askBeforeLeaving），而不是在这里把按钮灰掉。
+  var _nwK = nightWithNpc();
+  if (_nwK && !G.sick) {
+    var _nwName = getNPCName(_nwK);
+    document.getElementById('d-opts-head').textContent = isZh ? ('今晚你在' + _nwName + '那里') : ('Tonight you are at ' + _nwName + '’s place');
+    opts.appendChild(makeOpt(
+      isZh ? ('和' + _nwName + '待着') : ('Stay in with ' + _nwName),
+      isZh ? '夜还长' : 'The night is still long', '',
+      function () {
+        _vnEndLoc = (G._nightWith.at === 'his') ? (_nwK + '_home') : 'her_home';
+        G.today = { label: (isZh ? '和' + _nwName + '在一起' : 'With ' + _nwName), isWork: false, npc: _nwK };
+        go('s-scene');
+        document.getElementById('vn-loading').style.display = 'none';
+        document.getElementById('vn-bg-ph').style.display = 'flex';
+        document.getElementById('vn-bg').style.display = 'none';
+        document.getElementById('vn-npc-card').style.display = 'none';
+        document.getElementById('npc-trio').style.display = 'none';
+        document.getElementById('portrait-full').style.display = 'none';
+        document.getElementById('vn-overlay').style.display = 'block';
+        document.getElementById('vn-content').style.display = 'flex';
+        document.getElementById('vn-speaker').textContent = '';
+        document.getElementById('vn-opts').innerHTML = '';
+        document.getElementById('vn-text').textContent = '…';
+        _curSceneEv = { npc: _nwK, location: _vnEndLoc };
+        try {
+          var _u = (G._nightWith.at === 'his')
+            ? (G.npcs[_nwK].homeAct2Url || G.npcs[_nwK].homeAct1Url || G.npcs[_nwK].homeUrl)
+            : (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl);
+          if (_u) { var _b = document.getElementById('vn-bg'); _b.src = _u; _b.style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+          ensureHomePortrait(_nwK);
+        } catch (e) {}
+        runQuickNPCChat(_nwK, {
+          locKey: _vnEndLoc, title: (isZh ? '今晚' : 'Tonight'),
+          custom: 'It is the middle of the night you two are spending together — she is here, with you, and neither of you is going anywhere. No door, no arriving, no goodbye ahead. Low light, low voices, the unhurried ease of two people who have just been as close as you can get. Talk the way people talk at 1am in the same bed: half-finished thoughts, something small and true you would not say in daylight, an easy touch. Nothing dramatic, nothing about work.'
+        }, function () { goHome(); });
+      }));
+    return;
+  }
   // 生病中：强制卧床休养，其它选项全部锁定
   if (G.sick) {
     const sickDayNum = G.day - G.sick.start + 1;
@@ -8614,6 +8657,144 @@ const THAW_CTX = {
 };
 function npcIsCold(k) { return !!(G.npcs[k] && G.npcs[k].coldUntil && G.npcs[k].coldUntil > G.day); }
 
+// ── 「今晚在他那儿」状态（用户定稿）──
+// 用户实测：19:40 选了留下过夜，19:41 就能逛街约别人——因为实时制下天不会推进，
+// _stayedOver 只是"记一笔供明早发消息"，游戏里【根本没有"她此刻人在他家"这个状态】。
+// 现在补上：留下过夜 → 记 _nightWith，管到【次日 8 点】。期间首页换成他家、不给出门项；
+// 手机照常能用、别人照样能约（不剥夺玩家自由）——但真要出门时他会当面问一句（见 askBeforeLeaving）。
+function nightWithNpc() {
+  try {
+    var nw = G._nightWith;
+    if (!nw || !nw.npc || !G.npcs[nw.npc]) return null;
+    var nowMin = REALTIME ? rtClockMin() : (G.clockMin || 0);
+    if (G.day === nw.day) return nw.npc;                       // 当晚
+    if (G.day === nw.day + 1 && nowMin < 8 * 60) return nw.npc; // 跨到第二天、天还没亮
+    G._nightWith = null;                                        // 过了就自然解除
+    return null;
+  } catch (e) { return null; }
+}
+function nightWithAtHis() { var nw = G._nightWith; return !!(nightWithNpc() && nw && nw.at === 'his'); }
+
+// 今晚说好陪他，却要出门 → 他当面问一句。什么都不禁：她可以留下、可以解释后走、也可以一言不发地走。
+// 绿旗铁律：他只是【问】和【受伤】，绝不拦人、不威胁、不控制。代价落在他之后的语气里，不是灰掉的按钮。
+// 用户定稿：①去工作 vs 去见别人，他的反应要分开 ②一声不吭走掉代价重。
+// go(proceed) = 玩家坚持出门时要执行的原动作；kind='work'|'social'
+function askBeforeLeaving(kind, proceed) {
+  var npcKey = nightWithNpc();
+  if (!npcKey) { proceed(); return true; }        // 没在他那儿：照常
+  var isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
+  var nm = getNPCName(npcKey);
+  try { G._nightWith.asked = (G._nightWith.asked || 0) + 1; } catch (e) {}
+  var askedTimes = (G._nightWith && G._nightWith.asked) || 1;
+
+  go('s-scene');
+  document.getElementById('vn-loading').style.display = 'none';
+  document.getElementById('vn-bg-ph').style.display = 'flex';
+  document.getElementById('vn-bg').style.display = 'none';
+  document.getElementById('vn-npc-card').style.display = 'none';
+  document.getElementById('npc-trio').style.display = 'none';
+  document.getElementById('portrait-full').style.display = 'none';
+  document.getElementById('vn-overlay').style.display = 'block';
+  document.getElementById('vn-content').style.display = 'flex';
+  document.getElementById('vn-speaker').textContent = nm;
+  document.getElementById('vn-text').textContent = '…';
+  var vopts = document.getElementById('vn-opts');
+  vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
+  // 背景=他家（在她家过夜就用她家），立绘用居家便装（她刚和他躺过，不该还是西装）
+  try {
+    var _bgU = (G._nightWith.at === 'his')
+      ? (G.npcs[npcKey].homeAct2Url || G.npcs[npcKey].homeAct1Url || G.npcs[npcKey].homeUrl)
+      : (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl);
+    if (_bgU) { var bg = document.getElementById('vn-bg'); bg.src = _bgU; bg.style.display = 'block'; document.getElementById('vn-bg-ph').style.display = 'none'; }
+    if (G.npcs[npcKey].portraitUrl) { showNPCPortraitCard(npcKey); ensureHomePortrait(npcKey); }
+    setVNAvatars(npcKey); vnSpeak('npc');
+  } catch (e) {}
+
+  (async function () {
+    var ctx = 'SHE IS AT ' + (G._nightWith.at === 'his' ? 'YOUR place' : 'her place WITH YOU') +
+      ' — she agreed to spend tonight with you, and now she is getting ready to WALK OUT ' +
+      (kind === 'work' ? 'for a WORK commitment (a session/shoot/show she has to be at).' : 'to go see someone / go out — NOT for work.') +
+      (askedTimes > 1 ? ' (This is not the first time tonight she has started to leave.)' : '') +
+      ' Say ONE short thing to her as she reaches for the door — you are asking, not blocking. ' +
+      (kind === 'work'
+        ? 'It is WORK, and you know it — you get it, and you are not going to make her feel guilty for her career. A little disappointed, a little wry, warm underneath: let her go, ask her to message you when she is done, maybe say the bed will still be here. Do NOT sulk or guilt-trip.'
+        : 'This one actually stings — she said she would stay, and now she is leaving to be somewhere else. Ask her plainly where she is going, or say the quiet true thing about how that lands. Hurt and honest, in YOUR own voice.') +
+      ' GREEN-FLAG — ABSOLUTE: you do NOT physically block her, do NOT forbid her, do NOT demand, do NOT threaten to end things, do NOT lay guilt on her. It is her choice and you say nothing that takes that away. 1-2 sentences, spoken words only, in ' + G.langName + '.';
+    var line = '';
+    try { line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, ctx)); } catch (e) {}
+    if (!line || !line.trim()) {
+      line = kind === 'work'
+        ? (isZh ? '「工作啊……行。」他撑起身子，声音还带着睡意，「结束了给我发个消息。床还在这儿。」' : '"Work. …Right." He props himself up, voice still thick with sleep. "Text me when you\'re done. Bed\'s still here."')
+        : (isZh ? '「你不是说……今晚陪我的吗。」他没有拦你，只是看着你，「你现在要去哪？」' : '"You said you\'d stay tonight." He does not move to stop you — he just looks at you. "Where are you going?"');
+    }
+    document.getElementById('vn-text').innerHTML = formatNPCText(line.trim());
+    vopts.innerHTML = '';
+    var mk = function (label, fn, dim) {
+      var el = document.createElement('div'); el.className = 'vn-opt';
+      if (dim) el.style.opacity = '.75';
+      el.textContent = label; el.onclick = fn; vopts.appendChild(el);
+    };
+    // ① 留下
+    mk(isZh ? '……还是留下来' : '…Stay after all', function () {
+      STATE.relationships.change(npcKey, 3);
+      STATE.memory.addEvent(npcKey, 'She was about to leave in the middle of the night you two were sharing — you asked, and she chose to stay with you (day ' + G.day + '). It meant something.', G.day);
+      try { STATE.save.saveGame(); } catch (e) {}
+      playSound('rel-up');
+      goHome();
+    });
+    // ② 回答他再走
+    mk(isZh ? '跟他解释，然后出门' : 'Explain, then go', function () {
+      vopts.innerHTML = '';
+      var io = buildDualInput(vopts, npcKey, async function (reply) {
+        _leaveAfterAsk(npcKey, kind, true, reply, proceed);
+      });
+      try { if (io && io.spInp) io.spInp.focus(); } catch (e) {}
+    });
+    // ③ 一言不发直接走
+    mk(isZh ? '什么都不说，走了' : 'Say nothing. Leave.', function () {
+      _leaveAfterAsk(npcKey, kind, false, '', proceed);
+    }, true);
+  })();
+  return false;
+}
+
+// 她还是走了 —— spoke=有没有解释过。工作 vs 见别人、说了 vs 沉默，代价分四档（用户定稿：沉默最重）
+async function _leaveAfterAsk(npcKey, kind, spoke, reply, proceed) {
+  var isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
+  var d = kind === 'work' ? (spoke ? 0 : -3) : (spoke ? -4 : -9);
+  if (d) STATE.relationships.change(npcKey, d);
+  G.npcs[npcKey]._leftInTheNight = { day: G.day, kind: kind, spoke: !!spoke, said: String(reply || '').slice(0, 80) };
+  STATE.memory.addEvent(npcKey,
+    'You two were spending the night together and she left partway through (day ' + G.day + ') — ' +
+    (kind === 'work' ? 'for work' : 'to go out and be somewhere else') + ', and she ' +
+    (spoke ? 'did explain first: "' + String(reply || '').slice(0, 80) + '"' : 'said NOTHING AT ALL — she just went. That silence is what stayed with you.') +
+    ' You did not stop her, and you would not — but it landed.', G.day);
+  G._nightWith = null;              // 她确实走了，状态解除（首页也会变回她自己家）
+  try { STATE.save.saveGame(); } catch (e) {}
+  // 他最后的反应（沉默离开时更短更冷）
+  try {
+    var line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
+      'She is walking out — ' + (spoke ? 'she just said to you: "' + String(reply || '') + '"' : 'without a single word') +
+      '. Give ONE short final beat as the door closes: ' +
+      (kind === 'work' ? 'you understand, even if you wish tonight had gone differently.'
+        : (spoke ? 'you heard her, it still hurts, and you let her go anyway.'
+                 : 'she said nothing at all. You do not chase her, you do not shout — but something in you goes quiet and closes.')) +
+      ' NEVER controlling, NEVER cruel, no ultimatum. 1 sentence, in ' + G.langName + '.'));
+    if (line && line.trim()) {
+      document.getElementById('vn-text').innerHTML = formatNPCText(line.trim());
+    } else {
+      document.getElementById('vn-text').innerHTML = formatNPCText(
+        spoke ? (isZh ? '他点了下头，没再说什么。' : 'He nods once, and says nothing more.')
+              : (isZh ? '他没有叫住你。门合上的时候，屋里一点声音也没有。' : 'He does not call after you. When the door closes, the room is completely silent.'));
+    }
+  } catch (e) {}
+  var vopts = document.getElementById('vn-opts'); vopts.innerHTML = '';
+  var btn = document.createElement('button');
+  btn.className = 'vn-next'; btn.textContent = isZh ? '出门' : 'Go';
+  btn.onclick = function () { try { proceed(); } catch (e) { goHome(); } };
+  vopts.appendChild(btn);
+}
+
 async function genNPCHomeBg(npcKey) {
   if (G.npcs[npcKey] && G.npcs[npcKey].homeUrl) return G.npcs[npcKey].homeUrl; // 缓存复用
   const base = HOME_PROMPTS[npcKey] || HOME_PROMPTS.agent;
@@ -8941,6 +9122,8 @@ async function maybeStayOver(npcKey, locKey, opts) {
       const _isNightHour = _nowMin >= 17 * 60 || _nowMin < 5 * 60;
       const stayTheNight = () => {
         G._stayedOver = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his' };
+        // 「今晚在他那儿」：管到次日8点——首页换他家、只留"和他待着"，真要出门他会当面问（用户定稿）
+        G._nightWith = { npc: npcKey, day: G.day, at: destHers ? 'hers' : 'his', asked: 0 };
         STATE.memory.addEvent(npcKey, (destHers
           ? 'She asked you to stay, and you spent the whole night at HER place'
           : 'She stayed the whole night at YOUR place') + ' (day ' + G.day + ') — you woke up next to each other.', G.day);
@@ -10155,7 +10338,13 @@ function renderChatMsgs(npc, dividerIdx) {
       } else {
         mbtn.style.cssText = activeCss;
         mbtn.textContent = '🤝 ' + m.text;
-        mbtn.onclick = (function(mm){ return function(){ mm.meet.used = true; try { STATE.save.saveGame(); } catch(e){} runMeetupScene(mm.npc, mm.meet.locationKey, mm.meet.title); }; })(m);
+        mbtn.onclick = (function(mm){ return function(){
+          var _run = function(){ mm.meet.used = true; try { STATE.save.saveGame(); } catch(e){} runMeetupScene(mm.npc, mm.meet.locationKey, mm.meet.title); };
+          // 今晚说好陪着另一个人，却要出门见人 → 他先当面问一句（不禁止，只是要当着他的面做决定）
+          var _nw = nightWithNpc();
+          if (_nw && _nw !== mm.npc) { askBeforeLeaving('social', _run); return; }
+          _run();
+        }; })(m);
       }
       col.appendChild(mbtn);
     } else {
@@ -11117,7 +11306,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.88 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.89 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

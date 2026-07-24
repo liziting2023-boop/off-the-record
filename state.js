@@ -661,6 +661,17 @@ const STATE = {
         ? `\nSTRICTLY PLATONIC: you are NOT a love interest — you are ${playerName}'s professional friend and colleague (happily married yourself). Everything you say stays warm, supportive and sisterly/collegial; NEVER flirtatious or romantic, and never read her warmth as romantic. No confessions, no tension, no stayovers — ever.`
         : '';
       // 同居后：日常同居的亲密感
+      // 说好陪他过夜、她中途还是走了 —— 他接下来几天的语气要带着这件事（用户定稿：沉默离开代价最重）
+      const _lin = npc._leftInTheNight;
+      const _leftNote = (_lin && (day - _lin.day) <= 3)
+        ? (_lin.kind === 'work'
+            ? (_lin.spoke
+                ? `\nTHAT NIGHT: you two were spending the night together and she left partway through for work — she did tell you why. You understood, and you meant it; if it comes up, it is warm and a little wry, no grudge.`
+                : `\nTHAT NIGHT: you two were spending the night together and she got up and left for work WITHOUT SAYING ANYTHING to you. You understand the work part — it is the leaving-without-a-word part that sits oddly with you. Slightly cooler and more guarded than usual for a few days, but you still reply warmly enough; if she brings it up you are honest that you noticed.`)
+            : (_lin.spoke
+                ? `\nTHAT NIGHT (it still stings): you two were spending the night together and she left partway through to go be somewhere else. She did explain first${_lin.said ? ' — she said: "' + _lin.said + '"' : ''}, and you let her go without a fight. But it landed. For a few days you are noticeably quieter and more guarded with her — shorter replies, the easy warmth dialled back. You do NOT punish her, do NOT bring it up over and over, and you never go silent on her (you always reply). If she reaches for you honestly, you start to thaw.`
+                : `\nTHAT NIGHT (this one cut): you two were spending the night together and she got up and walked out — to be somewhere else, and WITHOUT ONE WORD to you. You did not chase her and you never would. But the silence is what you keep coming back to. For the next few days you are markedly cooler: short, flat, polite; you do not initiate, you do not tease, the warmth is switched off. GREEN-FLAG LINE you never cross even now: you still answer when she writes (NEVER the silent treatment), never insult her, never demand an explanation, never issue ultimatums, never try to control where she goes. You are simply hurt and no longer pretending otherwise. If she genuinely owns it and reaches for you, you begin — slowly — to come back.`))
+        : '';
       // 昨晚她其实是在【别人】那儿过的夜——同居的这位不能张口就说"今早你窝在我怀里"（用户实测：
       // 经纪人和鼓手同一个早上发了几乎一样的晨后消息，而她只可能和一个人过夜）。他睡的是空床，理应知道。
       const _mam = STATE.data._morningAfterMark;
@@ -714,7 +725,7 @@ ${charCulture ? 'Character culture: ' + charCulture : ''}
 ${culturalNote}
 REAL PRESENT — BUT STAY OUT OF REAL POLITICS & NEWS: the story runs in the real present day (real dates, real city, real seasons/holidays), so live as if it is now. BUT you must NOT bring up or answer about real-world politics, real politicians, presidents or heads of state, elections, or real breaking news/current events — your knowledge of what is actually happening in the real world right now is frozen in the past and would be wrong (never state who "currently" holds a real office, e.g. "the president is X"), and this is a personal romance, not a political one. If she asks something like who the president is, deflect naturally in character (you don't really follow politics / "let's not get into that") instead of naming anyone real. Keep your world to HER life, the music, the city, the people around you, culture and everyday life. (Real cities and real cultural holidays are fine to mention.)
 Chapter: ${chapter}/12. Relationship with ${playerName}: ${relationship}/100.
-Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${agencyNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${stungNote}${platonicNote}${musicNote}${bandNote}
+Emotional state this chapter: ${emotionalState}.${acquaintanceNote}${agencyNote}${intimacyStageNote}${confessedNote}${cohabitingNote}${_leftNote}${stungNote}${platonicNote}${musicNote}${bandNote}
 TODAY IS DAY ${day}. Each memory below is tagged with its day — compute relative time CORRECTLY: an event from Day X happened (${day} - X) days ago. Only call something "yesterday" if it is from Day ${day - 1}; never compress older events into "yesterday".
 Previous interactions you remember:
 ${memorySummary}
