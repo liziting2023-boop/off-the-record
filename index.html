@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.92"></script>
-<script src="state.js?v=12.92"></script>
+<script src="story.js?v=12.93"></script>
+<script src="state.js?v=12.93"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.92 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.93 · BETA ⏱</p>
   </div>
 </div>
 
@@ -888,7 +888,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
   <div class="vn-overlay" id="vn-overlay" style="display:none"></div>
   <div class="vn-npc-card" id="vn-npc-card" style="display:none" onclick="openLB(document.getElementById('vn-npc-img').src)"><img id="vn-npc-img" src="" alt=""></div>
   <!-- "看画面"按钮已移除（用户定稿）：直接点场景背景图即可收起立绘/对话框欣赏整张图，再点恢复；靠下方一次性提示引导 -->
-  <div id="vn-viewbtn" onclick="toggleVNDialog()" style="display:none"></div>
+  <button id="vn-viewbtn" onclick="toggleVNDialog()" style="display:none;position:absolute;top:12px;left:14px;z-index:40;background:rgba(15,8,12,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.25);border-radius:18px;padding:6px 12px;font-size:12px;color:#fff;letter-spacing:1px;cursor:pointer">🖼 看画面</button>
   <!-- 一次性提示：让玩家知道点图放大 / 点背景收起对话框看画面（对话框盖脸的替代解法） -->
   <div class="vn-tap-hint" id="vn-tap-hint" style="display:none"></div>
   <!-- 初见立绘全屏展示（三选一确认后先看大图，点击进入对话） -->
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.92 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.93 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2843,6 +2843,25 @@ function showVNTapHint() {
 // 长文进对话框时自动回到第一行（用户实测：进第二幕那一屏是从中间开始的，要手动往上滑才看得到开头）。
 // .vn-dialog 是滚动容器，内容换了但 scrollTop 还停在上一屏。全库有十来处写 vn-text，逐个打补丁必漏，
 // 所以用一个 MutationObserver 一次性覆盖所有写入点（包括以后新增的）。
+// "🖼看画面"按钮：原来 #vn-viewbtn 永远 display:none、还是空的，从没显示过——所以对话框占满屏的
+// 亲密/过夜场景里根本没法看全景背景图（用户实测）。用一个观察器：只要 #vn-bg 显示出了背景图，就把按钮亮出来；
+// 背景没了就藏。一个观察器覆盖所有场景，不用逐个改调用点。
+(function initVNViewBtn() {
+  function attach() {
+    try {
+      var bg = document.getElementById('vn-bg'), btn = document.getElementById('vn-viewbtn');
+      if (!bg || !btn || typeof MutationObserver === 'undefined') return;
+      var sync = function () {
+        var shown = bg.style.display !== 'none' && !!bg.getAttribute('src');
+        btn.style.display = shown ? 'block' : 'none';
+      };
+      new MutationObserver(sync).observe(bg, { attributes: true, attributeFilter: ['style', 'src'] });
+      sync();
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attach);
+  else attach();
+})();
 (function initVNAutoScrollTop() {
   function attach() {
     try {
@@ -8869,6 +8888,9 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom, 
     : (OVERNIGHT_ACT2[npcKey] || OVERNIGHT_ACT2.agent);
   const sys = 'You are an award-winning contemporary romance novelist writing an intimate scene for an adult (18+) otome visual novel — lush, sensory, emotionally immersive prose in the register of a bestselling steamy romance, unafraid of heat but never crude or clinical. Write in ' + G.langName + '. Output ONLY the scene prose itself: second person addressed to the heroine (你/you) — NEVER refer to her as "她"/"her" — the man\'s actions in third person (他/he). ' +
     'HARD BANS (all wildly overused in this game): the line "别动"/"Don\'t move"; pushing or sliding a cup/glass toward her; tucking or brushing a strand of her hair; the word "余温". Find fresher beats. ' +
+    // ⚠️ 立绘是锁死的固定图（多半是西装/工作装），图片不会跟着散文换衣服 → 散文别指定他的具体衣着（颜色/款式，
+    //    如"深色家居衬衫""白T恤"），否则和立绘打架（用户实测）。要脱衣就写动作本身（解扣/衣料松开），不点名是什么衣服。
+    'WARDROBE RULE — do NOT name or describe what HE is wearing (no colour, no specific garment like "dark loungewear shirt"/"white tee"): his on-screen portrait is fixed and will not match. If clothing comes off, write the ACTION (a button, fabric loosening) without naming the garment. ' +
     'No preamble, no headings, no meta, no restating these instructions, no quotation marks around the whole thing. Plain text only.';
   const nightsSoFar = (G.npcs[npcKey] && G.npcs[npcKey].nights) || 0;
   // seamlessFrom＝她在对话中主动发起（表白/更进一步），场景不换：第一幕必须从"此刻"续写，
@@ -9051,7 +9073,8 @@ async function maybeStayOver(npcKey, locKey, opts) {
   let line = '';
   if (!(opts && opts.direct)) {
     try {
-      line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _stayCtx + _pretextNote));
+      line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name, _stayCtx + _pretextNote +
+        ' WARDROBE RULE: do NOT describe what HE is wearing (no colour, no specific garment) — his on-screen portrait is fixed and will not match a described outfit.'));
     } catch(e) {}
     if (!line || !line.trim()) { _vnEndLoc = locKey; runVNDialog([], npcKey, G.day, 0); return; }
     // 安全网：按他【实际说出口的话】校正去向，让按钮文案永远对得上台词（只在"在外面"的两种随机之间纠正，
@@ -11339,7 +11362,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.92 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.93 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
