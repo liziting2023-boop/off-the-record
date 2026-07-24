@@ -226,6 +226,24 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
+// ④d 提示词泄漏识别 isPromptLeak —— 模型偶尔把系统指令当消息吐出来（用户实测反复出现）
+// ══════════════════════════════════════════════════════
+(function testPromptLeak() {
+  const m = { exports: {} };
+  new Function('module', extractConst('_PROMPT_LEAK_RE') + '\nmodule.exports={re:_PROMPT_LEAK_RE};')(m);
+  const re = m.exports.re;
+  const leak = (s) => re.test(s);
+  // 真实泄漏（用户截图原句）必须命中
+  [ '我注意到你的信息还没有到来。请你发送一条信息，这样我才能以Henry的身份来回复你。 我已经准备好了，正在等待你的消息。😊',
+    '请发一条消息，我才能以他的身份回复你',
+    'I am ready and waiting for your message',
+    'reply as the character' ].forEach(s => ok('泄漏·应命中：' + s.slice(0, 20), leak(s)));
+  // 正常消息绝不能误伤
+  [ '看到你灯还亮着，早点休息。', '今天辛苦了，明天见。', '我在楼下，你的快递到了。',
+    'Coffee tomorrow? I miss you.', '你嗓子还好吗？' ].forEach(s => ok('泄漏·不该误伤：' + s.slice(0, 16), !leak(s)));
+})();
+
+// ══════════════════════════════════════════════════════
 // ⑤ HTML 标签没闭合 —— node --check 抓不到（JS 是好的，坏的是 HTML）
 //    实际踩过：<div class="vn-dialog" style="..."  少了 '>'，浏览器把下一个 <div ...> 整个
 //    当成属性吃掉 → 对话底板只裹住说话人、正文被甩到面板外贴在图上，且点击穿透到背景。

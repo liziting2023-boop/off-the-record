@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.94"></script>
-<script src="state.js?v=12.94"></script>
+<script src="story.js?v=12.95"></script>
+<script src="state.js?v=12.95"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.94 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.95 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.94 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.95 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -1462,12 +1462,18 @@ function eveningToneNote(k) {
 
 // 清洗 AI 生成的短信文本：Haiku 偶尔把真正的消息用 ``` 包起来、外面再裹一段第三人称旁白
 // （用户实测："5点57分，Kofi拿起手机…``` 消息 ```…他放下手机"）。这里把消息本体抠出来、去掉旁白和代码围栏。
+// 提示词泄漏识别（通用）：模型偶尔把系统指令当消息吐出来（"请发一条信息，这样我才能以X的身份回复"
+// "正在等待你的消息"）。命中即判为跑偏。用户实测反复出现，之前只在聊天回复挡了，现在做成通用函数。
+var _PROMPT_LEAK_RE = /以\s*.{0,12}的身份.{0,4}回复|等待你的(消息|输入)|请(你)?(发送|发)一条(信息|消息)|收到你的(消息|信息|回复)(才|后)|reply as |as\s+\w+\s+(would|to reply)|I(?:'| a)m ready.{0,24}your (message|reply)|waiting for (your |a )?(message|reply|input)/i;
+function isPromptLeak(t) { return !!(t && _PROMPT_LEAK_RE.test(String(t))); }
 function _cleanMsgText(t) {
   if (!t) return '';
   t = String(t).trim();
   var fence = t.match(/```[a-z]*\s*([\s\S]*?)\s*```/i);
   if (fence && fence[1].trim()) t = fence[1].trim();            // 有围栏：只取围栏里的消息本体（丢掉外面的旁白）
   else t = t.replace(/```[a-z]*/gi, '').replace(/```/g, '').trim(); // 无围栏：只是去掉残留的反引号
+  // 泄漏就整条丢掉（返回空 → 调用处的 if(t&&t.trim()) 会跳过，这一轮宁可不发，也绝不把系统指令发给玩家）
+  if (isPromptLeak(t)) { try { console.warn('[OTR] 主动/晚间消息疑似提示词泄漏，已丢弃：' + t.slice(0, 60)); } catch(e){} return ''; }
   return t;
 }
 
@@ -1733,6 +1739,11 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
         : 'You are still getting to know each other — ' + GETTOKNOW_SEEDS[Math.floor(Math.random()*GETTOKNOW_SEEDS.length)] + '.');
   try {
     var noInvite = (nights > 0 || tier === 'high') ? '' : ' Do NOT ask her out, propose a date, or suggest meeting up — you barely know each other; this is just a casual friendly text to chat, not to make plans.';
+    // ⚠️ 管家=门房专属反监视约束（用户实测：他反复发"看到你灯还亮着""明天早点到录音室"这类【只有盯着她才知道】
+    //    的话，读起来像跟踪狂）。门房最容易踩这个坑，单独强约束一次。
+    var _watchNote = (k === 'butler')
+      ? ' ⚠️ CRITICAL — DO NOT be a creepy concierge: NEVER text her about anything you could only know by watching her. Do NOT mention seeing her lights on, that she is home / out / awake / up late, her comings and goings, who visits, OR her work/practice/recording schedule (you do NOT know her calendar — you are the front desk, not her manager). Do NOT send unsolicited "helpful tips" about her day. That all reads as surveillance and it is exactly what makes a building-staff crush frightening. Your unprompted text is simply warm and human — about YOUR own day, a genuine small thought, or something the two of you actually shared — nothing that implies you keep tabs on her. '
+      : '';
     // 最近的聊天原文喂进来，避免刚聊完/刚答应帮她办事，转头又主动发一条重复的问题（用户实测）
     var _recentChat = Object.values(G.phone.messages||{}).flat().filter(function(m){ return m && m.npc === k && !m.meet; }).slice(-8).map(function(m){ return (m.mine ? 'HER: ' : 'YOU: ') + (m.text||'').slice(0,80); }).join('\n');
     var _noRepeat = _recentChat ? ' You two ALREADY texted recently (YOU=you, HER=her):\n' + _recentChat + '\nDo NOT repeat a question you already asked there, and do NOT re-ask about something already answered or that you already said you would look into/handle — if there is nothing genuinely new, either open a fresh DIFFERENT beat or keep it to one brief warm line, never a near-duplicate of the above. ' : '';
@@ -1751,7 +1762,7 @@ async function _sendProactive(k, sendMin, now, nowMin, backfill) {
     var t = await claudeChat(STATE.memory.buildDialoguePrompt(k, G.day, G.langName, G.player.name,
       timeWord + ' where she is (current local time: ' + clockStr + '). Reach out to her by text right now, unprompted, in YOUR own voice. ' +
       (backfill && sendMin < nowMin - 10 ? 'She is away from her phone right now — you are texting knowing she will read it later; do NOT expect an instant reply, do NOT reference her being online or ask her to respond right away. ' : '') +
-      stageCtx + _careF + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite +
+      stageCtx + _careF + _noRepeat + _noSameBeat + festivalChatNote(k) + earlyToneNote(k) + eveningToneNote(k) + noInvite + _watchNote +
       ' ' + scheduleCtxFor(k, 3) +
       ' TENSE RULE — anything in that upcoming schedule (and any date the two of you agreed on) has NOT happened yet. Today is ' + getCalDateStr(G.day) + '. NEVER speak about a future plan in the past tense: do not ask how it went, whether she enjoyed it, what she thought of it, or refer back to it as a shared memory. You may look forward to it, but you must never treat something still in the future as already done. ' +
       ' The message MUST fit the time you are sending it (' + clockStr + '): never say good-morning at night or goodnight in the morning/afternoon; and do NOT tell her to rest, get some sleep, turn in, or wind down for the night unless it is genuinely late (after ~10pm) — at dinnertime or early evening that is far too early and reads as odd. ' +
@@ -9637,6 +9648,7 @@ async function generateAffinityMessages(day) {
         '\nIt is evening of Day ' + day + ' of her contract. Shared history so far: ' + (STATE.memory.getSummary(npcKey) || '(almost none yet)') + '. ' +
         (G.today && G.today.npc === npcKey ? 'You saw her IN PERSON earlier today — do NOT send a generic "how was your day"; if you text, briefly reference today\'s meeting in your own voice (in character: if you were curt in person, stay curt now). ' : '') +
         scheduleCtxFor(npcKey, 5) +
+        (npcKey === 'butler' ? ' ⚠️ CONCIERGE ANTI-CREEP: NEVER mention anything you could only know by watching her — her lights on, that she is home/out/awake, her comings and goings, who visits, or her work/practice/recording schedule (you do NOT know her calendar). No unsolicited "helpful tips" about her day. That reads as surveillance. Keep it warm and human, about your own evening or a genuine small thought — never anything that implies you keep tabs on her.' : '') +
         ' STRICT: only reference events from that shared history — do NOT invent auditions, directors, industry contacts, or past conversations. NEVER claim she sent you a message unless it appears in the shared history.' +
         '\nSend a text message to ' + (G.player.name||'her') + '. ' +
         (tier === 'high' ? 'You can invite her out. If you DO invite her, you are inviting her SPECIFICALLY to this place: "' + ((STORY.locations[_invSpot]||{}).composition||'').slice(0,90) + '" — word the invitation around that exact place/activity (NOT a generic dinner).' : '') +
@@ -9652,6 +9664,7 @@ async function generateAffinityMessages(day) {
         msg = (parsed2.text || '').trim();
         inviteInfo = parsed2.invite || null;
       } catch (e) { msg = (raw2 || '').trim(); }
+      if (isPromptLeak(msg)) { try { console.warn('[OTR] 晚间消息疑似提示词泄漏，已丢弃：' + msg.slice(0,60)); } catch(e){} msg = ''; } // 泄漏就丢，别发
 
       if (msg && msg.trim().length > 3) {
         if (!G.phone.messages[day]) G.phone.messages[day] = [];
@@ -10781,7 +10794,7 @@ async function sendChatReply() {
     // 露骨词闸（上架合规）：被诱导越界的回复换成含蓄搪塞，顺带丢弃同条里的约见字段
     // 提示词泄漏闸（用户实测：回复里冒出"请发一条信息，这样我才能以X的身份回复""正在等待你的消息"这类系统味的话）——
     // 一旦命中这类元指令措辞，判为AI跑偏，用如实的一句话覆盖，绝不把框架文字露给玩家。
-    if (reply && /以\s*.{0,12}的身份.{0,4}回复|等待你的(消息|输入)|请(你)?(发送|发)一条(信息|消息)|as\s+\w+\s+(would|to reply)|reply as |I('| a)m ready.{0,20}your message|waiting for your (message|input)/i.test(reply)) {
+    if (isPromptLeak(reply)) {
       try { console.warn('[OTR] 聊天回复疑似提示词泄漏，已覆盖：' + reply.slice(0, 60)); } catch(e){}
       reply = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '（他隔了会儿才回）……怎么突然不说话了？' : '(a beat, then) …everything okay? You went quiet.';
     }
@@ -11370,7 +11383,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.94 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.95 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
