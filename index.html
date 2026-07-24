@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.85"></script>
-<script src="state.js?v=12.85"></script>
+<script src="story.js?v=12.86"></script>
+<script src="state.js?v=12.86"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.85 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.86 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.85 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.86 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3664,7 +3664,7 @@ function ensureAgentSchedule(untilDay) {
         if (STORY.utils.getScriptedEvent(_td) || isGameWeekend(_td)) continue;
         if ((G.calendar.events[getCalDateStr(_td)] || []).some(function(e){ return e && (e.type === 'work' || e.type === 'npc_invite'); })) continue;
         if (G._clearedWorkDays && G._clearedWorkDays.indexOf(getCalDateStr(_td)) >= 0) continue;
-        calAddEvent(getCalDateStr(_td), { id:'teamsync_' + _td, type:'work', source:'agent_mandate', title:(isZh?'团队碰头会':'Team sync'), locKey:'agent_office', status:'accepted', time:'11:00', timeEnd:'12:30', _group:'team', description:(isZh?'和团队碰个头（经纪人·鼓手·助理）':'Sync with the team (agent · drummer · assistant)') });
+        calAddEvent(getCalDateStr(_td), { id:'teamsync_' + _td, type:'work', source:'agent_mandate', title:(isZh?'团队碰头会':'Team sync'), locKey:'agent_office', status:'accepted', time:'11:00', timeEnd:'12:30', _group:'team', description:(isZh?'和团队碰个头（经纪人·制作人·助理）':'Sync with the team (agent · drummer · assistant)') });
         break;
       }
     }
@@ -4590,10 +4590,10 @@ function showNPCOrigin(npcKey, callback) {
   // Role labels and imagination phrases per NPC
   const npcNosData = {
     drummer: {
-      zh: ['鼓手', '你觉得', ''],
-      ja: ['ドラマー', 'あなたが思う', ''],
-      ko: ['드러머', '당신이 생각하는', ''],
-      en: ['The Drummer', 'You sense', ''],
+      zh: ['制作人', '你觉得', ''],
+      ja: ['プロデューサー', 'あなたが思う', ''],
+      ko: ['프로듀서', '당신이 생각하는', ''],
+      en: ['The Producer', 'You sense', ''],
     },
     actor: {
       zh: ['演员', '你听说', '他的魅力带着某种地方的烙印。'],
@@ -6012,7 +6012,7 @@ function startTeamMeeting() {
     tone: 'meeting',
     groundCtx: _ground,
     sceneNar: (isZh ? '经纪公司的会议室。' + participants.map(function(p){return p.name;}).join('、') + ' 已经在了，桌上摊着日程和几页谱子——看见你进来，抬起头。' : 'The agency meeting room. ' + participants.map(function(p){return p.name;}).join(', ') + ' are already here, the schedule and a few pages of music spread on the table — they look up as you come in.'),
-    occasionCtx: (isZh ? '一次真正过事情的团队碰头会：过一遍她接下来的行程、新歌进度、事业下一步——高效、有重点、能落到决定和下一步，不是废话闲扯。分工：助理管日程后勤、经纪人拍板事业方向、鼓手只认音乐质量。' : "A real working team sync that actually gets things done: her upcoming schedule, the new song, the next career move — efficient, on-point, landing on decisions and next steps, not aimless chatter. Roles: the assistant runs logistics, the agent calls career shots, the drummer only cares about the music."),
+    occasionCtx: (isZh ? '一次真正过事情的团队碰头会：过一遍她接下来的行程、新歌进度、事业下一步——高效、有重点、能落到决定和下一步，不是废话闲扯。分工：助理管日程后勤、经纪人拍板事业方向、制作人只认音乐质量。' : "A real working team sync that actually gets things done: her upcoming schedule, the new song, the next career move — efficient, on-point, landing on decisions and next steps, not aimless chatter. Roles: the assistant runs logistics, the agent calls career shots, the producer only cares about the music."),
     rounds: 3
   });
 }
@@ -7850,12 +7850,16 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
       transitionNar = _endPool[Math.floor(Math.random() * _endPool.length)];
     } else {
       transitionNar = {
-      agent_office: isZhEnd2?'他起身送你到门口，替你按住电梯，笑着说了句"明天见"。你走进电梯时，他还站在原地目送你。':'He walks you to the door himself, holds the elevator for you, and says "See you tomorrow" with a smile. He is still standing there watching as the doors close.',
+      // ⚠️ 原来写死"明天见"——可他明天未必见她（同"录音室见"那类穿帮）。改成不承诺任何时间的送别。
+      agent_office: isZhEnd2?'他起身送你到门口，替你按住电梯，笑着说了句"有事随时找我"。你走进电梯时，他还站在原地目送你。':'He walks you to the door himself, holds the elevator for you, and tells you with a smile to message him any time. He is still standing there watching as the doors close.',
       recording_studio: isZhEnd2?'收工了。他朝你抬了抬下巴算是道别，转回调音台前又推了一遍今天的最后一条；你带上录音室的门，走进走廊时还能听见里面反复循环的那一小段。':'That\'s a wrap. He tips his chin at you by way of goodbye and turns back to the desk, pulling up today\'s last take again; as you ease the studio door shut, you can still hear that one phrase looping inside.',
       magazine_shoot: isZhEnd2?'拍摄结束。你收拾好自己的东西。':'The shoot wraps. You gather your things.',
-      cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
+      // "会面到此结束"太公事公办，咖啡馆多半不是开会 → 改成自然散场
+      cafe_meeting: isZhEnd2?'两个人的杯子都空了。你们起身，各自去忙接下来的事。':'Both cups are empty. You get up and head off to whatever comes next.',
       apartment_lobby: isZhEnd2?'你回到了自己的公寓。':'You head back up to your apartment.',
-    }[locKey2] || (isZhEnd2?'你离开了。':'You leave.');
+      // ⚠️ 在她自己家时绝不能说"你离开了"（她不可能离开自己家）——这是默认兜底句一直缺的分支
+      her_home: isZhEnd2?'你送他到门口。门合上以后，屋子里安静下来。':'You see him to the door. After it closes, the place goes quiet again.',
+    }[locKey2] || (/_home$/.test(locKey2 || '') ? (isZhEnd2?'你离开了他家。':'You head out of his place.') : (isZhEnd2?'你离开了。':'You leave.'));
       // 链式场景：不用"明天见"式收尾，改成过渡到当天的下一场（如经纪人办公室 → 下午的录音室）
       if (sc && sc.chainNext) {
         transitionNar = ({
@@ -10267,7 +10271,7 @@ async function sendChatReply() {
   btn.disabled = false; // 玩家可以连续发，不用等回复
 
   // 触发②：聊天里明确对恋人（经纪人/鼓手）提分手/选了别人 → 走两阶段职业破裂（先警告，再犯/再提才解约·辞职）
-  var _breakupRe = /分手|我们(?:就此)?(?:结束了?|完了|到此为止)|(?:不想|不要)(?:再)?(?:和你|跟你|与你)(?:在一起|做恋人|谈了)|我选(?:择)?(?:了)?(?:别人|他|经纪人|鼓手|另一个)|我(?:的心)?(?:还是|最终)?选(?:择)?(?:了)?他|咱们?(?:还是)?别(?:在一起|处|谈)了?|break(?:ing)?\s?up|we(?:'re| are)\s+(?:over|done|through)|it'?s over between us|i(?:'m| am)\s+(?:choosing|going with|leaving you for)\s+(?:him|someone)|i (?:pick|choose) him/i;
+  var _breakupRe = /分手|我们(?:就此)?(?:结束了?|完了|到此为止)|(?:不想|不要)(?:再)?(?:和你|跟你|与你)(?:在一起|做恋人|谈了)|我选(?:择)?(?:了)?(?:别人|他|经纪人|鼓手|制作人|另一个)|我(?:的心)?(?:还是|最终)?选(?:择)?(?:了)?他|咱们?(?:还是)?别(?:在一起|处|谈)了?|break(?:ing)?\s?up|we(?:'re| are)\s+(?:over|done|through)|it'?s over between us|i(?:'m| am)\s+(?:choosing|going with|leaving you for)\s+(?:him|someone)|i (?:pick|choose) him/i;
   if (_breakupRe.test(text) && proRelevant(npc)) {
     try { await escalateProRupture(npc, 'she told you she is breaking up with you / choosing the other man'); } catch(e){}
     try { renderChatMsgs(npc); } catch(e){}
@@ -11077,7 +11081,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.85 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.86 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
