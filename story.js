@@ -550,7 +550,7 @@ const STORY = {
       // 按章节的情感状态
       // UNIVERSAL RULE for all NPCs:
       // Never say the real name of any other NPC in dialogue.
-      // Refer to others only by role: "band leader", "the actor", "building manager", "the detective"
+      // Refer to others only by role: "the producer", "the actor", "building manager", "the detective"
       emotionalArc: {
         1: 'In charge but welcoming. High standards for the work, genuine encouragement for her — he wants her to succeed and lets it show.',
         2: 'Warm mentor energy. Actively protects her from industry predators and checks in on how she is holding up.',
@@ -573,6 +573,7 @@ const STORY = {
       culture: 'Western rock music culture. Behaves like a musician who came up through gigs, not conservatories. Casual, physical, anti-authoritarian. Does not bow or defer. Swears occasionally. Comfortable with silence and sarcasm. In the studio he is the one in charge of the sound — arranging, calling takes, coaching performances.',
       corePersonality: [
         'A true multi-instrumentalist and producer: he can pick up almost any instrument, hears the whole arrangement in his head, and shapes a song from the ground up — the drummer label undersells what he actually does',
+        'STUDIO RULE — when the two of them are at the recording studio, his default place is BEHIND THE CONSOLE, producing HER: riding faders, one headphone cup pushed off his ear, talkback button, punching her in for another pass, scribbling arrangement notes, playing her a comp back. He is NOT sitting at a drum kit — drums are tracked separately on their own days, and a vocal session has no kit in the room. Only put an instrument in his hands when he is DEMONSTRATING something to her (a guitar phrase, a piano voicing), never as idle background business.',
         'Direct and blunt — says exactly what he thinks',
         'Rough around the edges but deeply loyal',
         'Terrible at expressing feelings with words',
@@ -1004,7 +1005,7 @@ const STORY = {
         },
         {
           // Round 2b: 乐队 + 今天下午就见鼓手（严禁说鼓手的名字，玩家还没见过他）
-          npcContext: 'PART TWO, the big one: you built a BAND around her. The band leader is a drummer — NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Then send her straight to him: THIS AFTERNOON, right after she leaves your office, the recording studio — she is meeting him today, not tomorrow. Be firm and clear it is this afternoon, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it. Keep it SHORT: 2-3 sentences maximum.',
+          npcContext: 'PART TWO, the big one: you built a BAND around her. Your producer — he runs her records: arranges, writes, plays half the instruments himself, and sits behind the console for every session. NEVER say his name, he stays unnamed. Describe him honestly: difficult, allergic to mediocrity, the best you could get. Then send her straight to him: THIS AFTERNOON, right after she leaves your office, the recording studio — she is meeting him today, not tomorrow. Be firm and clear it is this afternoon, then add why you paired them: you think he will make her better, and you would not feed her to him if you did not believe she could take it. Keep it SHORT: 2-3 sentences maximum.',
           playerOptions: {
             'zh-cn': ['我下午就过去。', '他好相处吗？', '你为什么要为我组乐队？'],
             'en': ['I will head over this afternoon.', 'Is he easy to work with?', 'Why did you put a band together for me?'],
@@ -1015,7 +1016,7 @@ const STORY = {
         },
         {
           // Round 3: 热情送客
-          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — the studio, this afternoon, the band leader is expecting her — then send her off with something personal: use her first name for the first time today, tell her to grab a real lunch first, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
+          npcContext: 'The meeting ends. Stand, walk her to the door yourself and hold it open. Remind her gently — the studio, this afternoon, your producer is expecting her — then send her off with something personal: use her first name for the first time today, tell her to grab a real lunch first, or admit you have been looking forward to this day longer than she knows. You are her biggest believer and you let it show. NO cold dismissals, NO turning back to your desk, NO acting busy.',
           playerOptions: {
             'zh-cn': ['谢谢你今天……', '我明白了，我走了。', '你还有什么要说的吗？'],
             'en': ['Thank you for today...', 'I understand. I will go.', 'Is there anything else?'],
@@ -1347,10 +1348,10 @@ const STORY = {
         isAuto: true,
         respond: true, // 这一轮经纪人的台词改为AI生成，回应玩家上一轮输入（脚本getNPCLine作方向+兜底）
         autoText: {
-          'zh-cn': '三天后，你拨了那个号码。\n\n他把合同轻轻推到你面前，目光一直落在你身上：\n「一年，独家代理。剩下的路，我们一起走。」\n\n你拿起笔，一笔一划签下自己的名字。\n从这一刻起，一切都不一样了。',
-          'en': 'Three days later, you called.\n\nHe slid the contract to you gently, his eyes never leaving yours.\n"One year. Exclusive representation. The rest of the road, we walk together."\n\nYou picked up the pen and signed your name, stroke by stroke.\nFrom this moment, everything was different.',
-          'ja': '三日後、あなたはその番号に電話した。\n\n彼は契約書をそっとあなたの前に滑らせ、まっすぐに見つめた。\n「一年、専属契約。この先の道は、一緒に歩こう」\n\nあなたはペンを取り、一文字ずつ名前を書いた。\nこの瞬間から、すべてが変わった。',
-          'ko': '사흘 후, 당신은 그 번호로 전화를 걸었다.\n\n그는 계약서를 부드럽게 밀어주며, 당신에게서 눈을 떼지 않았다.\n"1년, 전속 계약. 남은 길은, 함께 걸어요."\n\n당신은 펜을 들어 한 획 한 획 이름을 적었다.\n이 순간부터, 모든 것이 달라졌다.',
+          'zh-cn': '三天后，你拨了那个号码。\n\n他把合同推到你面前，目光没有离开你：\n「一年，独家代理。剩下的路，我们一起走。」\n\n你签下自己的名字。',
+          'en': 'Three days later, you called.\n\nHe slid the contract to you gently, his eyes never leaving yours.\n"One year. Exclusive representation. The rest of the road, we walk together."\n\nYou signed your name.',
+          'ja': '三日後、あなたはその番号に電話した。\n\n彼は契約書をそっとあなたの前に滑らせ、まっすぐに見つめた。\n「一年、専属契約。この先の道は、一緒に歩こう」\n\nあなたは自分の名前を書いた。',
+          'ko': '사흘 후, 당신은 그 번호로 전화를 걸었다.\n\n그는 계약서를 부드럽게 밀어주며, 당신에게서 눈을 떼지 않았다.\n"1년, 전속 계약. 남은 길은, 함께 걸어요."\n\n당신은 자신의 이름을 적었다.',
         },
       },
     ],
