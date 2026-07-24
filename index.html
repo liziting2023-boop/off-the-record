@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.98"></script>
-<script src="state.js?v=12.98"></script>
+<script src="story.js?v=12.99"></script>
+<script src="state.js?v=12.99"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.98 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.99 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.98 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.99 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -8394,7 +8394,23 @@ const DATE_INTENTS = {
     high: { want:"get what he came for and evaporate", sub:"he has one exit picked out already" },
   },
 };
+// 已确立的恋人（过夜过/表白过）通用意图——绝不再"跨职业线/表明身份/试探要不要更进一步"，那些早成过去式。
+// 用户定稿：经纪人已是恋人却还说"我不是以经纪人身份来"是退步，从【意图源头】用代码挡掉，不靠提示词求。
+var _LOVER_INTENT = {
+  agent:    { want:"simply be with her tonight — there are no lines left to cross and no roles to clarify", sub:"the old professional worry is long gone; this is just the two of them now, easy and sure" },
+  drummer:  { want:"have an easy, close night with the woman he's already crazy about", sub:"no walls left up; he shows it through how he is with her, not a speech" },
+  actor:    { want:"drop the performance entirely and just be hers tonight", sub:"the game ended a while ago; what's left is real and he likes that it is" },
+  rival:    { want:"be soft with her the way only she gets to see", sub:"the rivalry is their private joke now, not a wall" },
+  butler:   { want:"just be close to her, thrilled it's real", sub:"none of the old shyness about what they are — he's simply hers" },
+  detective:{ want:"be present with her, guard down, off duty in every sense", sub:"he stopped keeping his distance a while ago and doesn't miss it" },
+  _default: { want:"just be with her, close and unguarded", sub:"whatever they had to figure out, they already did; tonight is easy" },
+};
 function sceneIntent(npcKey, rel) {
+  // ⚠️ 关系阶段优先于好感分数：已是恋人 → 走恋人意图（代码定死，不看 rel 档）
+  var _n = G.npcs[npcKey];
+  if (_n && ((_n.nights || 0) > 0 || _n._confessed || _n._cohabiting)) {
+    return _LOVER_INTENT[npcKey] || _LOVER_INTENT._default;
+  }
   const m = DATE_INTENTS[npcKey] || DATE_INTENTS.agent;
   const tier = (rel||0) >= 70 ? 'high' : (rel||0) >= 40 ? 'mid' : 'low';
   return m[tier] || m.low;
@@ -9772,6 +9788,37 @@ function scheduleCtxFor(npcKey, days) {
 // 所以消息文字里必须写星期几/日期，禁止"明天/后天"这类相对词
 // 玩家/NPC点名了具体日期（"7月31日"、"7/31"、"31号"）→ 精确换算 daysFromNow。
 // 修用户实测：玩家说"7月31日一起中饭"，AI 把 daysFromNow 数差一天、邀约卡落在 07/30。
+// 玩家话里点名了地点 → 确定性地映射到 locationKey（用户定稿：别再赌 AI 猜对——"山顶"被 AI 猜成"天台"）。
+// 命中就【强制覆盖】AI 给的 locationKey；没命中返回 null（沿用 AI 的）。顺序=先具体后宽泛（先山顶/海边，后咖啡兜底）。
+var _LOC_KW = [
+  [/山顶|山上|山里|观景台?|看星星|数星星|星空|银河|hilltop|mountain\s*(view|top)|summit|overlook|stargaz|starl/i, 'mountain_viewpoint'],
+  [/海边|海滩|沙滩|看海|beach|seaside|by the (sea|ocean)|shore/i, 'beach'],
+  [/天台|楼顶|屋顶|露台|rooftop|roof(?!\s*top garden)/i, 'rooftop'],
+  [/音乐会|音乐厅|交响|concert\s*hall|symphony|philharmon/i, 'concert_hall'],
+  [/歌剧|opera/i, 'opera_house'],
+  [/livehouse|音乐现场|live\s*house|live\s*music|小型演出/i, 'livehouse'],
+  [/电影|影院|看片|cinema|movie|film/i, 'cinema'],
+  [/画廊|美术馆|艺术展|看展|art\s*gallery|gallery|exhibition/i, 'art_gallery'],
+  [/书店|书吧|书局|bookshop|bookstore/i, 'bookshop'],
+  [/唱片(店|行)|record\s*(store|shop)|黑胶/i, 'record_store'],
+  [/保龄|bowling/i, 'bowling_alley'],
+  [/酒吧|夜店|小酒馆|night\s*bar|\bbar\b|cocktail|喝一杯/i, 'night_bar'],
+  [/夜宵|宵夜|深夜(食堂|餐)|late\s*(diner|night eat)/i, 'late_diner'],
+  [/农夫市集|农贸|farmers?\s*market/i, 'farmers_market'],
+  [/市集|集市|夜市|street\s*market|market\b/i, 'street_market'],
+  [/商场|逛街|购物|mall|shopping/i, 'shopping_mall'],
+  [/公园|散步|遛弯|park\b/i, 'park'],
+  [/餐厅|吃饭|晚餐|午餐|正餐|大餐|dinner|lunch|restaurant|一起吃/i, 'restaurant'],
+  [/咖啡|喝咖啡|cafe|café|coffee/i, 'cafe'],
+];
+function locKeyFromText(txt) {
+  if (!txt) return null;
+  var t = String(txt);
+  for (var i = 0; i < _LOC_KW.length; i++) {
+    if (_LOC_KW[i][0].test(t) && (STORY.locations[_LOC_KW[i][1]] || /_home$/.test(_LOC_KW[i][1]))) return _LOC_KW[i][1];
+  }
+  return null;
+}
 function dateOffsetFromText(txt, fromDay) {
   if (!txt) return null;
   var m = String(txt).match(/(\d{1,2})\s*月\s*(\d{1,2})\s*[日号]|(\d{1,2})\/(\d{1,2})/);
@@ -10862,6 +10909,9 @@ async function sendChatReply() {
       if (meetInfo && meetInfo.locationKey) {
         const isZhM = G.lang==='zh-cn'||G.lang==='zh-tw';
         const mTitle = (meetInfo.title||'').slice(0,30) || (isZhM?'见面':'Meet up');
+        // ⚠️ 确定性覆盖（用户定稿：别赌AI）：玩家话里点名了地点(山顶/看星星/海边…)就【强制】用那个，不管AI给了啥
+        var _kwLoc = locKeyFromText(text) || locKeyFromText(reply);
+        if (_kwLoc) meetInfo.locationKey = _kwLoc;
         // 家地点(her_home/his_home)不在 STORY.locations 里（单独处理）；没给有效地点时管家默认公寓大厅，其余咖啡馆
         let mLoc = (meetInfo.locationKey && (STORY.locations[meetInfo.locationKey] || /_home$/.test(meetInfo.locationKey))) ? meetInfo.locationKey : (npc === 'butler' ? 'apartment_lobby' : 'cafe');
         // 家门槛兜底（用户定稿）：AI 万一在没到亲密时还是给了家地点 → 改到公共场所（经纪人/管家来她家办事除外）
@@ -10904,7 +10954,13 @@ async function sendChatReply() {
         if (/午餐|午饭|brunch|lunch/i.test(fiTitle) && (parseHM(fiTime) >= 16*60 || parseHM(fiTime) < 10*60)) fiTime = '12:00';
         else if (/晚餐|晚饭|dinner/i.test(fiTitle) && parseHM(fiTime) < 16*60) fiTime = '19:00';
         else if (/早餐|breakfast/i.test(fiTitle) && parseHM(fiTime) >= 11*60) fiTime = '09:00';
-        const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training'];
+        // ⚠️ VALID_INV_LOCS 原来漏了一堆约会地点（山顶/海边/电影院/公园/音乐厅…）→ 就算AI选对也被拒、退回咖啡馆
+        //    （用户实测"山顶"变咖啡/天台）。补全 STORY.locations 里所有能约会的公共场所。
+        const VALID_INV_LOCS = ['her_home','his_home','cafe','art_gallery','night_bar','street_market','bookshop','shopping_mall','rooftop','livehouse','magazine_shoot','recording_studio','music_training',
+          'mountain_viewpoint','beach','cinema','concert_hall','opera_house','record_store','bowling_alley','late_diner','farmers_market','park','restaurant'];
+        // 确定性覆盖：玩家话里点名了地点就【强制】用它（扫本轮+最近对话），不赌AI
+        var _fiKw = null; for (var _fk = _convTexts.length - 1; _fk >= 0 && _fiKw == null; _fk--) _fiKw = locKeyFromText(_convTexts[_fk]);
+        if (_fiKw) futureInv.locationKey = _fiKw;
         let fiLoc = VALID_INV_LOCS.includes(futureInv.locationKey) ? futureInv.locationKey : 'cafe';
         if (/_home$/.test(fiLoc) && !homeVisitAllowed(npc, fiLoc)) fiLoc = 'cafe'; // 家门槛兜底（同 meet）
         if (fiLoc === 'her_home' && !(npc === 'butler' || npc === 'agent' || (G.npcs[npc].nights || 0) > 0)) fiLoc = 'park'; // 地址常识兜底（同 meet）
@@ -11392,7 +11448,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.98 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.99 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

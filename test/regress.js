@@ -244,6 +244,48 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
+// ④e 地点关键词确定性映射 locKeyFromText —— "山顶"必须→mountain_viewpoint，不再赌AI
+// ══════════════════════════════════════════════════════
+(function testLocKeyFromText() {
+  const kw = HTML.match(/var _LOC_KW = \[[\s\S]*?\];/)[0];
+  const fn = HTML.match(/function locKeyFromText\(txt\) \{[\s\S]*?\n\}/)[0];
+  const m = { exports: {} };
+  const STORY = { locations: {} };
+  ['mountain_viewpoint','beach','rooftop','cafe','cinema','concert_hall','opera_house','park','bookshop','night_bar','restaurant','art_gallery','shopping_mall','livehouse','record_store','bowling_alley','late_diner','farmers_market','street_market'].forEach(k => STORY.locations[k] = 1);
+  new Function('module', 'STORY', kw + '\n' + fn + '\nmodule.exports={f:locKeyFromText};')(m, STORY);
+  const f = m.exports.f;
+  eq('地点·山顶看星星→山顶观景', f('约你去山顶看星星'), 'mountain_viewpoint');
+  eq('地点·数星星→山顶观景', f('今晚数星星'), 'mountain_viewpoint');
+  eq('地点·海边', f('一起去海边走走'), 'beach');
+  eq('地点·天台', f('去天台吹风'), 'rooftop');
+  eq('地点·音乐会→音乐厅', f('去听音乐会'), 'concert_hall');
+  eq('地点·没点名→null', String(f('随便聊聊')), 'null');
+})();
+
+// ══════════════════════════════════════════════════════
+// ④f 恋人意图闸门 sceneIntent —— 已过夜/表白/同居 → 恋人意图（不再"跨职业线/表明身份"）
+// ══════════════════════════════════════════════════════
+(function testSceneIntentLover() {
+  const di = HTML.match(/const DATE_INTENTS = \{[\s\S]*?\n\};/)[0];
+  const li = HTML.match(/var _LOVER_INTENT = \{[\s\S]*?\n\};/)[0];
+  const fn = HTML.match(/function sceneIntent\(npcKey, rel\) \{[\s\S]*?\n\}/)[0];
+  const mk = (npc) => {
+    const m = { exports: {} };
+    const G = { npcs: { agent: {}, drummer: {}, actor: {} } };
+    Object.assign(G.npcs.agent, npc);
+    new Function('module', 'G', di + '\n' + li + '\n' + fn + '\nmodule.exports={f:sceneIntent};')(m, G);
+    return m.exports.f('agent', 90); // rel 90 = 平常会走 high(跨线)
+  };
+  // 没关系时：high 档 = "not her agent"（跨线）
+  ok('意图·陌生高好感仍是跨线档', /not her agent|professional/i.test(mk({}).want + mk({}).sub));
+  // 已过夜 → 恋人意图，绝不再出现"not her agent / professional line"
+  const loverW = mk({ nights: 1 }).want + mk({ nights: 1 }).sub;
+  ok('意图·已过夜→恋人意图', /no lines left to cross|no roles to clarify/i.test(loverW), loverW);
+  ok('意图·已过夜→不再说"不是经纪人身份"', !/not her agent|holding the professional line/i.test(loverW), loverW);
+  ok('意图·表白过也走恋人意图', /no lines left to cross/i.test(mk({ _confessed: true }).want));
+})();
+
+// ══════════════════════════════════════════════════════
 // ⑤ HTML 标签没闭合 —— node --check 抓不到（JS 是好的，坏的是 HTML）
 //    实际踩过：<div class="vn-dialog" style="..."  少了 '>'，浏览器把下一个 <div ...> 整个
 //    当成属性吃掉 → 对话底板只裹住说话人、正文被甩到面板外贴在图上，且点击穿透到背景。
