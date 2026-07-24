@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.97"></script>
-<script src="state.js?v=12.97"></script>
+<script src="story.js?v=12.98"></script>
+<script src="state.js?v=12.98"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.97 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.98 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.97 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.98 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4445,7 +4445,9 @@ async function genAgent() {
   const origin = G.npcs.agent.origin || 'American';
 
   // Generate name first (always, even in DEV mode)
-  const nameStr = await claude('Generate a realistic authentic ' + origin + ' full name for a 32-year-old. MUST be a genuinely ' + origin + ' name that a real person from that background would have. Return ONLY the full name, nothing else. No explanation.');
+  // ⚠️ 必须带 MALE 约束——经纪人是男的！原来这条漏了"男名"要求，生成过女名"Isabelle"（用户实测），
+  //    害得亲密散文里模型嫌名字像女的、自己换成别的男名。别的NPC(genNPCPortrait)早有此约束，这里补齐。
+  const nameStr = await claude('Generate a realistic authentic ' + origin + ' MALE name (a man\'s name — unmistakably masculine first name) for a 32-year-old MAN. MUST be a genuinely ' + origin + ' name that a real man from that background would have. Return ONLY the full name, nothing else. No explanation.');
   G.npcs.agent.name = nameStr.trim().replace(/[^\p{L} '\-]/gu, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0,2).join(' ');
 
   // Generate first line
@@ -8911,6 +8913,8 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom, 
     // ⚠️ 立绘是锁死的固定图（多半是西装/工作装），图片不会跟着散文换衣服 → 散文别指定他的具体衣着（颜色/款式，
     //    如"深色家居衬衫""白T恤"），否则和立绘打架（用户实测）。要脱衣就写动作本身（解扣/衣料松开），不点名是什么衣服。
     'WARDROBE RULE — do NOT name or describe what HE is wearing (no colour, no specific garment like "dark loungewear shirt"/"white tee"): his on-screen portrait is fixed and will not match. If clothing comes off, write the ACTION (a button, fabric loosening) without naming the garment. ' +
+    // ⚠️ 名字钉死（用户实测：经纪人的亲密散文里冒出别的NPC名字"Diederik"）——只准用他自己的名字，绝不许换/编。
+    'NAME LOCK — the man in this scene is named exactly "' + name + '". Refer to him ONLY as "' + name + '" or he/him. NEVER use, invent, or substitute any other name for him, even if his name reads unusual to you. ' +
     'No preamble, no headings, no meta, no restating these instructions, no quotation marks around the whole thing. Plain text only.';
   const nightsSoFar = (G.npcs[npcKey] && G.npcs[npcKey].nights) || 0;
   // seamlessFrom＝她在对话中主动发起（表白/更进一步），场景不换：第一幕必须从"此刻"续写，
@@ -8984,7 +8988,7 @@ async function _intimateBeat(npcKey, act, destHers, reply, hist, isFinal) {
   const name = getNPCName(npcKey);
   const style = OVERNIGHT_STYLE[npcKey] || '';
   const isButler = npcKey === 'butler';
-  const sys = 'You are an award-winning contemporary romance novelist writing an INTERACTIVE intimate scene for an adult (18+) otome visual novel — lush, sensory, in the register of a bestselling steamy romance, never crude or clinical. Write in ' + G.langName + '. Second person for the heroine (你/you, NEVER 她/her); the man\'s actions in third person (他/he); his spoken words wrapped in 「」 for Chinese or quotes otherwise. HARD BANS: the line "别动"/"Don\'t move"; sliding a cup/glass toward her; tucking or brushing a strand of her hair; the word "余温". Plain text only — no headings, no meta.';
+  const sys = 'You are an award-winning contemporary romance novelist writing an INTERACTIVE intimate scene for an adult (18+) otome visual novel — lush, sensory, in the register of a bestselling steamy romance, never crude or clinical. Write in ' + G.langName + '. Second person for the heroine (你/you, NEVER 她/her); the man\'s actions in third person (他/he); his spoken words wrapped in 「」 for Chinese or quotes otherwise. HARD BANS: the line "别动"/"Don\'t move"; sliding a cup/glass toward her; tucking or brushing a strand of her hair; the word "余温". NAME LOCK — the man is named exactly "'+name+'"; use ONLY that name or he/him, NEVER invent or substitute any other name for him. Plain text only — no headings, no meta.';
   const ceil = act === 1
     ? 'HEAT CEILING for this beat: charged and suggestive only — closing distance, a touch, an almost-kiss; do NOT go beyond a first kiss yet.'
     : ((typeof HEAT_LEVEL !== 'undefined' && HEAT_LEVEL === 'A')
@@ -11388,7 +11392,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.97 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.98 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
