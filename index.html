@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.91"></script>
-<script src="state.js?v=12.91"></script>
+<script src="story.js?v=12.92"></script>
+<script src="state.js?v=12.92"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.91 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.92 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.91 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.92 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -5238,6 +5238,12 @@ function buildDayOpts() {
           custom: 'It is the middle of the night you two are spending together — she is here, with you, and neither of you is going anywhere. No door, no arriving, no goodbye ahead. Low light, low voices, the unhurried ease of two people who have just been as close as you can get. Talk the way people talk at 1am in the same bed: half-finished thoughts, something small and true you would not say in daylight, an easy touch. Nothing dramatic, nothing about work.'
         }, function () { goHome(); });
       }));
+    // 回家睡（用户定稿）：说好陪他、又突然想回自己家 → 触发他当面问"怎么突然要走"，走同一套 askBeforeLeaving。
+    // kind='home'：不是去工作、也不是去见人，就是想回自己床上睡——他不解、有点失落，但照样尊重、不拦。
+    opts.appendChild(makeOpt(
+      isZh ? ('🚪 还是回自己家睡') : ('Head home to sleep after all'),
+      isZh ? '今晚说好陪他的……' : 'You said you would stay tonight…', '',
+      function () { askBeforeLeaving('home', function () { G._nightWith = null; try { STATE.save.saveGame(); } catch (e) {} goHome(); }); }));
     return;
   }
   // 生病中：强制卧床休养，其它选项全部锁定
@@ -8709,11 +8715,15 @@ function askBeforeLeaving(kind, proceed) {
   (async function () {
     var ctx = 'SHE IS AT ' + (G._nightWith.at === 'his' ? 'YOUR place' : 'her place WITH YOU') +
       ' — she agreed to spend tonight with you, and now she is getting ready to WALK OUT ' +
-      (kind === 'work' ? 'for a WORK commitment (a session/shoot/show she has to be at).' : 'to go see someone / go out — NOT for work.') +
+      (kind === 'work' ? 'for a WORK commitment (a session/shoot/show she has to be at).'
+        : kind === 'home' ? 'to go HOME to her own place to sleep — not for anyone, not for work, she just wants her own bed tonight after all.'
+        : 'to go see someone / go out — NOT for work.') +
       (askedTimes > 1 ? ' (This is not the first time tonight she has started to leave.)' : '') +
       ' Say ONE short thing to her as she reaches for the door — you are asking, not blocking. ' +
       (kind === 'work'
         ? 'It is WORK, and you know it — you get it, and you are not going to make her feel guilty for her career. A little disappointed, a little wry, warm underneath: let her go, ask her to message you when she is done, maybe say the bed will still be here. Do NOT sulk or guilt-trip.'
+        : kind === 'home'
+        ? 'It is a small quiet surprise — she just said she would stay, and now she wants to go sleep in her own bed. You are not hurt exactly, more gently thrown and a little wistful: ask softly if everything is okay, or say you will miss having her here. Warm, easy, no guilt — you would never make her feel bad for wanting her own space.'
         : 'This one actually stings — she said she would stay, and now she is leaving to be somewhere else. Ask her plainly where she is going, or say the quiet true thing about how that lands. Hurt and honest, in YOUR own voice.') +
       ' GREEN-FLAG — ABSOLUTE: you do NOT physically block her, do NOT forbid her, do NOT demand, do NOT threaten to end things, do NOT lay guilt on her. It is her choice and you say nothing that takes that away. 1-2 sentences, spoken words only, in ' + G.langName + '.';
     var line = '';
@@ -8721,6 +8731,8 @@ function askBeforeLeaving(kind, proceed) {
     if (!line || !line.trim()) {
       line = kind === 'work'
         ? (isZh ? '「工作啊……行。」他撑起身子，声音还带着睡意，「结束了给我发个消息。床还在这儿。」' : '"Work. …Right." He props himself up, voice still thick with sleep. "Text me when you\'re done. Bed\'s still here."')
+        : kind === 'home'
+        ? (isZh ? '他撑起身，有点意外地看着你：「怎么突然想回去了？……都还好吧？」他没有拦，只是替你把外套递过来。' : 'He props himself up, a little thrown. "Home, suddenly? …Everything okay?" He doesn\'t stop you — just hands you your coat.')
         : (isZh ? '「你不是说……今晚陪我的吗。」他没有拦你，只是看着你，「你现在要去哪？」' : '"You said you\'d stay tonight." He does not move to stop you — he just looks at you. "Where are you going?"');
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(line.trim());
@@ -8757,22 +8769,26 @@ function askBeforeLeaving(kind, proceed) {
 // 她还是走了 —— spoke=有没有解释过。工作 vs 见别人、说了 vs 沉默，代价分四档（用户定稿：沉默最重）
 async function _leaveAfterAsk(npcKey, kind, spoke, reply, proceed) {
   var isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
-  var d = kind === 'work' ? (spoke ? 0 : -3) : (spoke ? -4 : -9);
+  // 代价：回家睡=最轻（说了0/没说-2，她本就有权回自己床）；工作次之；去见别人最重（沉默-9）
+  var d = kind === 'home' ? (spoke ? 0 : -2)
+        : kind === 'work' ? (spoke ? 0 : -3)
+        : (spoke ? -4 : -9);
   if (d) STATE.relationships.change(npcKey, d);
   G.npcs[npcKey]._leftInTheNight = { day: G.day, kind: kind, spoke: !!spoke, said: String(reply || '').slice(0, 80) };
   STATE.memory.addEvent(npcKey,
     'You two were spending the night together and she left partway through (day ' + G.day + ') — ' +
-    (kind === 'work' ? 'for work' : 'to go out and be somewhere else') + ', and she ' +
-    (spoke ? 'did explain first: "' + String(reply || '').slice(0, 80) + '"' : 'said NOTHING AT ALL — she just went. That silence is what stayed with you.') +
+    (kind === 'work' ? 'for work' : kind === 'home' ? 'to go sleep in her own bed' : 'to go out and be somewhere else') + ', and she ' +
+    (spoke ? 'did explain first: "' + String(reply || '').slice(0, 80) + '"' : (kind === 'home' ? 'just quietly gathered her things and went' : 'said NOTHING AT ALL — she just went. That silence is what stayed with you.')) +
     ' You did not stop her, and you would not — but it landed.', G.day);
   G._nightWith = null;              // 她确实走了，状态解除（首页也会变回她自己家）
   try { STATE.save.saveGame(); } catch (e) {}
-  // 他最后的反应（沉默离开时更短更冷）
+  // 他最后的反应（沉默离开时更短更冷；回家睡=温和不介怀）
   try {
     var line = await claude(STATE.memory.buildDialoguePrompt(npcKey, G.day, G.langName, G.player.name,
       'She is walking out — ' + (spoke ? 'she just said to you: "' + String(reply || '') + '"' : 'without a single word') +
       '. Give ONE short final beat as the door closes: ' +
       (kind === 'work' ? 'you understand, even if you wish tonight had gone differently.'
+        : kind === 'home' ? 'she just wanted her own bed — you get it, a little wistful but warm, you would never hold it against her.'
         : (spoke ? 'you heard her, it still hurts, and you let her go anyway.'
                  : 'she said nothing at all. You do not chase her, you do not shout — but something in you goes quiet and closes.')) +
       ' NEVER controlling, NEVER cruel, no ultimatum. 1 sentence, in ' + G.langName + '.'));
@@ -8840,7 +8856,7 @@ function _overnightExemplar(act) {
     ? '门在身后合上的那一刻，整间屋子忽然只剩下你们两个人的呼吸。他把那杯酒递过来，指尖擦过你的手背，却没有收回去，就那样停在那里，温热的一点触碰慢慢烧起来。「你今晚，不用走。」他的声音压得很低，低到你几乎是从他胸腔里听见的。他没有再靠近，只是看着你，把最后那一步，留给了你。'
     : "The door closes and all at once the room narrows to the sound of the two of you breathing. He holds the glass out, his fingertips grazing the back of your hand and staying there, that one warm point of contact slowly catching fire. \"You don't have to leave tonight,\" he says, low enough that you feel it more than hear it. He doesn't come any closer — he just looks at you, and leaves the last step to you.";
 }
-async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom) {
+async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom, openingOnly) {
   const name = getNPCName(npcKey);
   const isButler = npcKey === 'butler';
   const style = OVERNIGHT_STYLE[npcKey] || '';
@@ -8858,7 +8874,8 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom) 
   // seamlessFrom＝她在对话中主动发起（表白/更进一步），场景不换：第一幕必须从"此刻"续写，
   // 不许写进门/打量房间/招待仪式——他们已经聊了半晚了（用户定稿）
   const seamlessNote = seamlessFrom
-    ? 'CRITICAL CONTINUITY: They are ALREADY ' + (atHers ? 'in HER apartment' : 'at his place') + ', deep into the evening and mid-conversation — SHE just openly invited him closer, and his last words were: "' + String(seamlessFrom).slice(0, 140) + '". CONTINUE seamlessly from THIS exact moment and his current position — do NOT narrate arriving, doors closing behind them, taking in the room, or offering drinks like a host. '
+    ? 'CRITICAL CONTINUITY: They are ALREADY ' + (atHers ? 'in HER apartment' : 'at his place') + ', and the scene is already in motion. The moment right before this was: "' + String(seamlessFrom).slice(0, 180) + '". ' +
+      'You MUST continue from THAT EXACT moment — same room, same spot, same physical position they were just in. Do NOT relocate them (if they were by the window / in the shower / on the couch, they are STILL there), do NOT restart the scene at a doorway or push her against a wall as if entering for the first time, do NOT narrate arriving / a door closing / taking in the room / offering drinks. Pick up mid-motion, exactly where the last beat left them. '
     : '';
   let user;
   if (act === 1) {
@@ -8896,7 +8913,10 @@ async function genOvernightProse(npcKey, act, firstNight, atHers, seamlessFrom) 
       (isButler ? 'IMPORTANT — HE stays the shy, passive one throughout: SHE leads every step and he follows, trembling and overwhelmed and worshipful, his touch only going where hers guides it; the heat comes from his undoing, not from dominance. ' : '') +
       'She chose to let it continue; the scene has moved to ' + act2Scene + '. ' +
       'Write it like the hottest scene in a bestselling romance: vivid, sensual, physical, in the heightened evocative register of the genre (sensation and desire, the poetry of bodies), NOT clinical or crude anatomy. His specific manner above must drive every beat — a possessive man, a commanding one, a playful one, a shy one and a respectful one must each read completely differently here. 4-6 sentences, breathless and building. ' + ceil + ' ' +
-      'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(2) + '"';
+      'Match the QUALITY and heat of this example, but do NOT copy it — write a fresh one that fits ' + name + ': "' + _overnightExemplar(2) + '"' +
+      // 开场模式（后面还有玩家互动轮）：只写【升温的过程】，绝不淡出/关灯/收场——把高潮和淡出留给最后一拍。
+      // 用户实测：开场就"走廊的灯灭了"淡出，紧接着还让玩家输入，读着像已经结束了。
+      (openingOnly ? ' ⚠️ THIS IS THE OPENING of the scene — she still gets to respond after this. Write only the BUILD: rising heat, escalating touch. Do NOT fade to black, do NOT turn off the lights, do NOT end or close the scene. STOP mid-motion on a charged moment that invites HER next move.' : '');
   }
   var _prose = await claude(user, sys);
   return heatOK(_prose) ? _prose : ''; // 露骨词闸：命中→返回空，调用处自动落到含蓄兜底文案
@@ -9093,13 +9113,15 @@ async function maybeStayOver(npcKey, locKey, opts) {
     //    改成拿第一幕的最后一拍当 seamlessFrom 现生成；失败或没互动过才回退预生成的那份。
     try {
       const _lastBeat = (_h1 && _h1.length > 1) ? String(_h1[_h1.length - 1] || '').slice(-260) : '';
+      // openingOnly=true：开场只写升温、不淡出——淡出留给最后一拍互动（用户实测图4："灯灭了"后还要输入）
       if (_lastBeat) {
-        act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers, _lastBeat);
+        act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers, _lastBeat, true);
       }
-      if (!act2Nar || !act2Nar.trim()) act2Nar = await (_pre2 || genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers));
+      if (!act2Nar || !act2Nar.trim()) act2Nar = await genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) <= 1, destHers, _lastBeat || '', true);
     } catch(e){}
     if (!act2Nar || !act2Nar.trim()) {
-      act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料一件件松开，他的唇沿着你的颈线往下，每一寸都被他记在心里。你听见自己的呼吸乱了，也听见他在你耳边低低地念你的名字——然后灯光暗了下去，剩下的夜，只属于你们两个人。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens piece by piece; his mouth traces down the line of your throat, learning every inch of you. You hear your own breath break apart, his voice low against your ear saying your name — and then the light dims, and the rest of the night belongs only to the two of you.';
+      // ⚠️ 兜底文案也【不能淡出】——它是开场，后面还有互动轮（淡出留给最后一拍）
+      act2Nar = isZh ? '你迎上去的那一刻，他像是终于松开了什么。吻落下来，不再克制，手掌顺着你的背脊一路收紧，把你带向床沿。衣料在他指间一件件松开，他的唇沿着你的颈线往下，每一寸都被他慢慢记下——然后他停在那里，气息滚烫，等你。' : 'The moment you lean in, something in him lets go. His kiss comes down without restraint now, his palm sliding up your spine and pulling you toward the bed. Fabric loosens under his fingers; his mouth traces down the line of your throat, learning every inch of you — and then he stops there, breath hot, and waits for you.';
     }
     document.getElementById('vn-text').innerHTML = formatNPCText(act2Nar.trim());
     vopts.innerHTML = '';
@@ -9219,7 +9241,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
     _h1 = [act1Nar.trim()];
     runIntimateRounds(npcKey, 1, destHers, _h1,
       function(){ mk(isZh?'……让这一刻继续':'…Let the moment go on', goAct2); mk(_leaveLbl, leaveAfterAct1); },
-      function(){ const lv = document.createElement('div'); lv.className='vn-opt'; lv.style.opacity='.72'; lv.textContent = _leaveLbl; lv.onclick = leaveAfterAct1; vopts.appendChild(lv); });
+      function(){ const lv = document.createElement('button'); lv.className='vn-next'; lv.style.cssText='opacity:.66;margin-top:6px'; lv.textContent = _leaveLbl; lv.onclick = leaveAfterAct1; vopts.appendChild(lv); }); // 和"继续"同款药丸按钮、次要项调暗（用户实测两按钮形状字色不一）
     // 第二幕预生成：第一幕一显示就后台先跑（此时 nights 还没+1，nights===0 等价于进幕后的 <=1）
     try {
       _pre2 = genOvernightProse(npcKey, 2, (G.npcs[npcKey].nights || 0) === 0, destHers).catch(function(){ return ''; });
@@ -10574,7 +10596,13 @@ async function sendChatReply() {
       }
     }
     // 回复内容带人设/好感度/共同经历/真实日程上下文，AI同时判定好感变化(-3~+3)和是否结束对话
+    // 沉默发送（"……"）：告诉模型她【没打字、只是沉默】，别把它当"没收到消息"而去讨要输入
+    //（用户实测：发"……"后管家回了一句系统味的"请发一条信息，这样我才能以Henry的身份回复"——提示词泄漏）
+    var _silentNote = (text === '……' || text === '...')
+      ? ' NOTE: her latest "message" is just silence/an ellipsis — she did NOT type any words, she went quiet on purpose. React to that SILENCE in character (a little thrown, teasing, or gently concerned, per your personality). Do NOT ask her to "send a message", do NOT say you are waiting for her message, do NOT mention replying "as" anyone — just answer the silence like a real person would. '
+      : '';
     const prompt = STATE.memory.buildDialoguePrompt(npc, G.day, G.langName, G.player.name,
+      _silentNote +
       'RECENT CHAT (oldest→newest, YOU=you, HER=her):\n' + recentMsgs + '\n' +
       'Her newest text (already included above as the last HER line) directly continues this conversation — your reply MUST follow from what YOU said before (e.g. if she answers your question, do not ask what she means). ' +
       'Current local time where you both live: ' + gameClockStr() + ' (' + (isEve?'late evening':'daytime') + ') — if she asks what time it is / 你那几点, THIS is the answer. ' + scheduleCtxFor(npc, 4) +
@@ -10720,6 +10748,12 @@ async function sendChatReply() {
       } catch(e){}
     }
     // 露骨词闸（上架合规）：被诱导越界的回复换成含蓄搪塞，顺带丢弃同条里的约见字段
+    // 提示词泄漏闸（用户实测：回复里冒出"请发一条信息，这样我才能以X的身份回复""正在等待你的消息"这类系统味的话）——
+    // 一旦命中这类元指令措辞，判为AI跑偏，用如实的一句话覆盖，绝不把框架文字露给玩家。
+    if (reply && /以\s*.{0,12}的身份.{0,4}回复|等待你的(消息|输入)|请(你)?(发送|发)一条(信息|消息)|as\s+\w+\s+(would|to reply)|reply as |I('| a)m ready.{0,20}your message|waiting for your (message|input)/i.test(reply)) {
+      try { console.warn('[OTR] 聊天回复疑似提示词泄漏，已覆盖：' + reply.slice(0, 60)); } catch(e){}
+      reply = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '（他隔了会儿才回）……怎么突然不说话了？' : '(a beat, then) …everything okay? You went quiet.';
+    }
     if (reply && !heatOK(reply)) { reply = (G.lang==='zh-cn'||G.lang==='zh-tw') ? '这个话题……见了面再说。' : "That's… a conversation for in person."; meetInfo = null; futureInv = null; }
     // AI失败（额度满/网络）以前是无声的——玩家以为NPC下线了（用户23:05实测）。改成聊天内可见提示
     if (!reply || !reply.trim()) {
@@ -11305,7 +11339,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.91 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.92 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

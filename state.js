@@ -664,7 +664,10 @@ const STATE = {
       // 说好陪他过夜、她中途还是走了 —— 他接下来几天的语气要带着这件事（用户定稿：沉默离开代价最重）
       const _lin = npc._leftInTheNight;
       const _leftNote = (_lin && (day - _lin.day) <= 3)
-        ? (_lin.kind === 'work'
+        ? (_lin.kind === 'home'
+            // 回家睡=最轻：她只是想回自己床，不冷战、不介怀，最多带一句"想她"
+            ? `\nTHAT NIGHT: you two were spending the night together and she decided to go sleep in her own bed after all. You did not mind — she is allowed her own space. If it comes up at all it is warm and light ("missed you here" at most), absolutely no coldness or grudge.`
+          : _lin.kind === 'work'
             ? (_lin.spoke
                 ? `\nTHAT NIGHT: you two were spending the night together and she left partway through for work — she did tell you why. You understood, and you meant it; if it comes up, it is warm and a little wry, no grudge.`
                 : `\nTHAT NIGHT: you two were spending the night together and she got up and left for work WITHOUT SAYING ANYTHING to you. You understand the work part — it is the leaving-without-a-word part that sits oddly with you. Slightly cooler and more guarded than usual for a few days, but you still reply warmly enough; if she brings it up you are honest that you noticed.`)
