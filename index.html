@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.96"></script>
-<script src="state.js?v=12.96"></script>
+<script src="story.js?v=12.97"></script>
+<script src="state.js?v=12.97"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -171,7 +171,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
    沿用本项目 .daily-wrap / 签约页的写法：容器穿透、子元素照常接收。 */
 .vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));pointer-events:none;}
 .vn-content > *{pointer-events:auto;}
-.vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:50vh;overflow-y:auto;}
+.vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:56vh;display:flex;flex-direction:column;}
 /* 对话双头像框：左NPC右女主（大框），谁"说话"谁高亮 */
 .vn-avatars{display:flex;justify-content:space-between;gap:10px;padding:0 12px;margin-bottom:8px;position:relative;z-index:3;}
 .vn-av{flex:1;max-width:46%;aspect-ratio:3/4;max-height:32vh;border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,0.45);opacity:0.4;transition:opacity .3s,border-color .3s,box-shadow .3s;background:#241a28;cursor:pointer;}
@@ -179,13 +179,13 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .vn-av img{width:100%;height:100%;object-fit:cover;display:block;}
 .vn-av:not(.has-img){visibility:hidden;}
 .vn-speaker{font-size:13px;letter-spacing:3px;color:#F8C8D4;text-transform:uppercase;margin-bottom:6px;opacity:1;}
-.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,22px);font-style:italic;color:#E9DFE1;line-height:1.58;margin-bottom:10px;}
+.vn-text{font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.6vw,22px);font-style:italic;color:#E9DFE1;line-height:1.58;margin-bottom:10px;overflow-y:auto;flex:1 1 auto;min-height:0;}
 /* 字体统一（用户定稿）：台词=玫瑰高亮·正体；动作/旁白=中性·斜体。双方（NPC和玩家）一致，无括号。 */
 /* 用户定稿：台词去掉标色更欧美——只用引号，颜色同旁白；靠"正体 vs 斜体"区分说话/叙述 */
 .vn-text .speech{color:inherit;font-style:normal;font-weight:400;}
 .vn-text .narr{color:#E9DFE1;font-style:italic;}
 .vn-text .action{color:var(--text-mid);font-style:normal;font-size:0.92em;}
-.vn-opts{display:grid;gap:6px;}
+.vn-opts{display:grid;gap:6px;flex:0 0 auto;}
 .vn-input-wrap{display:flex;gap:6px;margin-bottom:8px;align-items:flex-end;}
 .vn-input{flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,200,210,0.25);border-radius:12px;padding:10px 12px;font-family:'Cormorant Garamond',serif;font-size:clamp(16px,4.4vw,18px);color:#FFF0F3;resize:none;outline:none;min-height:52px;max-height:150px;line-height:1.45;}
 .vn-input:focus{border-color:rgba(255,180,200,0.5);background:rgba(255,255,255,0.15);}
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.96 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.97 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.96 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.97 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -2879,6 +2879,8 @@ function showVNTapHint() {
       var t = document.getElementById('vn-text');
       if (!t || typeof MutationObserver === 'undefined') return;
       new MutationObserver(function () {
+        // 现在滚动条在 vn-text 自己身上（vn-opts 钉底不滚），所以回到第一行=滚 vn-text，不再滚整个对话框
+        t.scrollTop = 0;
         var box = t.closest ? t.closest('.vn-dialog') : null;
         if (box) box.scrollTop = 0;
       }).observe(t, { childList: true, characterData: true, subtree: true });
@@ -9264,7 +9266,9 @@ async function maybeStayOver(npcKey, locKey, opts) {
     document.getElementById('vn-text').textContent = '…';
     vopts.innerHTML = '<div class="gt" style="margin:6px auto">…</div>';
     if (!atHome) {
-      try { const u = destHers ? (G.apartment.livingNightUrl || G.apartment.livingDayUrl || null) : await (_pre1Bg || genNPCHomeActBg(npcKey, 1)); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
+      // ⚠️ 她家=用夜景（卧室夜→客厅夜），绝不回退白天图——这是深夜亲密场景（用户实测22:52却出白天客厅）。
+      //    和第二幕(bedroomNightUrl||livingNightUrl)一致。
+      try { const u = destHers ? (G.apartment.bedroomNightUrl || G.apartment.livingNightUrl || null) : await (_pre1Bg || genNPCHomeActBg(npcKey, 1)); if (u) { const bg=document.getElementById('vn-bg'); bg.src=u; bg.style.display='block'; const ph=document.getElementById('vn-bg-ph'); if(ph)ph.style.display='none'; } } catch(e){}
     }
     const firstNight = (G.npcs[npcKey].nights || 0) === 0;
     // 衔接来源：玩家直入=他刚才的台词；询问路径且本来就在家=他刚说的暗示台词（他们已聊了半晚，不是刚进门）
@@ -11384,7 +11388,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.96 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.97 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
