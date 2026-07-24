@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.80"></script>
-<script src="state.js?v=12.80"></script>
+<script src="story.js?v=12.81"></script>
+<script src="state.js?v=12.81"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -225,7 +225,9 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 .daily-bg-overlay{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom, rgba(255,240,245,0.78) 0%, rgba(255,238,244,0.42) 12%, rgba(255,232,240,0) 26%, rgba(255,232,240,0) 56%, rgba(255,232,240,0.4) 76%, rgba(255,232,240,0.72) 100%);}
 .daily-wrap{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;pointer-events:none;}
 .daily-wrap > *{pointer-events:auto;}
-.daily-top{flex:0 0 auto;padding:16px 16px 8px;}
+/* 左上角时段/日期/压力那几行：原本只靠白色外发光，压在【明亮】的客厅照片上仍然糊（用户实测多次）。
+   改成给整块加一层由浅到透的柔光底——深粉色字压在浅底上永远有对比度，且不挡照片。 */
+.daily-top{flex:0 0 auto;padding:16px 16px 12px;background:linear-gradient(180deg,rgba(255,247,250,0.94),rgba(255,247,250,0.78) 55%,rgba(255,247,250,0));}
 .daily-clock{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--pink-deep);letter-spacing:-2px;line-height:1;text-shadow:0 1px 6px rgba(255,255,255,0.95), 0 2px 18px rgba(255,255,255,0.8);}
 .daily-date{font-size:12px;letter-spacing:3px;color:var(--text-mid);opacity:0.95;text-transform:uppercase;margin-top:2px;text-shadow:0 1px 5px rgba(255,255,255,0.95), 0 2px 12px rgba(255,255,255,0.8);}
 .daily-nar{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:12px 20px;}
@@ -578,7 +580,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.80 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.81 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1172,7 +1174,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.80 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.81 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3349,6 +3351,14 @@ function calAddEvent(dateStr, event) {
   if (event.id && G.calendar.events[dateStr].some(e => e.id === event.id)) return;
   event._new = true; // 新加入的安排：日历角标计数+列表🆕标记，玩家打开日历查看后清除
   // 冲突 = 同一天两个已接受约会【时间真的重叠】（不再"同一天就算冲突"）
+  // 一天只排一份工作（用户实测：开局第2天同时有"舞蹈体能训练 14:00-17:00"和"录音室排练 14:00-17:00"，
+  // 完全重叠且只能做一个）。剧情工作/自动排班/补排排练分散在几处添加、各自都不知道别人加过，
+  // 在这个唯一写入口统一挡住：已有一条已接受的工作，就不再往同一天塞第二条。
+  if (event.type === 'work' && event.status === 'accepted' &&
+      G.calendar.events[dateStr].some(e => e && e.type === 'work' && e.status === 'accepted')) {
+    try { console.warn('[OTR] ' + dateStr + ' 已有工作行程，跳过重复添加：' + (event.id || event.title)); } catch (e) {}
+    return;
+  }
   var existing = G.calendar.events[dateStr].filter(e => e.type === 'npc_invite' && e.status === 'accepted');
   if (event.type === 'npc_invite') {
     var clash = existing.find(function(e){ return eventsTimeConflict(e, event); });
@@ -3363,7 +3373,20 @@ function getCalDateStr(gameDay) {
   var start = rtStartDate(); // 2027年3月1日=周一，符合"开始日期3月1日周一"的设定（Day1-5剧情日=工作日）
   var d = new Date(start);
   d.setDate(start.getDate() + gameDay - 1);
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  // ── 幽灵日期唯一出口探针（用户实测：存档里干干净净，读档后却冒出整份 2028-12 的影子日程）──
+  // 所有日历键都从这里出去，所以在这里就能抓到"是谁、拿着什么锚点、传了第几天"算出了离谱日期。
+  try {
+    if (REALTIME) {
+      var _dd = Math.abs(rtDaysBetween(rtTodayKey(), key));
+      if (_dd > 400) {
+        console.warn('[OTR] ⚠ 算出离谱日期 ' + key + '（距今 ' + _dd + ' 天）\n  锚点 G.rtStartDate=' + G.rtStartDate +
+          '  rtStartDate()=' + start.getFullYear() + '-' + (start.getMonth()+1) + '-' + start.getDate() +
+          '  传入 gameDay=' + gameDay + '  G.day=' + G.day, new Error('调用来源').stack);
+      }
+    }
+  } catch (e) {}
+  return key;
 }
 
 // 日历翻月（用户问"8月/9月什么时候开放"——原来只渲染当月，下个月的约根本看不到）：‹›切换，最多往后看3个月
@@ -11026,7 +11049,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.80 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.81 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
