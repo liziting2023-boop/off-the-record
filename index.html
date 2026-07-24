@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.84"></script>
-<script src="state.js?v=12.84"></script>
+<script src="story.js?v=12.85"></script>
+<script src="state.js?v=12.85"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -166,7 +166,11 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
 #s-scene.vn-viewing #vn-content,#s-scene.vn-viewing #vn-avatars,#s-scene.vn-viewing .vn-npc-card,#s-scene.vn-viewing #portrait-full,#s-scene.vn-viewing #npc-trio{visibility:hidden !important;}
 .vn-npc-card img{max-height:52vh;object-fit:cover;}
 .vn-npc-card img{width:100%;display:block;}
-.vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));}
+/* ⚠️ vn-content 铺满整屏，原来【没有 pointer-events:none】→ 把整屏点击全吃掉，
+   vn-bg 上的 onclick="toggleVNDialog()" 永远收不到 = "点背景看不到全景图"（用户实测）。
+   沿用本项目 .daily-wrap / 签约页的写法：容器穿透、子元素照常接收。 */
+.vn-content{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:0 0 max(60px,env(safe-area-inset-bottom));pointer-events:none;}
+.vn-content > *{pointer-events:auto;}
 .vn-dialog{background:rgba(15,8,12,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(196,96,122,0.25);border-radius:16px 16px 0 0;padding:14px 16px 8px;margin:0 6px;max-height:50vh;overflow-y:auto;}
 /* 对话双头像框：左NPC右女主（大框），谁"说话"谁高亮 */
 .vn-avatars{display:flex;justify-content:space-between;gap:10px;padding:0 12px;margin-bottom:8px;position:relative;z-index:3;}
@@ -580,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.84 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.85 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1174,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.84 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.85 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -4220,7 +4224,9 @@ const BEDROOM_STYLE = 'photorealistic, lifestyle photography, authentic textures
 // 卧室布局A（用户实测：客厅豪华卧室简陋，改成宽敞现代和客厅同档）：宽敞现代卧室，大双人床+窗景+休息角
 // A=现代极简：低矮无床头板的平台床、家具极少、留白多——刻意和 B 的"对称+吊灯+梳妆台"拉开
 // （用户实测 A 和 B 出图几乎一样：都是床居中靠后墙+两侧对称床头柜+纱帘）
-const BEDROOM_LAYOUT = 'airy minimalist bedroom, a LOW PLATFORM double bed against the back wall with NO headboard, one single wide window on the left with plain linen curtains, exactly one slim nightstand holding a small lamp and a stack of books, a tall leafy plant in the far corner, a simple flat-weave rug, wide uncluttered empty floor, calm pale neutral palette, a soft folded throw across the foot of the bed, a small tray of perfume bottles and a ceramic jewellery dish, understated modern interior';
+// ⚠️ A 原本满是 airy/pale/uncluttered 这类"往亮里拉"的词，且窗户没写夜色 → 出图像大白天（用户实测）。
+//    夜色改成写在布局里【正向描述】，别只靠生成时追加的 "NO daylight"（否定词对 flux 无效甚至反向诱导）。
+const BEDROOM_LAYOUT = 'minimalist bedroom AT NIGHT, a LOW PLATFORM double bed against the back wall with NO headboard, one single wide window on the left with plain linen curtains showing a deep dark navy night sky and distant city lights far below, the room lit ONLY by one small warm bedside lamp so the corners fall away into shadow, exactly one slim nightstand holding that lamp and a stack of books, a tall leafy plant in the far corner, a simple flat-weave rug, wide uncluttered floor, muted palette warmed by lamplight, a soft folded throw across the foot of the bed, a small tray of perfume bottles and a ceramic jewellery dish, understated modern interior';
 // 卧室布局B（用户指定）：长方形卧室，中央双人床，两侧对称床头柜+窗户，床上吊灯，右侧梳妆台竖镜，床尾脚凳，左下角单人椅，大地毯
 const BEDROOM_LAYOUT_B = 'rectangular bedroom, a double bed centered against the back wall with its headboard against the wall, a symmetrical matching nightstand on each side of the bed, two windows with sheer curtains flanking the bed on both sides, a pendant chandelier hanging directly above the bed, on the right side a dressing table with a large tall standing floor mirror and a stool, a round upholstered ottoman footstool at the foot of the bed on the right side, a single lounge accent armchair in the lower-left corner, a large area rug covering the floor, richly layered multi-piece furniture arrangement, perfume bottles and a jewellery dish arranged on the dressing table, soft pastel bedding with layered cushions, warm cozy home interior lighting';
 // 三张卧室夜景候选的布局与灯光氛围（genBedrooms 生成、selBedroom 记忆所选，晚上补生成夜图时保持一致）
@@ -7845,7 +7851,7 @@ async function runVNDialog(dialogRounds, npcKey, day, round) {
     } else {
       transitionNar = {
       agent_office: isZhEnd2?'他起身送你到门口，替你按住电梯，笑着说了句"明天见"。你走进电梯时，他还站在原地目送你。':'He walks you to the door himself, holds the elevator for you, and says "See you tomorrow" with a smile. He is still standing there watching as the doors close.',
-      recording_studio: isZhEnd2?'收工了。他朝你抬了抬下巴算是道别，你带上录音室的门，走进走廊时还能听见里面传来他调鼓的声音。':'That\'s a wrap. He tips his chin at you by way of goodbye; as you ease the studio door shut, you can still hear him tuning the drums inside.',
+      recording_studio: isZhEnd2?'收工了。他朝你抬了抬下巴算是道别，转回调音台前又推了一遍今天的最后一条；你带上录音室的门，走进走廊时还能听见里面反复循环的那一小段。':'That\'s a wrap. He tips his chin at you by way of goodbye and turns back to the desk, pulling up today\'s last take again; as you ease the studio door shut, you can still hear that one phrase looping inside.',
       magazine_shoot: isZhEnd2?'拍摄结束。你收拾好自己的东西。':'The shoot wraps. You gather your things.',
       cafe_meeting: isZhEnd2?'你们都站了起来。会面到此结束。':'You both stand. The meeting is over.',
       apartment_lobby: isZhEnd2?'你回到了自己的公寓。':'You head back up to your apartment.',
@@ -11071,7 +11077,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.84 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.85 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
