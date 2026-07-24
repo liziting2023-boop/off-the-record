@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.93"></script>
-<script src="state.js?v=12.93"></script>
+<script src="story.js?v=12.94"></script>
+<script src="state.js?v=12.94"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -584,7 +584,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.93 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.94 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1178,7 +1178,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.93 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.94 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3168,7 +3168,9 @@ function go(id) {
   document.getElementById(id).classList.add('active');
   const idx = SETUP_SCREENS.indexOf(id);
   document.getElementById('prog').style.width = (idx < 0 ? 0 : Math.round(idx / (SETUP_SCREENS.length-1) * 100)) + '%';
-  document.getElementById('bottom-nav').classList.toggle('show', GAME_SCREENS.includes(id));
+  // 沉浸锁（用户定稿·方案A）：亲密/独处场景期间藏掉底部导航——跟他在一起的此刻，世界该缩小到你们俩，
+  // 也顺带根治"切去手机再回来就丢了这一幕"。退出（goHome/goEvening/startDay）会解锁。
+  document.getElementById('bottom-nav').classList.toggle('show', GAME_SCREENS.includes(id) && !window._immersiveLock);
   // 回到主要界面时重算未读徽章，避免异步生成的消息把徽章状态搞乱
   if (id === 's-daily' || id === 's-evening') { try { updatePhoneBadge(); } catch(e){} }
   var memBtn = document.getElementById('memories-btn');
@@ -3178,6 +3180,7 @@ function go(id) {
 }
 
 function goHome()       {
+  window._immersiveLock = false; // 退出沉浸锁：底部导航恢复
   // REALTIME：进主页时同步真实日历——跨了真实日就翻天+缺席反应（拆掉手动"入睡"）
   if (REALTIME && G.day) {
     var r = syncRealtimeDay();
@@ -4817,6 +4820,7 @@ function startPrologue() {
   }
 }
 async function startDay() {
+  window._immersiveLock = false; // 退出沉浸锁（新的一天）
   G.today = null; // 重置今天做了什么的记录
   _curSceneEv = null; _curSceneOriginDay = null; // 新的一天：清掉进行中场景指针（防昨天的半场景劫持"继续"入口）
   // REALTIME"错过"结算：昨天的工作/必须行程到今天还没做 → 标记错过 + 记进经纪人记忆
@@ -5232,6 +5236,7 @@ function buildDayOpts() {
       function () {
         _vnEndLoc = (G._nightWith.at === 'his') ? (_nwK + '_home') : 'her_home';
         G.today = { label: (isZh ? '和' + _nwName + '在一起' : 'With ' + _nwName), isWork: false, npc: _nwK };
+        window._immersiveLock = true; // 和他独处期间藏底部导航（沉浸+防切走丢这一幕）
         go('s-scene');
         document.getElementById('vn-loading').style.display = 'none';
         document.getElementById('vn-bg-ph').style.display = 'flex';
@@ -8703,6 +8708,7 @@ function nightWithAtHis() { var nw = G._nightWith; return !!(nightWithNpc() && n
 function askBeforeLeaving(kind, proceed) {
   var npcKey = nightWithNpc();
   if (!npcKey) { proceed(); return true; }        // 没在他那儿：照常
+  window._immersiveLock = true; try { document.getElementById('bottom-nav').classList.remove('show'); } catch(e){} // 他拦你问话这一幕也锁住导航
   var isZh = G.lang === 'zh-cn' || G.lang === 'zh-tw';
   var nm = getNPCName(npcKey);
   try { G._nightWith.asked = (G._nightWith.asked || 0) + 1; } catch (e) {}
@@ -9239,6 +9245,7 @@ async function maybeStayOver(npcKey, locKey, opts) {
   };
   // ── 跟他走/留下 → 第一幕：进他家，试探性暧昧动作 + 选择继续或离开 ──
   const goHomeAndStay = async () => {
+    window._immersiveLock = true; try { document.getElementById('bottom-nav').classList.remove('show'); } catch(e){} // 亲密两幕期间藏底部导航（沉浸+防切走丢场景）
     playSound('rel-up');
     vnSpeak(null);
     document.getElementById('vn-speaker').textContent = '';
@@ -9324,6 +9331,7 @@ function sendStoodUpMessage(npcKey, title) {
 }
 
 async function goEvening() {
+  window._immersiveLock = false; // 退出沉浸锁：底部导航恢复
   _curSceneEv = null; _curSceneOriginDay = null; // 一天的剧情场景链结束，清空当前场景，避免泄漏到晚间约会/闲聊
   // REALTIME：真实时间还没到19点 → 白天做完一件事≠一天收尾。回主页继续过这一天
   // （还能再安排休息/看手机；晚间画面/好感消息/管家欢迎等真实入夜后由 goHome 触发）
@@ -11362,7 +11370,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.93 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.94 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });
