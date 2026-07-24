@@ -17,8 +17,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Off the Record">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="story.js?v=12.83"></script>
-<script src="state.js?v=12.83"></script>
+<script src="story.js?v=12.84"></script>
+<script src="state.js?v=12.84"></script>
 <style>
 :root{
   --cream:#5C1F35;
@@ -580,7 +580,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
     <!-- 换设备/丢档找回：开局前就能输同步码（用户定稿：不必先开新档再进设置） -->
     <p onclick="titleSyncRestore()" style="font-size:11px;color:var(--ink-muted);margin-top:14px;cursor:pointer;text-decoration:underline">Have a sync code? Restore your progress</p>
     <!-- 备份槽已移除（用户定稿：网络游戏心智=只有一段人生——要么继续、要么新开，不做多存档） -->
-    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.83 · BETA ⏱</p>
+    <p id="ver-tag" onclick="devTap()" style="font-size:9px;letter-spacing:2px;color:rgba(138,128,120,0.3);margin-top:20px;cursor:pointer">v12.84 · BETA ⏱</p>
   </div>
 </div>
 
@@ -1174,7 +1174,7 @@ body{background:linear-gradient(160deg,#FFE8F0 0%,#FFF0F5 40%,#FFE0EC 100%);back
       <a href="https://liziting2023-boop.github.io/off-the-record/privacy.html" target="_blank" style="color:#8a8078">Privacy Policy</a>
       &nbsp;·&nbsp; <span style="user-select:all">otr.help@wiiboox.com</span>
     </div>
-    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.83 · BETA (realtime)</p>
+    <p id="ver-tag-settings" onclick="devTap()" style="font-size:10px;letter-spacing:2px;color:rgba(138,128,120,0.45);text-align:center;margin-top:14px;cursor:pointer">Off the Record · v12.84 · BETA (realtime)</p>
   </div>
 </div>
 
@@ -3354,10 +3354,21 @@ function calAddEvent(dateStr, event) {
   // 一天只排一份工作（用户实测：开局第2天同时有"舞蹈体能训练 14:00-17:00"和"录音室排练 14:00-17:00"，
   // 完全重叠且只能做一个）。剧情工作/自动排班/补排排练分散在几处添加、各自都不知道别人加过，
   // 在这个唯一写入口统一挡住：已有一条已接受的工作，就不再往同一天塞第二条。
-  if (event.type === 'work' && event.status === 'accepted' &&
-      G.calendar.events[dateStr].some(e => e && e.type === 'work' && e.status === 'accepted')) {
-    try { console.warn('[OTR] ' + dateStr + ' 已有工作行程，跳过重复添加：' + (event.id || event.title)); } catch (e) {}
-    return;
+  if (event.type === 'work' && event.status === 'accepted') {
+    var _exist = G.calendar.events[dateStr].find(e => e && e.type === 'work' && e.status === 'accepted');
+    if (_exist) {
+      // 剧情工作（Day2 见制作人的排练、杂志拍摄等，有 npcKey / 非自动排班）优先级高于自动排的通用行程：
+      // 否则先跑的自动排班会把【剧情节点】静默吞掉。玩家手改过的(_userSet)永远不让位。
+      var _newIsStory = event.source !== 'agent_mandate';
+      var _oldIsAuto = _exist.source === 'agent_mandate' && !_exist._userSet;
+      if (_newIsStory && _oldIsAuto) {
+        try { console.warn('[OTR] ' + dateStr + ' 剧情工作「' + (event.title || event.id) + '」让自动排的「' + (_exist.title || _exist.id) + '」腾位'); } catch (e) {}
+        G.calendar.events[dateStr] = G.calendar.events[dateStr].filter(e => e !== _exist);
+      } else {
+        try { console.warn('[OTR] ' + dateStr + ' 已有工作行程，跳过重复添加：' + (event.id || event.title)); } catch (e) {}
+        return;
+      }
+    }
   }
   var existing = G.calendar.events[dateStr].filter(e => e.type === 'npc_invite' && e.status === 'accepted');
   if (event.type === 'npc_invite') {
@@ -11060,7 +11071,7 @@ window.addEventListener('load', () => {
   updatePhoneBadge();
   if (DEV_MODE_TXT) {
     const v = document.querySelector('#s-title p:last-child');
-    if (v) v.innerHTML = 'v12.83 · <span style="color:#f9a">NO IMG</span>';
+    if (v) v.innerHTML = 'v12.84 · <span style="color:#f9a">NO IMG</span>';
     document.getElementById('dev-skip-bar').style.display = 'block';
   }
 });

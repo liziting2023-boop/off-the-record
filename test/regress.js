@@ -183,6 +183,49 @@ function extractConst(name) {
 })();
 
 // ══════════════════════════════════════════════════════
+// ④c 日历唯一写入口 calAddEvent 的优先级规则
+//    一天只留一份工作（修"舞蹈体能训练"和"录音室排练"都排 14:00-17:00 完全重叠），
+//    但【剧情工作】必须能把自动排的通用行程挤走——否则 Day2 第一次见制作人的排练会被静默吞掉；
+//    玩家手改过的(_userSet)则永远不让位。
+// ══════════════════════════════════════════════════════
+(function testCalAddEventPriority() {
+  const code = `
+    ${extractFn('calAddEvent')}
+    module.exports = calAddEvent;
+  `;
+  const run = (existing, incoming) => {
+    const G = { rtStartDate: '2026-07-23', calendar: { events: { '2026-07-24': existing.slice() } } };
+    const STATE = { save: { saveGame() {} } };
+    const m = { exports: {} };
+    new Function('module', 'G', 'STATE', 'refreshCalBadge', 'eventsTimeConflict', 'REALTIME', code)(
+      m, G, STATE, () => {}, () => false, true);
+    m.exports('2026-07-24', incoming);
+    return G.calendar.events['2026-07-24'].map(e => e.id);
+  };
+  const mandate = { id: 'mandate_2', type: 'work', status: 'accepted', source: 'agent_mandate', title: '舞蹈体能训练' };
+  const rehearsal = { id: 'work_2', type: 'work', status: 'accepted', npcKey: 'drummer', title: '录音室排练' };
+
+  ok('日历·剧情排练能把自动排的行程挤走',
+    run([mandate], rehearsal).join(',') === 'work_2', run([mandate], rehearsal).join(','));
+  ok('日历·不会一天出现两份工作',
+    run([mandate], rehearsal).length === 1);
+  ok('日历·自动排班不会顶掉已有的剧情工作',
+    run([rehearsal], mandate).join(',') === 'work_2', run([rehearsal], mandate).join(','));
+  ok('日历·玩家手改过的行程绝不让位',
+    run([Object.assign({}, mandate, { _userSet: true })], rehearsal).join(',') === 'mandate_2',
+    run([Object.assign({}, mandate, { _userSet: true })], rehearsal).join(','));
+  ok('日历·越界年份的日期键被拒绝写入', (() => {
+    const G = { rtStartDate: '2026-07-23', calendar: { events: {} } };
+    const STATE = { save: { saveGame() {} } };
+    const m = { exports: {} };
+    new Function('module', 'G', 'STATE', 'refreshCalBadge', 'eventsTimeConflict', 'REALTIME', code)(
+      m, G, STATE, () => {}, () => false, true);
+    m.exports('2028-12-14', { id: 'ghost', type: 'work', status: 'accepted' });
+    return Object.keys(G.calendar.events).length === 0;
+  })());
+})();
+
+// ══════════════════════════════════════════════════════
 // ⑤ HTML 标签没闭合 —— node --check 抓不到（JS 是好的，坏的是 HTML）
 //    实际踩过：<div class="vn-dialog" style="..."  少了 '>'，浏览器把下一个 <div ...> 整个
 //    当成属性吃掉 → 对话底板只裹住说话人、正文被甩到面板外贴在图上，且点击穿透到背景。
